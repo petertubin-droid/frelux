@@ -50,6 +50,8 @@ import { toast } from "sonner";
 import {
   calculateIcfWall,
   type IcfCoreThicknessMm,
+  type IcfWallTemplate,
+  ICF_WALL_TEMPLATES,
   type IcfFoamType,
   type IcfHorizontalCourses,
   type IcfOpening,
@@ -122,6 +124,7 @@ export default function IcfWallEstimator() {
   // how a buyer with a non-standard system (65 mm through 400 mm cores) gets a
   // takeoff instead of the nearest bracket.
   const [customCoreMm, setCustomCoreMm] = useState<string>("");
+  const [activeTemplate, setActiveTemplate] = useState<string | null>(null);
   const [foamType, setFoamType] = useState<IcfFoamType>("standard_eps");
   const [formSystem, setFormSystem] = useState<IcfFormSystem>("flat");
   const [foamThicknessMm, setFoamThicknessMm] = useState<number>(64);
@@ -240,7 +243,35 @@ export default function IcfWallEstimator() {
     setIsBasement(false);
     setWastePct(4);
     setCrewSize(4);
+    setActiveTemplate(null);
     toast.info("Inputs reset to standard defaults.");
+  };
+
+  // A template only writes inputs. Openings are the project's, not the wall
+  // type's, so they are left exactly as the user entered them.
+  const applyTemplate = (template: IcfWallTemplate) => {
+    const i = template.input;
+    if (i.wallLengthM !== undefined) setWallLength(String(i.wallLengthM));
+    if (i.wallHeightM !== undefined) setWallHeight(String(i.wallHeightM));
+    if (i.coreThicknessMm !== undefined) {
+      setCustomCoreMm("");
+      setCoreThicknessMm(i.coreThicknessMm as IcfCoreThicknessMm);
+    }
+    if (i.corners90Count !== undefined) setCorners90(i.corners90Count);
+    if (i.corners45Count !== undefined) setCorners45(i.corners45Count);
+    if (i.tWallsCount !== undefined) setTWalls(i.tWallsCount);
+    if (i.foamThicknessPerSideMm !== undefined)
+      setFoamThicknessMm(i.foamThicknessPerSideMm);
+    if (i.interiorLining !== undefined) setInteriorLining(i.interiorLining);
+    if (i.isBasement !== undefined) setIsBasement(i.isBasement);
+    if (i.formSystem !== undefined) setFormSystem(i.formSystem);
+    if (i.verticalBarsPerWeb !== undefined) setBarsPerWeb(i.verticalBarsPerWeb);
+    if (i.horizontalRebarCourses !== undefined)
+      setHorizontalCourses(i.horizontalRebarCourses);
+    if (i.verticalRebarSpacingMm !== undefined)
+      setVerticalSpacingMm(i.verticalRebarSpacingMm as IcfVerticalSpacingMm);
+    setActiveTemplate(template.id);
+    toast.success(`${template.label} applied.`);
   };
 
   // Engine calculation
@@ -395,6 +426,43 @@ export default function IcfWallEstimator() {
             <RotateCcw className="h-3.5 w-3.5" />
             Reset Defaults
           </Button>
+        </div>
+
+        {/* Templates: a starting point, not a locked configuration */}
+        <div className="rounded-lg border border-border/60 bg-card p-3">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <span className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              <Layers className="h-3.5 w-3.5" />
+              Start from a template
+            </span>
+            <span className="text-[11px] text-muted-foreground">
+              Sets the wall and its specification. Your openings stay as they
+              are.
+            </span>
+          </div>
+          <div className="flex flex-wrap gap-1.5">
+            {ICF_WALL_TEMPLATES.map((template) => (
+              <Button
+                key={template.id}
+                type="button"
+                size="sm"
+                variant={activeTemplate === template.id ? "default" : "outline"}
+                className="h-7 text-xs"
+                onClick={() => applyTemplate(template)}
+                title={template.description}
+              >
+                {template.label}
+              </Button>
+            ))}
+          </div>
+          {activeTemplate ? (
+            <p className="mt-2 text-[11px] text-muted-foreground">
+              {
+                ICF_WALL_TEMPLATES.find((t) => t.id === activeTemplate)
+                  ?.description
+              }
+            </p>
+          ) : null}
         </div>
 
         {/* Input Parameters Grid */}
@@ -1510,12 +1578,22 @@ export default function IcfWallEstimator() {
 4. Turnbuckle Alignment Bracing: Adjustable turnbuckle strongback jacks are spaced every 2.0 meters along the wall perimeter, with additional jacks located within 600mm of every corner, paired with catwalk scaffolding brackets for safe placement and consolidation.`}
           assumptions={[
             { label: "Nominal Block Face", value: "1200mm x 400mm (0.48 m²)" },
-            { label: "Concrete Web Displacement", value: "-1.5% core volume" },
-            { label: "Bracing Spacing", value: "2.0m on center + corners" },
-            { label: "Rebar Lap Length", value: "48 bar diameters" },
+            {
+              label: "Concrete Web Displacement",
+              value: `${engineResult.concrete.formSystem} forms, fill factor ${engineResult.concrete.fillFactor.toFixed(3)}`,
+            },
+            {
+              label: "Bracing",
+              value: `${engineResult.bracing.recommendedJackSpacingM} m on centre plus corners, ${engineResult.bracing.bracingRows} row${engineResult.bracing.bracingRows === 1 ? "" : "s"}`,
+            },
+            { label: "Rebar Lap Length", value: "40 bar diameters" },
+            {
+              label: "Concrete Mix",
+              value: `${engineResult.concrete.mixDesign.grade}, ${engineResult.concrete.aggregateSizeMaxMm} mm aggregate`,
+            },
             {
               label: "Thermal Barrier",
-              value: "12.5mm Type X Gypsum (IRC R316)",
+              value: `U-value ${engineResult.envelope.thermalTransmittanceUValue} W/(m²·K) incl. ISO 6946 surface resistances`,
             },
           ]}
         />

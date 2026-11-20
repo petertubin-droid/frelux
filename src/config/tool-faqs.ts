@@ -751,6 +751,7 @@ export const TOOL_FAQS: ToolFaqGroup[] = [
   ...ENGINE_FAQ_GROUPS,
   ...WATER_FAQ_GROUPS,
   ...ICF_FAQ_GROUPS,
+  ...EIFS_FAQ_GROUPS,
   ...BLINDS_FAQ_GROUPS,
   ...RENOVATION_FAQ_GROUPS,
   {

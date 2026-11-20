@@ -228,6 +228,8 @@ export interface IcfWallResult {
     catwalkScaffoldBrackets: number;
     concreteAnchorBolts: number;
     recommendedJackSpacingM: number;
+    /** Strongback bands: a second row is needed once the wall passes one band. */
+    bracingRows: number;
   };
 
   openings: {
@@ -352,6 +354,110 @@ export const ICF_MIX_DESIGN: Record<
   },
 };
 
+/**
+ * Starting points for a takeoff.
+ *
+ * A template is only a set of inputs: it changes nothing about how the wall is
+ * calculated, and every figure it sets is visible and editable afterwards. They
+ * are described by the wall, not by a country or a currency, so the same list
+ * serves every market. Openings are deliberately left alone, because the doors
+ * and windows belong to the project rather than to the wall type.
+ */
+export interface IcfWallTemplate {
+  id: string;
+  label: string;
+  description: string;
+  input: Partial<IcfWallInput>;
+}
+
+export const ICF_WALL_TEMPLATES: readonly IcfWallTemplate[] = [
+  {
+    id: "single_storey_house",
+    label: "Single-storey house",
+    description:
+      "40 m perimeter at 2.7 m high, 150 mm core, four corners, 64 mm EPS each face, 12.5 mm lining.",
+    input: {
+      wallLengthM: 40,
+      wallHeightM: 2.7,
+      coreThicknessMm: 150,
+      corners90Count: 4,
+      corners45Count: 0,
+      tWallsCount: 0,
+      foamThicknessPerSideMm: 64,
+      interiorLining: "gypsum_12_5",
+      isBasement: false,
+      formSystem: "flat",
+    },
+  },
+  {
+    id: "two_storey_house",
+    label: "Two-storey house",
+    description:
+      "48 m perimeter at 5.8 m high, 150 mm core, four corners, 12.5 mm lining. Two bracing rows and three pour lifts follow from the height.",
+    input: {
+      wallLengthM: 48,
+      wallHeightM: 5.8,
+      coreThicknessMm: 150,
+      corners90Count: 4,
+      foamThicknessPerSideMm: 64,
+      interiorLining: "gypsum_12_5",
+      isBasement: false,
+      formSystem: "flat",
+      horizontalRebarCourses: "every_course",
+    },
+  },
+  {
+    id: "basement_retaining",
+    label: "Basement / retaining wall",
+    description:
+      "30 m perimeter at 2.6 m high, 250 mm core with two bars per web, below-grade waterproofing, 12.5 mm lining.",
+    input: {
+      wallLengthM: 30,
+      wallHeightM: 2.6,
+      coreThicknessMm: 250,
+      corners90Count: 4,
+      foamThicknessPerSideMm: 64,
+      interiorLining: "gypsum_12_5",
+      isBasement: true,
+      formSystem: "flat",
+      verticalBarsPerWeb: 2,
+    },
+  },
+  {
+    id: "garage_outbuilding",
+    label: "Garage / outbuilding",
+    description:
+      "20 m perimeter at 2.4 m high, 150 mm core, four corners, 12.5 mm lining.",
+    input: {
+      wallLengthM: 20,
+      wallHeightM: 2.4,
+      coreThicknessMm: 150,
+      corners90Count: 4,
+      foamThicknessPerSideMm: 64,
+      interiorLining: "gypsum_12_5",
+      isBasement: false,
+      formSystem: "flat",
+    },
+  },
+  {
+    id: "tall_industrial_wall",
+    label: "Tall industrial wall",
+    description:
+      "60 m perimeter at 7 m high, 200 mm core with two bars per web, two bracing rows and six pour lifts.",
+    input: {
+      wallLengthM: 60,
+      wallHeightM: 7,
+      coreThicknessMm: 200,
+      corners90Count: 4,
+      foamThicknessPerSideMm: 64,
+      interiorLining: "gypsum_12_5",
+      isBasement: false,
+      formSystem: "flat",
+      verticalBarsPerWeb: 2,
+      horizontalRebarCourses: "every_course",
+    },
+  },
+];
 /**
  * Minimum published fire resistance for an ICF wall, by interior lining.
  *
@@ -655,8 +761,12 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
   // maximum), plus a brace set back about 700 mm from each corner so the
   // strongback clears the corner block.
   const BRACE_SPACING_M = 1.8;
+  // Above about 4.5 m a single band cannot hold the wall, so the braces are
+  // repeated at a second height and each of those is another turnbuckle.
+  const bracingRows = wallHeightM > 4.5 ? 2 : 1;
   const turnbuckleAlignmentJacks =
-    ceilU(wallLengthM / BRACE_SPACING_M) + corners90 * 2 + corners45;
+    bracingRows *
+    (ceilU(wallLengthM / BRACE_SPACING_M) + corners90 * 2 + corners45);
   const catwalkScaffoldBrackets = turnbuckleAlignmentJacks;
   // 2 anchor screws into footing/slab per turnbuckle jack foot plate
   const concreteAnchorBolts = turnbuckleAlignmentJacks * 2;
@@ -1162,6 +1272,7 @@ export function calculateIcfWall(input: IcfWallInput): IcfWallResult {
       catwalkScaffoldBrackets,
       concreteAnchorBolts,
       recommendedJackSpacingM: BRACE_SPACING_M,
+      bracingRows,
     },
     openings: {
       totalOpeningsCount,

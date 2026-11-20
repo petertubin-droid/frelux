@@ -1,9 +1,48 @@
 import { describe, it, expect } from "vitest";
 import {
   calculateIcfWall,
+  ICF_WALL_TEMPLATES,
   ICF_FILL_FACTORS,
   type IcfWallInput,
 } from "../icf-engine";
+
+describe("ICF wall templates and tall wall bracing", () => {
+  const base = {
+    wallLengthM: 40,
+    wallHeightM: 3,
+    coreThicknessMm: 150 as const,
+  };
+
+  it("gives every template a complete takeoff and leaves openings to the user", () => {
+    expect(ICF_WALL_TEMPLATES.length).toBeGreaterThan(3);
+
+    for (const template of ICF_WALL_TEMPLATES) {
+      const result = calculateIcfWall({ ...base, ...template.input });
+
+      expect(result.ok, template.id).toBe(true);
+      expect(result.blocks.totalBlocksCount, template.id).toBeGreaterThan(0);
+      expect(result.concrete.totalVolumeM3, template.id).toBeGreaterThan(0);
+      expect(result.boq.length, template.id).toBeGreaterThan(5);
+      // A template describes the wall, not the project's doors and windows.
+      expect(template.input.openings, template.id).toBeUndefined();
+    }
+  });
+
+  it("repeats the bracing on a second row once the wall is tall", () => {
+    const low = calculateIcfWall({ ...base, wallHeightM: 3 });
+    const tall = calculateIcfWall({ ...base, wallHeightM: 6 });
+
+    expect(low.bracing.bracingRows).toBe(1);
+    expect(tall.bracing.bracingRows).toBe(2);
+    // Same perimeter, so the second row doubles the turnbuckles and the bolts.
+    expect(tall.bracing.turnbuckleAlignmentJacks).toBe(
+      low.bracing.turnbuckleAlignmentJacks * 2,
+    );
+    expect(tall.bracing.concreteAnchorBolts).toBe(
+      low.bracing.concreteAnchorBolts * 2,
+    );
+  });
+});
 
 describe("ICF Engineering & Takeoff Engine", () => {
   const baseInput: IcfWallInput = {

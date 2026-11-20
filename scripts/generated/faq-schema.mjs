@@ -3070,6 +3070,50 @@ export const faqSchemaByPath = {
       "a": "ICF assemblies are chosen for all three, and all three are properties of a tested assembly, not of the concrete alone. The mass of the core carries airborne sound, the insulation on both faces lifts the thermal resistance of the wall well above an uninsulated concrete wall of the same thickness, and the gypsum or render lining on the inside is what usually gives the assembly its fire resistance. The page reports indicative values for the core thickness you entered so you can compare options early, and it says plainly that a rating quoted for a tender has to come from the tested listing of the product you are buying."
     }
   ],
+  "/faq/eifs-wall-estimator": [
+    {
+      "q": "What does the EIFS / ETICS wall calculator estimate?",
+      "a": "It converts facade dimensions and openings into a material schedule for the whole assembly: the fluid-applied water-resistive barrier, the continuous insulation boards in the type you choose, the adhesive and the mechanical washers, the standard and high-impact reinforcing mesh, the base coat mortar, the textured finish, the starter track with its weep screed, the corner beads, the backer rod and the sealant. Each line is a product with a coverage, not a percentage of the wall area, so the schedule can be ordered directly."
+    },
+    {
+      "q": "Why is a drainage plane required in EIFS systems?",
+      "a": "A drained system separates the outer skin from the water-resistive barrier with a cavity. Water that gets behind the finish, through a crack or a failed joint, runs down that cavity and leaves at the base through the weep screed instead of sitting against the sheathing. The model codes require EIFS over wood and light gauge steel framing to drain, and ASTM E2273 is the test that measures how much water the assembly actually releases. The page assumes that assembly, which is why the starter track and the flashings are counted lines."
+    },
+    {
+      "q": "How does the calculator determine continuous insulation R-values?",
+      "a": "Continuous insulation sits outside the structure, so it covers the studs as well as the bays between them and removes the thermal bridge that a stud represents. The takeoff reports the continuous R-value of the board you selected, from the conductivity of that material at that thickness, and the U-factor of the whole assembly in metric units. Both are indicative figures for the assembly described, not a certified rating, and they change with the board type, not with the wall it is fixed to."
+    },
+    {
+      "q": "Where is high-impact armor mesh required on EIFS facades?",
+      "a": "Ground level walls, entrances and any surface a vehicle or a trolley can reach take blunt impact that standard mesh does not resist. A heavy duty mesh, embedded in the base coat up to about two metres above grade, spreads that load over a wider area. The takeoff counts that zone separately from the field, so the high-impact mesh and the standard mesh are ordered as two products, not one average."
+    },
+    {
+      "q": "What are 45-degree butterfly mesh patches and why are they counted?",
+      "a": "Stress concentrates at the corners of a rectangular opening, and a thin base coat cracks along the diagonal if nothing carries it. A diagonal strip set at forty five degrees across each corner, embedded in the base coat and overlapped onto the field mesh, interrupts that crack before it starts. Every opening contributes four of them, so a facade with twenty four openings needs ninety six patches, and the takeoff counts them instead of assuming the field mesh covers it."
+    }
+  ],
+  "/eifs-wall-estimator": [
+    {
+      "q": "What does the EIFS / ETICS wall calculator estimate?",
+      "a": "It converts facade dimensions and openings into a material schedule for the whole assembly: the fluid-applied water-resistive barrier, the continuous insulation boards in the type you choose, the adhesive and the mechanical washers, the standard and high-impact reinforcing mesh, the base coat mortar, the textured finish, the starter track with its weep screed, the corner beads, the backer rod and the sealant. Each line is a product with a coverage, not a percentage of the wall area, so the schedule can be ordered directly."
+    },
+    {
+      "q": "Why is a drainage plane required in EIFS systems?",
+      "a": "A drained system separates the outer skin from the water-resistive barrier with a cavity. Water that gets behind the finish, through a crack or a failed joint, runs down that cavity and leaves at the base through the weep screed instead of sitting against the sheathing. The model codes require EIFS over wood and light gauge steel framing to drain, and ASTM E2273 is the test that measures how much water the assembly actually releases. The page assumes that assembly, which is why the starter track and the flashings are counted lines."
+    },
+    {
+      "q": "How does the calculator determine continuous insulation R-values?",
+      "a": "Continuous insulation sits outside the structure, so it covers the studs as well as the bays between them and removes the thermal bridge that a stud represents. The takeoff reports the continuous R-value of the board you selected, from the conductivity of that material at that thickness, and the U-factor of the whole assembly in metric units. Both are indicative figures for the assembly described, not a certified rating, and they change with the board type, not with the wall it is fixed to."
+    },
+    {
+      "q": "Where is high-impact armor mesh required on EIFS facades?",
+      "a": "Ground level walls, entrances and any surface a vehicle or a trolley can reach take blunt impact that standard mesh does not resist. A heavy duty mesh, embedded in the base coat up to about two metres above grade, spreads that load over a wider area. The takeoff counts that zone separately from the field, so the high-impact mesh and the standard mesh are ordered as two products, not one average."
+    },
+    {
+      "q": "What are 45-degree butterfly mesh patches and why are they counted?",
+      "a": "Stress concentrates at the corners of a rectangular opening, and a thin base coat cracks along the diagonal if nothing carries it. A diagonal strip set at forty five degrees across each corner, embedded in the base coat and overlapped onto the field mesh, interrupts that crack before it starts. Every opening contributes four of them, so a facade with twenty four openings needs ninety six patches, and the takeoff counts them instead of assuming the field mesh covers it."
+    }
+  ],
   "/faq/window-blinds": [
     {
       "q": "How is a window blind priced per window and per square metre?",

@@ -36,6 +36,7 @@ import { STRUCTURE2_LONGFORM } from "@/config/faq-longform/structure2";
 import { STRUCTURE3_LONGFORM } from "@/config/faq-longform/structure3";
 import { STRUCTURE4_LONGFORM } from "@/config/faq-longform/structure4";
 import { STRUCTURE_ICF_LONGFORM } from "@/config/faq-longform/structure-icf";
+import { FINISHES_EIFS_LONGFORM } from "@/config/faq-longform/finishes-eifs";
 import { PLAN_ELEVATION_LONGFORM } from "@/config/faq-longform/plan-elevation";
 import { SAFETY_LONGFORM } from "@/config/faq-longform/safety";
 import { WATER_LONGFORM } from "@/config/faq-longform/water";
@@ -68,6 +69,7 @@ export const LONG_FORM_ARTICLES: Record<string, LongFormArticle> = {
   ...STRUCTURE3_LONGFORM,
   ...STRUCTURE4_LONGFORM,
   ...STRUCTURE_ICF_LONGFORM,
+  ...FINISHES_EIFS_LONGFORM,
   ...PLAN_ELEVATION_LONGFORM,
   ...SERVICES_LONGFORM,
   ...QUOTES_LONGFORM,

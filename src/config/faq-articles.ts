@@ -101,6 +101,31 @@ export const FAQ_ARTICLES: Record<string, FaqArticle> = {
     ],
   },
 
+  "eifs-wall-estimator": {
+    summary:
+      "Turns a facade into the boards, fixings, mesh, coats and flashings a drained exterior insulation system needs.",
+    description:
+      "A takeoff for walls finished with an exterior insulation and finish system. You give it the facade dimensions, the openings and the board you intend to use, and it returns the products the assembly consumes: the water-resistive barrier, the insulation boards with their cutting waste, the adhesive and the mechanical washers, the standard and high-impact mesh, the base coat, the finish, the starter track and the sealant.",
+    functions: [
+      "Measures the net facade from the dimensions you enter and deducts every opening.",
+      "Counts insulation boards from the board size and adds the cutting waste as a visible figure.",
+      "Counts the adhesive by coverage and the washers by the density the system requires.",
+      "Measures the mesh over the field, then adds the diagonal patches at every opening corner.",
+      "Lists the starter track, corner beads, backer rod and sealant as their own lines.",
+    ],
+    advantages: [
+      "Every line is a product with a stated coverage, so the schedule can be ordered and checked.",
+      "Openings are deducted from the field but kept as linear items, which is how they are meshed and sealed.",
+      "Impact mesh is counted where it is required instead of being averaged across the facade.",
+      "Prices come from the market you select, so the same takeoff works in any country.",
+    ],
+    limits: [
+      "It does not design the system; board thickness, fixings and drainage details come from the manufacturer's literature and the governing code.",
+      "It cannot verify the substrate, the fixing strength or the fire performance of the assembly.",
+      "It assumes a drained and back-ventilated assembly; a barrier system is a different product and this takeoff would not describe it.",
+      "It does not include scaffolding, access or labour.",
+    ],
+  },
   "icf-wall-estimator": {
     summary:
       "Turns a wall run into the blocks, concrete, steel and bracing an insulated concrete form wall consumes.",
