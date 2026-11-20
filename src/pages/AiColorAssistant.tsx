@@ -42,7 +42,6 @@ import type {
 import type { DbColorCombination, DbPaintColor } from "@/types/database";
 import { trackRecentTool } from "@/lib/smart-defaults";
 
-import { FaqItemsWithSchema } from "@/components/seo/ToolFaqs";
 import { AiColorAssistantSeo } from "@/components/seo/SeoContent";
 import AdSlot from "@/components/ui/AdSlot";
 import { Button } from "@/components/ui/shadcn/button";
@@ -84,9 +83,7 @@ export default function AiColorAssistant() {
   }
 
   return (
-    // The question set is written in this page until it is registered for the
-    // shell, so the page keeps that block and the shell leaves the slot empty.
-    <ToolShell route="/ai-color-assistant" showFaq={false}>
+    <ToolShell route="/ai-color-assistant">
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
         <DisclaimerBanner />
 
@@ -127,25 +124,6 @@ export default function AiColorAssistant() {
         )}
       </div>
       <AiColorAssistantSeo />
-      <FaqItemsWithSchema
-        faqs={[
-          {
-            question: "How does the Smart Color Assistant work?",
-            answer:
-              "Describe your room, lighting, furniture, and the mood you want. The AI analyzes your description and suggests paint colors and combinations that suit your space.",
-          },
-          {
-            question: "Is the Smart Color Assistant free?",
-            answer:
-              "Yes, the Smart Color Assistant is free to use. You can describe your room and get AI-powered color recommendations without signing up.",
-          },
-          {
-            question: "Can I see the recommended colors in the library?",
-            answer:
-              "Yes. Each recommendation includes color names and codes that you can look up in the FRELUX Color Library for detailed views and comparisons.",
-          },
-        ]}
-      />
       <AdSlot slotKey="ai_feature" className="mt-8" />
       {/* Native banner slot, placement "ai_assistant_native" */}
       <AdSlot slotKey="ai_assistant_native" className="mt-8" />

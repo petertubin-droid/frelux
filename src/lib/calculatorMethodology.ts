@@ -43,6 +43,8 @@ export type MethodologyKey =
   | "structural"
   | "tall-building"
   | "tile-cost"
+  | "color-assistant"
+  | "color-preview"
   | "wall-finish"
   | "water-tower"
   | "waterproofing"
@@ -236,6 +238,18 @@ Storey drift is estimated from the lateral load and the stiffness of the frame y
 Adhesive is taken from the area and the notch size of the trowel, grout from the joint width and the tile dimensions, and both are converted into the bags the product is sold in.
 
 Spacers, trims and movement joints follow from the tile size and the perimeter, and the price book for your market supplies the rate for each item.`,
+
+  "color-assistant": `The consultation begins with the room conditions you describe or upload: room type, natural and artificial lighting, furnishings and intended atmosphere.
+
+The model identifies matching colour harmonies, balancing base wall shades, accent surfaces and trims. Recommended palettes are mapped to standard FRELUX colour codes and names so you can inspect them in the colour library.
+
+Suggestions are intended as scheme inspiration rather than a survey. The page does not price paint or compute bucket coverage directly: once you choose a scheme, the paint calculator turns those surfaces into bucket counts and costs.`,
+
+  "color-preview": `The preview takes your room photograph or written description alongside the target paint colours you choose for walls and accents.
+
+The image processing function reads the room boundaries, lighting direction and existing finishes to project the chosen palette realistically across visible wall and trim surfaces.
+
+The generated preview is a visual guide to evaluate scheme balance under room lighting before purchasing materials. It is not an architectural survey or dimensional takeoff, and does not alter the underlying estimate: surface measurement remains with the dedicated trade calculators.`,
 
   "wall-finish": `Net wall area is each wall's length times its height, less the doors and windows you enter. The figure is per face, so a wall finished both sides is counted twice.
 

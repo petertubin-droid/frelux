@@ -49,7 +49,7 @@ export default function AboutThisToolSection({
 
         {content.methodology && (
           <div className="mt-4 rounded-xl border bg-card p-5">
-            <h3 className="font-semibold">How the number is produced</h3>
+            <h3 className="font-semibold">{content.methodologyHeading ?? "How the number is produced"}</h3>
             <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-muted-foreground">
               {content.methodology}
             </p>

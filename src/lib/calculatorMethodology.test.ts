@@ -27,6 +27,8 @@ const KEYS: MethodologyKey[] = [
   "structural",
   "tall-building",
   "tile-cost",
+  "color-assistant",
+  "color-preview",
   "wall-finish",
   "water-tower",
   "waterproofing",

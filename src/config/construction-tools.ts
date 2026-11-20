@@ -1474,8 +1474,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     category: "ai",
     icon: Palette,
     does: "Get colour scheme advice for your rooms and surfaces.",
-    enters: "Your room type and colour mood.",
-    gets: "Recommended FRELUX colour combinations.",
+    enters: "Your room type, natural light, mood, or room photo.",
+    gets: "Recommended FRELUX colour combinations with hex codes and palette roles.",
     lede: "Describe your space or share a photo and get personalized color ideas tailored to your room.",
     seoTitle: "Smart Color Assistant: Get Personalized Paint Color Ideas",
     seoDescription:
@@ -1489,8 +1489,8 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     category: "ai",
     icon: Eye,
     does: "See your chosen colours applied to a room before you buy.",
-    enters: "A room photo and your chosen colours.",
-    gets: "A realistic preview of the finished room.",
+    enters: "A room photo or room description, with selected paint colours.",
+    gets: "A realistic preview of the room with the chosen colours applied.",
     // The menu calls this a preview; the page is a before and after tool, and
     // its own heading says so.
     heading: "AI Before & After Preview",

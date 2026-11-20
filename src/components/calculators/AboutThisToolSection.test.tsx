@@ -87,4 +87,21 @@ describe("About This Tool content registry", () => {
       }
     }
   });
+
+  it("provides comprehensive and verified methodology for all AI tools", () => {
+    const aiTools = CONSTRUCTION_TOOLS.filter((t) => t.category === "ai");
+    expect(aiTools.length).toBe(5);
+
+    for (const tool of aiTools) {
+      const content = getAboutToolConfig(tool.to);
+      expect(content, tool.slug).toBeDefined();
+      expect(content?.category).toBe("ai");
+      expect(content?.scope.length).toBeGreaterThan(40);
+      expect(content?.inputs.length).toBeGreaterThan(10);
+      expect(content?.result.length).toBeGreaterThan(10);
+      expect(content?.methodology?.length).toBeGreaterThan(160);
+      expect(content?.methodology).not.toMatch(/[\u2013\u2014]/);
+      expect(content?.methodologyHeading).toBeTruthy();
+    }
+  });
 });

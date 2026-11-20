@@ -3,7 +3,7 @@ import {
   CONSTRUCTION_TOOLS,
   findToolByRoute,
 } from "@/config/construction-tools";
-import { FAQ_ARTICLES } from "@/config/faq-articles";
+import { ALL_FAQ_ARTICLES, FAQ_ARTICLES } from "@/config/faq-articles";
 import { getToolFaqGroupByRoute } from "@/config/tool-faqs";
 import {
   methodologyText,
@@ -17,6 +17,8 @@ export interface AboutThisToolConfig {
   scope: string;
   inputs: string;
   result: string;
+  category?: string;
+  methodologyHeading?: string;
   /**
    * How the number is produced, in the calculator's own verified words.
    * Sourced from calculatorMethodology.ts, which is written per engine; a tool
@@ -51,6 +53,8 @@ export const METHOD_BY_SLUG: Partial<Record<string, MethodologyKey>> = {
   "conduit-wiring": "electrical",
   conversational: "conversational",
   "count-vision": "count-vision",
+  "color-assistant": "color-assistant",
+  "color-preview": "color-preview",
   "doors-windows": "doors-windows",
   electrical: "electrical",
   "fence-block": "fence-block",
@@ -283,16 +287,35 @@ export function getAboutToolConfig(
 ): AboutThisToolConfig | undefined {
   const tool = findToolByRoute(route);
   if (!tool) return undefined;
-  const article = (
-    FAQ_ARTICLES as Record<string, { description?: string; summary?: string }>
-  )[tool.slug];
+  const article =
+    (
+      ALL_FAQ_ARTICLES as Record<
+        string,
+        { description?: string; summary?: string }
+      >
+    )[tool.slug] ||
+    (
+      FAQ_ARTICLES as Record<string, { description?: string; summary?: string }>
+    )[tool.slug];
+
+  const methodologyHeading =
+    tool.category === "ai"
+      ? tool.slug === "color-assistant"
+        ? "How recommendations are produced"
+        : tool.slug === "color-preview"
+          ? "How the preview is produced"
+          : "How the result is produced"
+      : undefined;
+
   return {
     slug: tool.slug,
     route: tool.to,
     name: tool.heading || tool.title,
+    category: tool.category,
     scope: article?.description || article?.summary || tool.does,
     inputs: tool.enters,
     result: tool.gets,
+    methodologyHeading,
     ...(METHOD_BY_SLUG[tool.slug]
       ? { methodology: methodologyText(METHOD_BY_SLUG[tool.slug]!) }
       : {}),
