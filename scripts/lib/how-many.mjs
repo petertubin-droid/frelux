@@ -183,6 +183,10 @@ export const HOW_MANY = {
     q: "How much continuous insulation, mesh and acrylic finish for EIFS / ETICS?",
     a: "Gross wall area minus rough openings gives the net facade area: enter wall dimensions, insulation thickness, and texture to calculate WRB air barrier, rigid foam boards, reinforcing mesh rolls, base coat mortar, and synthetic finish pails.",
   },
+  "/defs-calculator": {
+    q: "How much cement board, mesh and base coat for a direct-applied finish?",
+    a: "Net wall area and the substrate decide it: board at 2.88 m2 a sheet with 10 per cent waste, screws at 20 a board, seam tape at 1.15 m per m2, then mesh with 10 per cent overlap, base coat at 4.5 kg/m2, primer and finish. Over masonry the board lines drop out.",
+  },
   "/plaster-render-calculator": {
     q: "How much plaster, render, mesh and beads for a wall?",
     a: "Net wall area (gross minus openings) drives the system: gypsum plaster at about 9.5 kg/m² per 10 mm, exterior render by grain size, mesh at area plus 10 per cent for overlaps, and beads by corner and reveal length, converted to your market's bag, pail and roll sizes.",

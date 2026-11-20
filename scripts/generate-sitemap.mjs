@@ -462,6 +462,11 @@ const routes = [
     changefreq: "monthly",
   },
   {
+    path: "/defs-calculator",
+    priority: "0.9",
+    changefreq: "monthly",
+  },
+  {
     path: "/plaster-render-calculator",
     priority: "0.9",
     changefreq: "monthly",

@@ -1,23 +1,23 @@
 {
   "/": {
     "lastmod": "2026-11-20",
-    "hash": "5b64325060f19e8a"
+    "hash": "c60c1bbcb85d6e4d"
   },
   "/about": {
     "lastmod": "2026-11-20",
-    "hash": "8784cf752857ce26"
+    "hash": "c64bd58e7119004d"
   },
   "/ai-color-assistant": {
     "lastmod": "2026-11-20",
-    "hash": "9acc5ef3dae4b2c7"
+    "hash": "d64af953032b2db5"
   },
   "/ai-disclaimer": {
     "lastmod": "2026-11-20",
-    "hash": "2a745e85ac601dec"
+    "hash": "42c86348fe72be3c"
   },
   "/bim-ifc-import": {
     "lastmod": "2026-11-20",
-    "hash": "610f041eee442e14"
+    "hash": "615ecbec91d8968c"
   },
   "/blueprint-takeoff": {
     "lastmod": "2026-11-19",
@@ -25,7 +25,7 @@
   },
   "/boq-generator": {
     "lastmod": "2026-11-20",
-    "hash": "73e27c96e479705b"
+    "hash": "0ada0773b1375520"
   },
   "/boq-studio": {
     "lastmod": "2026-11-19",
@@ -37,11 +37,11 @@
   },
   "/brand-studio": {
     "lastmod": "2026-11-20",
-    "hash": "f2e3e37f1a4ff624"
+    "hash": "d1dd405172330c36"
   },
   "/build-to-roof-estimator": {
     "lastmod": "2026-11-20",
-    "hash": "37ac164ac9e2c7e1"
+    "hash": "aac925e3d283d4be"
   },
   "/building-types": {
     "lastmod": "2026-11-19",
@@ -221,19 +221,19 @@
   },
   "/carbon-footprint": {
     "lastmod": "2026-11-20",
-    "hash": "91c5f9ffea95410e"
+    "hash": "9697d7644da2911f"
   },
   "/case-studies": {
     "lastmod": "2026-11-20",
-    "hash": "bc480aac72f38802"
+    "hash": "b3b49ccb640ba09b"
   },
   "/cash-flow-timeline": {
     "lastmod": "2026-11-20",
-    "hash": "b4c69edd8f2ee614"
+    "hash": "ddd6387554cdc350"
   },
   "/circular-reuse": {
     "lastmod": "2026-11-20",
-    "hash": "c55860cd8eb41413"
+    "hash": "6171e1efd6b63c50"
   },
   "/code-reference": {
     "lastmod": "2026-11-19",
@@ -245,11 +245,11 @@
   },
   "/colors": {
     "lastmod": "2026-11-20",
-    "hash": "623eb56293ed6ced"
+    "hash": "2df05c9cb6266f22"
   },
   "/colors/compare": {
     "lastmod": "2026-11-20",
-    "hash": "9980efd8412f81be"
+    "hash": "892f9770d7b9a612"
   },
   "/concrete-takeoff-calculator": {
     "lastmod": "2026-11-19",
@@ -257,43 +257,47 @@
   },
   "/construction-sequence": {
     "lastmod": "2026-11-20",
-    "hash": "cd0b86224b4daa18"
+    "hash": "c0476ad855167a0f"
   },
   "/construction-tools": {
     "lastmod": "2026-11-20",
-    "hash": "e6f8c541f49fbfb5"
+    "hash": "ce39675788de77e3"
   },
   "/contact": {
     "lastmod": "2026-11-20",
-    "hash": "9af2587d161425d4"
+    "hash": "6023661998046eb8"
   },
   "/contractor-credit": {
     "lastmod": "2026-11-20",
-    "hash": "27dd381cf8d703d8"
+    "hash": "968c6a60da049e70"
   },
   "/conversational-estimator": {
     "lastmod": "2026-11-20",
-    "hash": "6977f781eaa5ffe9"
+    "hash": "0a832a0606464847"
   },
   "/cookie-policy": {
     "lastmod": "2026-11-20",
-    "hash": "112e8545a710f81b"
+    "hash": "34a7a82f93309973"
   },
   "/count-vision": {
     "lastmod": "2026-11-20",
-    "hash": "4c526344636ffef6"
+    "hash": "c76930ced7e375ac"
   },
   "/credits": {
     "lastmod": "2026-11-20",
-    "hash": "31775097ad76c070"
+    "hash": "45204d1a4f55875a"
   },
   "/data-request": {
     "lastmod": "2026-11-20",
-    "hash": "3c151b91fae183e9"
+    "hash": "479f0d0cf2123bd7"
   },
   "/defect-diagnosis": {
     "lastmod": "2026-11-20",
-    "hash": "004aa2ba160b1d09"
+    "hash": "037c3ef0f731c184"
+  },
+  "/defs-calculator": {
+    "lastmod": "2026-11-20",
+    "hash": null
   },
   "/demolition-calculator": {
     "lastmod": "2026-11-19",
@@ -301,7 +305,7 @@
   },
   "/developers": {
     "lastmod": "2026-11-20",
-    "hash": "dc06eaf045529b5c"
+    "hash": "5f0e2362610da8c1"
   },
   "/developers/merchant-webhooks": {
     "lastmod": "2026-11-19",
@@ -317,11 +321,11 @@
   },
   "/disclaimer": {
     "lastmod": "2026-11-20",
-    "hash": "313f13a5e5e4c828"
+    "hash": "5e7a9101bb01312d"
   },
   "/doors-windows": {
     "lastmod": "2026-11-20",
-    "hash": "ce27babe10cb9a74"
+    "hash": "d131d066c066841e"
   },
   "/drainage-calculator": {
     "lastmod": "2026-11-19",
@@ -341,7 +345,7 @@
   },
   "/electrical": {
     "lastmod": "2026-11-20",
-    "hash": "8748757cd08c0578"
+    "hash": "9f15f4ace56d7f83"
   },
   "/electrical-conduit-wiring-estimator": {
     "lastmod": "2026-11-19",
@@ -953,7 +957,7 @@
   },
   "/estimate-refresh": {
     "lastmod": "2026-11-20",
-    "hash": "eedd74be0dddc48b"
+    "hash": "8ae2bd96848c2c41"
   },
   "/faq": {
     "lastmod": "2026-11-19",
@@ -1349,7 +1353,7 @@
   },
   "/feedback": {
     "lastmod": "2026-11-20",
-    "hash": "13f7f37b92bfd35f"
+    "hash": "12247f3d7e2b5f34"
   },
   "/fence-block-calculator": {
     "lastmod": "2026-11-19",
@@ -1357,23 +1361,23 @@
   },
   "/field-sync": {
     "lastmod": "2026-11-20",
-    "hash": "524a71ab053148cc"
+    "hash": "1594c0627f094667"
   },
   "/finish-estimator": {
     "lastmod": "2026-11-20",
-    "hash": "de859db7208801fc"
+    "hash": "22efa99d1635bce4"
   },
   "/flooring": {
     "lastmod": "2026-11-20",
-    "hash": "c47de8456c1586d3"
+    "hash": "499c907999476b22"
   },
   "/foundation": {
     "lastmod": "2026-11-20",
-    "hash": "f4fe9b02a98f2af1"
+    "hash": "2a53016798f26b55"
   },
   "/foundation-calculator": {
     "lastmod": "2026-11-20",
-    "hash": "111aeadcbcea5a1c"
+    "hash": "a8e6da3d9d29384f"
   },
   "/four-view-envelope": {
     "lastmod": "2026-11-20",
@@ -1381,11 +1385,11 @@
   },
   "/gallery": {
     "lastmod": "2026-11-20",
-    "hash": "d9b1ae5314f4cfa5"
+    "hash": "42b8090a1b4bae71"
   },
   "/generator": {
     "lastmod": "2026-11-20",
-    "hash": "8d8ac364eadc7e68"
+    "hash": "c5e096a0f9066ae5"
   },
   "/german-floor-calculator": {
     "lastmod": "2026-11-19",
@@ -1401,11 +1405,11 @@
   },
   "/glossary": {
     "lastmod": "2026-11-20",
-    "hash": "3014f9a200a8950b"
+    "hash": "561c137fc5e546a6"
   },
   "/heat-comfort": {
     "lastmod": "2026-11-20",
-    "hash": "d649e4aaa3159b12"
+    "hash": "f211d74e8f46a0e3"
   },
   "/icf-wall-estimator": {
     "lastmod": "2026-11-19",
@@ -1413,7 +1417,7 @@
   },
   "/image-estimator": {
     "lastmod": "2026-11-20",
-    "hash": "cac85e862ca15ee0"
+    "hash": "822b43c2311dc695"
   },
   "/increte-flooring-calculator": {
     "lastmod": "2026-11-19",
@@ -1425,11 +1429,11 @@
   },
   "/labour-estimator": {
     "lastmod": "2026-11-20",
-    "hash": "d7995683759c90ff"
+    "hash": "805c64e318ab99e5"
   },
   "/learn": {
     "lastmod": "2026-11-20",
-    "hash": "cedf089227b659e7"
+    "hash": "dfcecb7e322780b3"
   },
   "/learn/a-practical-quality-control-checklist-for-reinforcement-estimates": {
     "lastmod": "2026-11-10",
@@ -1937,7 +1941,7 @@
   },
   "/learn/library": {
     "lastmod": "2026-11-20",
-    "hash": "349126557a79446e"
+    "hash": "13f9e079fb6de9cd"
   },
   "/learn/maintaining-mineral-stone-paint-surfaces": {
     "lastmod": "2026-11-10",
@@ -3265,7 +3269,7 @@
   },
   "/maintenance-planner": {
     "lastmod": "2026-11-20",
-    "hash": "0f5f45c29d02ab1d"
+    "hash": "2f2e72d56e219ea9"
   },
   "/map": {
     "lastmod": "2026-11-19",
@@ -3273,7 +3277,7 @@
   },
   "/margin-calculator": {
     "lastmod": "2026-11-20",
-    "hash": "80bf6b476ea1c79d"
+    "hash": "d41fc11f5f1ed309"
   },
   "/market-intelligence": {
     "lastmod": "2026-11-19",
@@ -3359,6 +3363,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/ae/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/ae/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/ae/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -3371,11 +3383,15 @@
     "lastmod": "2026-11-19",
     "hash": "ed180cf047a3df22"
   },
-  "/market/ae/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/ae/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ae/templates/hall-cornice-pop-ceiling": {
+  "/market/ae/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/ae/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -3398,10 +3414,6 @@
   "/market/ae/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "4cd5b5751b220b80"
-  },
-  "/market/ae/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/ae/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -3447,10 +3459,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ae/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/ae/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -3458,10 +3466,6 @@
   "/market/ae/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "65223644ac3adfd3"
-  },
-  "/market/ae/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/ae/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -3543,6 +3547,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/au/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/au/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/au/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -3555,11 +3567,15 @@
     "lastmod": "2026-11-19",
     "hash": "04f22574a1c8b9b9"
   },
-  "/market/au/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/au/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/au/templates/hall-cornice-pop-ceiling": {
+  "/market/au/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/au/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -3582,10 +3598,6 @@
   "/market/au/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "6862d0bf1f45dd32"
-  },
-  "/market/au/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/au/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -3631,10 +3643,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/au/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/au/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -3642,10 +3650,6 @@
   "/market/au/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "bda5238a068ea982"
-  },
-  "/market/au/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/au/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -3727,6 +3731,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/br/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/br/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/br/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -3739,11 +3751,15 @@
     "lastmod": "2026-11-19",
     "hash": "bf21475e1cbe6b9b"
   },
-  "/market/br/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/br/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/br/templates/hall-cornice-pop-ceiling": {
+  "/market/br/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/br/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -3766,10 +3782,6 @@
   "/market/br/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "ae313004c15415e4"
-  },
-  "/market/br/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/br/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -3815,10 +3827,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/br/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/br/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -3826,10 +3834,6 @@
   "/market/br/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "8d1601324ce8f771"
-  },
-  "/market/br/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/br/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -3911,6 +3915,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/ca/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/ca/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/ca/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -3923,11 +3935,15 @@
     "lastmod": "2026-11-19",
     "hash": "b291e91be056356e"
   },
-  "/market/ca/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/ca/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ca/templates/hall-cornice-pop-ceiling": {
+  "/market/ca/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/ca/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -3950,10 +3966,6 @@
   "/market/ca/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "4cf5f9bfc402bc8a"
-  },
-  "/market/ca/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/ca/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -3999,10 +4011,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ca/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/ca/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -4010,10 +4018,6 @@
   "/market/ca/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "05ab75e0b2cba942"
-  },
-  "/market/ca/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/ca/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -4095,6 +4099,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/ch/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/ch/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/ch/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -4107,11 +4119,15 @@
     "lastmod": "2026-11-19",
     "hash": "cae4e84c528e5e8e"
   },
-  "/market/ch/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/ch/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ch/templates/hall-cornice-pop-ceiling": {
+  "/market/ch/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/ch/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -4134,10 +4150,6 @@
   "/market/ch/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "19c03b44838d7000"
-  },
-  "/market/ch/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/ch/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -4183,10 +4195,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ch/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/ch/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -4194,10 +4202,6 @@
   "/market/ch/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "ee35867033df8b17"
-  },
-  "/market/ch/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/ch/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -4279,6 +4283,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/ci/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/ci/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/ci/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -4291,11 +4303,15 @@
     "lastmod": "2026-11-19",
     "hash": "ff88718803d1c763"
   },
-  "/market/ci/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/ci/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ci/templates/hall-cornice-pop-ceiling": {
+  "/market/ci/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/ci/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -4318,10 +4334,6 @@
   "/market/ci/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "d3329df425250ada"
-  },
-  "/market/ci/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/ci/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -4367,10 +4379,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ci/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/ci/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -4378,10 +4386,6 @@
   "/market/ci/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "81fe70598b298dfb"
-  },
-  "/market/ci/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/ci/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -4463,6 +4467,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/cn/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/cn/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/cn/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -4475,11 +4487,15 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/cn/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/cn/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/cn/templates/hall-cornice-pop-ceiling": {
+  "/market/cn/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/cn/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -4500,10 +4516,6 @@
     "hash": null
   },
   "/market/cn/templates/large-hall-floor-tiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
-  "/market/cn/templates/large-living-room-polystyrene-tray-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -4551,19 +4563,11 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/cn/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/cn/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
   "/market/cn/templates/staircase-tiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
-  "/market/cn/templates/standard-bedroom-polystyrene-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -4647,6 +4651,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/de/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/de/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/de/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -4659,11 +4671,15 @@
     "lastmod": "2026-11-19",
     "hash": "f10380d2f7939262"
   },
-  "/market/de/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/de/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/de/templates/hall-cornice-pop-ceiling": {
+  "/market/de/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/de/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -4686,10 +4702,6 @@
   "/market/de/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "a9cfdc9f1f5d52bf"
-  },
-  "/market/de/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/de/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -4735,10 +4747,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/de/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/de/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -4746,10 +4754,6 @@
   "/market/de/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "005681da659abca9"
-  },
-  "/market/de/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/de/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -4831,6 +4835,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/eg/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/eg/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/eg/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -4843,11 +4855,15 @@
     "lastmod": "2026-11-19",
     "hash": "b7f75eabfe4006dc"
   },
-  "/market/eg/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/eg/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/eg/templates/hall-cornice-pop-ceiling": {
+  "/market/eg/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/eg/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -4870,10 +4886,6 @@
   "/market/eg/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "de58df49d54c51ad"
-  },
-  "/market/eg/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/eg/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -4919,10 +4931,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/eg/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/eg/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -4930,10 +4938,6 @@
   "/market/eg/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "11e2b77c21209501"
-  },
-  "/market/eg/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/eg/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -5015,6 +5019,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/es/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/es/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/es/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -5027,11 +5039,15 @@
     "lastmod": "2026-11-19",
     "hash": "27bcb446c3bf1819"
   },
-  "/market/es/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/es/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/es/templates/hall-cornice-pop-ceiling": {
+  "/market/es/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/es/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -5054,10 +5070,6 @@
   "/market/es/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "469893ee5a5a884d"
-  },
-  "/market/es/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/es/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -5103,10 +5115,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/es/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/es/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -5114,10 +5122,6 @@
   "/market/es/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "bc327de072ac335c"
-  },
-  "/market/es/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/es/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -5199,6 +5203,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/et/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/et/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/et/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -5211,11 +5223,15 @@
     "lastmod": "2026-11-19",
     "hash": "a940b6e3c3ef803c"
   },
-  "/market/et/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/et/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/et/templates/hall-cornice-pop-ceiling": {
+  "/market/et/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/et/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -5238,10 +5254,6 @@
   "/market/et/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "39f1e381d5b85fe4"
-  },
-  "/market/et/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/et/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -5287,10 +5299,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/et/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/et/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -5298,10 +5306,6 @@
   "/market/et/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "afa2e645b02c1c78"
-  },
-  "/market/et/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/et/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -5383,6 +5387,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/fr/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/fr/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/fr/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -5395,11 +5407,15 @@
     "lastmod": "2026-11-19",
     "hash": "a2318482032f11df"
   },
-  "/market/fr/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/fr/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/fr/templates/hall-cornice-pop-ceiling": {
+  "/market/fr/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/fr/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -5422,10 +5438,6 @@
   "/market/fr/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "91beec83167de597"
-  },
-  "/market/fr/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/fr/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -5471,10 +5483,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/fr/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/fr/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -5482,10 +5490,6 @@
   "/market/fr/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "255d61c1e150931c"
-  },
-  "/market/fr/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/fr/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -5567,6 +5571,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/gb/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/gb/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/gb/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -5579,11 +5591,15 @@
     "lastmod": "2026-11-19",
     "hash": "fbb7e98c136bb233"
   },
-  "/market/gb/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/gb/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/gb/templates/hall-cornice-pop-ceiling": {
+  "/market/gb/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/gb/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -5606,10 +5622,6 @@
   "/market/gb/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "607fa9fb031a4351"
-  },
-  "/market/gb/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/gb/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -5655,10 +5667,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/gb/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/gb/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -5666,10 +5674,6 @@
   "/market/gb/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "56bc8fb2dc724213"
-  },
-  "/market/gb/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/gb/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -5751,6 +5755,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/gh/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/gh/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/gh/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -5763,11 +5775,15 @@
     "lastmod": "2026-11-19",
     "hash": "6eaef626caff767a"
   },
-  "/market/gh/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/gh/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/gh/templates/hall-cornice-pop-ceiling": {
+  "/market/gh/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/gh/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -5790,10 +5806,6 @@
   "/market/gh/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "8d742eb86419d330"
-  },
-  "/market/gh/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/gh/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -5839,10 +5851,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/gh/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/gh/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -5850,10 +5858,6 @@
   "/market/gh/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "b0a9484ffda0854e"
-  },
-  "/market/gh/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/gh/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -5935,6 +5939,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/id/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/id/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/id/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -5947,11 +5959,15 @@
     "lastmod": "2026-11-19",
     "hash": "edc95171da5422ef"
   },
-  "/market/id/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/id/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/id/templates/hall-cornice-pop-ceiling": {
+  "/market/id/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/id/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -5974,10 +5990,6 @@
   "/market/id/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "fda2cd823255f1e2"
-  },
-  "/market/id/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/id/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -6023,10 +6035,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/id/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/id/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -6034,10 +6042,6 @@
   "/market/id/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "a0d851a58bd29049"
-  },
-  "/market/id/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/id/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -6119,6 +6123,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/in/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/in/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/in/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -6131,11 +6143,15 @@
     "lastmod": "2026-11-19",
     "hash": "1ad0c1649890da80"
   },
-  "/market/in/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/in/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/in/templates/hall-cornice-pop-ceiling": {
+  "/market/in/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/in/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -6158,10 +6174,6 @@
   "/market/in/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "92813885e93b9e6c"
-  },
-  "/market/in/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/in/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -6207,10 +6219,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/in/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/in/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -6218,10 +6226,6 @@
   "/market/in/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "389db643a56a4ee6"
-  },
-  "/market/in/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/in/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -6303,6 +6307,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/it/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/it/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/it/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -6315,11 +6327,15 @@
     "lastmod": "2026-11-19",
     "hash": "946562c4c3bc3ae0"
   },
-  "/market/it/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/it/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/it/templates/hall-cornice-pop-ceiling": {
+  "/market/it/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/it/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -6342,10 +6358,6 @@
   "/market/it/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "17fafe951d347488"
-  },
-  "/market/it/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/it/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -6391,10 +6403,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/it/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/it/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -6402,10 +6410,6 @@
   "/market/it/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "ebf34ea9d1180ce2"
-  },
-  "/market/it/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/it/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -6487,6 +6491,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/jp/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/jp/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/jp/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -6499,11 +6511,15 @@
     "lastmod": "2026-11-19",
     "hash": "141bb4abd49b5469"
   },
-  "/market/jp/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/jp/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/jp/templates/hall-cornice-pop-ceiling": {
+  "/market/jp/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/jp/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -6526,10 +6542,6 @@
   "/market/jp/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "0fae58ebc0480698"
-  },
-  "/market/jp/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/jp/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -6575,10 +6587,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/jp/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/jp/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -6586,10 +6594,6 @@
   "/market/jp/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "e9f1bfe023fa0cce"
-  },
-  "/market/jp/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/jp/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -6671,6 +6675,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/ke/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/ke/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/ke/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -6683,11 +6695,15 @@
     "lastmod": "2026-11-19",
     "hash": "e1e530974ab6db84"
   },
-  "/market/ke/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/ke/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ke/templates/hall-cornice-pop-ceiling": {
+  "/market/ke/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/ke/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -6710,10 +6726,6 @@
   "/market/ke/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "6392612e7b298c66"
-  },
-  "/market/ke/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/ke/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -6759,10 +6771,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ke/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/ke/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -6770,10 +6778,6 @@
   "/market/ke/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "a710f0886bb24e8c"
-  },
-  "/market/ke/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/ke/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -6855,6 +6859,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/kr/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/kr/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/kr/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -6867,11 +6879,15 @@
     "lastmod": "2026-11-19",
     "hash": "de17fd6c210e8693"
   },
-  "/market/kr/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/kr/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/kr/templates/hall-cornice-pop-ceiling": {
+  "/market/kr/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/kr/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -6894,10 +6910,6 @@
   "/market/kr/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "2648ffa207383a0a"
-  },
-  "/market/kr/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/kr/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -6943,10 +6955,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/kr/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/kr/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -6954,10 +6962,6 @@
   "/market/kr/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "0df3ef1b130b92a0"
-  },
-  "/market/kr/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/kr/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -7039,6 +7043,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/mx/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/mx/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/mx/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -7051,11 +7063,15 @@
     "lastmod": "2026-11-19",
     "hash": "a42f47d26ffe1e30"
   },
-  "/market/mx/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/mx/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/mx/templates/hall-cornice-pop-ceiling": {
+  "/market/mx/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/mx/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -7078,10 +7094,6 @@
   "/market/mx/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "e07d80afba9f5ba3"
-  },
-  "/market/mx/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/mx/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -7127,10 +7139,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/mx/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/mx/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -7138,10 +7146,6 @@
   "/market/mx/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "b34489597976255c"
-  },
-  "/market/mx/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/mx/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -7223,6 +7227,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/ng/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/ng/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/ng/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -7235,11 +7247,15 @@
     "lastmod": "2026-11-19",
     "hash": "c110b7689d84e710"
   },
-  "/market/ng/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/ng/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ng/templates/hall-cornice-pop-ceiling": {
+  "/market/ng/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/ng/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -7262,10 +7278,6 @@
   "/market/ng/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "b787dea8f4a2e336"
-  },
-  "/market/ng/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/ng/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -7311,10 +7323,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ng/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/ng/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -7322,10 +7330,6 @@
   "/market/ng/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "51d9c9ea6384e926"
-  },
-  "/market/ng/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/ng/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -7407,6 +7411,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/nl/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/nl/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/nl/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -7419,11 +7431,15 @@
     "lastmod": "2026-11-19",
     "hash": "131644ba9489a863"
   },
-  "/market/nl/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/nl/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/nl/templates/hall-cornice-pop-ceiling": {
+  "/market/nl/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/nl/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -7446,10 +7462,6 @@
   "/market/nl/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "776b7872bc5cfa14"
-  },
-  "/market/nl/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/nl/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -7495,10 +7507,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/nl/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/nl/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -7506,10 +7514,6 @@
   "/market/nl/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "b4a65f5df196128d"
-  },
-  "/market/nl/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/nl/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -7591,6 +7595,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/nz/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/nz/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/nz/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -7603,11 +7615,15 @@
     "lastmod": "2026-11-19",
     "hash": "c607227d4dde6bf3"
   },
-  "/market/nz/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/nz/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/nz/templates/hall-cornice-pop-ceiling": {
+  "/market/nz/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/nz/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -7630,10 +7646,6 @@
   "/market/nz/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "98408b3cf3dc4048"
-  },
-  "/market/nz/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/nz/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -7679,10 +7691,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/nz/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/nz/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -7690,10 +7698,6 @@
   "/market/nz/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "b767bee339111955"
-  },
-  "/market/nz/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/nz/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -7775,6 +7779,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/pl/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/pl/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/pl/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -7787,11 +7799,15 @@
     "lastmod": "2026-11-19",
     "hash": "2a62f63c58c774eb"
   },
-  "/market/pl/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/pl/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/pl/templates/hall-cornice-pop-ceiling": {
+  "/market/pl/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/pl/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -7814,10 +7830,6 @@
   "/market/pl/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "e3659fd3d7d5d4f2"
-  },
-  "/market/pl/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/pl/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -7863,10 +7875,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/pl/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/pl/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -7874,10 +7882,6 @@
   "/market/pl/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "e3a66d21024278c7"
-  },
-  "/market/pl/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/pl/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -7959,6 +7963,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/sa/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/sa/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/sa/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -7971,11 +7983,15 @@
     "lastmod": "2026-11-19",
     "hash": "fdd24e85c7968508"
   },
-  "/market/sa/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/sa/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/sa/templates/hall-cornice-pop-ceiling": {
+  "/market/sa/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/sa/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -7998,10 +8014,6 @@
   "/market/sa/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "1f199432bc0e4209"
-  },
-  "/market/sa/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/sa/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -8047,10 +8059,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/sa/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/sa/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -8058,10 +8066,6 @@
   "/market/sa/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "99f91ef23ec698e3"
-  },
-  "/market/sa/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/sa/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -8143,6 +8147,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/se/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/se/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/se/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -8155,11 +8167,15 @@
     "lastmod": "2026-11-19",
     "hash": "b94b6e4c0910e0ad"
   },
-  "/market/se/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/se/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/se/templates/hall-cornice-pop-ceiling": {
+  "/market/se/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/se/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -8182,10 +8198,6 @@
   "/market/se/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "bf7eda6f1cc051aa"
-  },
-  "/market/se/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/se/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -8231,10 +8243,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/se/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/se/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -8242,10 +8250,6 @@
   "/market/se/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "9b89f3b7d2ea736f"
-  },
-  "/market/se/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/se/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -8327,6 +8331,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/sg/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/sg/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/sg/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -8339,11 +8351,15 @@
     "lastmod": "2026-11-19",
     "hash": "5c0bb1d2c43860fb"
   },
-  "/market/sg/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/sg/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/sg/templates/hall-cornice-pop-ceiling": {
+  "/market/sg/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/sg/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -8366,10 +8382,6 @@
   "/market/sg/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "a10aabf7505243e6"
-  },
-  "/market/sg/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/sg/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -8415,10 +8427,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/sg/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/sg/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -8426,10 +8434,6 @@
   "/market/sg/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "c804e3bd7e87d3f6"
-  },
-  "/market/sg/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/sg/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -8511,6 +8515,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/tr/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/tr/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/tr/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -8523,11 +8535,15 @@
     "lastmod": "2026-11-19",
     "hash": "4a30e29e5c8f9bf0"
   },
-  "/market/tr/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/tr/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/tr/templates/hall-cornice-pop-ceiling": {
+  "/market/tr/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/tr/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -8550,10 +8566,6 @@
   "/market/tr/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "bcd56c37ce9825bd"
-  },
-  "/market/tr/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/tr/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -8599,10 +8611,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/tr/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/tr/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -8610,10 +8618,6 @@
   "/market/tr/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "c7716551a7e63421"
-  },
-  "/market/tr/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/tr/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -8695,6 +8699,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/tz/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/tz/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/tz/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -8707,11 +8719,15 @@
     "lastmod": "2026-11-19",
     "hash": "e1701a50ec2974e5"
   },
-  "/market/tz/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/tz/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/tz/templates/hall-cornice-pop-ceiling": {
+  "/market/tz/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/tz/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -8734,10 +8750,6 @@
   "/market/tz/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "fdbe50461a25f0f6"
-  },
-  "/market/tz/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/tz/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -8783,10 +8795,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/tz/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/tz/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -8794,10 +8802,6 @@
   "/market/tz/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "3e3c25d97b51760e"
-  },
-  "/market/tz/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/tz/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -8879,6 +8883,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/us/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/us/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/us/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -8891,11 +8903,15 @@
     "lastmod": "2026-11-19",
     "hash": "295823dc447465d4"
   },
-  "/market/us/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/us/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/us/templates/hall-cornice-pop-ceiling": {
+  "/market/us/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/us/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -8918,10 +8934,6 @@
   "/market/us/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "b8c82fbd55c04b20"
-  },
-  "/market/us/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/us/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -8967,10 +8979,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/us/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/us/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -8978,10 +8986,6 @@
   "/market/us/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "b73ea8dab0e7b766"
-  },
-  "/market/us/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/us/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -9063,6 +9067,14 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/za/templates/eifs-100mm-masonry-etics": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/za/templates/eifs-50mm-drainable-framing": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
   "/market/za/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -9075,11 +9087,15 @@
     "lastmod": "2026-11-19",
     "hash": "98979374b976895e"
   },
-  "/market/za/templates/hall-coffered-polystyrene-ceiling": {
+  "/market/za/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/za/templates/hall-cornice-pop-ceiling": {
+  "/market/za/templates/icf-150mm-residential-wall": {
+    "lastmod": "2026-11-20",
+    "hash": null
+  },
+  "/market/za/templates/icf-200mm-basement-wall": {
     "lastmod": "2026-11-20",
     "hash": null
   },
@@ -9102,10 +9118,6 @@
   "/market/za/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-19",
     "hash": "f9c4a9ed3844e878"
-  },
-  "/market/za/templates/large-living-room-polystyrene-tray-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/za/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -9151,10 +9163,6 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/za/templates/small-office-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
-  },
   "/market/za/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -9162,10 +9170,6 @@
   "/market/za/templates/staircase-tiling": {
     "lastmod": "2026-11-19",
     "hash": "762191a404c33be8"
-  },
-  "/market/za/templates/standard-bedroom-polystyrene-ceiling": {
-    "lastmod": "2026-11-20",
-    "hash": null
   },
   "/market/za/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
@@ -9193,7 +9197,7 @@
   },
   "/marketplace": {
     "lastmod": "2026-11-20",
-    "hash": "83716f71c8689bfc"
+    "hash": "bef059bec7f5dfff"
   },
   "/masonry-calculator": {
     "lastmod": "2026-11-19",
@@ -9209,7 +9213,7 @@
   },
   "/material-prices": {
     "lastmod": "2026-11-20",
-    "hash": "e048fd146fc829d8"
+    "hash": "6227f6b337e61806"
   },
   "/mathematical-plan-elevation": {
     "lastmod": "2026-11-19",
@@ -9221,15 +9225,15 @@
   },
   "/paint-calculator": {
     "lastmod": "2026-11-20",
-    "hash": "72583f20fb2d6a89"
+    "hash": "2464ece9b60ab02d"
   },
   "/paint-comparison": {
     "lastmod": "2026-11-20",
-    "hash": "f76a9852eab6cda9"
+    "hash": "a24e638e3c550bd3"
   },
   "/partners": {
     "lastmod": "2026-11-20",
-    "hash": "7f9f53ee479dc3e3"
+    "hash": "e151b74bc378a6eb"
   },
   "/paving-calculator": {
     "lastmod": "2026-11-19",
@@ -9249,31 +9253,31 @@
   },
   "/plumbing": {
     "lastmod": "2026-11-20",
-    "hash": "ce430316c6d688bd"
+    "hash": "1bf04964e81cdede"
   },
   "/pop-ceiling-calculator": {
     "lastmod": "2026-11-20",
-    "hash": "04eeac8ea93c44dd"
+    "hash": "0b7c6e6b148431cc"
   },
   "/prices": {
     "lastmod": "2026-11-20",
-    "hash": "786c981a3fa55f2f"
+    "hash": "00372acd219dc1cd"
   },
   "/pricing": {
     "lastmod": "2026-11-20",
-    "hash": "6bb5c0df053b4fdc"
+    "hash": "be1cdcd9654add2f"
   },
   "/printables": {
     "lastmod": "2026-11-20",
-    "hash": "0e6d6fa2009d4e66"
+    "hash": "99b199fad0cfb8b7"
   },
   "/privacy-policy": {
     "lastmod": "2026-11-20",
-    "hash": "7f0b60f573124844"
+    "hash": "6ff3b98b655d27e6"
   },
   "/pro-connect": {
     "lastmod": "2026-11-20",
-    "hash": "08d053d6ec23a465"
+    "hash": "bcec1ed95e0290ba"
   },
   "/procurement": {
     "lastmod": "2026-11-19",
@@ -9281,7 +9285,7 @@
   },
   "/project-timeline": {
     "lastmod": "2026-11-20",
-    "hash": "13acb3c20263ab5d"
+    "hash": "b2f16dd4aad82236"
   },
   "/quote-check": {
     "lastmod": "2026-11-19",
@@ -9293,11 +9297,11 @@
   },
   "/regional-cost-index": {
     "lastmod": "2026-11-20",
-    "hash": "f8614cef79f51f47"
+    "hash": "0ea3926586909994"
   },
   "/reinforcement": {
     "lastmod": "2026-11-20",
-    "hash": "19d06c68b142697a"
+    "hash": "25846df0ce378641"
   },
   "/renovation-estimator": {
     "lastmod": "2026-11-19",
@@ -9309,7 +9313,7 @@
   },
   "/rewards": {
     "lastmod": "2026-11-20",
-    "hash": "f915921a9f78e336"
+    "hash": "a11fb0368072260d"
   },
   "/roof-framing-calculator": {
     "lastmod": "2026-11-19",
@@ -9317,7 +9321,7 @@
   },
   "/screeding-calculator": {
     "lastmod": "2026-11-20",
-    "hash": "bc8594969b19bc20"
+    "hash": "0aa4b384e2aadb79"
   },
   "/septic-sizing-calculator": {
     "lastmod": "2026-11-19",
@@ -9329,19 +9333,19 @@
   },
   "/smart-calculator": {
     "lastmod": "2026-11-20",
-    "hash": "4e9ee58516b6d983"
+    "hash": "2cb48beb7783817e"
   },
   "/solar-pv-estimator": {
     "lastmod": "2026-11-20",
-    "hash": "a93b92cbb156a326"
+    "hash": "cd59c88d8f68b2c5"
   },
   "/start-building": {
     "lastmod": "2026-11-20",
-    "hash": "fa7dd2eab0a4f05a"
+    "hash": "0c3c783083e1cd67"
   },
   "/structural-calculator": {
     "lastmod": "2026-11-20",
-    "hash": "eaf93abd0e2f2694"
+    "hash": "9d754689a3ac0d37"
   },
   "/structural-steel-i-beam-calculator": {
     "lastmod": "2026-11-19",
@@ -9365,7 +9369,7 @@
   },
   "/surface-assessment": {
     "lastmod": "2026-11-20",
-    "hash": "92084cebc997fd5b"
+    "hash": "08a511cdf139ff11"
   },
   "/tall-building-structure": {
     "lastmod": "2026-11-19",
@@ -9373,167 +9377,167 @@
   },
   "/templates": {
     "lastmod": "2026-11-20",
-    "hash": "260164408174f5b0"
+    "hash": "1e074fc412482ef5"
   },
   "/templates/2-bedroom-flat-full-painting": {
     "lastmod": "2026-11-20",
-    "hash": "716f95b9bfacfde3"
+    "hash": "655e8699512c95b0"
   },
   "/templates/balcony-floor-tiling": {
     "lastmod": "2026-11-20",
-    "hash": "bf62e5dbe7b90a5e"
+    "hash": "b2443e5a03d1a454"
   },
   "/templates/bathroom-wall-tiling": {
     "lastmod": "2026-11-20",
-    "hash": "125363ee080640ed"
+    "hash": "687871e1b1b4d63b"
   },
   "/templates/childrens-room-painting": {
     "lastmod": "2026-11-20",
-    "hash": "67c78b5fbd7e1f73"
+    "hash": "b978a89039b77abf"
   },
   "/templates/conference-room-pop-ceiling": {
     "lastmod": "2026-11-20",
-    "hash": "caaccb769a8e7566"
+    "hash": "ac7be8ab011b7c5d"
   },
   "/templates/corridor-pop-ceiling": {
     "lastmod": "2026-11-20",
-    "hash": "7b29b3d89875deab"
+    "hash": "d8abcca22252a99b"
   },
   "/templates/corridor-screeding": {
     "lastmod": "2026-11-20",
-    "hash": "7d545212c5629505"
+    "hash": "61f242596e5db384"
   },
   "/templates/corridor-stairwell-painting": {
     "lastmod": "2026-11-20",
-    "hash": "4b08a71b1e8547a6"
+    "hash": "b480624bc7bf4006"
   },
   "/templates/corridor-walls-screeding": {
     "lastmod": "2026-11-20",
-    "hash": "1b1be0060c691a63"
+    "hash": "63e67a74febf1c5d"
   },
   "/templates/dining-room-painting": {
     "lastmod": "2026-11-20",
-    "hash": "3394171ddc790f8e"
+    "hash": "ad2dc65f2124533b"
   },
   "/templates/dining-room-pop-ceiling": {
     "lastmod": "2026-11-20",
-    "hash": "7605d0c208413c84"
+    "hash": "3caaf089d63c646c"
   },
   "/templates/dining-room-screeding": {
     "lastmod": "2026-11-20",
-    "hash": "c9dd9ba3e0a7344f"
+    "hash": "fff855377bae3298"
   },
   "/templates/exterior-bungalow-painting": {
     "lastmod": "2026-11-20",
-    "hash": "db56630fd867501b"
+    "hash": "0805e261eb81d519"
   },
   "/templates/exterior-duplex-painting": {
     "lastmod": "2026-11-20",
-    "hash": "a13f23a6400fc1cf"
+    "hash": "1da18a76fe9a9418"
   },
   "/templates/guest-toilet-wall-tiling": {
     "lastmod": "2026-11-20",
-    "hash": "a2ea8a85c8337f0b"
+    "hash": "b664d4675c9c42eb"
   },
   "/templates/hall-cornice-pop-ceiling": {
     "lastmod": "2026-11-20",
-    "hash": "cb4fcc15c2793317"
+    "hash": "d71f6ec20e08a19b"
   },
   "/templates/kitchen-backsplash-tiling": {
     "lastmod": "2026-11-20",
-    "hash": "f488ee1a45e7f598"
+    "hash": "d18348d9f1520eb4"
   },
   "/templates/kitchen-floor-tiling": {
     "lastmod": "2026-11-20",
-    "hash": "c286196e6a749bd1"
+    "hash": "74ec3e5910e5f153"
   },
   "/templates/kitchen-pop-ceiling": {
     "lastmod": "2026-11-20",
-    "hash": "cb5d31c8e1a0c12c"
+    "hash": "a920c5787ad7259c"
   },
   "/templates/kitchen-walls-painting": {
     "lastmod": "2026-11-20",
-    "hash": "901cdbf439cdff65"
+    "hash": "4bf5968e91944782"
   },
   "/templates/large-hall-floor-tiling": {
     "lastmod": "2026-11-20",
-    "hash": "98249957a55819ed"
+    "hash": "981ece6bcf2b4b68"
   },
   "/templates/large-living-room-pop-ceiling": {
     "lastmod": "2026-11-20",
-    "hash": "91edb9a74e6a469b"
+    "hash": "a4433d4c924e9fee"
   },
   "/templates/living-room-ceiling-screeding": {
     "lastmod": "2026-11-20",
-    "hash": "4ef199abead6caca"
+    "hash": "899f6e2a6eb949a6"
   },
   "/templates/master-bedroom-painting": {
     "lastmod": "2026-11-20",
-    "hash": "2dd5106dd3dd66b8"
+    "hash": "5d35c4589086f028"
   },
   "/templates/master-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
-    "hash": "de89344b9285cc57"
+    "hash": "70628a214b3d216a"
   },
   "/templates/office-screeding": {
     "lastmod": "2026-11-20",
-    "hash": "e5196851a113c632"
+    "hash": "e254a84301316166"
   },
   "/templates/office-space-painting": {
     "lastmod": "2026-11-20",
-    "hash": "fb5601243122b1da"
+    "hash": "5761c4f4f1ca66d5"
   },
   "/templates/shop-front-screeding": {
     "lastmod": "2026-11-20",
-    "hash": "6ff4d2bec5d0a18b"
+    "hash": "0cb9ca81169785f0"
   },
   "/templates/shop-retail-front-painting": {
     "lastmod": "2026-11-20",
-    "hash": "a6a226d98132de5c"
+    "hash": "ad6b44edf5fe79e7"
   },
   "/templates/single-accent-wall-painting": {
     "lastmod": "2026-11-20",
-    "hash": "84cb02fc7a0c9559"
+    "hash": "e77fd627ad22799a"
   },
   "/templates/single-feature-wall-screeding": {
     "lastmod": "2026-11-20",
-    "hash": "0506965fff785379"
+    "hash": "5e035934ddb8202e"
   },
   "/templates/single-wall-screeding": {
     "lastmod": "2026-11-20",
-    "hash": "845076bac3db5b03"
+    "hash": "c79c30c1a65bcf28"
   },
   "/templates/small-office-pop-ceiling": {
     "lastmod": "2026-11-20",
-    "hash": "a32062f18cdc78a8"
+    "hash": "1e69bf7467989f26"
   },
   "/templates/staircase-tiling": {
     "lastmod": "2026-11-20",
-    "hash": "0f41e9d4526fe994"
+    "hash": "9cbe25ab7eb9448d"
   },
   "/templates/standard-bedroom-pop-ceiling": {
     "lastmod": "2026-11-20",
-    "hash": "2be4bb172cac75d5"
+    "hash": "acda5411494d7d75"
   },
   "/templates/standard-floor-tiling": {
     "lastmod": "2026-11-20",
-    "hash": "2a97789ad4dcb787"
+    "hash": "fb33b4ab13a72aae"
   },
   "/templates/standard-living-room-painting": {
     "lastmod": "2026-11-20",
-    "hash": "b8806613b91173fd"
+    "hash": "d76e580752d09525"
   },
   "/templates/standard-room-screeding": {
     "lastmod": "2026-11-20",
-    "hash": "b59b78b92f5e22c3"
+    "hash": "5428da20a2fb5e53"
   },
   "/templates/terrazzo-porcelain-floor-tiling": {
     "lastmod": "2026-11-20",
-    "hash": "738c77428ee7ac19"
+    "hash": "45ce835b828bda0e"
   },
   "/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-20",
-    "hash": "89e741e8d173b437"
+    "hash": "4936563ce635ae6d"
   },
   "/temporary-works-calculator": {
     "lastmod": "2026-11-19",
@@ -9541,11 +9545,11 @@
   },
   "/terms": {
     "lastmod": "2026-11-20",
-    "hash": "fd7baf9c21716a80"
+    "hash": "89853b7b0ff7ab9d"
   },
   "/tile-calculator": {
     "lastmod": "2026-11-20",
-    "hash": "c3de31db7ab11c7d"
+    "hash": "26167f7bcddee23f"
   },
   "/tools/ai": {
     "lastmod": "2026-11-19",
@@ -9593,11 +9597,11 @@
   },
   "/user-guide": {
     "lastmod": "2026-11-20",
-    "hash": "38b9de59839bb2f6"
+    "hash": "e10815a94b0bdadf"
   },
   "/wall-finish-estimator": {
     "lastmod": "2026-11-20",
-    "hash": "810194b51e35880a"
+    "hash": "f0979e2af1287265"
   },
   "/wallpaper-calculator": {
     "lastmod": "2026-11-19",
@@ -9605,7 +9609,7 @@
   },
   "/warranty-certificate": {
     "lastmod": "2026-11-20",
-    "hash": "696efc33fedfe739"
+    "hash": "325f7f33f9f6f0f2"
   },
   "/water-tower-staging-estimator": {
     "lastmod": "2026-11-19",
@@ -9613,7 +9617,7 @@
   },
   "/waterproofing": {
     "lastmod": "2026-11-20",
-    "hash": "9d7624c2e9fac840"
+    "hash": "b5885f747fab9ea2"
   },
   "/window-blind-calculator": {
     "lastmod": "2026-11-19",

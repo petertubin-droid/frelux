@@ -91,6 +91,7 @@ export const TOOL_DOMAINS: Readonly<Record<string, EngineDomain>> = {
   "soffit-gutter": "finishes",
   "surface-assessment": "finishes",
   "eifs-wall-estimator": "finishes",
+  "defs-calculator": "finishes",
   // mep
   electrical: "mep",
   "conduit-wiring": "mep",

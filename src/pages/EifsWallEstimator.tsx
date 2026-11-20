@@ -343,6 +343,24 @@ export default function EifsWallEstimator() {
   return (
     <ToolShell route="/eifs-wall-estimator">
       <Container className="py-6 space-y-6">
+        {/* System switcher: same engine, two backing systems */}
+        <div className="inline-flex rounded-md border border-input bg-background p-0.5 shadow-xs">
+          <Button type="button" size="sm" className="h-7 text-xs px-3">
+            EIFS (with foam insulation)
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            className="h-7 text-xs px-3"
+            onClick={() => {
+              window.location.assign("/defs-calculator");
+            }}
+          >
+            DEFS (direct-applied, no foam)
+          </Button>
+        </div>
+
         {/* Top Control Bar with Unit Switch & Reset */}
         <div className="flex flex-wrap items-center justify-between gap-3 bg-muted/30 p-3 rounded-lg border border-border/60">
           <div className="flex items-center gap-3">

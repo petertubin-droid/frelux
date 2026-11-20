@@ -46,6 +46,24 @@ export const EIFS_PRICE_KEYS: Record<string, string> = {
   "EIFS-TRM-02": "eifs-trim",
 };
 
+/**
+ * DEFS shares the EIFS finish layers (mesh, base coat, primer, finish) because
+ * the finish build-up is the same. Board, screws, seam tape and track are DEFS
+ * roles of their own: a market that has no recorded row for them reports the
+ * line unpriced rather than borrowing the EIFS insulation price.
+ */
+export const DEFS_PRICE_KEYS: Record<string, string> = {
+  "DEFS-01": "defs-board",
+  "DEFS-02": "defs-screws",
+  "DEFS-03": "defs-joint-tape",
+  "DEFS-04": "defs-track",
+  "DEFS-05": "defs-trim",
+  "DEFS-06": "eifs-mesh",
+  "DEFS-07": "eifs-basecoat",
+  "DEFS-08": "eifs-primer",
+  "DEFS-09": "eifs-finish",
+};
+
 export interface ResolvedPrice {
   key: string;
   price: number;
@@ -179,4 +197,10 @@ export function resolveEifsPrices(
   marketCode: string,
 ): Promise<MarketPriceResolution> {
   return resolvePrices(marketCode, EIFS_PRICE_KEYS);
+}
+
+export function resolveDefsPrices(
+  marketCode: string,
+): Promise<MarketPriceResolution> {
+  return resolvePrices(marketCode, DEFS_PRICE_KEYS);
 }

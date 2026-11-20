@@ -635,6 +635,7 @@ const BoreholeWaterSystemEstimator = lazy(
   () => import("@/pages/BoreholeWaterSystemEstimator"),
 );
 const IcfWallEstimator = lazy(() => import("@/pages/IcfWallEstimator"));
+const DefsCalculator = lazy(() => import("@/pages/DefsCalculator"));
 const EifsWallEstimator = lazy(() => import("@/pages/EifsWallEstimator"));
 const PlasterRenderCalculator = lazy(
   () => import("@/pages/PlasterRenderCalculator"),
@@ -2369,6 +2370,10 @@ export default function App() {
                           element={
                             <Navigate to="/eifs-wall-estimator" replace />
                           }
+                        />
+                        <Route
+                          path="/defs-calculator"
+                          element={<DefsCalculator />}
                         />
                         <Route
                           path="/etics-calculator"

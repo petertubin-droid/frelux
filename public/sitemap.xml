@@ -1425,6 +1425,12 @@
     <priority>0.9</priority>
   </url>
   <url>
+    <loc>https://freluxtools.com/defs-calculator/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
     <loc>https://freluxtools.com/plaster-render-calculator/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -5583,30 +5589,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ng/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ng/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ng/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ng/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/ng/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -5632,6 +5614,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/ng/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ng/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ng/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ng/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ng/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -5853,30 +5859,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/us/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/us/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/us/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/us/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/us/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -5902,6 +5884,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/us/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/us/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/us/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/us/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/us/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -6123,30 +6129,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/gb/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/gb/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/gb/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/gb/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/gb/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -6172,6 +6154,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/gb/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/gb/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/gb/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/gb/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/gb/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -6393,30 +6399,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ca/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ca/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ca/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ca/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/ca/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -6442,6 +6424,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/ca/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ca/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ca/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ca/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ca/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -6663,30 +6669,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/au/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/au/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/au/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/au/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/au/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -6712,6 +6694,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/au/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/au/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/au/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/au/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/au/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -6933,30 +6939,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/de/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/de/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/de/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/de/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/de/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -6982,6 +6964,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/de/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/de/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/de/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/de/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/de/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -7203,30 +7209,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/in/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/in/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/in/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/in/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/in/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -7252,6 +7234,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/in/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/in/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/in/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/in/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/in/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -7473,30 +7479,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/gh/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/gh/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/gh/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/gh/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/gh/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -7522,6 +7504,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/gh/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/gh/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/gh/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/gh/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/gh/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -7743,30 +7749,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ke/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ke/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ke/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ke/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/ke/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -7792,6 +7774,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/ke/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ke/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ke/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ke/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ke/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -8013,30 +8019,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/za/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/za/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/za/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/za/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/za/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -8062,6 +8044,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/za/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/za/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/za/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/za/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/za/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -8283,30 +8289,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/jp/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/jp/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/jp/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/jp/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/jp/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -8332,6 +8314,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/jp/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/jp/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/jp/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/jp/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/jp/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -8553,30 +8559,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/fr/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/fr/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/fr/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/fr/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/fr/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -8602,6 +8584,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/fr/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/fr/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/fr/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/fr/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/fr/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -8823,30 +8829,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/br/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/br/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/br/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/br/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/br/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -8872,6 +8854,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/br/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/br/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/br/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/br/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/br/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -9093,30 +9099,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/sa/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/sa/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/sa/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/sa/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/sa/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -9142,6 +9124,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/sa/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/sa/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/sa/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/sa/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/sa/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -9363,30 +9369,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ae/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ae/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ae/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ae/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/ae/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -9412,6 +9394,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/ae/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ae/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ae/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ae/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ae/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -9633,30 +9639,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/cn/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/cn/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/cn/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/cn/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/cn/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -9682,6 +9664,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/cn/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/cn/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/cn/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/cn/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/cn/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -9903,30 +9909,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/id/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/id/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/id/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/id/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/id/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -9952,6 +9934,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/id/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/id/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/id/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/id/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/id/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -10173,30 +10179,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/mx/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/mx/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/mx/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/mx/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/mx/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -10222,6 +10204,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/mx/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/mx/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/mx/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/mx/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/mx/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -10443,30 +10449,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/kr/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/kr/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/kr/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/kr/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/kr/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -10492,6 +10474,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/kr/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/kr/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/kr/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/kr/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/kr/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -10713,30 +10719,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/it/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/it/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/it/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/it/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/it/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -10762,6 +10744,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/it/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/it/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/it/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/it/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/it/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -10983,30 +10989,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/et/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/et/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/et/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/et/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/et/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -11032,6 +11014,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/et/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/et/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/et/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/et/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/et/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -11253,30 +11259,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/eg/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/eg/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/eg/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/eg/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/eg/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -11302,6 +11284,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/eg/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/eg/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/eg/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/eg/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/eg/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -11523,30 +11529,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/tz/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/tz/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/tz/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/tz/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/tz/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -11572,6 +11554,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/tz/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/tz/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/tz/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/tz/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/tz/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -11793,30 +11799,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ci/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ci/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ci/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ci/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/ci/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -11842,6 +11824,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/ci/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ci/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ci/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ci/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ci/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -12063,30 +12069,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/es/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/es/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/es/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/es/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/es/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -12112,6 +12094,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/es/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/es/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/es/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/es/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/es/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -12333,30 +12339,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/nl/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/nl/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/nl/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/nl/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/nl/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -12382,6 +12364,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/nl/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/nl/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/nl/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/nl/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/nl/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -12603,30 +12609,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/pl/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/pl/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/pl/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/pl/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/pl/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -12652,6 +12634,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/pl/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/pl/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/pl/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/pl/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/pl/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -12873,30 +12879,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/se/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/se/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/se/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/se/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/se/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -12922,6 +12904,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/se/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/se/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/se/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/se/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/se/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -13143,30 +13149,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ch/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ch/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ch/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/ch/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/ch/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -13192,6 +13174,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/ch/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ch/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ch/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ch/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ch/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -13413,30 +13419,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/sg/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/sg/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/sg/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/sg/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/sg/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -13462,6 +13444,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/sg/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/sg/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/sg/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/sg/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/sg/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -13683,30 +13689,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/tr/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/tr/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/tr/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/tr/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/tr/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -13732,6 +13714,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/tr/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/tr/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/tr/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/tr/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/tr/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -13953,30 +13959,6 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/nz/templates/standard-bedroom-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/nz/templates/large-living-room-polystyrene-tray-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/nz/templates/small-office-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://freluxtools.com/market/nz/templates/hall-coffered-polystyrene-ceiling/</loc>
-    <lastmod>2026-11-20</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
     <loc>https://freluxtools.com/market/nz/templates/dining-room-pop-ceiling/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
@@ -14002,6 +13984,30 @@
   </url>
   <url>
     <loc>https://freluxtools.com/market/nz/templates/conference-room-pop-ceiling/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/nz/templates/icf-150mm-residential-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/nz/templates/icf-200mm-basement-wall/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/nz/templates/eifs-100mm-masonry-etics/</loc>
+    <lastmod>2026-11-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/nz/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>

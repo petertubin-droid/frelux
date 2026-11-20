@@ -849,6 +849,25 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     navVisible: true,
   },
   {
+    slug: "defs-calculator",
+    title: "DEFS Calculator",
+    category: "finishes",
+    icon: Layers,
+    does: "Calculate cement board, corrosion-resistant screws, alkali-resistant seam tape, weep screed, reinforcing mesh, polymer-modified base coat, primer and textured finish for Direct-Applied Exterior Finish Systems.",
+    enters:
+      "Facade length and height, the substrate (cement board, exterior gypsum or masonry), finish texture, opening sizes and counts, and the cutting allowance.",
+    gets: "Boards, screws and seam tape (omitted over masonry), track and bead pieces, mesh with its overlap, base coat, primer and finish in kg with pack counts, and an itemised BOQ priced from your own market where a rate exists.",
+    heading: "DEFS (Direct-Applied Exterior Finish System) Calculator",
+    lede: "The EIFS finish build-up without the foam: mesh and polymer-modified base coat applied directly to cement board, exterior gypsum or masonry, with board joints taped and a textured acrylic or silicone coat on top.",
+    eyebrow: "Exterior Finish Systems",
+    seoTitle:
+      "DEFS Calculator: Direct-Applied Exterior Finish System Estimator (2026)",
+    seoDescription:
+      "Calculate cement board, fiberglass mesh, base coat, and finish quantities for Direct-Applied Exterior Finish Systems (DEFS). Free, instant BOQ with local market prices.",
+    to: "/defs-calculator",
+    navVisible: true,
+  },
+  {
     slug: "plaster-render-calculator",
     title: "Plaster & Render Systems Calculator",
     category: "finishes",

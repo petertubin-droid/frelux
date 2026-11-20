@@ -179,7 +179,9 @@ describe("ConstructionTools domains", () => {
 
   it("narrows the library to one domain and says how many it shows", async () => {
     renderPage("/construction-tools?domain=finishes");
-    expect(sectionIndicator()).toBe("Section 1 of 2");
+    // 10 per section: the finishes domain is 16 tools, so three sections, and
+    // the indicator names the one being shown.
+    expect(sectionIndicator()).toBe("Section 1 of 3");
     const finishes = CONSTRUCTION_TOOLS.filter(
       (tool) => tool.category === "finishes",
     );

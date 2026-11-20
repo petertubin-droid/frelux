@@ -38,6 +38,7 @@ export const TOOL_ROUTES: ReadonlySet<string> = new Set([
   "/conversational-estimator",
   "/count-vision",
   "/defect-diagnosis",
+  "/defs-calculator",
   "/demolition-calculator",
   "/diaspora-budget-tracker",
   "/doors-windows",
@@ -174,6 +175,11 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
       {
         to: "/eifs-wall-estimator",
         label: "EIFS / ETICS Wall Estimator",
+        benefit: "",
+      },
+      {
+        to: "/defs-calculator",
+        label: "DEFS Calculator",
         benefit: "",
       },
       {

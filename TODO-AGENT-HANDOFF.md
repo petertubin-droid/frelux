@@ -179,6 +179,36 @@ GROUP BY scan_confidence;
 
 - 2026-11 UI & Theme Configuration update: added administrative toggle switches for the mobile bottom navigation bar and the floating AI live chat assistant widget in Admin Settings and Admin AI Settings (both defaulted to toggled off). Updated website default visual mode from dark to light mode across theme provider, pre-paint inline script in index.html, and admin theme unmount restoration.
 
+## DEFS shares the EIFS core (2026-11-20)
+
+One calculation core, two systems, no duplicated layer maths.
+
+- `src/lib/estimation/exterior-finish-engine.ts` owns the shared layer rates
+  (mesh 10% overlap, base coat 4.5 kg/m², primer 0.22 kg/m², finish 2.2-3.6
+  kg/m²), the DEFS branch (board 2.88 m² metric / 2.973 m² US-CA, 20 screws per
+  board floored at 7 per m², seam tape 1.15 m/m², weep screed and casing bead in
+  3.0 m or 10 ft lengths, 10% default wastage, masonry omits board+screws+tape),
+  and one dispatcher. The EIFS branch calls the existing engine and wraps its
+  result, so nothing is re-implemented. A contract test asserts both systems
+  produce identical mesh/base coat/primer/finish for the same area.
+- Routes: /defs-calculator is a real page (DefsCalculator.tsx) with its own SEO,
+  H1, FAQPage and About block; /eifs-wall-estimator stays the EIFS address and
+  /eifs-calculator stays a redirect to it, because src/config's guard forbids one
+  page answering two addresses and two indexable copies would compete.
+- DEFS prices reuse the EIFS finish roles (mesh, base coat, primer, finish) and
+  declare their own keys for board, screws, tape and track, which stay unpriced
+  until a market row exists (DEFS_PRICE_KEYS in icf-eifs-market.ts).
+- Dictionary: four terms seeded in seed-terms.ts and in migration
+  20261120150000_defs_dictionary_terms.sql (cement sheathing board,
+  alkali-resistant joint tape, weep screed track, corrosion-resistant board
+  screws). NOT APPLIED LIVE: every Supabase token in the sandbox is 401, so the
+  live pool has no DEFS terms yet and labels stay in English.
+- Catalogue: defs-calculator added to construction-tools, tool-index (84 routes,
+  regenerated), engine-domains, about-this-tool standards; the guard tests that
+  pin the catalogue size moved 83 -> 84 and 2656 -> 2688.
+
+Tests: 14 engine, 3 page, 190 config, 167 across the touched suites. tsc 0.
+
 ## 4-View Envelope: stage 1 detection, BOQ handoff, 3D (2026-11-20)
 
 The generator shipped measuring only. Three gaps are now closed in code:

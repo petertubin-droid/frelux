@@ -174,6 +174,32 @@ export const VERIFIED_STANDARDS: Record<
       use: "Water-resistive coating behaviour behind the finish.",
     },
   ],
+  "defs-calculator": [
+    {
+      code: "ASTM C1396",
+      name: "Standard specification for gypsum board",
+      geography: "United States",
+      use: "The exterior gypsum sheathing substrate the system can be applied over.",
+    },
+    {
+      code: "ASTM C926",
+      name: "Standard specification for application of portland cement based plaster",
+      geography: "United States",
+      use: "The base coat application practice the direct-applied system follows over masonry.",
+    },
+    {
+      code: "ASTM C1063",
+      name: "Standard specification for installation of lathing and furring",
+      geography: "United States",
+      use: "The casing bead and weep screed trims counted at openings and the base.",
+    },
+    {
+      code: "ASTM C847",
+      name: "Standard specification for metal lath",
+      geography: "United States",
+      use: "The corrosion-resistant fixing and reinforcement practice the board screws follow.",
+    },
+  ],
   "foundation-designer": [
     {
       code: "BS 8004",

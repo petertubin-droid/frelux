@@ -59,6 +59,88 @@ function term(
 /** The curated seed records (all start UNVERIFIED for admin
  *  review; verification is a deliberate human action). */
 export const SEED_CONSTRUCTION_TERMS: ConstructionTermDraft[] = [
+  // ---------- EXTERIOR FINISH SYSTEMS (DEFS) ----------
+  term({
+    canonical_term: "cement sheathing board",
+    category: "finishing",
+    definition:
+      "A moisture-resistant cement-based board fixed to framing as the backing for a direct-applied exterior finish.",
+    technical_definition:
+      "Fiber-cement or cement-bonded sheathing board, typically 1.2 x 2.4 m, screwed to studs at the published spacing and taped at the joints before the base coat.",
+    simple_definition:
+      "The stiff board a direct-applied finish is spread onto when there is no foam insulation.",
+    construction_context:
+      "Used in DEFS on framed walls: the board is screwed off, the joints are taped, then the mesh and base coat go straight onto it.",
+    example_usage: "Fix the cement sheathing board before the base coat.",
+    unit: "m2",
+    measurement_type: "area",
+    related_terms: ["base coat", "joint tape"],
+    common_mistakes: [
+      "Using interior plasterboard where a moisture-resistant board is required",
+    ],
+    synonyms: ["cement board", "fiber cement board"],
+  }),
+  term({
+    canonical_term: "alkali-resistant joint tape",
+    category: "finishing",
+    definition:
+      "A mesh tape laid over board joints so the base coat cannot crack along the seam.",
+    technical_definition:
+      "Alkali-resistant fiberglass seam tape bedded in the first pass of base coat at every board joint, before the full-field reinforcing mesh.",
+    simple_definition:
+      "Tape that stops the base coat cracking where two boards meet.",
+    construction_context:
+      "About 1.15 m of tape is taken per square metre of board in a direct-applied system.",
+    example_usage: "Bed the alkali-resistant joint tape at every board seam.",
+    unit: "m",
+    measurement_type: "length",
+    related_terms: ["cement sheathing board", "base coat"],
+    common_mistakes: [
+      "Skipping the tape because the full-field mesh is specified anyway",
+    ],
+    synonyms: ["scrim tape", "seam tape"],
+  }),
+  term({
+    canonical_term: "weep screed track",
+    category: "finishing",
+    definition:
+      "The perforated metal track at the base of the wall that carries the finish and lets moisture out.",
+    technical_definition:
+      "Galvanised or PVC weep screed fixed at the foundation line, providing a drip edge and drainage path behind the base coat.",
+    simple_definition:
+      "The metal strip at the bottom of the wall that lets water out.",
+    construction_context:
+      "Counted along the facade perimeter in stock lengths of 3.0 m, or 10 ft in the US and Canada.",
+    example_usage: "Set the weep screed track before the first board goes on.",
+    unit: "m",
+    measurement_type: "length",
+    related_terms: ["casing bead", "base coat"],
+    common_mistakes: [
+      "Running the base coat to the ground with no drainage path",
+    ],
+    synonyms: ["starter track", "weep screed"],
+  }),
+  term({
+    canonical_term: "corrosion-resistant board screws",
+    category: "finishing",
+    definition:
+      "Coated or stainless screws that hold the sheathing board to the framing without rusting through the finish.",
+    technical_definition:
+      "Corrosion-resistant self-drilling screws at 18 to 22 per board, driven flush so the head never telegraphs through the base coat.",
+    simple_definition: "Rust-proof screws that fix the board to the wall.",
+    construction_context:
+      "About 7 screws per square metre of board in a direct-applied exterior system.",
+    example_usage:
+      "Use corrosion-resistant board screws at the published spacing.",
+    unit: "pcs",
+    measurement_type: "count",
+    related_terms: ["cement sheathing board"],
+    common_mistakes: [
+      "Using drywall screws that corrode and bleed through the finish",
+    ],
+    synonyms: ["board screws", "sheathing screws"],
+  }),
+
   // ---------- BUILDING ----------
   term({
     canonical_term: "wall",
@@ -933,7 +1015,8 @@ export const SEED_TRANSLATIONS: Array<{
     language: "ja",
     translation: "セメント",
     confidence_score: 0.97,
-    translation_notes: "Standard Japanese construction term (Taiheiyo Cement product usage).",
+    translation_notes:
+      "Standard Japanese construction term (Taiheiyo Cement product usage).",
   },
   {
     canonical_term: "concrete",
@@ -947,35 +1030,40 @@ export const SEED_TRANSLATIONS: Array<{
     language: "ja",
     translation: "モルタル",
     confidence_score: 0.95,
-    translation_notes: "Standard Japanese construction term (Nihon Kasei left-kan materials).",
+    translation_notes:
+      "Standard Japanese construction term (Nihon Kasei left-kan materials).",
   },
   {
     canonical_term: "rebar",
     language: "ja",
     translation: "鉄筋",
     confidence_score: 0.95,
-    translation_notes: "Standard Japanese term; RC = 鉄筋コンクリート造 per construction glossaries.",
+    translation_notes:
+      "Standard Japanese term; RC = 鉄筋コンクリート造 per construction glossaries.",
   },
   {
     canonical_term: "formwork",
     language: "ja",
     translation: "型枠",
     confidence_score: 0.95,
-    translation_notes: "Standard Japanese term per OTIT construction terminology lesson.",
+    translation_notes:
+      "Standard Japanese term per OTIT construction terminology lesson.",
   },
   {
     canonical_term: "blinding",
     language: "ja",
     translation: "捨てコンクリート",
     confidence_score: 0.95,
-    translation_notes: "Standard Japanese leveling-concrete term per OTIT terminology lesson.",
+    translation_notes:
+      "Standard Japanese leveling-concrete term per OTIT terminology lesson.",
   },
   {
     canonical_term: "slab",
     language: "ja",
     translation: "スラブ",
     confidence_score: 0.95,
-    translation_notes: "Standard Japanese term (スラブ配筋 slab rebar arrangement).",
+    translation_notes:
+      "Standard Japanese term (スラブ配筋 slab rebar arrangement).",
   },
   {
     canonical_term: "wall",
@@ -1010,21 +1098,24 @@ export const SEED_TRANSLATIONS: Array<{
     language: "ja",
     translation: "布基礎",
     confidence_score: 0.95,
-    translation_notes: "Standard Japanese continuous-foundation term (連続基礎).",
+    translation_notes:
+      "Standard Japanese continuous-foundation term (連続基礎).",
   },
   {
     canonical_term: "plastering",
     language: "ja",
     translation: "左官",
     confidence_score: 0.93,
-    translation_notes: "Standard Japanese term for plastering works (左官工事).",
+    translation_notes:
+      "Standard Japanese term for plastering works (左官工事).",
   },
   {
     canonical_term: "tiling",
     language: "ja",
     translation: "タイル工事",
     confidence_score: 0.93,
-    translation_notes: "Standard Japanese term for tiling works (タイル工事材).",
+    translation_notes:
+      "Standard Japanese term for tiling works (タイル工事材).",
   },
   {
     canonical_term: "square metre",
@@ -1045,7 +1136,8 @@ export const SEED_TRANSLATIONS: Array<{
     language: "ja",
     translation: "保護具",
     confidence_score: 0.9,
-    translation_notes: "Standard Japanese site-safety term for protective equipment.",
+    translation_notes:
+      "Standard Japanese site-safety term for protective equipment.",
   },
 
   // ---------- Brazilian Portuguese (BR) ----------
@@ -1089,7 +1181,8 @@ export const SEED_TRANSLATIONS: Array<{
     language: "pt",
     translation: "pilar",
     confidence_score: 0.95,
-    translation_notes: "Brazilian usage (pilar); European Portuguese prefers coluna.",
+    translation_notes:
+      "Brazilian usage (pilar); European Portuguese prefers coluna.",
   },
   {
     canonical_term: "formwork",
@@ -1103,7 +1196,8 @@ export const SEED_TRANSLATIONS: Array<{
     language: "pt",
     translation: "contrapiso",
     confidence_score: 0.93,
-    translation_notes: "Standard Brazilian term for floor screed/leveling layer.",
+    translation_notes:
+      "Standard Brazilian term for floor screed/leveling layer.",
   },
   {
     canonical_term: "blinding",
@@ -1117,21 +1211,24 @@ export const SEED_TRANSLATIONS: Array<{
     language: "pt",
     translation: "sapata corrida",
     confidence_score: 0.9,
-    translation_notes: "Standard Brazilian foundation-engineering term for strip footing.",
+    translation_notes:
+      "Standard Brazilian foundation-engineering term for strip footing.",
   },
   {
     canonical_term: "rendering",
     language: "pt",
     translation: "reboco",
     confidence_score: 0.94,
-    translation_notes: "Standard Brazilian term for external render/plaster coat.",
+    translation_notes:
+      "Standard Brazilian term for external render/plaster coat.",
   },
   {
     canonical_term: "tiling",
     language: "pt",
     translation: "assentamento de revestimento cerâmico",
     confidence_score: 0.9,
-    translation_notes: "Standard Brazilian term for ceramic tiling works (NBR vocabulary).",
+    translation_notes:
+      "Standard Brazilian term for ceramic tiling works (NBR vocabulary).",
   },
   {
     canonical_term: "square metre",
@@ -1159,7 +1256,8 @@ export const SEED_TRANSLATIONS: Array<{
     language: "pt",
     translation: "selador",
     confidence_score: 0.9,
-    translation_notes: "Standard Brazilian paint-preparation term for primer/sealer.",
+    translation_notes:
+      "Standard Brazilian paint-preparation term for primer/sealer.",
   },
 
   // ---------- Arabic (SA / AE) ----------
@@ -1210,7 +1308,8 @@ export const SEED_TRANSLATIONS: Array<{
     language: "ar",
     translation: "قاعدة مستمرة",
     confidence_score: 0.9,
-    translation_notes: "Standard structural-engineering term for strip footing.",
+    translation_notes:
+      "Standard structural-engineering term for strip footing.",
   },
   {
     canonical_term: "formwork",
@@ -1282,7 +1381,8 @@ export const SEED_TRANSLATIONS: Array<{
     language: "fr",
     translation: "armature",
     confidence_score: 0.93,
-    translation_notes: "Standard French term for reinforcement steel (barre d'armature).",
+    translation_notes:
+      "Standard French term for reinforcement steel (barre d'armature).",
   },
   {
     canonical_term: "slab",
@@ -1366,7 +1466,8 @@ export const SEED_TRANSLATIONS: Array<{
     language: "fr",
     translation: "économiste de la construction",
     confidence_score: 0.92,
-    translation_notes: "Official French profession title for quantity surveyor.",
+    translation_notes:
+      "Official French profession title for quantity surveyor.",
   },
 ];
 
@@ -1383,9 +1484,7 @@ export function instantiateSeedTranslationRecords(
   language: string,
 ): ConstructionTerm[] {
   const base = instantiateSeedRecords();
-  const translations = SEED_TRANSLATIONS.filter(
-    (t) => t.language === language,
-  );
+  const translations = SEED_TRANSLATIONS.filter((t) => t.language === language);
   return base
     .filter((en) =>
       translations.some((t) => t.canonical_term === en.canonical_term),
