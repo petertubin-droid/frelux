@@ -9,6 +9,7 @@ import { Flag, ChevronDown, Loader2, CheckCircle2, X } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import EstimateAccuracyFeedback from "@/components/calculators/EstimateAccuracyFeedback";
 
 interface ReportCalculationIssueProps {
   calculatorType: string;
@@ -96,6 +97,7 @@ export default function ReportCalculationIssue({
 
   return (
     <div className="mt-2">
+      <EstimateAccuracyFeedback toolId={calculatorType} />
       <Button
         variant="ghost"
         type="button"

@@ -39,6 +39,7 @@ import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import type { PriceBookSummary } from "@/lib/prices/freshness";
 import type { SpecialtyResult } from "@/lib/estimation/specialty";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import EstimateAccuracyFeedback from "@/components/calculators/EstimateAccuracyFeedback";
 import {
   methodologyText,
   type MethodologyKey,
@@ -604,6 +605,8 @@ export function SpecialtyCalculatorShell({
                     ))}
                   </dl>
                 </div>
+
+                <EstimateAccuracyFeedback toolId={calculatorType} />
 
                 {afterResults}
 
