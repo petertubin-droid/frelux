@@ -236,7 +236,6 @@ describe("FAQ schema coverage", () => {
       "src/pages/PopCeilingCalculator.tsx",
       "src/pages/PopCeilingCostEstimator.tsx",
       "src/pages/TyroleneEstimator.tsx",
-      "src/pages/AiColorAssistant.tsx",
     ];
     for (const page of converted) {
       const source = read(page);
@@ -247,6 +246,16 @@ describe("FAQ schema coverage", () => {
         /answer: \(\s*</,
       );
     }
+  });
+
+  it("pages whose questions moved to the shell keep the slot empty", () => {
+    // AiColorAssistant now renders through ToolShell with its own registry
+    // group, so the page must not also render a question block of its own: two
+    // sources would print the same questions twice.
+    const source = read("src/pages/AiColorAssistant.tsx");
+    expect(source).toMatch(/<ToolShell route="\/ai-color-assistant"/);
+    expect(source).not.toMatch(/<FaqItemsWithSchema/);
+    expect(source).not.toMatch(/answer: \(\s*</);
   });
 });
 
