@@ -23,7 +23,7 @@ const icfBase = {
   horizontalRebarCourses: "every_course",
   wasteFactorPercent: 4,
   concreteWastePercent: 5,
-} as never;
+};
 
 const eifsBase = {
   wallLengthM: 40,
@@ -36,7 +36,7 @@ const eifsBase = {
   substrateType: "exterior_sheathing",
   systemType: "drainable_eifs",
   attachmentMethod: "adhesive_and_mechanical",
-} as never;
+};
 
 describe("ICF accepts the shared schedule", () => {
   it("prices the same wall from the schedule and from the legacy list", () => {
