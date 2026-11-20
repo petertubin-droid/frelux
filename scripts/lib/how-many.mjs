@@ -183,6 +183,10 @@ export const HOW_MANY = {
     q: "How much continuous insulation, mesh and acrylic finish for EIFS / ETICS?",
     a: "Gross wall area minus rough openings gives the net facade area: enter wall dimensions, insulation thickness, and texture to calculate WRB air barrier, rigid foam boards, reinforcing mesh rolls, base coat mortar, and synthetic finish pails.",
   },
+  "/plaster-render-calculator": {
+    q: "How much plaster, render, mesh and beads for a wall?",
+    a: "Net wall area (gross minus openings) drives the system: gypsum plaster at about 9.5 kg/m² per 10 mm, exterior render by grain size, mesh at area plus 10 per cent for overlaps, and beads by corner and reveal length, converted to your market's bag, pail and roll sizes.",
+  },
   "/retaining-wall-calculator": {
     q: "How much concrete and blockwork does a retaining wall need?",
     a: "Wall length, height and stem thickness give the volumes: enter them to get footing concrete, blocks, rebar and weep holes, with the rule behind each quantity stated.",

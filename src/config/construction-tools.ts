@@ -849,6 +849,25 @@ export const CONSTRUCTION_TOOLS: Tool[] = [
     navVisible: true,
   },
   {
+    slug: "plaster-render-calculator",
+    title: "Plaster & Render Systems Calculator",
+    category: "finishes",
+    icon: Layers,
+    does: "Calculates gypsum plaster (Gipsputz), exterior render (Außenputz) and Tyrolene as layered systems: primer, plaster or topcoat, fibreglass mesh, beads, sealer, with regional bag and pail packaging.",
+    enters:
+      "System, net wall area or length x height, substrate (AAC, clay brick, sandcrete, concrete, EPS, mineral wool), thickness or topcoat grain, corners and reveal perimeters, waste and wet-zone status.",
+    gets: "Layer-by-layer quantities in kg, litres, m² and linear metres, pack counts in the market's own bag, pail and bead sizes, primer requirement with its reason, and explicit warnings where a system is unsuitable or a rate is product-specific.",
+    heading: "Plaster and Facade Render Calculator",
+    lede: "Three plaster systems, calculated the way they are actually built: gypsum interior plaster to EN 13279, exterior render to EN 15824 with mesh and grain-based topcoat, and Tyrolene over a sand-cement backing, each packaged for the market you buy in.",
+    eyebrow: "Plaster & Render",
+    seoTitle:
+      "Plaster & Render Calculator — Gipsputz, Außenputz, Tyrolene | FRELUX",
+    seoDescription:
+      "Calculate gypsum plaster, exterior render and Tyrolene material quantities by layer: primer, plaster, mesh, beads and topcoat, with 25 kg bags, 50 lb bags and 5-gallon pails by market.",
+    to: "/plaster-render-calculator",
+    navVisible: true,
+  },
+  {
     slug: "soffit-gutter",
     title: "Soffit, Fascia & Gutter",
     category: "structure",

@@ -788,6 +788,58 @@ export const faqSchemaByPath = {
       "a": "One government identity document in your own name: a Nigerian NIN of eleven digits, an international passport, a drivers licence or a voters card. The number must be readable and must match the name on the account, and anything that does not match is sent back for review."
     }
   ],
+  "/faq/plaster-render-calculator": [
+    {
+      "q": "How much gypsum plaster (Gipsputz) do I need per square metre?",
+      "a": "A 25 kg bag of a typical machine applied gypsum plaster covers between 2.5 and 3 square metres at 10 mm, which is roughly 8.3 to 10 kg per square metre at that thickness. The calculator uses 9.5 kg per square metre per 10 mm and scales linearly, so a 15 mm coat is one and a half times the 10 mm figure. Because the rate belongs to a product rather than to plaster in general, the bag count is the number the named product delivers."
+    },
+    {
+      "q": "Why does render consumption depend on grain size instead of thickness?",
+      "a": "A scraped or rubbed topcoat is one application whose depth is set by the aggregate, so consumption follows grain size and not trowel thickness. Published figures for a common silicone render run near 2.5 kg per square metre at 1.5 mm grain, 2.9 at 2 mm and 3.9 at 3 mm, before waste. The calculator prices the finish at the grain selected and keeps the base coat on its own thickness rule, so the two do not borrow each other's numbers."
+    },
+    {
+      "q": "How much mesh does an external render system need?",
+      "a": "Reinforcing mesh is laid with a mandatory overlap at every joint, and the system approvals that govern external insulation call for roughly 100 mm, which adds about ten per cent to the covered area. The calculator multiplies net facade area by 1.10 and divides by the roll area, so the roll count already includes the overlaps. Skipping the allowance is the commonest way a mesh order comes up short on the last elevation."
+    },
+    {
+      "q": "What is Tyrolene and how is it different from German Außenputz?",
+      "a": "Tyrolene is a textured cementitious finish applied over a sand cement backing render, and it is common across Nigeria and West Africa. It is priced as its own assembly: the backing is sized from a 1:4 or 1:6 mix at 12 to 18 mm through the plastering engine, and the textured coat is added at roughly 1 kg per square metre for each millimetre of thickness. The protective sealer is a third line, because it is bought separately and applied after the coat has cured."
+    },
+    {
+      "q": "Why does the substrate change the primer quantity?",
+      "a": "Absorption decides both the quantity of primer and whether a bonding coat is mandatory. Autoclaved aerated concrete and sandcrete block are highly absorbent and must be primed, or the plaster dries before it cures and the surface dusts. Smooth concrete gives the plaster nothing to key into, so a bonding agent or a spatterdash coat is required. Insulation boards need the system primer before the reinforcing layer. The calculator applies a stated multiplier and prints the requirement beside the line."
+    },
+    {
+      "q": "Can I use gypsum plaster in a bathroom?",
+      "a": "Gypsum plaster is a dry area material, and the calculator raises a warning as soon as a wet zone is marked rather than pricing standard plaster as though it were suitable. Bathrooms, kitchens and laundries need a cement based or water resistant system, and the warning names the class to switch to. Getting this wrong is expensive to correct, because the plaster has to come off the wall before a suitable system can go on."
+    }
+  ],
+  "/plaster-render-calculator": [
+    {
+      "q": "How much gypsum plaster (Gipsputz) do I need per square metre?",
+      "a": "A 25 kg bag of a typical machine applied gypsum plaster covers between 2.5 and 3 square metres at 10 mm, which is roughly 8.3 to 10 kg per square metre at that thickness. The calculator uses 9.5 kg per square metre per 10 mm and scales linearly, so a 15 mm coat is one and a half times the 10 mm figure. Because the rate belongs to a product rather than to plaster in general, the bag count is the number the named product delivers."
+    },
+    {
+      "q": "Why does render consumption depend on grain size instead of thickness?",
+      "a": "A scraped or rubbed topcoat is one application whose depth is set by the aggregate, so consumption follows grain size and not trowel thickness. Published figures for a common silicone render run near 2.5 kg per square metre at 1.5 mm grain, 2.9 at 2 mm and 3.9 at 3 mm, before waste. The calculator prices the finish at the grain selected and keeps the base coat on its own thickness rule, so the two do not borrow each other's numbers."
+    },
+    {
+      "q": "How much mesh does an external render system need?",
+      "a": "Reinforcing mesh is laid with a mandatory overlap at every joint, and the system approvals that govern external insulation call for roughly 100 mm, which adds about ten per cent to the covered area. The calculator multiplies net facade area by 1.10 and divides by the roll area, so the roll count already includes the overlaps. Skipping the allowance is the commonest way a mesh order comes up short on the last elevation."
+    },
+    {
+      "q": "What is Tyrolene and how is it different from German Außenputz?",
+      "a": "Tyrolene is a textured cementitious finish applied over a sand cement backing render, and it is common across Nigeria and West Africa. It is priced as its own assembly: the backing is sized from a 1:4 or 1:6 mix at 12 to 18 mm through the plastering engine, and the textured coat is added at roughly 1 kg per square metre for each millimetre of thickness. The protective sealer is a third line, because it is bought separately and applied after the coat has cured."
+    },
+    {
+      "q": "Why does the substrate change the primer quantity?",
+      "a": "Absorption decides both the quantity of primer and whether a bonding coat is mandatory. Autoclaved aerated concrete and sandcrete block are highly absorbent and must be primed, or the plaster dries before it cures and the surface dusts. Smooth concrete gives the plaster nothing to key into, so a bonding agent or a spatterdash coat is required. Insulation boards need the system primer before the reinforcing layer. The calculator applies a stated multiplier and prints the requirement beside the line."
+    },
+    {
+      "q": "Can I use gypsum plaster in a bathroom?",
+      "a": "Gypsum plaster is a dry area material, and the calculator raises a warning as soon as a wet zone is marked rather than pricing standard plaster as though it were suitable. Bathrooms, kitchens and laundries need a cement based or water resistant system, and the warning names the class to switch to. Getting this wrong is expensive to correct, because the plaster has to come off the wall before a suitable system can go on."
+    }
+  ],
   "/faq/demolition-calculator": [
     {
       "q": "How is demolition debris volume worked out?",

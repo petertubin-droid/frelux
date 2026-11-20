@@ -535,6 +535,31 @@ export const ALL_FAQ_ARTICLES: Record<string, FaqArticle> = {
   ...FAQ_ARTICLES,
   ...ENGINE_FAQ_ARTICLES,
   ...RENOVATION_FAQ_ARTICLES,
+  "plaster-render-calculator": {
+    summary:
+      "Calculates plaster, render, mesh and beads as layered systems, packaged the way each market sells them.",
+    description:
+      "Plaster is not one material, so the page asks for the system first and then builds it layer by layer. Interior gypsum plaster is sized from thickness at a published manufacturer rate, exterior render is sized from its aggregate grain because that is what sets consumption, and Tyrolene is sized as a cement backing plus a textured coat. Each layer is converted into the bags, pails, rolls and bead lengths sold in the market selected, and the substrate decides whether a bonding primer is required.",
+    functions: [
+      "Sizes interior gypsum plaster from net area and thickness at about 9.5 kg per square metre per 10 mm, then converts the total into the market's bag weight.",
+      "Sizes exterior render topcoat by grain size, with the reinforcing mesh counted at net area plus ten per cent for the mandatory overlaps.",
+      "Counts corner, stop and drip beads from the external corner heights and reveal perimeters entered.",
+      "Applies a substrate rule: AAC, sandcrete, smooth concrete and insulation boards raise the primer requirement and multiplier, each with its reason stated.",
+      "Delegates the sand and cement backing of a Tyrolene finish to the existing plastering engine instead of re-deriving the mix.",
+      "Reads IfcCovering areas from an uploaded model, with the opening count reported so gross areas are not mistaken for net ones.",
+    ],
+    advantages: [
+      "The finish is priced by the rule that governs it: thickness for plaster, grain for a topcoat, area for mesh.",
+      "Bag, pail, roll and bead counts arrive in the sizes sold in the market selected, so the order can be placed from the result.",
+      "A wet zone on gypsum raises a warning instead of a price, which keeps an unsuitable system out of an estimate.",
+    ],
+    limits: [
+      "Rates are published manufacturer figures and vary by product, so the result states the range and treats the figure as product specific.",
+      "Base coat over insulation is a system decision, so the page sizes the topcoat, mesh and primer and leaves the base coat to the chosen ETICS system.",
+      "It does not design the render system: movement joints, weather sealing, substrate preparation and site conditions remain the applicator's responsibility.",
+      "Opening deductions are entered or read from the model. The page does not measure reveals or window surrounds for you.",
+    ],
+  },
   "tall-building-structure": {
     summary:
       "Screens a high rise from entered geometry: the lateral system the height calls for, the wind and seismic shear it must resist, the drift that shear causes, and the raft and piles that carry it.",

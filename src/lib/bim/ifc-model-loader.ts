@@ -64,6 +64,11 @@ export interface IfcModelElement {
   storey?: string;
   /** Name of the IfcTypeObject the element is defined by, when declared. */
   typeName?: string;
+  /**
+   * IFC PredefinedType when the file states one (e.g. CLADDING on an
+   * IfcCovering), so plaster/render coverings can be told apart from ceilings.
+   */
+  predefinedType?: string;
   /** Name of the IfcMaterial / material layer set, when declared. */
   material?: string;
   /**
@@ -896,6 +901,11 @@ export async function parseIfcModel(
           ...(propertiesByElement.has(id)
             ? { properties: propertiesByElement.get(id) }
             : {}),
+          ...(() => {
+            const raw = labelText(line.PredefinedType);
+            if (!raw) return {};
+            return { predefinedType: raw.replace(/^\.|\.$/g, "") };
+          })(),
         });
       }
     }

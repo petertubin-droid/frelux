@@ -82,6 +82,7 @@ export const TOOL_DOMAINS: Readonly<Record<string, EngineDomain>> = {
   waterproofing: "finishes",
   "wall-finish-estimator": "finishes",
   "plastering-calculator": "finishes",
+  "plaster-render-calculator": "finishes",
   "drywall-calculator": "finishes",
   wallpaper: "finishes",
   "window-blinds": "finishes",

@@ -746,8 +746,44 @@ const WATER_FAQ_GROUPS: ToolFaqGroup[] = [
  * One catalogue: the original tool groups plus the wider engine family. Kept as
  * two declarations only because the second file would otherwise be unwieldy.
  */
+const PLASTER_RENDER_FAQ_GROUPS: ToolFaqGroup[] = [
+  {
+    slug: "plaster-render-calculator",
+    route: "/plaster-render-calculator",
+    name: "Plaster & Render Systems Calculator",
+    category: "finishes",
+    questions: [
+      {
+        q: "How much gypsum plaster (Gipsputz) do I need per square metre?",
+        a: "Knauf MP 75 states that a 25 kg bag covers 2.5 to 3.0 m² at 10 mm, which is 8.3 to 10 kg/m²; this calculator uses 9.5 kg/m² per 10 mm and scales linearly with thickness. Because the rate is a manufacturer figure and not a rule of thumb, the bag count it returns is the one the bag actually delivers.",
+      },
+      {
+        q: "Why does render consumption depend on grain size instead of thickness?",
+        a: "A Kratzputz or Reibeputz topcoat is a single application whose depth is set by the aggregate, not by the trowel. Baumit GranoporTop, for example, consumes roughly 2.5 kg/m² at 1.5 mm grain, 2.9 kg/m² at 2 mm and 3.9 kg/m² at 3 mm, so the calculator prices the finish by grain and keeps the base coat on its own thickness rule.",
+      },
+      {
+        q: "How much mesh does an external render system need?",
+        a: "The reinforcing mesh is embedded in the base coat with a mandatory 100 mm overlap at every joint, which adds about 10 per cent to the wall area. The calculator multiplies net facade area by 1.10 and divides by the roll area (50 m² standard) so the roll count includes the overlaps a system approval actually requires.",
+      },
+      {
+        q: "What is Tyrolene and how is it different from German Außenputz?",
+        a: "Tyrolene is a textured cementitious finish applied over a sand-cement backing render, common across Nigeria and West Africa. It is priced as its own system: the backing render is calculated from a 1:4 or 1:6 mix at 12 to 18 mm through the plastering engine, and the textured coat is added at about 1 kg/m² per millimetre of thickness on top.",
+      },
+      {
+        q: "Why does the substrate change the primer quantity?",
+        a: "Absorption decides how much primer the wall drinks and whether a bonding coat is mandatory. AAC and sandcrete block are highly absorbent and must be primed or the plaster dries before it cures, while smooth concrete and EPS or mineral wool insulation boards need a bonding primer for adhesion. The calculator applies a stated multiplier and flags the requirement instead of using one primer rate everywhere.",
+      },
+      {
+        q: "Can I use gypsum plaster in a bathroom?",
+        a: "No. Gypsum plaster is a dry-area material, and the calculator raises a warning the moment a wet zone is selected instead of pricing it as if it were suitable. Wet rooms need a cement-based or water-resistant system, and the warning states which system class to switch to.",
+      },
+    ],
+  },
+];
+
 export const TOOL_FAQS: ToolFaqGroup[] = [
   ...BASE_TOOL_FAQS,
+  ...PLASTER_RENDER_FAQ_GROUPS,
   ...ENGINE_FAQ_GROUPS,
   ...WATER_FAQ_GROUPS,
   ...ICF_FAQ_GROUPS,

@@ -24,7 +24,7 @@ describe("domain registry coverage", () => {
     expect(new Set([...classified, ...platform]).size).toBe(
       classified.length + platform.length,
     );
-    expect(catalogueSlugs.length).toBe(81);
+    expect(catalogueSlugs.length).toBe(82);
   });
 
   it("names no tool the catalogue does not have", () => {

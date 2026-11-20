@@ -231,3 +231,25 @@ describe("IFC4.3 (IFC4X3_ADD2) schema", () => {
     expect(volume?.value).toBeCloseTo(1.2, 6);
   });
 });
+
+describe("IfcCovering takeoff (plaster/render areas)", () => {
+  it("takes off coverings and their declared PredefinedType", async () => {
+    const result = await parseIfcModel(fixture("covering-areas.ifc"));
+    const coverings = result.elements.filter(
+      (e) => e.ifcClass === "IFCCOVERING",
+    );
+    expect(coverings).toHaveLength(3);
+    const cladding = coverings.find((c) => c.name === "Render-Ext");
+    const plastering = coverings.find((c) => c.name === "Plaster-Int");
+    const untyped = coverings.find((c) => c.name === "Ceiling-NoType");
+    expect(cladding?.predefinedType).toBe("CLADDING");
+    expect(plastering?.predefinedType).toBe("PLASTERING");
+    expect(untyped?.predefinedType).toBeUndefined();
+    expect(cladding?.quantities.find((q) => q.kind === "area")?.value).toBe(
+      120.5,
+    );
+    expect(plastering?.quantities.find((q) => q.kind === "area")?.value).toBe(
+      80.25,
+    );
+  });
+});

@@ -73,6 +73,7 @@ export const TOOL_ROUTES: ReadonlySet<string> = new Set([
   "/paint-calculator",
   "/paint-comparison",
   "/paving-calculator",
+  "/plaster-render-calculator",
   "/plastering-calculator",
   "/plumbing",
   "/pop-ceiling-calculator",
@@ -172,6 +173,11 @@ export const NAV_TOOL_GROUPS: readonly NavToolGroup[] = [
       {
         to: "/eifs-wall-estimator",
         label: "EIFS / ETICS Wall Estimator",
+        benefit: "",
+      },
+      {
+        to: "/plaster-render-calculator",
+        label: "Plaster & Render Systems Calculator",
         benefit: "",
       },
       {
