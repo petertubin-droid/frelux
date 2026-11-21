@@ -99,22 +99,25 @@ export default function AdminSeo() {
           .maybeSingle();
 
         if (fallback.data) {
-          populateForm(fallback.data as any);
+          populateForm(fallback.data as unknown as Partial<DbSiteSettings>);
         } else {
           setError(fetchErr.message);
         }
       } else if (data) {
-        populateForm(data as any);
+        populateForm(data as unknown as Partial<DbSiteSettings>);
       }
-    } catch (err: any) {
-      setError(err.message || "Failed to load SEO settings");
+    } catch (err: unknown) {
+      setError(
+        (err instanceof Error ? err.message : String(err)) ||
+          "Failed to load SEO settings",
+      );
     } finally {
       setLoading(false);
     }
   };
 
   const populateForm = (
-    data: Partial<DbSiteSettings> & Record<string, any>,
+    data: Partial<DbSiteSettings> & Record<string, unknown>,
   ) => {
     const loaded: SeoFormState = {
       id: data.id,
@@ -127,10 +130,20 @@ export default function AdminSeo() {
       twitter_handle: data.twitter_handle || DEFAULT_FORM.twitter_handle,
       robots_txt_custom:
         data.robots_txt_custom || DEFAULT_FORM.robots_txt_custom,
-      google_site_verification: data.google_site_verification || "",
-      bing_site_verification: (data as any).bing_site_verification || "",
-      ga_measurement_id: data.ga_measurement_id || "",
-      meta_pixel_id: data.meta_pixel_id || "",
+      google_site_verification:
+        typeof data.google_site_verification === "string"
+          ? data.google_site_verification
+          : "",
+      bing_site_verification:
+        typeof data.bing_site_verification === "string"
+          ? data.bing_site_verification
+          : "",
+      ga_measurement_id:
+        typeof data.ga_measurement_id === "string"
+          ? data.ga_measurement_id
+          : "",
+      meta_pixel_id:
+        typeof data.meta_pixel_id === "string" ? data.meta_pixel_id : "",
     };
     setOriginalSettings(loaded);
     setForm(loaded);
@@ -155,7 +168,7 @@ export default function AdminSeo() {
     setError(null);
 
     try {
-      const payload: Record<string, any> = {
+      const payload: Record<string, unknown> = {
         seo_title: form.seo_title.trim(),
         seo_description: form.seo_description.trim(),
         seo_keywords: form.seo_keywords.trim(),
@@ -211,9 +224,16 @@ export default function AdminSeo() {
         type: "success",
         title: "SEO configuration saved successfully!",
       });
-    } catch (err: any) {
-      setError(err.message || "Failed to update SEO configuration");
-      toast({ type: "error", title: err.message || "Save failed" });
+    } catch (err: unknown) {
+      setError(
+        (err instanceof Error ? err.message : String(err)) ||
+          "Failed to update SEO configuration",
+      );
+      toast({
+        type: "error",
+        title:
+          (err instanceof Error ? err.message : String(err)) || "Save failed",
+      });
     } finally {
       setSaving(false);
     }

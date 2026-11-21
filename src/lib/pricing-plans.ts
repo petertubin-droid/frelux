@@ -166,16 +166,16 @@ export async function fetchPricingPlans(): Promise<PricingPlan[]> {
       .order("sort_order", { ascending: true });
 
     if (!error && data && data.length > 0) {
-      return data.map((row: any) => ({
+      return (data as Record<string, unknown>[]).map((row) => ({
         id: row.id as SubscriptionPlan,
-        name: row.name,
-        tagline: row.tagline,
+        name: String(row.name ?? ""),
+        tagline: String(row.tagline ?? ""),
         monthlyPrice: Number(row.monthly_price),
         yearlyPrice: Number(row.yearly_price),
-        badge: row.badge || undefined,
+        badge: (row.badge as string) || undefined,
         highlight: Boolean(row.highlight),
-        features: Array.isArray(row.features) ? row.features : [],
-        cta: row.cta || "Get Started",
+        features: Array.isArray(row.features) ? (row.features as string[]) : [],
+        cta: (row.cta as string) || "Get Started",
       }));
     }
   } catch {

@@ -418,7 +418,7 @@ export async function fetchTvConsoleTemplates(): Promise<TvConsoleTemplate[]> {
     }
 
     const dbTemplates: TvConsoleTemplate[] = data.map((row) => {
-      const input = (row.input_data ?? {}) as Record<string, any>;
+      const input = (row.input_data ?? {}) as Record<string, unknown>;
       return {
         id: row.slug || row.id,
         name: row.name,
@@ -429,13 +429,16 @@ export async function fetchTvConsoleTemplates(): Promise<TvConsoleTemplate[]> {
         feature:
           row.description ||
           String(input.feature || "Custom TV console design"),
-        layout: input.layout || layout({ shelves: 1, dividers: 2 }),
+        layout:
+          (input.layout as TvConsoleTemplate["layout"]) ||
+          layout({ shelves: 1, dividers: 2 }),
         tvInches: input.tvInches ? Number(input.tvInches) : undefined,
-        wallTreatment: input.wallTreatment,
+        wallTreatment:
+          input.wallTreatment as TvConsoleTemplate["wallTreatment"],
         wallPanelHeightMm: input.wallPanelHeightMm
           ? Number(input.wallPanelHeightMm)
           : undefined,
-        mounting: input.mounting,
+        mounting: input.mounting as TvConsoleTemplate["mounting"],
         ledProfileMetres: input.ledProfileMetres
           ? Number(input.ledProfileMetres)
           : undefined,

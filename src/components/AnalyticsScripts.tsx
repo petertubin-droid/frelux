@@ -86,8 +86,12 @@ export default function AnalyticsScripts() {
               pixelId = settings.meta_pixel_id;
             if (!searchConsoleToken && settings.google_site_verification)
               searchConsoleToken = settings.google_site_verification;
-            if ((settings as any).bing_site_verification)
-              bingToken = (settings as any).bing_site_verification;
+            const extra = settings as Record<string, unknown>;
+            if (
+              typeof extra.bing_site_verification === "string" &&
+              extra.bing_site_verification
+            )
+              bingToken = extra.bing_site_verification;
           }
         } catch {
           // Fall through to static config

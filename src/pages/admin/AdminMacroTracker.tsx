@@ -273,6 +273,8 @@ export default function AdminMacroTracker() {
         pct_change_yoy: Number(indicatorForm.pct_change_yoy) || 0,
         source_name: indicatorForm.source_name.trim(),
         source_url: indicatorForm.source_url.trim() || undefined,
+        published_at: new Date().toISOString(),
+        last_synced_at: new Date().toISOString(),
       };
 
       if (editingIndicator) {
@@ -286,7 +288,7 @@ export default function AdminMacroTracker() {
           title: "Macro indicator updated successfully",
         });
       } else {
-        const { error } = await createMacroIndicator(payload as any);
+        const { error } = await createMacroIndicator(payload);
         if (error) throw error;
         toast({
           type: "success",
@@ -296,10 +298,12 @@ export default function AdminMacroTracker() {
 
       setIndicatorModalOpen(false);
       await loadMarketData(selectedMarket);
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         type: "error",
-        title: err.message || "Failed to save indicator",
+        title:
+          (err instanceof Error ? err.message : String(err)) ||
+          "Failed to save indicator",
       });
     } finally {
       setSaving(false);
@@ -315,10 +319,12 @@ export default function AdminMacroTracker() {
       if (!ok && error) throw error;
       toast({ type: "success", title: "Indicator removed" });
       setIndicators((prev) => prev.filter((i) => i.id !== id));
-    } catch (err: any) {
+    } catch (err: unknown) {
       toast({
         type: "error",
-        title: err.message || "Could not delete indicator",
+        title:
+          (err instanceof Error ? err.message : String(err)) ||
+          "Could not delete indicator",
       });
     }
   };
@@ -382,8 +388,13 @@ export default function AdminMacroTracker() {
       toast({ type: "success", title: "Elasticity rule saved successfully" });
       setRuleModalOpen(false);
       await loadMarketData(selectedMarket);
-    } catch (err: any) {
-      toast({ type: "error", title: err.message || "Failed to save rule" });
+    } catch (err: unknown) {
+      toast({
+        type: "error",
+        title:
+          (err instanceof Error ? err.message : String(err)) ||
+          "Failed to save rule",
+      });
     } finally {
       setSaving(false);
     }
@@ -406,8 +417,13 @@ export default function AdminMacroTracker() {
         type: "success",
         title: `Rule ${rule.is_active ? "disabled" : "activated"}`,
       });
-    } catch (err: any) {
-      toast({ type: "error", title: err.message || "Could not toggle rule" });
+    } catch (err: unknown) {
+      toast({
+        type: "error",
+        title:
+          (err instanceof Error ? err.message : String(err)) ||
+          "Could not toggle rule",
+      });
     }
   };
 
@@ -420,8 +436,13 @@ export default function AdminMacroTracker() {
       if (!ok && error) throw error;
       toast({ type: "success", title: "Rule removed" });
       setRules((prev) => prev.filter((r) => r.id !== id));
-    } catch (err: any) {
-      toast({ type: "error", title: err.message || "Could not delete rule" });
+    } catch (err: unknown) {
+      toast({
+        type: "error",
+        title:
+          (err instanceof Error ? err.message : String(err)) ||
+          "Could not delete rule",
+      });
     }
   };
 

@@ -116,23 +116,38 @@ export default function AdminSubscriptionPricing() {
 
   const loadTiers = useCallback(async () => {
     try {
-      if (typeof (supabase as any)?.from === "function") {
-        const { data, error: tierErr } = await (supabase as any)
+      const client = supabase as unknown as {
+        from?: (table: string) => {
+          select: (cols: string) => {
+            order: (
+              col: string,
+              opts: { ascending: boolean },
+            ) => Promise<{
+              data: Record<string, unknown>[] | null;
+              error: unknown;
+            }>;
+          };
+        };
+      };
+      if (typeof client?.from === "function") {
+        const { data, error: tierErr } = await client
           .from("subscription_tier_configs")
           .select("*")
           .order("sort_order", { ascending: true });
         if (!tierErr && data && data.length > 0) {
           setTiers(
-            data.map((r: any) => ({
-              id: r.id,
-              name: r.name,
-              tagline: r.tagline,
+            data.map((r: Record<string, unknown>) => ({
+              id: String(r.id) as PricingPlan["id"],
+              name: String(r.name ?? ""),
+              tagline: String(r.tagline ?? ""),
               monthlyPrice: Number(r.monthly_price),
               yearlyPrice: Number(r.yearly_price),
-              badge: r.badge || undefined,
+              badge: (r.badge as string) || undefined,
               highlight: Boolean(r.highlight),
-              features: Array.isArray(r.features) ? r.features : [],
-              cta: r.cta || "Get Started",
+              features: Array.isArray(r.features)
+                ? (r.features as string[])
+                : [],
+              cta: (r.cta as string) || "Get Started",
             })),
           );
         }
@@ -180,8 +195,16 @@ export default function AdminSubscriptionPricing() {
         features,
       };
 
-      if (typeof (supabase as any)?.from === "function") {
-        const { error: tierError } = await (supabase as any)
+      const client = supabase as unknown as {
+        from?: (table: string) => {
+          upsert: (
+            row: Record<string, unknown>,
+            opts?: { onConflict?: string },
+          ) => Promise<{ error: Error | null }>;
+        };
+      };
+      if (typeof client?.from === "function") {
+        const { error: tierError } = await client
           .from("subscription_tier_configs")
           .upsert({
             id: updatedTier.id,
@@ -207,7 +230,7 @@ export default function AdminSubscriptionPricing() {
           ] as const) {
             const minor = Math.round(Number(usd) * 100);
             if (!Number.isFinite(minor) || minor <= 0) continue;
-            const { error: priceError } = await (supabase as any)
+            const { error: priceError } = await client
               .from("subscription_plan_prices")
               .upsert(
                 {
@@ -236,11 +259,17 @@ export default function AdminSubscriptionPricing() {
         message: `Saved updates for ${updatedTier.name} tier.`,
       });
       setEditingTier(null);
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error
+          ? err.message
+          : typeof err === "object" && err !== null && "message" in err
+            ? String((err as { message: unknown }).message)
+            : "An error occurred";
       toast({
         type: "error",
         title: "Could not save tier",
-        message: err?.message ?? "An error occurred",
+        message,
       });
     } finally {
       setBusy(false);

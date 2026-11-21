@@ -1,6 +1,7 @@
-import type { ReactNode } from "react";
+import type { ElementType, MouseEvent, ReactNode } from "react";
 import { classNames } from "@/lib/utils";
 import { Switch } from "@/components/ui/shadcn/switch";
+import { Button } from "@/components/ui/shadcn/button";
 
 export function AdminCard({
   children,
@@ -68,13 +69,17 @@ export function AdminButton({
   loading,
 }: {
   children: ReactNode;
-  onClick?: (() => void) | ((e: any) => void | Promise<void>);
+  onClick?:
+    (() => void) | ((e: MouseEvent<HTMLButtonElement>) => void | Promise<void>);
   variant?: "primary" | "secondary" | "danger" | "success" | "link" | "default";
   type?: "button" | "submit" | "reset";
   disabled?: boolean;
   className?: string;
   title?: string;
-  icon?: any;
+  icon?: ElementType<{
+    className?: string;
+    "aria-hidden"?: boolean | "true" | "false";
+  }>;
   loading?: boolean;
 }) {
   const base =
@@ -98,7 +103,11 @@ export function AdminButton({
       onClick={onClick}
       disabled={disabled || loading}
       title={title}
-      className={classNames(base, variants[variant] || variants.primary, className)}
+      className={classNames(
+        base,
+        variants[variant] || variants.primary,
+        className,
+      )}
     >
       {Icon && <Icon aria-hidden="true" className="h-4 w-4 mr-1.5" />}
       {children}
@@ -391,7 +400,6 @@ export function AdminTextarea({
 // =========================================================
 
 import type { SelectHTMLAttributes } from "react";
-import { Button } from "@/components/ui/shadcn/button";
 import { normalizeStatus, statusTone } from "@/lib/admin-status";
 import { useLanguage } from "@/lib/i18n";
 

@@ -107,9 +107,7 @@ function unnamedSelects(file: string): number[] {
           ? idProperty.initializer.text
           : null;
       const linkedLabel = idValue
-        ? new RegExp(`<label\\b[^>]*\\bhtmlFor=[\"']${idValue}[\"']`).test(
-            source,
-          )
+        ? new RegExp(`<label\\b[^>]*\\bhtmlFor=['"]${idValue}['"]`).test(source)
         : false;
       let named =
         hasAttribute(node, "aria-label") ||
