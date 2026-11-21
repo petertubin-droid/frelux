@@ -31,7 +31,7 @@ been exercised; `staged` means written but not executed.
 | 9   | Masonry & Blockwork                | structure | **Audited 2026-11-21**, 17 tests, no defect in module, mortar or cement         |
 | 10  | German Floor Calculator            | structure | **Audited 2026-11-21**, 10 tests, DEFECT FIXED: blinding sand lacked allowance  |
 | 11  | Fence Block Calculator             | structure | **Audited 2026-11-21**, 18 tests, no defect in blocks, mortar or footing        |
-| 12  | Drywall & Partitions               | structure | Queued                                                                          |
+| 12  | Drywall & Partitions               | structure | **Audited 2026-11-21**, 17 tests, DEFECT FIXED: tape and compound per layer     |
 | 13  | Paving & External Works            | structure | Queued                                                                          |
 | 14  | Formwork & Temporary Works         | structure | Queued                                                                          |
 | 15  | Demolition & Debris Takeoff        | structure | Queued                                                                          |
@@ -406,6 +406,46 @@ Findings:
 3. Cement pack size comes from the market with a named 50 kg fallback and a
    warning when the market has no pack configured, so a market without a profile
    is told rather than silently given a Nigerian bag.
+
+---
+
+## Audit 12: Drywall & Partitions (`drywall-standalone-engine.ts`)
+
+Suite: `src/lib/estimation/__tests__/drywall-conformance.test.ts` (17 tests).
+
+Verified against trade figures:
+
+- 10 x 2.4 m partition boarded both sides is 48 m2 of board, and 48 / 2.88 m2
+  per 1200 x 2400 sheet plus 10 per cent is 19 whole sheets.
+- Studs stand at the specified centres plus the closing stud: 18 on a 10 m wall
+  at 600 centres, three walls giving 54.
+- Tracks run top and bottom of every wall, bought in the market's stock length:
+  22 m at 10 per cent is 8 pieces of 3 m.
+- Screws follow the boarded area at 12 per m2, so they do rise with a second
+  layer, which is correct: every layer is screwed.
+- Openings come out of the wall before boarding, and the market's own board and
+  framing are used (US 1219 x 2438 at 406 centres, GB at 400, NG at 600), with a
+  named generic fallback and "not a verified national standard" note where a
+  market has no profile.
+
+Findings:
+
+1. **DEFECT FIXED: tape and joint compound scaled with every layer of board.**
+   Both were computed from `boardAreaM2`, which includes `boardLayers`, so a
+   two-layer wall ordered 134.4 m of tape where 67.2 m is all the finished face
+   can use, and the same doubling on compound. A second layer covers the first
+   layer's joints; it does not need them taped. Finishing now follows the
+   boarded faces (`netWallAreaM2 x boardSides`), and the result note says so.
+   Screws were left on the boarded area, which is right.
+2. Track waste borrows the board waste percentage. One allowance drives both
+   lines, so setting board waste to 25 per cent also adds 25 per cent to the
+   tracks. Kept, and recorded here, because a separate track allowance is a
+   modelling change rather than a correction.
+3. Stud counts exclude jamb studs, lintels, bracing and deflection heads, which
+   the engine's own note already discloses. Not changed.
+
+Not in scope: it is a takeoff, not a fire, acoustic or structural partition
+design. The engine says so in its market note.
 
 ---
 

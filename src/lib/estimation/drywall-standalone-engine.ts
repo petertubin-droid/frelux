@@ -431,11 +431,16 @@ export function calculateDrywallTakeoff(
   const trackStockPieces = Math.ceil(trackLinearMeters / trackStockLengthM);
 
   const drywallScrews = Math.ceil(boardAreaM2 * profile.screwDensityPerM2);
+  // Tape and compound finish the face you look at. On a double-layered wall the
+  // second layer covers the first layer's joints, so the finishing quantities
+  // follow the boarded faces, not every layer of board: a two-layer wall was
+  // ordering twice the tape it can use.
+  const finishedFaceAreaM2 = netWallAreaM2 * boardSides;
   const jointTapeLinearMeters = Number(
-    (boardAreaM2 * profile.tapeMetersPerM2).toFixed(1),
+    (finishedFaceAreaM2 * profile.tapeMetersPerM2).toFixed(1),
   );
   const jointCompoundKg = Number(
-    (boardAreaM2 * profile.jointCompoundKgPerM2).toFixed(1),
+    (finishedFaceAreaM2 * profile.jointCompoundKgPerM2).toFixed(1),
   );
   const insulationAreaM2 = input.insulation
     ? Number(
@@ -464,6 +469,6 @@ export function calculateDrywallTakeoff(
     jointTapeLinearMeters,
     jointCompoundKg,
     insulationAreaM2,
-    marketNotes: `${DRYWALL_MARKET_PROFILES[marketCode] ? `Illustrative starting profile for ${marketCode}` : `No maintained profile for ${marketCode}; using generic editable dimensions`}. Not a verified national standard. Confirm product datasheets and local framing specification before procurement. Stud counts exclude engineered jamb, lintel, bracing, services and deflection-head details.`,
+    marketNotes: `${DRYWALL_MARKET_PROFILES[marketCode] ? `Illustrative starting profile for ${marketCode}` : `No maintained profile for ${marketCode}; using generic editable dimensions`}. Not a verified national standard. Confirm product datasheets and local framing specification before procurement. Stud counts exclude engineered jamb, lintel, bracing, services and deflection-head details. Tape and joint compound are counted once per finished face, not once per layer of board.`,
   };
 }
