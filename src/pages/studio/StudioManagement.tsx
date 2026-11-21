@@ -1129,187 +1129,67 @@ function ProjectExplorer() {
   const { t } = useLanguage();
   const [selectedNode, setSelectedNode] = useState<ArchNode | null>(null);
 
-  const tree: ArchNode[] = useMemo(
-    () => [
-      {
-        name: "src",
-        path: "src",
-        type: "dir",
-        purpose:
-          "Application source code including UI components, pages, and shared business logic.",
-        children: [
-          {
-            name: "components",
-            path: "src/components",
-            type: "dir",
-            purpose: "Reusable presentation and interactive UI components.",
-            children: [
-              {
-                name: "admin",
-                path: "src/components/admin",
-                type: "dir",
-                purpose:
-                  "Administration panels, controls, and management views.",
-              },
-              {
-                name: "studio",
-                path: "src/components/studio",
-                type: "dir",
-                purpose:
-                  "AI developer studio tools, prompt editors, and metrics.",
-              },
-              {
-                name: "layout",
-                path: "src/components/layout",
-                type: "dir",
-                purpose:
-                  "Navigation bars, footers, headers, and container layouts.",
-              },
-              {
-                name: "home",
-                path: "src/components/home",
-                type: "dir",
-                purpose: "Landing page and marketing components.",
-              },
-              {
-                name: "ui",
-                path: "src/components/ui",
-                type: "dir",
-                purpose:
-                  "Shared design system primitives (buttons, modals, tabs, toasts).",
-              },
-            ],
-          },
-          {
-            name: "pages",
-            path: "src/pages",
-            type: "dir",
-            purpose: "Top-level routed screens and page containers.",
-            children: [
-              {
-                name: "admin",
-                path: "src/pages/admin",
-                type: "dir",
-                purpose:
-                  "Administrative control center and reporting dashboards.",
-              },
-              {
-                name: "studio",
-                path: "src/pages/studio",
-                type: "dir",
-                purpose:
-                  "AI developer studio management and experimentation tools.",
-              },
-              {
-                name: "legal",
-                path: "src/pages/legal",
-                type: "dir",
-                purpose:
-                  "Terms of service, privacy policies, and compliance disclosures.",
-              },
-            ],
-          },
-          {
-            name: "lib",
-            path: "src/lib",
-            type: "dir",
-            purpose:
-              "Core calculation engines, AI adapters, internationalization, and Supabase client.",
-          },
-          {
-            name: "types",
-            path: "src/types",
-            type: "dir",
-            purpose:
-              "TypeScript definitions, database schema interfaces, and engine contracts.",
-          },
-          {
-            name: "App.tsx",
-            path: "src/App.tsx",
-            type: "file",
-            purpose:
-              "Main application router and lazy chunk boundary orchestrator.",
-          },
-          {
-            name: "main.tsx",
-            path: "src/main.tsx",
-            type: "file",
-            purpose:
-              "Client entry point bootstrapping React DOM and providers.",
-          },
-          {
-            name: "index.css",
-            path: "src/index.css",
-            type: "file",
-            purpose: "Global Tailwind styles and typography tokens.",
-          },
-        ],
-      },
-      {
-        name: "supabase",
-        path: "supabase",
-        type: "dir",
-        purpose:
-          "Backend infrastructure, serverless Edge Functions, and database migrations.",
-        children: [
-          {
-            name: "functions",
-            path: "supabase/functions",
-            type: "dir",
-            purpose:
-              "Deno-based serverless Edge Functions handling secure RPCs, webhooks, and AI calls.",
-          },
-          {
-            name: "migrations",
-            path: "supabase/migrations",
-            type: "dir",
-            purpose:
-              "PostgreSQL schemas, RLS security policies, and database triggers.",
-          },
-        ],
-      },
-      {
-        name: "public",
-        path: "public",
-        type: "dir",
-        purpose: "Static web assets, icons, manifest files, and robots.txt.",
-      },
-      {
-        name: "package.json",
-        path: "package.json",
-        type: "file",
-        purpose: "Project dependencies, scripts, and package metadata.",
-      },
-      {
-        name: "vite.config.ts",
-        path: "vite.config.ts",
-        type: "file",
-        purpose:
-          "Vite bundler build pipeline and alias resolution configuration.",
-      },
-      {
-        name: "tailwind.config.js",
-        path: "tailwind.config.js",
-        type: "file",
-        purpose:
-          "Tailwind CSS theme extensions, color schemes, and breakpoints.",
-      },
-    ],
-    [],
-  );
+  // The explorer used to render a hand-written tree, so it described the
+  // repository as it was the day someone typed it and drifted as the code
+  // moved. It now reads public/studio/project-map.json, which
+  // scripts/generate-project-map.mjs rebuilds from the real working tree on
+  // every build, so what an admin inspects is the deployed build itself.
+  const [tree, setTree] = useState<ArchNode[]>([]);
+  const [mapInfo, setMapInfo] = useState<{
+    generatedAt?: string;
+    commit?: string;
+    files?: number;
+  } | null>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
+  const [mapLoading, setMapLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/studio/project-map.json", { cache: "no-store" })
+      .then((res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        if (cancelled) return;
+        setTree(Array.isArray(data?.tree) ? data.tree : []);
+        setMapInfo({
+          generatedAt: data?.generated_at,
+          commit: data?.commit,
+          files: data?.totals?.files,
+        });
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setMapError(err instanceof Error ? err.message : String(err));
+      })
+      .finally(() => {
+        if (!cancelled) setMapLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div>
       <ToolHeader
         icon={FolderTree}
         title={t("Application Architecture & Schema Explorer")}
-        description="Inspect the structural hierarchy of codebase modules, serverless functions, database migrations, and architectural responsibilities."
+        description="Inspect the real structure of the deployed build: source modules, functions, migrations and scripts, generated from the repository at build time."
       />
 
       <div className="mb-4 rounded-lg border border-border bg-card p-3 text-xs text-muted-foreground flex items-center justify-between">
         <span>
-          To view, download, or delete generated project artifacts and files,
-          use the File Manager tool.
+          {mapLoading
+            ? "Loading the build map..."
+            : mapError
+              ? `Build map unavailable (${mapError}). It is generated during the build, so a local dev server may not have one yet.`
+              : `Generated from commit ${mapInfo?.commit || "unknown"} at ${
+                  mapInfo?.generatedAt
+                    ? new Date(mapInfo.generatedAt).toLocaleString()
+                    : "build time"
+                }, covering ${(mapInfo?.files ?? 0).toLocaleString()} files. Studio artifacts live under Studio Artifacts.`}
         </span>
       </div>
 
@@ -1319,6 +1199,11 @@ function ProjectExplorer() {
             Architecture Hierarchy
           </p>
           <div className="space-y-1">
+            {!mapLoading && !mapError && tree.length === 0 && (
+              <p className="text-xs text-muted-foreground">
+                The build map is empty. Run npm run project-map and rebuild.
+              </p>
+            )}
             {tree.map((node) => (
               <TreeNode
                 key={node.path}
@@ -1493,8 +1378,8 @@ function FileManager() {
     <div>
       <ToolHeader
         icon={FolderOpen}
-        title={t("File Manager")}
-        description="Manage generated artifacts and project files."
+        title={t("Studio Artifacts")}
+        description="Every file the Studio has generated, with its versions. Repository source files are not here: they are read-only and shown in the Project Explorer instead."
       />
       {error && (
         <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">

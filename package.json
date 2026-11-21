@@ -38,7 +38,8 @@
     "audit:ux": "node scripts/audit-ux.mjs",
     "audit:content": "node scripts/audit-thin-content.mjs",
     "audit:content:strict": "node scripts/audit-thin-content.mjs --strict",
-    "tools:index": "tsx --tsconfig tsconfig.app.json scripts/generate-tool-index.ts"
+    "tools:index": "tsx --tsconfig tsconfig.app.json scripts/generate-tool-index.ts",
+    "project-map": "node scripts/generate-project-map.mjs"
   },
   "dependencies": {
     "@cantoo/pdf-lib": "^2.11.1",

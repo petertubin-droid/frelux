@@ -45,7 +45,7 @@ export default function AdminRewardedAccess() {
     <>
       <AdminHeader
         title={tr("Rewarded Ads Manager")}
-        subtitle="Configure rewarded ad providers, feature unlock durations, daily limits, cooldowns, and reward rules. Track unlock analytics and ad performance."
+        subtitle="Configure rewarded ad providers, feature unlock durations, daily limits, cooldowns, and reward rules. Track unlock analytics and ad performance. This page owns SDK unlocks; task-based rewards live under Reward Tasks, and purchasable packages under Credit Packages."
       />
       <div className="mb-5 inline-flex flex-wrap rounded-lg border border-border bg-card dark:bg-background p-1 dark:border-border border-border">
         {(

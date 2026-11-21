@@ -364,7 +364,7 @@ export default function AdManager() {
       <AdminHeader
         title="FRELUX Ad Manager"
         subtitle={
-          "Internal promotions today, sponsored placements when you sell them. Every change is audited, and a paused campaign stops serving and stops counting immediately."
+          "Internal promotions today, sponsored placements when you sell them. Every change is audited, and a paused campaign stops serving and stops counting immediately. This page owns campaigns and their schedules; the slots they fill are defined under Ad Slots & Placements."
         }
         action={
           <Button

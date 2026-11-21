@@ -305,7 +305,7 @@ export default function AdminCreditsAds() {
           description={
             <>
               {t(
-                "FRELUX Credits wallet, AI feature costs, and rewarded ad management.",
+                "FRELUX Credits wallet, AI feature costs, and the credit packages customers can buy. Reward tasks live under Reward Tasks, and SDK unlocks under Rewarded Access (SDK).",
               )}
             </>
           }

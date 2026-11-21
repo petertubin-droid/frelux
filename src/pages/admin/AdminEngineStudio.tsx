@@ -9,9 +9,15 @@
  * Nothing here invents a result: the output is whatever executeEngine returns,
  * including its refusals.
  */
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { AlertTriangle, ArrowRight, Play, Code, ListFilter } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowRight,
+  Play,
+  Code,
+  ListFilter,
+} from "lucide-react";
 import {
   AdminButton,
   AdminField,
@@ -38,7 +44,6 @@ const STATUS_STYLE: Record<EngineSurfaceStatus, string> = {
     "border-amber-500/25 bg-amber-500/10 text-amber-700 dark:text-amber-300",
   none: "border-destructive/25 bg-destructive/10 text-destructive",
 };
-
 
 const ADDITIONAL_ENGINE_FIELDS: Record<
   string,
@@ -121,6 +126,30 @@ function coerce(value: string, unit?: string): unknown {
 
 export default function AdminEngineStudio() {
   const engines = useMemo(() => listEngines(), []);
+
+  // Coverage is reported from the build itself. Engine Studio can only run
+  // engines with a registered adapter, and until now nothing said how many
+  // engine modules exist beyond those: an operator could reasonably assume
+  // the list was complete. public/studio/project-map.json is regenerated from
+  // the working tree on every build, so this count cannot go stale.
+  const [engineModules, setEngineModules] = useState<
+    Array<{ path: string; name: string }>
+  >([]);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/studio/project-map.json", { cache: "no-store" })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return;
+        setEngineModules(Array.isArray(data.engines) ? data.engines : []);
+      })
+      .catch(() => {
+        /* the coverage card simply stays hidden */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const [selected, setSelected] = useState<string>(engines[0]?.id ?? "");
   const [values, setValues] = useState<Record<string, string>>({});
   const [result, setResult] = useState<EngineResult | null>(null);
@@ -152,7 +181,9 @@ export default function AdminEngineStudio() {
         try {
           input = JSON.parse(rawJson);
         } catch {
-          throw new Error("Invalid JSON input payload. Please check your syntax.");
+          throw new Error(
+            "Invalid JSON input payload. Please check your syntax.",
+          );
         }
       } else {
         for (const field of fields) {
@@ -198,6 +229,38 @@ export default function AdminEngineStudio() {
           </div>
         ))}
       </div>
+
+      {engineModules.length > 0 && (
+        <div className="mb-4 rounded-xl border border-border bg-card p-4">
+          <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            Adapter coverage
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {engines.length} of {engineModules.length} engine modules in this
+            build have a run adapter here. The other{" "}
+            {(engineModules.length - engines.length).toLocaleString()} are
+            calculated through their own calculator pages and cannot be driven
+            from this console yet. Adding one means writing an adapter that maps
+            raw input to the engine's own signature, so a number produced here
+            is the number the site would produce.
+          </p>
+          <details className="mt-2">
+            <summary className="cursor-pointer text-xs font-medium text-brand-purple">
+              Show modules without an adapter
+            </summary>
+            <ul className="mt-2 max-h-40 overflow-y-auto text-xs text-muted-foreground">
+              {engineModules
+                .filter((m) => !engines.some((e) => m.name.includes(e.id)))
+                .slice(0, 60)
+                .map((m) => (
+                  <li key={m.path} className="font-mono">
+                    {m.path}
+                  </li>
+                ))}
+            </ul>
+          </details>
+        </div>
+      )}
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div className="rounded-xl border border-border bg-card">
@@ -269,7 +332,11 @@ export default function AdminEngineStudio() {
           <div className="rounded-xl border border-border bg-card p-4">
             <div className="mb-3 flex items-center justify-between border-b border-border pb-2.5">
               <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                Engine Runner ({fields.length > 0 && !rawJsonMode ? "Form Mode" : "JSON Payload Mode"})
+                Engine Runner (
+                {fields.length > 0 && !rawJsonMode
+                  ? "Form Mode"
+                  : "JSON Payload Mode"}
+                )
               </span>
               {fields.length > 0 && (
                 <button
@@ -301,7 +368,8 @@ export default function AdminEngineStudio() {
                       aria-hidden="true"
                     />
                     <p className="text-xs leading-relaxed text-muted-foreground">
-                      No static form contract is declared for this engine. You can execute it directly with a test JSON payload:
+                      No static form contract is declared for this engine. You
+                      can execute it directly with a test JSON payload:
                     </p>
                   </div>
                 )}
@@ -326,7 +394,10 @@ export default function AdminEngineStudio() {
               <div>
                 <div className="grid gap-3 sm:grid-cols-2">
                   {fields.map((field, idx) => {
-                    const fieldKey = field.key ?? (field as { name?: string }).name ?? String(idx);
+                    const fieldKey =
+                      field.key ??
+                      (field as { name?: string }).name ??
+                      String(idx);
                     return (
                       <AdminField
                         key={fieldKey}

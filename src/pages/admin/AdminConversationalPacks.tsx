@@ -11,6 +11,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { LANGUAGES } from "@/lib/i18n";
 import {
   fetchConversationalPacks,
   createConversationalPack,
@@ -53,9 +54,14 @@ const emptyForm: PackForm = {
   sort_order: "0",
 };
 
-const LANGUAGES: Array<{ code: string; label: string }> = [
-  { code: "en", label: "English" },
-];
+// The pack editor offers every language the site actually serves. The old
+// single-entry list (English only) meant a reviewer could not tell whether
+// multilingual packs were unsupported or simply missing from the dropdown.
+// LANGUAGES is the same registry the language switcher renders, so the two
+// can never disagree about which locales exist.
+const PACK_LANGUAGES: Array<{ code: string; label: string }> = LANGUAGES.map(
+  (l) => ({ code: l.value, label: `${l.label} (${l.nativeLabel})` }),
+);
 
 const CATEGORIES = [
   "greeting",
@@ -349,7 +355,7 @@ export default function AdminConversationalPacks() {
                   onChange={(e) => set("language_code", e.target.value)}
                   className="w-full rounded-md border bg-background px-3 py-2 text-sm"
                 >
-                  {LANGUAGES.map((l) => (
+                  {PACK_LANGUAGES.map((l) => (
                     <option key={l.code} value={l.code}>
                       {l.label}
                     </option>

@@ -469,12 +469,20 @@ export default function AdminRoofView() {
                 <button
                   key={p.type}
                   type="button"
-                  onClick={() => handleProviderChange(p.type)}
+                  // A provider whose server-side retrieval is missing cannot
+                  // serve imagery, so it must not be selectable: choosing it
+                  // saved a configuration that looked healthy and returned
+                  // nothing. It stays visible, disabled, with the reason.
+                  disabled={!implemented}
+                  aria-disabled={!implemented}
+                  onClick={() => implemented && handleProviderChange(p.type)}
                   className={classNames(
                     "rounded-xl border p-4 text-left transition-colors",
+                    !implemented && "cursor-not-allowed opacity-60",
                     selected
                       ? "border-brand-purple bg-brand-purple/5"
-                      : "border-border hover:border-brand-purple/40 dark:border-white/5 dark:hover:border-brand-purple/40",
+                      : implemented &&
+                          "border-border hover:border-brand-purple/40 dark:border-white/5 dark:hover:border-brand-purple/40",
                   )}
                 >
                   <div className="flex items-center justify-between">

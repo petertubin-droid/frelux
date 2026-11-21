@@ -48,3 +48,6 @@ mock_data_found.txt
 *.tsbuildinfo
 .env.audit
 design-shots/
+
+# Generated at build time by scripts/generate-project-map.mjs
+public/studio/

@@ -21,6 +21,7 @@ const steps = [
   ["faq prerender", "npm", ["run", "faqs:prerender"]],
   ["building type prerender", "npm", ["run", "buildings:prerender"]],
   ["sequence prerender", "npm", ["run", "sequences:prerender"]],
+  ["project map", process.execPath, ["scripts/generate-project-map.mjs"]],
   ["vite build", process.execPath, ["node_modules/vite/bin/vite.js", "build"]],
   // Its own heap cap: the prerender writes thousands of pages and a builder's
   // default heap is sized for the container, not for this step. Measured peak

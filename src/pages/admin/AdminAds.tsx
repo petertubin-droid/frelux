@@ -261,7 +261,7 @@ export default function AdminAds() {
     <>
       <AdminHeader
         title={t("Ad Management Center")}
-        subtitle="Manage ad providers, placements, and analytics across the entire site. Add unlimited providers without code changes."
+        subtitle="Manage ad providers, placements, and analytics across the entire site. Add unlimited providers without code changes. This page owns the slots themselves: which placement exists, where it renders and which provider fills it. Campaign scheduling lives under First-party Campaigns, and third-party network keys under Ad Networks."
       />
       <ProviderControlCard />
       <div className="mb-5 inline-flex flex-wrap rounded-lg border border-border bg-card dark:bg-background p-1 dark:border-border border-border">

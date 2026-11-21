@@ -434,14 +434,53 @@ export const navModules: NavModule[] = [
   },
   {
     heading: "Monetization",
+    // Three surfaces configure advertising and three configure rewards. They
+    // are not duplicates: each owns a different layer. The sub-groups and the
+    // labels below say which layer, because "Ad Management" next to "Ad
+    // Manager" told an operator nothing about where to change live ads.
     items: [
-      { label: "Ad Management", to: "/admin/ads", icon: Megaphone },
-      { label: "Ad Networks & SDKs", to: "/admin/network-hub", icon: Plug },
-      { label: "Ad Manager", to: "/admin/ad-manager", icon: Megaphone },
-      { label: "AI Monetization", to: "/admin/ai-monetization", icon: Crown },
-      { label: "Rewarded Access", to: "/admin/rewarded-access", icon: Gift },
-      { label: "Credits & Rewards", to: "/admin/rewards", icon: Gem },
-      { label: "Credits & Rewarded Ads", to: "/admin/credits-ads", icon: Gift },
+      {
+        label: "Ad Slots & Placements",
+        to: "/admin/ads",
+        icon: Megaphone,
+        group: "Advertising",
+      },
+      {
+        label: "First-party Campaigns",
+        to: "/admin/ad-manager",
+        icon: Megaphone,
+        group: "Advertising",
+      },
+      {
+        label: "Ad Networks (AdSense, Monetag, Adsterra)",
+        to: "/admin/network-hub",
+        icon: Plug,
+        group: "Advertising",
+      },
+      {
+        label: "AI Monetization",
+        to: "/admin/ai-monetization",
+        icon: Crown,
+        group: "Advertising",
+      },
+      {
+        label: "Reward Tasks",
+        to: "/admin/rewards",
+        icon: Gem,
+        group: "Rewards & Credits",
+      },
+      {
+        label: "Credit Packages",
+        to: "/admin/credits-ads",
+        icon: Gift,
+        group: "Rewards & Credits",
+      },
+      {
+        label: "Rewarded Access (SDK)",
+        to: "/admin/rewarded-access",
+        icon: Gift,
+        group: "Rewards & Credits",
+      },
     ],
   },
   {

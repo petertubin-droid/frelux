@@ -216,7 +216,10 @@ export default function AdminRewards() {
 
   return (
     <div>
-      <AdminPageHeader title={tr("FRELUX Credits & Rewards")} />
+      <AdminPageHeader
+        title={tr("FRELUX Credits & Rewards")}
+        description="The catalogue of rewarded tasks users complete to earn credits. Credit packages live under Credit Packages, and SDK unlocks under Rewarded Access (SDK)."
+      />
 
       {/* Tabs. The same four-label row, with the same mobile constraint as
           the member Rewards page: scroll inside the row, never widen the page. */}

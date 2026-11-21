@@ -631,7 +631,7 @@ export default function NetworkHub() {
       {/* Top Networks Hub bar (Heartsyncx layout) */}
       <HubCard
         title={tr("Ad Network Hub")}
-        subtitle="Complete Heartsyncx-style ad settings: configure Google AdSense, Monetag and Adsterra, manage placement slots, and verify live slot-to-provider connectivity. Everything saves to the ad providers, placements and site settings in the database."
+        subtitle="Complete Heartsyncx-style ad settings: configure Google AdSense, Monetag and Adsterra, manage placement slots, and verify live slot-to-provider connectivity. Everything saves to the ad providers, placements and site settings in the database. This page owns the network accounts and their keys; first-party campaigns live under First-party Campaigns."
       >
         <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-lg border border-border bg-card">
           {TABS.map((t) => (

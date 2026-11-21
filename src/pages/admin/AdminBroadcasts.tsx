@@ -979,6 +979,7 @@ export default function AdminBroadcasts() {
               <Search className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
               <input
                 type="text"
+                aria-label="Search subscriber email"
                 placeholder="Search subscriber email..."
                 value={subscriberSearch}
                 onChange={(e) => setSubscriberSearch(e.target.value)}
@@ -1059,20 +1060,28 @@ export default function AdminBroadcasts() {
           {/* Basics */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="text-xs font-medium text-foreground">
+              <label
+                htmlFor="broadcast-campaign-title"
+                className="text-xs font-medium text-foreground"
+              >
                 Internal Campaign Title
               </label>
               <AdminInput
+                id="broadcast-campaign-title"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Nov 2026 Price Surge Digest"
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-foreground">
+              <label
+                htmlFor="broadcast-campaign-category"
+                className="text-xs font-medium text-foreground"
+              >
                 Campaign Category
               </label>
               <AdminSelect
+                id="broadcast-campaign-category"
                 value={campaignType}
                 onChange={(e) =>
                   setCampaignType(e.target.value as CampaignType)
@@ -1224,6 +1233,7 @@ export default function AdminBroadcasts() {
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3">
                   <input
                     type="datetime-local"
+                    aria-label="Scheduled send date and time"
                     value={scheduledDateTime}
                     onChange={(e) => setScheduledDateTime(e.target.value)}
                     className="rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground focus:border-brand-purple focus:outline-none"
@@ -1248,10 +1258,14 @@ export default function AdminBroadcasts() {
           {/* Test Send Section */}
           <div className="rounded-lg border border-border bg-muted/40 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex-1">
-              <label className="text-xs font-medium text-foreground">
+              <label
+                htmlFor="broadcast-test-email"
+                className="text-xs font-medium text-foreground"
+              >
                 Send Test Preview to Admin
               </label>
               <input
+                id="broadcast-test-email"
                 type="email"
                 value={testEmailAddress}
                 onChange={(e) => setTestEmailAddress(e.target.value)}
