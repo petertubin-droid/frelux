@@ -18,42 +18,42 @@ been exercised; `staged` means written but not executed.
 
 ## Status summary
 
-| #   | Calculator                         | Category  | Status                                                              |
-| --- | ---------------------------------- | --------- | ------------------------------------------------------------------- |
-| 1   | Foundation Designer                | structure | **Audited 2026-11-21**, 18 tests, no arithmetic defect              |
-| 2   | Reinforcement / Steel              | structure | **Audited 2026-11-21**, 15 tests, no defect in anchorage or laps    |
-| 3   | ICF Wall Estimator                 | structure | **Audited 2026-11-21**, 19 tests, no defect in geometry or envelope |
-| 4   | Concrete & Structural              | structure | Queued                                                              |
-| 5   | Concrete Slab Takeoff              | structure | Queued                                                              |
-| 6   | Earthworks Cut & Fill              | structure | Queued                                                              |
-| 7   | Retaining Wall Calculator          | structure | Queued                                                              |
-| 8   | Roof Framing & Board Feet          | structure | Queued                                                              |
-| 9   | Masonry & Blockwork                | structure | Queued                                                              |
-| 10  | German Floor Calculator            | structure | Queued                                                              |
-| 11  | Fence Block Calculator             | structure | Queued                                                              |
-| 12  | Drywall & Partitions               | structure | Queued                                                              |
-| 13  | Paving & External Works            | structure | Queued                                                              |
-| 14  | Formwork & Temporary Works         | structure | Queued                                                              |
-| 15  | Demolition & Debris Takeoff        | structure | Queued                                                              |
-| 16  | Steel I-Beam Weight                | structure | Queued                                                              |
-| 17  | Soffit, Fascia & Gutter            | structure | Queued                                                              |
-| 18  | Overhead Water Tank Staging        | structure | Queued                                                              |
-| 19  | Tall Building Structure            | structure | Queued                                                              |
-| 20  | Build-to-Roof Estimator            | structure | Queued (engine has tests, page chain untested)                      |
-| 21  | Mathematical Plan Elevation        | structure | Queued                                                              |
-| 22  | Foundation Cost Estimate           | structure | Queued                                                              |
-| 23  | Plumbing                           | services  | Queued                                                              |
-| 24  | Electrical Wiring                  | services  | Queued                                                              |
-| 25  | Conduit & Wiring Loops             | services  | Queued                                                              |
-| 26  | Solar PV Estimator                 | services  | Queued                                                              |
-| 27  | Backup Power / Generator           | services  | Queued                                                              |
-| 28  | Heat & Comfort                     | services  | Queued                                                              |
-| 29  | Autonomous Borehole & Water Supply | services  | Queued                                                              |
-| 30  | Septic & Soakaway Worksheet        | services  | Queued                                                              |
-| 31  | External Drainage Takeoff          | services  | Queued                                                              |
-| 32  | Live Material Price Index          | services  | Queued                                                              |
-| 33  | International Code Reference       | services  | Queued                                                              |
-| 34  | Climate Material Advisor           | services  | Queued                                                              |
+| #   | Calculator                         | Category  | Status                                                                          |
+| --- | ---------------------------------- | --------- | ------------------------------------------------------------------------------- |
+| 1   | Foundation Designer                | structure | **Audited 2026-11-21**, 18 tests, no arithmetic defect                          |
+| 2   | Reinforcement / Steel              | structure | **Audited 2026-11-21**, 15 tests, no defect in anchorage or laps                |
+| 3   | ICF Wall Estimator                 | structure | **Audited 2026-11-21**, 19 tests, no defect in geometry or envelope             |
+| 4   | Concrete & Structural              | structure | Queued                                                                          |
+| 5   | Concrete Slab Takeoff              | structure | Queued                                                                          |
+| 6   | Earthworks Cut & Fill              | structure | Queued                                                                          |
+| 7   | Retaining Wall Calculator          | structure | **Audited 2026-11-21**, 9 tests, DEFECT FIXED: overturning 1.5 -> 2.0 (BS 8002) |
+| 8   | Roof Framing & Board Feet          | structure | Queued                                                                          |
+| 9   | Masonry & Blockwork                | structure | Queued                                                                          |
+| 10  | German Floor Calculator            | structure | Queued                                                                          |
+| 11  | Fence Block Calculator             | structure | Queued                                                                          |
+| 12  | Drywall & Partitions               | structure | Queued                                                                          |
+| 13  | Paving & External Works            | structure | Queued                                                                          |
+| 14  | Formwork & Temporary Works         | structure | Queued                                                                          |
+| 15  | Demolition & Debris Takeoff        | structure | Queued                                                                          |
+| 16  | Steel I-Beam Weight                | structure | Queued                                                                          |
+| 17  | Soffit, Fascia & Gutter            | structure | Queued                                                                          |
+| 18  | Overhead Water Tank Staging        | structure | Queued                                                                          |
+| 19  | Tall Building Structure            | structure | Queued                                                                          |
+| 20  | Build-to-Roof Estimator            | structure | Queued (engine has tests, page chain untested)                                  |
+| 21  | Mathematical Plan Elevation        | structure | Queued                                                                          |
+| 22  | Foundation Cost Estimate           | structure | Queued                                                                          |
+| 23  | Plumbing                           | services  | Queued                                                                          |
+| 24  | Electrical Wiring                  | services  | Queued                                                                          |
+| 25  | Conduit & Wiring Loops             | services  | Queued                                                                          |
+| 26  | Solar PV Estimator                 | services  | Queued                                                                          |
+| 27  | Backup Power / Generator           | services  | Queued                                                                          |
+| 28  | Heat & Comfort                     | services  | Queued                                                                          |
+| 29  | Autonomous Borehole & Water Supply | services  | Queued                                                                          |
+| 30  | Septic & Soakaway Worksheet        | services  | Queued                                                                          |
+| 31  | External Drainage Takeoff          | services  | Queued                                                                          |
+| 32  | Live Material Price Index          | services  | Queued                                                                          |
+| 33  | International Code Reference       | services  | Queued                                                                          |
+| 34  | Climate Material Advisor           | services  | Queued                                                                          |
 
 Queue order is by risk: engines with no tests at all come first, because an
 untested engine can be wrong in a way a tested one cannot.
