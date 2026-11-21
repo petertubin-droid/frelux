@@ -29,6 +29,7 @@ export interface SeoMeta {
   description: string;
   canonicalPath?: string;
   ogType?: string;
+  twitterSite?: string;
   ogImage?: string;
   noIndex?: boolean;
   keywords?: string;
@@ -157,6 +158,10 @@ export function useSeo(meta: SeoMeta | null) {
     setMeta("name", "twitter:description", description);
     setMeta("name", "twitter:image", ogImage);
     setMeta("name", "twitter:image:alt", `${fullTitle}: FRELUX SMART CALC`);
+    if (meta.twitterSite) {
+      setMeta("name", "twitter:site", meta.twitterSite);
+      setMeta("name", "twitter:creator", meta.twitterSite);
+    }
 
     // Canonical URL, always set
     setLink("canonical", canonicalUrl);

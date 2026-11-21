@@ -1,3 +1,8 @@
+import {
+  PRICING_PLANS,
+  type PricingPlan,
+  formatUsdPrice,
+} from "@/lib/pricing-plans";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { RefreshCw, AlertTriangle, CheckCircle2, Pencil } from "lucide-react";
 import { supabase } from "@/lib/supabase";
@@ -86,6 +91,129 @@ export default function AdminSubscriptionPricing() {
   const [busy, setBusy] = useState(false);
   const [editing, setEditing] = useState<PriceRow | null>(null);
   const [manualValue, setManualValue] = useState("");
+  const [activeTab, setActiveTab] = useState<"local" | "tiers">("local");
+  const [tiers, setTiers] = useState<PricingPlan[]>(PRICING_PLANS);
+  const [editingTier, setEditingTier] = useState<PricingPlan | null>(null);
+  const [tierForm, setTierForm] = useState<{
+    name: string;
+    tagline: string;
+    monthlyPrice: number;
+    yearlyPrice: number;
+    badge: string;
+    highlight: boolean;
+    cta: string;
+    featuresText: string;
+  }>({
+    name: "",
+    tagline: "",
+    monthlyPrice: 0,
+    yearlyPrice: 0,
+    badge: "",
+    highlight: false,
+    cta: "",
+    featuresText: "",
+  });
+
+  const loadTiers = useCallback(async () => {
+    try {
+      if (typeof (supabase as any)?.from === "function") {
+        const { data, error: tierErr } = await (supabase as any)
+          .from("subscription_tier_configs")
+          .select("*")
+          .order("sort_order", { ascending: true });
+        if (!tierErr && data && data.length > 0) {
+          setTiers(
+            data.map((r: any) => ({
+              id: r.id,
+              name: r.name,
+              tagline: r.tagline,
+              monthlyPrice: Number(r.monthly_price),
+              yearlyPrice: Number(r.yearly_price),
+              badge: r.badge || undefined,
+              highlight: Boolean(r.highlight),
+              features: Array.isArray(r.features) ? r.features : [],
+              cta: r.cta || "Get Started",
+            })),
+          );
+        }
+      }
+    } catch {
+      // fallback
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadTiers();
+  }, [loadTiers]);
+
+  function startEditTier(tier: PricingPlan) {
+    setEditingTier(tier);
+    setTierForm({
+      name: tier.name,
+      tagline: tier.tagline,
+      monthlyPrice: tier.monthlyPrice,
+      yearlyPrice: tier.yearlyPrice,
+      badge: tier.badge ?? "",
+      highlight: tier.highlight ?? false,
+      cta: tier.cta,
+      featuresText: tier.features.join("\n"),
+    });
+  }
+
+  async function saveTier() {
+    if (!editingTier) return;
+    setBusy(true);
+    try {
+      const features = tierForm.featuresText
+        .split("\n")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      const updatedTier: PricingPlan = {
+        ...editingTier,
+        name: tierForm.name.trim() || editingTier.name,
+        tagline: tierForm.tagline.trim(),
+        monthlyPrice: Number(tierForm.monthlyPrice) || 0,
+        yearlyPrice: Number(tierForm.yearlyPrice) || 0,
+        badge: tierForm.badge.trim() || undefined,
+        highlight: tierForm.highlight,
+        cta: tierForm.cta.trim() || "Get Started",
+        features,
+      };
+
+      if (typeof (supabase as any)?.from === "function") {
+        await (supabase as any).from("subscription_tier_configs").upsert({
+          id: updatedTier.id,
+          name: updatedTier.name,
+          tagline: updatedTier.tagline,
+          monthly_price: updatedTier.monthlyPrice,
+          yearly_price: updatedTier.yearlyPrice,
+          badge: updatedTier.badge ?? null,
+          highlight: updatedTier.highlight ?? false,
+          cta: updatedTier.cta,
+          features: updatedTier.features,
+          updated_at: new Date().toISOString(),
+        });
+      }
+
+      setTiers((prev) =>
+        prev.map((t) => (t.id === updatedTier.id ? updatedTier : t)),
+      );
+      toast({
+        type: "success",
+        title: "Tier updated",
+        message: `Saved updates for ${updatedTier.name} tier.`,
+      });
+      setEditingTier(null);
+    } catch (err: any) {
+      toast({
+        type: "error",
+        title: "Could not save tier",
+        message: err?.message ?? "An error occurred",
+      });
+    } finally {
+      setBusy(false);
+    }
+  }
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -220,6 +348,101 @@ export default function AdminSubscriptionPricing() {
         </AdminButton>
       </div>
 
+      <div className="mb-6 flex gap-2 border-b border-border pb-3">
+        <button
+          type="button"
+          onClick={() => setActiveTab("local")}
+          className={classNames(
+            "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+            activeTab === "local"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+          )}
+        >
+          Market FX & Quotes
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("tiers")}
+          className={classNames(
+            "rounded-lg px-3 py-1.5 text-sm font-medium transition-colors",
+            activeTab === "tiers"
+              ? "bg-primary text-primary-foreground"
+              : "text-muted-foreground hover:bg-muted/50 hover:text-foreground",
+          )}
+        >
+          USD Base Tiers & Features
+        </button>
+      </div>
+
+      {activeTab === "tiers" && (
+        <div className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {tiers.map((tier) => (
+            <div
+              key={tier.id}
+              className={classNames(
+                "flex flex-col justify-between rounded-xl border p-4 transition-all",
+                tier.highlight
+                  ? "border-primary/50 bg-primary/5"
+                  : "border-border bg-card dark:border-white/10",
+              )}
+            >
+              <div>
+                <div className="flex items-center justify-between gap-2">
+                  <h3 className="font-semibold text-foreground">{tier.name}</h3>
+                  {tier.badge && (
+                    <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+                      {tier.badge}
+                    </span>
+                  )}
+                </div>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  {tier.tagline}
+                </p>
+                <div className="mt-3">
+                  <span className="text-xl font-bold text-foreground">
+                    {formatUsdPrice(tier.monthlyPrice)}
+                  </span>
+                  <span className="text-xs text-muted-foreground"> /mo</span>
+                  {tier.monthlyPrice > 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      {formatUsdPrice(tier.yearlyPrice)} /yr
+                    </p>
+                  )}
+                </div>
+                <div className="mt-4 border-t border-border pt-3">
+                  <p className="text-xs font-medium text-foreground">
+                    Features:
+                  </p>
+                  <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+                    {tier.features.slice(0, 5).map((f, idx) => (
+                      <li key={idx} className="flex items-start gap-1.5">
+                        <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                    {tier.features.length > 5 && (
+                      <li className="text-[11px] italic text-muted-foreground/80">
+                        + {tier.features.length - 5} more features
+                      </li>
+                    )}
+                  </ul>
+                </div>
+              </div>
+              <div className="mt-4 pt-2">
+                <AdminButton
+                  type="button"
+                  onClick={() => startEditTier(tier)}
+                  className="w-full justify-center min-h-8 rounded-lg border border-border text-xs"
+                >
+                  <Pencil className="h-3 w-3 mr-1" />
+                  Edit Tier & Features
+                </AdminButton>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
       {error ? (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700 dark:border-red-500/20 dark:bg-red-500/10 dark:text-red-300">
           <div className="flex items-center gap-2 font-medium">
@@ -237,7 +460,7 @@ export default function AdminSubscriptionPricing() {
         </div>
       ) : null}
 
-      {!error && (
+      {!error && activeTab === "local" && (
         <>
           <div className="mb-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {(
@@ -463,6 +686,150 @@ export default function AdminSubscriptionPricing() {
                 className="min-h-8 rounded-lg bg-primary px-3 text-xs text-primary-foreground"
               >
                 Save price
+              </AdminButton>
+            </div>
+          </div>
+        )}
+      </AdminModal>
+      <AdminModal
+        open={!!editingTier}
+        onClose={() => setEditingTier(null)}
+        title={
+          editingTier ? `Edit Plan Tier: ${editingTier.name}` : "Edit Plan"
+        }
+      >
+        {editingTier && (
+          <div className="space-y-4">
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="block text-sm">
+                <span className="font-medium text-foreground">Plan Name</span>
+                <input
+                  type="text"
+                  value={tierForm.name}
+                  onChange={(e) =>
+                    setTierForm({ ...tierForm, name: e.target.value })
+                  }
+                  className="mt-1 min-h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground"
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="font-medium text-foreground">
+                  Badge (optional)
+                </span>
+                <input
+                  type="text"
+                  placeholder="e.g. Most Popular"
+                  value={tierForm.badge}
+                  onChange={(e) =>
+                    setTierForm({ ...tierForm, badge: e.target.value })
+                  }
+                  className="mt-1 min-h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground"
+                />
+              </label>
+            </div>
+            <label className="block text-sm">
+              <span className="font-medium text-foreground">Tagline</span>
+              <input
+                type="text"
+                value={tierForm.tagline}
+                onChange={(e) =>
+                  setTierForm({ ...tierForm, tagline: e.target.value })
+                }
+                className="mt-1 min-h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground"
+              />
+            </label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="block text-sm">
+                <span className="font-medium text-foreground">
+                  Monthly Price (USD $)
+                </span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={tierForm.monthlyPrice}
+                  onChange={(e) =>
+                    setTierForm({
+                      ...tierForm,
+                      monthlyPrice: parseFloat(e.target.value) || 0,
+                    })
+                  }
+                  className="mt-1 min-h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground"
+                />
+              </label>
+              <label className="block text-sm">
+                <span className="font-medium text-foreground">
+                  Yearly Price (USD $)
+                </span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={tierForm.yearlyPrice}
+                  onChange={(e) =>
+                    setTierForm({
+                      ...tierForm,
+                      yearlyPrice: parseFloat(e.target.value) || 0,
+                    })
+                  }
+                  className="mt-1 min-h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground"
+                />
+              </label>
+            </div>
+            <label className="block text-sm">
+              <span className="font-medium text-foreground">
+                CTA Button Label
+              </span>
+              <input
+                type="text"
+                value={tierForm.cta}
+                onChange={(e) =>
+                  setTierForm({ ...tierForm, cta: e.target.value })
+                }
+                className="mt-1 min-h-9 w-full rounded-lg border border-border bg-background px-3 text-sm text-foreground"
+              />
+            </label>
+            <label className="flex items-center gap-2 text-sm">
+              <input
+                type="checkbox"
+                checked={tierForm.highlight}
+                onChange={(e) =>
+                  setTierForm({ ...tierForm, highlight: e.target.checked })
+                }
+                className="rounded border-border"
+              />
+              <span className="font-medium text-foreground">
+                Highlight this tier on pricing page
+              </span>
+            </label>
+            <label className="block text-sm">
+              <span className="font-medium text-foreground">
+                Features (one per line)
+              </span>
+              <textarea
+                rows={6}
+                value={tierForm.featuresText}
+                onChange={(e) =>
+                  setTierForm({ ...tierForm, featuresText: e.target.value })
+                }
+                className="mt-1 w-full rounded-lg border border-border bg-background p-2.5 text-xs text-foreground font-mono"
+              />
+            </label>
+            <div className="flex justify-end gap-2 pt-2">
+              <AdminButton
+                type="button"
+                onClick={() => setEditingTier(null)}
+                className="min-h-8 rounded-lg border border-border px-3 text-xs"
+              >
+                Cancel
+              </AdminButton>
+              <AdminButton
+                type="button"
+                disabled={busy}
+                onClick={() => void saveTier()}
+                className="min-h-8 rounded-lg bg-primary px-3 text-xs text-primary-foreground"
+              >
+                Save Tier Changes
               </AdminButton>
             </div>
           </div>

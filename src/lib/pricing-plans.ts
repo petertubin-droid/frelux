@@ -154,3 +154,52 @@ export function isPurchasablePlan(id: SubscriptionPlan): boolean {
   const plan = getPlanById(id);
   return !!plan && plan.monthlyPrice > 0;
 }
+
+import { useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+
+export async function fetchPricingPlans(): Promise<PricingPlan[]> {
+  try {
+    const { data, error } = await supabase
+      .from("subscription_tier_configs")
+      .select("*")
+      .order("sort_order", { ascending: true });
+
+    if (!error && data && data.length > 0) {
+      return data.map((row: any) => ({
+        id: row.id as SubscriptionPlan,
+        name: row.name,
+        tagline: row.tagline,
+        monthlyPrice: Number(row.monthly_price),
+        yearlyPrice: Number(row.yearly_price),
+        badge: row.badge || undefined,
+        highlight: Boolean(row.highlight),
+        features: Array.isArray(row.features) ? row.features : [],
+        cta: row.cta || "Get Started",
+      }));
+    }
+  } catch {
+    // fallback
+  }
+  return PRICING_PLANS;
+}
+
+export function usePricingPlans() {
+  const [plans, setPlans] = useState<PricingPlan[]>(PRICING_PLANS);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    let active = true;
+    fetchPricingPlans().then((res) => {
+      if (active) {
+        setPlans(res);
+        setLoading(false);
+      }
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  return { plans, loading };
+}

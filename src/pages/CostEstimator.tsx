@@ -2,7 +2,7 @@ import CalculatorResetButton from "@/components/calculators/CalculatorResetButto
 import { MacroTrackerCard } from "@/components/pricing/MacroTrackerCard";
 import PriceFreshnessNotice from "@/components/prices/PriceFreshnessNotice";
 import { SupplierOfferBadge } from "@/components/calculator/SupplierOfferBadge";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, useMemo, type ReactNode } from "react";
 import { useLocation, Link } from "react-router-dom";
 import {
   CheckCircle2,
@@ -26,7 +26,9 @@ import {
   fetchPaintProducts,
   fetchMaterialPrices,
   fetchSiteSettings,
+  fetchPaintTypes,
 } from "@/lib/queries";
+import type { DbPaintType } from "@/types/database";
 import { formatCurrency, formatNumber, classNames } from "@/lib/utils";
 import { useMarket } from "@/lib/international/market-context";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
@@ -311,6 +313,24 @@ export default function CostEstimator({
   const [materials, setMaterials] = useState<DbMaterialPrice[]>([]);
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [loading, setLoading] = useState(true);
+  const [paintTypes, setPaintTypes] = useState<DbPaintType[]>([]);
+  const [selectedPaintTypeId, setSelectedPaintTypeId] = useState<string>(
+    passed.paintType ?? "",
+  );
+  const availableBucketSizes = useMemo(() => {
+    if (selectedPaintTypeId) {
+      const pt = paintTypes.find(
+        (t) =>
+          t.id === selectedPaintTypeId ||
+          t.name.toLowerCase() === selectedPaintTypeId.toLowerCase(),
+      );
+      if (pt && pt.container_sizes && pt.container_sizes.length > 0) {
+        return pt.container_sizes;
+      }
+    }
+    return settings?.manual_paint_bucket_sizes ?? [20, 4];
+  }, [selectedPaintTypeId, paintTypes, settings?.manual_paint_bucket_sizes]);
+
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const { market, preferredAreaUnit, setAreaUnit } = useMarket();
@@ -389,10 +409,11 @@ export default function CostEstimator({
   useEffect(() => {
     async function loadAll() {
       setLoading(true);
-      const [prodRes, matRes, settingsRes] = await Promise.all([
+      const [prodRes, matRes, settingsRes, paintTypesRes] = await Promise.all([
         fetchPaintProducts(),
         fetchMaterialPrices(),
         fetchSiteSettings(),
+        fetchPaintTypes(),
       ]);
       if (prodRes.error) setLoadError(getSafeError(prodRes.error));
       if (matRes.error) setLoadError(getSafeError(matRes.error));
@@ -401,6 +422,7 @@ export default function CostEstimator({
       setProducts(prodRes.data);
       setMaterials(matRes.data);
       setSettings(settingsRes.data);
+      setPaintTypes(paintTypesRes.data ?? []);
 
       // Pre-fill primer price from the first primer material.
       const primer = matRes.data.find((m) => m.category === "primer");
@@ -759,6 +781,42 @@ export default function CostEstimator({
 
             {/* Paint cost */}
             <Section title={t("Paint")}>
+              {paintTypes.length > 0 && (
+                <div className="mb-4">
+                  <Field
+                    label={t("Paint type")}
+                    hint="Select the paint type to configure standard bucket sizes and specifications"
+                  >
+                    <select
+                      value={selectedPaintTypeId}
+                      onChange={(e) => {
+                        const id = e.target.value;
+                        setSelectedPaintTypeId(id);
+                        const pt = paintTypes.find((t) => t.id === id);
+                        if (pt) {
+                          update("paintType", pt.name);
+                          if (
+                            pt.container_sizes &&
+                            pt.container_sizes.length > 0
+                          ) {
+                            setManualBucketSize(pt.container_sizes[0]);
+                          }
+                        } else {
+                          update("paintType", "");
+                        }
+                      }}
+                      className="input-field"
+                    >
+                      <option value="">{t("Standard / Generic")}</option>
+                      {paintTypes.map((pt) => (
+                        <option key={pt.id} value={pt.id}>
+                          {pt.name} ({pt.coverage_rate} {pt.coverage_unit})
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+                </div>
+              )}
               {products.length > 0 ? (
                 <Field
                   label="Paint product"
@@ -834,13 +892,11 @@ export default function CostEstimator({
                         }}
                         className="input-field"
                       >
-                        {(settings?.manual_paint_bucket_sizes ?? [20, 4]).map(
-                          (size) => (
-                            <option key={size} value={size}>
-                              {size} L
-                            </option>
-                          ),
-                        )}
+                        {availableBucketSizes.map((size) => (
+                          <option key={size} value={size}>
+                            {size} L
+                          </option>
+                        ))}
                       </select>
                     </Field>
                     <Field

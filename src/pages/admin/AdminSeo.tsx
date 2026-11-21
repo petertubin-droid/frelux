@@ -46,6 +46,7 @@ interface SeoFormState {
   twitter_handle: string;
   robots_txt_custom: string;
   google_site_verification: string;
+  bing_site_verification: string;
   ga_measurement_id: string;
   meta_pixel_id: string;
 }
@@ -62,6 +63,7 @@ const DEFAULT_FORM: SeoFormState = {
   robots_txt_custom:
     "User-agent: *\nAllow: /\n\nSitemap: https://freluxtools.com/sitemap.xml",
   google_site_verification: "",
+  bing_site_verification: "",
   ga_measurement_id: "",
   meta_pixel_id: "",
 };
@@ -126,6 +128,7 @@ export default function AdminSeo() {
       robots_txt_custom:
         data.robots_txt_custom || DEFAULT_FORM.robots_txt_custom,
       google_site_verification: data.google_site_verification || "",
+      bing_site_verification: (data as any).bing_site_verification || "",
       ga_measurement_id: data.ga_measurement_id || "",
       meta_pixel_id: data.meta_pixel_id || "",
     };
@@ -161,6 +164,7 @@ export default function AdminSeo() {
         twitter_handle: form.twitter_handle.trim() || null,
         robots_txt_custom: form.robots_txt_custom.trim() || null,
         google_site_verification: form.google_site_verification.trim() || null,
+        bing_site_verification: form.bing_site_verification.trim() || null,
         ga_measurement_id: form.ga_measurement_id.trim() || null,
         meta_pixel_id: form.meta_pixel_id.trim() || null,
         updated_at: new Date().toISOString(),
@@ -549,6 +553,21 @@ export default function AdminSeo() {
               Webmaster & Analytics Tracking Tokens
             </div>
             <div className="space-y-4">
+              <AdminField
+                label="Bing Webmaster Tools Verification Token (msvalidate.01)"
+                helpText="Verification code for Bing and Yahoo Search webmaster tools."
+              >
+                <AdminInput
+                  value={form.bing_site_verification}
+                  onChange={(e) =>
+                    setForm((f) => ({
+                      ...f,
+                      bing_site_verification: e.target.value,
+                    }))
+                  }
+                  placeholder="e.g. 1234567890ABCDEF1234567890ABCDEF"
+                />
+              </AdminField>
               <AdminField
                 label="Google Search Console Verification Token"
                 helpText="HTML tag verification code or token content for google-site-verification."

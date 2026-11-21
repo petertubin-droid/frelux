@@ -39,6 +39,7 @@ export default function AnalyticsScripts() {
       let gaId = "";
       let pixelId = "";
       let searchConsoleToken = "";
+      let bingToken = "";
 
       try {
         const { data: integrations } = await supabase
@@ -73,7 +74,7 @@ export default function AnalyticsScripts() {
           const { data: settings } = await supabase
             .from("site_settings")
             .select(
-              "ga_measurement_id, meta_pixel_id, google_site_verification",
+              "ga_measurement_id, meta_pixel_id, google_site_verification, bing_site_verification",
             )
             .limit(1)
             .maybeSingle();
@@ -85,6 +86,8 @@ export default function AnalyticsScripts() {
               pixelId = settings.meta_pixel_id;
             if (!searchConsoleToken && settings.google_site_verification)
               searchConsoleToken = settings.google_site_verification;
+            if ((settings as any).bing_site_verification)
+              bingToken = (settings as any).bing_site_verification;
           }
         } catch {
           // Fall through to static config
@@ -141,6 +144,9 @@ export default function AnalyticsScripts() {
       }
       if (searchConsoleToken) {
         injectSearchConsoleVerification(searchConsoleToken);
+      }
+      if (bingToken) {
+        injectBingVerification(bingToken);
       }
     }
 
@@ -206,6 +212,17 @@ function injectPixel(pixelId: string) {
   document.head.appendChild(inline);
 }
 
+function injectBingVerification(token: string) {
+  let el = document.head.querySelector(
+    'meta[name="msvalidate.01"]',
+  ) as HTMLMetaElement | null;
+  if (!el) {
+    el = document.createElement("meta");
+    el.setAttribute("name", "msvalidate.01");
+    document.head.appendChild(el);
+  }
+  el.setAttribute("content", token);
+}
 function injectSearchConsoleVerification(token: string) {
   let el = document.head.querySelector(
     'meta[name="google-site-verification"]',

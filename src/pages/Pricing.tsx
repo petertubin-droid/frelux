@@ -31,6 +31,7 @@ import {
 } from "@/lib/subscription-pricing";
 import {
   PRICING_PLANS,
+  usePricingPlans,
   SUBSCRIPTION_CURRENCY,
   planPriceCents,
   yearlySavingPercent,
@@ -59,6 +60,7 @@ const MAX_YEARLY_SAVING = Math.max(
 );
 
 export default function Pricing() {
+  const { plans: pricingPlans } = usePricingPlans();
   const { t } = useLanguage();
   useSeo({
     title: "Pricing, FRELUX Premium",
@@ -503,7 +505,7 @@ export default function Pricing() {
 
         {/* Plan cards */}
         <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {PRICING_PLANS.map((plan) => {
+          {pricingPlans.map((plan: PricingPlan) => {
             const shown = displayedPrice(
               plan,
               billingCycle,
@@ -633,7 +635,7 @@ export default function Pricing() {
                 </Button>
 
                 <ul className="mt-6 space-y-2.5">
-                  {plan.features.map((feature, i) => (
+                  {plan.features.map((feature: string, i: number) => (
                     <li
                       key={i}
                       className="flex items-start gap-2 text-sm text-muted-foreground dark:text-muted-foreground/80"
