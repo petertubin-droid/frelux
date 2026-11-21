@@ -35,7 +35,7 @@ been exercised; `staged` means written but not executed.
 | 13  | Paving & External Works            | structure | **Audited 2026-11-21**, 26 tests, DEFECT FIXED: jointing sand was missing        |
 | 14  | Formwork & Temporary Works          | structure | **Audited 2026-11-21**, 20 tests, 2 DEFECTS FIXED: half the standards, phantom frame |
 | 15  | Demolition & Debris Takeoff        | structure | **Audited 2026-11-21**, 18 tests, COMPLETENESS FIXED: no debris mass        |
-| 16  | Steel I-Beam Weight                | structure | Queued                                                                          |
+| 16  | Steel I-Beam Weight                | structure | **Audited 2026-11-21**, 13 tests, DEFECT FIXED: IPE 150 does not exist       |
 | 17  | Soffit, Fascia & Gutter            | structure | Queued                                                                          |
 | 18  | Overhead Water Tank Staging        | structure | Queued                                                                          |
 | 19  | Tall Building Structure            | structure | Queued                                                                          |
@@ -72,6 +72,54 @@ Found 2026-11-21 by mapping the 34 calculators to `src/lib/estimation/*.ts`:
 - `plumbing-engine.ts`, `plumbing-profiles.ts` - open.
 - `generator-engine.ts` - open.
 - `borehole-water-system-engine.ts` - open.
+
+---
+
+## Audit 16: Steel I-Beam Weight (`steel-beam-engine.ts`)
+
+Suite: `src/lib/estimation/__tests__/steel-beam-conformance.test.ts`, 13 tests.
+Evidence label: `CI green only`.
+
+Expectations are the published nominal mass per metre for each section, from the
+Euronorm IPE series and the British universal beam series. The suite holds the
+table, not the engine: where they disagree, the table wins.
+
+Defect found and fixed:
+
+1. **DEFECT FIXED: the engine offered an IPE 150.** The Euronorm IPE series runs
+   80, 100, 120, 140, 160, 180... and contains no 150. The entry also carried
+   14 kg/m, a mass that matches no published size. Anyone selecting it was
+   pricing a section a merchant cannot supply, and a fabricator would substitute
+   something else at a different mass. The two nearest real sizes, IPE 140
+   (12.9 kg/m) and IPE 160 (15.8 kg/m), now stand in its place, and the preset
+   that pointed at it was repointed.
+2. **COMPLETENESS: three profiles.** A 254 x 146 UB or an IPE 240, both everyday
+   sections, could not be entered at all. The table now carries 19 published
+   sizes: IPE 100 to 300 in the standard steps, and universal beams at 203 x 133
+   (25/30/37), 254 x 146 (31/37/43) and 305 x 165 (40/46/54), each at its
+   published mass.
+
+Verified correct:
+
+- Mass is cut length, not clear span: span plus 300 mm of bearings, times the
+  section's kg/m, times the number of beams. A 6 m span of 203 x 133 x 30 is
+  6.3 m and 189 kg per beam.
+- Tonnage is carried to four decimals, because a per-tonne rate multiplies
+  straight into money: 96.32 kg at 1,200,000 per tonne is 115,560, not a figure
+  rounded to two places.
+- No rate leaves the result incomplete with the mass intact, which is the point
+  of the tool: you still learn what you are buying.
+- Unknown profile, zero span, zero or fractional beam count are refused with a
+  reason, and the open-span guardrail fires past 8 m and not at 8 m.
+
+Recorded, not changed:
+
+1. No offcut or cutting allowance is added. Steel is ordered to cut length and
+   merchants weigh what they deliver, so an allowance here would double-count;
+   the warning tells the buyer to check weighbridge tickets instead.
+2. The 8 m guardrail is a deflection prompt, not a design check, and the
+   warnings already say connections, coating, fabrication and erection are
+   outside a per-tonne material rate.
 
 ---
 

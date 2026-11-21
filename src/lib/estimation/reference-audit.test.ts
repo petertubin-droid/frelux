@@ -121,7 +121,8 @@ describe("steel: published profile masses", () => {
     const byKey = Object.fromEntries(
       STEEL_PROFILES.map((p) => [p.key, p.kg_per_m]),
     );
-    expect(byKey.ipe_150).toBe(14);
+    expect(byKey.ipe_140).toBe(12.9);
+    expect(byKey.ipe_160).toBe(15.8);
     expect(byKey.ipe_200).toBe(22.4);
     expect(byKey.ub_203_133_30).toBe(30);
   });

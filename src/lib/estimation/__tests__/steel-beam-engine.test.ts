@@ -29,7 +29,9 @@ describe("steel mass", () => {
   });
 
   it("uses the published nominal mass per metre", () => {
-    expect(STEEL_PROFILE_BY_KEY.ipe_150.kg_per_m).toBe(14);
+    // Published Euronorm masses. There is no IPE 150: the series steps 140 -> 160.
+    expect(STEEL_PROFILE_BY_KEY.ipe_140.kg_per_m).toBe(12.9);
+    expect(STEEL_PROFILE_BY_KEY.ipe_160.kg_per_m).toBe(15.8);
     expect(STEEL_PROFILE_BY_KEY.ipe_200.kg_per_m).toBe(22.4);
     expect(STEEL_PROFILE_BY_KEY.ub_203_133_30.kg_per_m).toBe(30);
     // 6 m clear span plus 300 mm of bearings, two beams, 22.4 kg/m.
@@ -95,17 +97,17 @@ describe("steel cost", () => {
 
   it("shows the cut length the mass is derived from, not the clear span", () => {
     const r = calculateSteelBeam(
-      { ...base, span_m: 5, beam_count: 1, profile: "ipe_150" },
+      { ...base, span_m: 5, beam_count: 1, profile: "ipe_140" },
       {},
     );
     const cut = 5 + BEARING_ALLOWANCE_M;
-    // 5.3 m at 14 kg/m is 74.2 kg, and the per-beam step must say so: it
-    // showed 70 kg, the clear-span figure, under a total of 74.2.
+    // 5.3 m at 12.9 kg/m (IPE 140) is 68.37 kg, and the per-beam step must say
+    // so: it once showed the clear-span figure under a larger total.
     expect(r.steps[0].detail).toContain("5.3 m cut");
-    expect(r.steps[0].detail).toContain("74.2 kg");
+    expect(r.steps[0].detail).toContain("68.37 kg");
     expect(r.steps[1].detail).toContain("5.3 m cut");
     expect(r.lines[0].detail).toContain("5.3 m cut");
-    expect(r.lines[0].quantity).toBe(0.0742);
+    expect(r.lines[0].quantity).toBe(0.0684);
   });
 
   it("refuses a rate that is not a usable number instead of showing NaN", () => {

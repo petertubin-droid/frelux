@@ -34,24 +34,29 @@ export interface SteelProfile {
 }
 
 export const STEEL_PROFILES: SteelProfile[] = [
-  {
-    key: "ipe_150",
-    label: "IPE 150",
-    kg_per_m: 14,
-    note: "light roof support and short lintels",
-  },
-  {
-    key: "ipe_200",
-    label: "IPE 200",
-    kg_per_m: 22.4,
-    note: "floor slab spans and medium openings",
-  },
-  {
-    key: "ub_203_133_30",
-    label: "Universal beam 203 × 133 × 30",
-    kg_per_m: 30,
-    note: "warehouse frames and mezzanine girders",
-  },
+  // Euronorm IPE series, nominal mass as published. There is no IPE 150: the
+  // series steps 140 -> 160, and the old entry offered a section no merchant
+  // stocks and a mass (14 kg/m) that matches no published size.
+  { key: "ipe_100", label: "IPE 100", kg_per_m: 8.1, note: "light lintels and trimmer beams" },
+  { key: "ipe_120", label: "IPE 120", kg_per_m: 10.4, note: "short domestic spans" },
+  { key: "ipe_140", label: "IPE 140", kg_per_m: 12.9, note: "light roof support and short lintels" },
+  { key: "ipe_160", label: "IPE 160", kg_per_m: 15.8, note: "roof purlins and small openings" },
+  { key: "ipe_180", label: "IPE 180", kg_per_m: 18.8, note: "domestic floor spans" },
+  { key: "ipe_200", label: "IPE 200", kg_per_m: 22.4, note: "floor slab spans and medium openings" },
+  { key: "ipe_220", label: "IPE 220", kg_per_m: 26.2, note: "longer domestic floor spans" },
+  { key: "ipe_240", label: "IPE 240", kg_per_m: 30.7, note: "loaded floor spans and mezzanines" },
+  { key: "ipe_270", label: "IPE 270", kg_per_m: 36.1, note: "girders carrying secondary beams" },
+  { key: "ipe_300", label: "IPE 300", kg_per_m: 42.2, note: "heavy floor and roof girders" },
+  // Universal beams, nominal mass as published (the third figure in the name).
+  { key: "ub_203_133_25", label: "Universal beam 203 × 133 × 25", kg_per_m: 25.1, note: "domestic floor beams" },
+  { key: "ub_203_133_30", label: "Universal beam 203 × 133 × 30", kg_per_m: 30, note: "warehouse frames and mezzanine girders" },
+  { key: "ub_203_133_37", label: "Universal beam 203 × 133 × 37", kg_per_m: 37, note: "heavier floor beams at the same depth" },
+  { key: "ub_254_146_31", label: "Universal beam 254 × 146 × 31", kg_per_m: 31.1, note: "longer floor spans" },
+  { key: "ub_254_146_37", label: "Universal beam 254 × 146 × 37", kg_per_m: 37, note: "loaded floor spans" },
+  { key: "ub_254_146_43", label: "Universal beam 254 × 146 × 43", kg_per_m: 43, note: "heavy floor spans" },
+  { key: "ub_305_165_40", label: "Universal beam 305 × 165 × 40", kg_per_m: 40.3, note: "long span floor beams" },
+  { key: "ub_305_165_46", label: "Universal beam 305 × 165 × 46", kg_per_m: 46.1, note: "long span girders" },
+  { key: "ub_305_165_54", label: "Universal beam 305 × 165 × 54", kg_per_m: 54, note: "heavy long span girders" },
 ];
 
 export const STEEL_PROFILE_BY_KEY: Record<string, SteelProfile> =
@@ -63,7 +68,7 @@ export const STEEL_USE_PRESETS: {
   label: string;
   profile: string;
 }[] = [
-  { key: "light_roof", label: "Light roof support", profile: "ipe_150" },
+  { key: "light_roof", label: "Light roof support", profile: "ipe_160" },
   { key: "floor_slab", label: "Heavy floor slab span", profile: "ipe_200" },
   {
     key: "mezzanine",
