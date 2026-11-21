@@ -636,6 +636,74 @@ registerEngine({
 // PUBLIC API
 // =========================================================
 
+// ── Plastering: cement, sand and water for a rendered wall ──
+//
+// Engine Studio could not run the plastering engine at all, so an operator
+// checking a wall's cement bags had to open the calculator page and retype the
+// inputs. This adapter reaches the same function that page uses, so the number
+// produced here is the number the site produces.
+interface PlasteringInputLike {
+  marketCode?: string;
+  surfaceAreaM2?: number;
+  wallLengthM?: number;
+  wallHeightM?: number;
+  wallCount?: number;
+  thicknessMm?: number;
+  coats?: 1 | 2;
+  mixRatio?: "1:3" | "1:4" | "1:5" | "1:6";
+  wastePercent?: number;
+}
+
+registerEngine({
+  id: "plastering_wall",
+  domain: "finishing",
+  title: "FRELUX Plastering Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX plastering engine",
+  async run(rawInput) {
+    const { calculatePlasteringTakeoff } =
+      await import("@/lib/estimation/plastering-standalone-engine");
+    const supplied = (rawInput ?? {}) as PlasteringInputLike;
+
+    // Defaults describe one 10 m x 3 m wall, 15 mm, two coats, 1:4. They are
+    // the calculator page's own starting point, not a new set of assumptions.
+    const input = {
+      marketCode: supplied.marketCode ?? "NG",
+      surfaceAreaM2: supplied.surfaceAreaM2,
+      wallLengthM: supplied.wallLengthM ?? 10,
+      wallHeightM: supplied.wallHeightM ?? 3,
+      wallCount: supplied.wallCount ?? 1,
+      thicknessMm: supplied.thicknessMm ?? 15,
+      coats: supplied.coats ?? 2,
+      mixRatio: supplied.mixRatio ?? "1:4",
+      wastePercent: supplied.wastePercent ?? 5,
+    } as never;
+
+    const result = calculatePlasteringTakeoff(input);
+
+    const quantities: EngineQuantityLine[] = [
+      quantityLine("Cement", result.cementBagsRequired, "bags"),
+      quantityLine("Sand", result.sandVolumeM3, "m³"),
+      quantityLine("Water", result.waterLiters, "litres"),
+    ];
+    if (result.bondingAgentLiters) {
+      quantities.push(
+        quantityLine("Bonding agent", result.bondingAgentLiters, "litres"),
+      );
+    }
+
+    return {
+      ok: true,
+      engine: "plastering_wall",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      // Quantity-only: prices belong to the priced sources, not to this engine.
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
 export function listEngines(): EngineDescriptor[] {
   return [...REGISTRY.values()];
 }

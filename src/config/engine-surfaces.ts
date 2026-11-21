@@ -165,6 +165,21 @@ export const ENGINE_SURFACES: EngineSurface[] = [
     note: "Cost differences between markets and regions.",
   },
   {
+    engineId: "plastering_wall",
+    status: "live",
+    route: "/plastering-calculator",
+    label: "Plastering Calculator",
+    icon: Paintbrush,
+    evidence: {
+      module: "@/lib/estimation/plastering-standalone-engine",
+      fn: "calculatePlasteringTakeoff",
+      page: 'src/pages/StandaloneTakeoffPage.tsx (initialEngine="plastering")',
+      calledBy:
+        "StandaloneTakeoffPage calls the same function the adapter wraps",
+    },
+    note: "Cement bags, sand volume and water for a rendered wall, straight from the plastering engine.",
+  },
+  {
     engineId: "painting_wall_area",
     status: "shared",
     route: "/paint-calculator",

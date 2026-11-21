@@ -47,6 +47,7 @@ export const UNRESOLVED_ENGINE_IDS = [
   "quote_check",
   "window_blinds",
   "takeoff",
+  "plastering_wall",
 ] as const;
 
 export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
@@ -174,6 +175,12 @@ export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
     canonicalId: "sequence",
     confidence: "medium",
     note: "Construction sequence planning.",
+  },
+  {
+    aiEngineId: "plastering_wall",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "The international capability lists describe plastering under wall finishing, but this engine covers plaster and render only. Mapping it to wall_finishing would overstate what it measures, so it waits for an owner decision.",
   },
   {
     aiEngineId: "painting_wall_area",
