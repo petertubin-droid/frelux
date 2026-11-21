@@ -100,7 +100,7 @@ export default function AdminCarbonFactors() {
     const { data, error } = await fetchCarbonFactors();
     if (error) setError(error.message);
     else {
-      setFactors(data);
+      setFactors(data ?? []);
       setError(null);
     }
     setLoading(false);

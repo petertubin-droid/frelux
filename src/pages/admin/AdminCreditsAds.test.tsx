@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render } from "@testing-library/react";
+import { render, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
@@ -7,7 +7,7 @@ vi.mock("@/lib/auth", () => ({
   useAuth: vi.fn(() => ({ user: null, loading: false })),
 }));
 vi.mock("@/lib/token-purchase", () => ({
-  adminGetTokenPurchaseConfig: vi.fn().mockResolvedValue(null),
+  adminGetTokenPurchaseConfig: vi.fn().mockResolvedValue({ id: "tok-1", is_enabled: true, token_price_kobo: 1000 }),
   adminUpdateTokenPurchaseConfig: vi.fn().mockResolvedValue(true),
   adminGetTokenPurchases: vi.fn().mockResolvedValue([]),
   adminGetTokenPrices: vi.fn().mockResolvedValue([]),
@@ -23,10 +23,10 @@ vi.mock("@/lib/credits", () => ({
   REWARD_EVENTS: {},
   adminGetAllWallets: vi.fn().mockResolvedValue([]),
   adminGetAllTransactions: vi.fn().mockResolvedValue([]),
-  adminGetAllFeatureCosts: vi.fn().mockResolvedValue([]),
+  adminGetAllFeatureCosts: vi.fn().mockResolvedValue([{ id: "feat-1", feature_name: "Floor Plan AI", feature_key: "floor_plan", is_enabled: true, credit_cost: 5 }]),
   adminGetAllAdCreditEvents: vi.fn().mockResolvedValue([]),
   adminGetAllAiFeatureUsage: vi.fn().mockResolvedValue([]),
-  adminGetRewardedAdConfig: vi.fn().mockResolvedValue(null),
+  adminGetRewardedAdConfig: vi.fn().mockResolvedValue({ id: "cfg-1", credits_per_ad: 5, daily_earn_limit: 10, is_enabled: true }),
   adminAdjustCredits: vi.fn().mockResolvedValue({ error: null }),
   adminAdjustCreditsV2: vi.fn().mockResolvedValue({ error: null }),
   adminUpdateFeatureCost: vi.fn().mockResolvedValue({ error: null }),
@@ -73,8 +73,31 @@ async function renderPage() {
 }
 
 describe("AdminCreditsAds", () => {
-  it("renders without crashing", async () => {
-    const { container } = await renderPage();
-    expect(container.innerHTML).not.toBe("");
+  it("renders overview metrics and header after loading", async () => {
+    const { findByText } = await renderPage();
+    expect(await findByText(/FRELUX Credits wallet/)).toBeDefined();
+    expect(await findByText("Total Issued")).toBeDefined();
+    expect(await findByText("System Status")).toBeDefined();
+  });
+
+  it("switches to AI Feature Costs tab and shows features", async () => {
+    const { findByRole, findByText, findByDisplayValue } = await renderPage();
+    const tabBtn = await findByRole("button", { name: "AI Feature Costs" });
+    fireEvent.click(tabBtn);
+    expect(await findByDisplayValue("Floor Plan AI")).toBeDefined();
+  });
+
+  it("switches to Ad Config tab and displays controls", async () => {
+    const { findByRole, findByText, findByDisplayValue } = await renderPage();
+    const tabBtn = await findByRole("button", { name: "Ad Config" });
+    fireEvent.click(tabBtn);
+    expect(await findByText("Rewarded Ad Credit Configuration")).toBeDefined();
+  });
+
+  it("switches to Token Shop tab and displays token pricing", async () => {
+    const { findByRole, findByText, findByDisplayValue } = await renderPage();
+    const tabBtn = await findByRole("button", { name: "Token Shop" });
+    fireEvent.click(tabBtn);
+    expect(await findByText("Token Purchase Configuration (Paystack)")).toBeDefined();
   });
 });
