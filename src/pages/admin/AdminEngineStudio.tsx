@@ -11,7 +11,7 @@
  */
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { AlertTriangle, ArrowRight, Play } from "lucide-react";
+import { AlertTriangle, ArrowRight, Play, Code, ListFilter } from "lucide-react";
 import {
   AdminButton,
   AdminField,
@@ -39,12 +39,71 @@ const STATUS_STYLE: Record<EngineSurfaceStatus, string> = {
   none: "border-destructive/25 bg-destructive/10 text-destructive",
 };
 
+
+const ADDITIONAL_ENGINE_FIELDS: Record<
+  string,
+  { key: string; label: string; unit?: string }[]
+> = {
+  structural_calculator: [
+    { key: "marketCode", label: "Market ISO Code (e.g. NG, US, GB)" },
+    { key: "span_m", label: "Beam / Slab Clear Span", unit: "m" },
+    { key: "dead_load_kn_m2", label: "Dead Load", unit: "kN/m²" },
+    { key: "live_load_kn_m2", label: "Live Load", unit: "kN/m²" },
+  ],
+  foundation_calculator: [
+    { key: "marketCode", label: "Market ISO Code (e.g. NG, US, GB)" },
+    { key: "footing_width_m", label: "Footing Width", unit: "m" },
+    { key: "footing_length_m", label: "Footing Length", unit: "m" },
+    { key: "depth_m", label: "Depth", unit: "m" },
+  ],
+  sequence_planner: [
+    { key: "project_type", label: "Project Type (e.g. residential)" },
+    { key: "total_area_m2", label: "Total Area", unit: "m²" },
+  ],
+  timeline_estimator: [
+    { key: "project_type", label: "Project Type" },
+    { key: "total_area_sqm", label: "Total Area", unit: "m²" },
+    { key: "complexity", label: "Complexity (low, standard, high)" },
+  ],
+  electrical: [
+    { key: "marketCode", label: "Market ISO Code (e.g. NG, US, GB)" },
+    { key: "building_area_sqm", label: "Building Area", unit: "m²" },
+  ],
+  plumbing: [
+    { key: "marketCode", label: "Market ISO Code (e.g. NG, US, GB)" },
+    { key: "bathrooms", label: "Bathrooms", unit: "count" },
+    { key: "kitchens", label: "Kitchens", unit: "count" },
+  ],
+  regional_cost: [
+    { key: "marketCode", label: "Market ISO Code (e.g. NG, US, GB)" },
+    { key: "base_amount", label: "Base Amount" },
+    { key: "target_region", label: "Target Region Slug / State" },
+  ],
+  margin_calculator: [
+    { key: "direct_cost", label: "Direct Project Cost" },
+    { key: "markup_percent", label: "Markup Percentage", unit: "%" },
+    { key: "overhead_percent", label: "Overhead Percentage", unit: "%" },
+  ],
+  window_blinds: [
+    { key: "marketCode", label: "Market ISO Code (e.g. NG, US, GB)" },
+    { key: "width_m", label: "Window Width", unit: "m" },
+    { key: "drop_m", label: "Window Drop", unit: "m" },
+  ],
+  quote_check: [
+    { key: "marketCode", label: "Market ISO Code (e.g. NG, US, GB)" },
+    { key: "total_quoted_amount", label: "Total Quoted Amount" },
+  ],
+  tyrolene_system: [
+    { key: "marketCode", label: "Market ISO Code (e.g. NG, US, GB)" },
+    { key: "wall_area_m2", label: "Wall Surface Area", unit: "m²" },
+  ],
+};
 /** Requirement fields declared for an engine, in declaration order. */
 function fieldsFor(engineId: string) {
   for (const definition of Object.values(TASK_REQUIREMENTS)) {
     if (definition.engineId === engineId) return definition.fields;
   }
-  return [];
+  return ADDITIONAL_ENGINE_FIELDS[engineId] ?? [];
 }
 
 function coerce(value: string, unit?: string): unknown {
@@ -67,6 +126,8 @@ export default function AdminEngineStudio() {
   const [result, setResult] = useState<EngineResult | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [rawJsonMode, setRawJsonMode] = useState(false);
+  const [rawJson, setRawJson] = useState('{\n  "marketCode": "NG"\n}');
 
   const surface = selected ? surfaceFor(selected) : null;
   const fields = selected ? fieldsFor(selected) : [];
@@ -86,10 +147,20 @@ export default function AdminEngineStudio() {
     setError(null);
     setResult(null);
     try {
-      const input: Record<string, unknown> = {};
-      for (const field of fields) {
-        const value = coerce(values[field.key] ?? "", field.unit);
-        if (value !== undefined) input[field.key] = value;
+      let input: Record<string, unknown> = {};
+      if (rawJsonMode || fields.length === 0) {
+        try {
+          input = JSON.parse(rawJson);
+        } catch {
+          throw new Error("Invalid JSON input payload. Please check your syntax.");
+        }
+      } else {
+        for (const field of fields) {
+          const fieldKey = field.key ?? (field as { name?: string }).name;
+          if (!fieldKey) continue;
+          const value = coerce(values[fieldKey] ?? "", field.unit);
+          if (value !== undefined) input[fieldKey] = value;
+        }
       }
       const output = await executeEngine(selected, input);
       setResult(output);
@@ -195,54 +266,100 @@ export default function AdminEngineStudio() {
             )}
           </div>
 
-          {fields.length === 0 ? (
-            <div className="rounded-xl border border-border bg-card p-4">
-              <div className="flex items-start gap-2">
-                <AlertTriangle
-                  className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground"
-                  aria-hidden="true"
-                />
-                <p className="text-xs leading-relaxed text-muted-foreground">
-                  No input contract is declared for this engine, so it cannot be
-                  run here without inventing its inputs. It is still listed so
-                  the gap is visible rather than silent.
-                </p>
-              </div>
+          <div className="rounded-xl border border-border bg-card p-4">
+            <div className="mb-3 flex items-center justify-between border-b border-border pb-2.5">
+              <span className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                Engine Runner ({fields.length > 0 && !rawJsonMode ? "Form Mode" : "JSON Payload Mode"})
+              </span>
+              {fields.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setRawJsonMode((prev) => !prev)}
+                  className="inline-flex items-center gap-1.5 text-xs font-medium text-brand-purple hover:underline"
+                >
+                  {rawJsonMode ? (
+                    <>
+                      <ListFilter className="h-3.5 w-3.5" aria-hidden="true" />
+                      Switch to Form
+                    </>
+                  ) : (
+                    <>
+                      <Code className="h-3.5 w-3.5" aria-hidden="true" />
+                      Switch to JSON
+                    </>
+                  )}
+                </button>
+              )}
             </div>
-          ) : (
-            <div className="rounded-xl border border-border bg-card p-4">
-              <div className="grid gap-3 sm:grid-cols-2">
-                {fields.map((field) => (
-                  <AdminField
-                    key={field.key}
-                    label={
-                      field.unit
-                        ? `${field.label} (${field.unit})`
-                        : field.label
-                    }
-                  >
-                    <AdminInput
-                      value={values[field.key] ?? ""}
-                      onChange={(e) =>
-                        setValues((prev) => ({
-                          ...prev,
-                          [field.key]: e.target.value,
-                        }))
-                      }
+
+            {fields.length === 0 || rawJsonMode ? (
+              <div className="space-y-3">
+                {fields.length === 0 && (
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle
+                      className="mt-0.5 h-4 w-4 shrink-0 text-amber-500"
+                      aria-hidden="true"
                     />
-                  </AdminField>
-                ))}
+                    <p className="text-xs leading-relaxed text-muted-foreground">
+                      No static form contract is declared for this engine. You can execute it directly with a test JSON payload:
+                    </p>
+                  </div>
+                )}
+                <AdminField label="Test Payload (JSON)">
+                  <textarea
+                    rows={4}
+                    className="w-full rounded-md border border-border bg-background p-2.5 font-mono text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    value={rawJson}
+                    onChange={(e) => setRawJson(e.target.value)}
+                  />
+                </AdminField>
+                <div className="mt-4">
+                  <AdminButton onClick={run} disabled={busy}>
+                    <span className="inline-flex items-center gap-2">
+                      <Play className="h-3.5 w-3.5" aria-hidden="true" />
+                      {busy ? "Running" : "Run with JSON payload"}
+                    </span>
+                  </AdminButton>
+                </div>
               </div>
-              <div className="mt-4">
-                <AdminButton onClick={run} disabled={busy}>
-                  <span className="inline-flex items-center gap-2">
-                    <Play className="h-3.5 w-3.5" aria-hidden="true" />
-                    {busy ? "Running" : "Run this engine"}
-                  </span>
-                </AdminButton>
+            ) : (
+              <div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  {fields.map((field, idx) => {
+                    const fieldKey = field.key ?? (field as { name?: string }).name ?? String(idx);
+                    return (
+                      <AdminField
+                        key={fieldKey}
+                        label={
+                          field.unit
+                            ? `${field.label} (${field.unit})`
+                            : field.label
+                        }
+                      >
+                        <AdminInput
+                          value={values[fieldKey] ?? ""}
+                          onChange={(e) =>
+                            setValues((prev) => ({
+                              ...prev,
+                              [fieldKey]: e.target.value,
+                            }))
+                          }
+                        />
+                      </AdminField>
+                    );
+                  })}
+                </div>
+                <div className="mt-4">
+                  <AdminButton onClick={run} disabled={busy}>
+                    <span className="inline-flex items-center gap-2">
+                      <Play className="h-3.5 w-3.5" aria-hidden="true" />
+                      {busy ? "Running" : "Run this engine"}
+                    </span>
+                  </AdminButton>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
 
           {error && (
             <StateMessage

@@ -21,8 +21,18 @@ import type {
   PopQuantityBasis,
 } from "@/types/database";
 import { useLanguage } from "@/lib/i18n";
+import { formatByCode } from "@/lib/international/currency-format";
+import { getCountryCurrency } from "@/lib/international/countries";
 
 type Status = "loading" | "ready" | "error";
+
+function getPopCurrency(m: { workflow?: string; market?: string }): string {
+  if (m.workflow === "international" && m.market) {
+    return getCountryCurrency(m.market) ?? "USD";
+  }
+  return m.workflow === "international" ? "USD" : "NGN";
+}
+
 
 const categories: PopMaterialCategory[] = [
   "primary",
@@ -290,21 +300,21 @@ export default function AdminPopMaterials() {
                               {mat.quantity_basis === "per_day" ? (
                                 <>
                                   {mat.per_day_rate ?? 0} {mat.package_unit} per
-                                  day · ₦{mat.unit_price} a day
+                                  day · {formatByCode(mat.unit_price, getPopCurrency(mat))} a day
                                 </>
                               ) : mat.quantity_basis === "per_worker" ? (
                                 <>
                                   {mat.per_worker_rate ?? 0} {mat.package_unit}{" "}
-                                  per worker · ₦{mat.unit_price}
+                                  per worker · {formatByCode(mat.unit_price, getPopCurrency(mat))}
                                   {mat.split_unit_price
-                                    ? ` (half ₦${mat.split_unit_price})`
+                                    ? ` (half ${formatByCode(mat.split_unit_price, getPopCurrency(mat))})`
                                     : ""}
                                 </>
                               ) : (
                                 <>
                                   {mat.coverage_rate} {mat.coverage_unit} ·{" "}
                                   {mat.package_size}
-                                  {mat.package_unit} · ₦{mat.unit_price}
+                                  {mat.package_unit} · {formatByCode(mat.unit_price, getPopCurrency(mat))}
                                 </>
                               )}
                             </p>
@@ -551,7 +561,7 @@ function MaterialEditor({
             onChange={(e) => setForm({ ...form, package_unit: e.target.value })}
           />
         </AdminField>
-        <AdminField label="Unit Price (₦)">
+        <AdminField label={`Unit Price (${getPopCurrency(form)})`}>
           <AdminInput
             type="number"
             value={form.unit_price}
@@ -560,7 +570,7 @@ function MaterialEditor({
             }
           />
         </AdminField>
-        <AdminField label="Labour Rate/m² (₦)">
+        <AdminField label={`Labour Rate/m² (${getPopCurrency(form)})`}>
           <AdminInput
             type="number"
             value={form.labour_rate_per_sqm}

@@ -23,6 +23,7 @@ import {
 } from "@/lib/estimation/queries";
 import type { SolarComponentPrice } from "@/types/estimation";
 import { getSafeError } from "@/lib/safeError";
+import { formatByCode } from "@/lib/international/currency-format";
 import { useLanguage } from "@/lib/i18n";
 import {
   AdminHeader,
@@ -97,7 +98,7 @@ function validate(f: PriceForm): string | null {
   if (!f.unit.trim()) return "Unit is required (e.g. m, unit, pair, kW).";
   const p = Number(f.price_naira);
   if (!Number.isFinite(p) || p < 0)
-    return "Price must be zero or a positive number (₦).";
+    return "Price must be zero or a positive number (NGN).";
   if (!f.source_reference.trim())
     return "Source reference is required (supplier quote).";
   return null;
@@ -213,7 +214,7 @@ export default function AdminSolarPrices() {
               <th className="p-3">{t("Component")}</th>
               <th className="p-3">{t("Label")}</th>
               <th className="p-3">{t("Unit")}</th>
-              <th className="p-3 text-right">₦ price</th>
+              <th className="p-3 text-right">{t("Base Price (NGN)")}</th>
               <th className="p-3">{t("Supplier reference")}</th>
               <th className="p-3">{t("Effective")}</th>
               <th className="p-3">{t("Active")}</th>
@@ -242,7 +243,7 @@ export default function AdminSolarPrices() {
                   <td className="p-3">{p.component_label ?? "N/A"}</td>
                   <td className="p-3 text-xs">{p.unit}</td>
                   <td className="p-3 text-right font-mono text-xs">
-                    ₦{Number(p.price_naira).toLocaleString("en-NG")}
+                    {formatByCode(Number(p.price_naira), "NGN")}
                   </td>
                   <td
                     className="max-w-[220px] truncate p-3 text-xs text-muted-foreground"
@@ -313,7 +314,7 @@ export default function AdminSolarPrices() {
                   onChange={(e) => set("unit", e.target.value)}
                 />
               </AdminField>
-              <AdminField label="Price (₦, zero or positive)">
+              <AdminField label="Base Price (NGN, zero or positive)">
                 <AdminInput
                   type="number"
                   step="1"

@@ -36,7 +36,9 @@ import {
   Image,
   Images,
   KeyRound,
+  Landmark,
   Languages,
+  Sparkles,
   Layers,
   LayoutDashboard,
   Link2,
@@ -353,6 +355,7 @@ export const navModules: NavModule[] = [
     heading: "ARCHIE / AI",
     items: [
       { label: "AI Control Center", to: "/admin/ai-settings", icon: Crown },
+      { label: "AI Intelligence", to: "/admin/intelligence", icon: Sparkles },
       { label: "AI Assistant", to: "/admin/ai-assistant", icon: Brain },
       {
         label: "AI Learning Assistant",
@@ -383,7 +386,9 @@ export const navModules: NavModule[] = [
       {
         label: "Content Translations",
         to: "/admin/translations",
-        icon: Languages,
+        icon: Landmark,
+  Languages,
+  Sparkles,
       },
       {
         label: "Wall Finishing Library",
@@ -393,7 +398,9 @@ export const navModules: NavModule[] = [
       {
         label: "Construction Dictionary",
         to: "/admin/dictionary",
-        icon: Languages,
+        icon: Landmark,
+  Languages,
+  Sparkles,
       },
       { label: "Color Gallery", to: "/admin/colors", icon: Palette },
       {
@@ -417,6 +424,7 @@ export const navModules: NavModule[] = [
         icon: MessageSquare,
       },
       { label: "SEO Settings", to: "/admin/seo", icon: Search },
+      { label: "SEO Performance", to: "/admin/seo-performance", icon: TrendingUp },
     ],
   },
   {
@@ -480,7 +488,9 @@ export const navModules: NavModule[] = [
       { label: "API Keys", to: "/admin/api-keys", icon: KeyRound },
       { label: "Integration Center", to: "/admin/integrations", icon: Plug },
       { label: "AI Developer Studio", to: "/admin/studio", icon: Smartphone },
+      { label: "Site Intelligence", to: "/admin/site-intelligence", icon: MapPin },
       { label: "Markets & Regions", to: "/admin/markets", icon: Globe },
+      { label: "Listed Markets", to: "/admin/listed-markets", icon: Landmark },
     ],
   },
   {

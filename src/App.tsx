@@ -237,7 +237,7 @@ const SupplierPortal = lazy(() => import("@/pages/marketplace/SupplierPortal"));
 const AdminRegionalCostIndices = lazy(
   () => import("@/pages/admin/AdminRegionalCostIndices"),
 );
-const _AdminSiteIntelligence = lazy(
+const AdminSiteIntelligence = lazy(
   () => import("@/pages/admin/AdminSiteIntelligence"),
 );
 
@@ -2080,22 +2080,6 @@ export default function App() {
                           element={<InvestorCentre />}
                         />
                         <Route
-                          path="/admin/listed-markets"
-                          element={
-                            <RequireAdmin>
-                              <AdminListedMarkets />
-                            </RequireAdmin>
-                          }
-                        />
-                        <Route
-                          path="/admin/seo-performance"
-                          element={
-                            <RequireAdmin>
-                              <SeoPerformance />
-                            </RequireAdmin>
-                          }
-                        />
-                        <Route
                           path="/regional-cost-index"
                           element={<RegionalCostIndex />}
                         />
@@ -2812,6 +2796,14 @@ export default function App() {
                         />
                         <Route path="markets" element={<AdminMarkets />} />
                         <Route
+                          path="listed-markets"
+                          element={<AdminListedMarkets />}
+                        />
+                        <Route
+                          path="site-intelligence"
+                          element={<AdminSiteIntelligence />}
+                        />
+                        <Route
                           path="market-intelligence"
                           element={<AdminMarketIntelligence />}
                         />
@@ -2905,6 +2897,10 @@ export default function App() {
 
                         {/* SEO */}
                         <Route path="seo" element={<AdminSeo />} />
+                        <Route
+                          path="seo-performance"
+                          element={<SeoPerformance />}
+                        />
 
                         {/* System */}
                         <Route

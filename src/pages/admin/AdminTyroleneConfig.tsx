@@ -719,7 +719,7 @@ export default function AdminTyroleneConfig() {
                 className="h-5 w-5 text-brand-purple flex-shrink-0 mt-0.5"
               />
               <p className="text-sm text-muted-foreground">
-                Configure the current price for each Tyrolene material. New
+                Configure current reference prices for Tyrolene materials in NGN. New
                 estimates will use these prices. Historical estimates retain the
                 price snapshot from when they were created.
               </p>
@@ -746,7 +746,7 @@ export default function AdminTyroleneConfig() {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-sm text-muted-foreground">₦</span>
+                      <span className="text-xs font-semibold text-muted-foreground">NGN</span>
                       <AdminInput
                         type="number"
                         min="0"

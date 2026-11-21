@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { formatByCode } from "@/lib/international/currency-format";
 import {
   AlertTriangle,
   Loader2,
@@ -84,15 +85,7 @@ const WINDOWS = [7, 30, 90];
 function money(minor: number | undefined, currency = "NGN"): string {
   if (!minor) return "0";
   const value = minor / 100;
-  try {
-    return new Intl.NumberFormat("en-NG", {
-      style: "currency",
-      currency,
-      maximumFractionDigits: currency === "NGN" ? 0 : 2,
-    }).format(value);
-  } catch {
-    return `${currency} ${value.toLocaleString()}`;
-  }
+  return formatByCode(value, currency);
 }
 
 function usd(value: number | undefined): string {
@@ -295,7 +288,7 @@ export default function AdminFinance() {
               <p className="admin-eyebrow">Token packs</p>
               <p className="mt-1 text-lg font-semibold text-foreground">
                 {perCurrency(summary.token_packs, (row) =>
-                  money(row.amount_minor, "NGN"),
+                  money(row.amount_minor, row.currency || "NGN"),
                 )}
               </p>
               <p className="mt-1 text-xs text-muted-foreground">

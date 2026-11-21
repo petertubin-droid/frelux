@@ -20,6 +20,7 @@ import type {
   TileMaterialCategory,
 } from "@/types/database";
 import { useLanguage } from "@/lib/i18n";
+import { formatByCode } from "@/lib/international/currency-format";
 
 type Status = "loading" | "ready" | "error";
 type Tab = "sizes" | "materials";
@@ -404,8 +405,7 @@ export default function AdminTileMaterials() {
                             </span>
                           </div>
                           <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
-                            {m.coverage_rate} {m.coverage_unit} · ₦
-                            {m.unit_price} · Labour ₦{m.labour_rate_per_sqm}/m²
+                            {m.coverage_rate} {m.coverage_unit} · {formatByCode(m.unit_price, m.currency || "NGN")} · Labour {formatByCode(m.labour_rate_per_sqm, m.currency || "NGN")}/m²
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -678,7 +678,7 @@ function TileMaterialEditor({
             onChange={(e) => setForm({ ...form, package_unit: e.target.value })}
           />
         </AdminField>
-        <AdminField label="Unit Price (₦)">
+        <AdminField label={`Unit Price (${form.currency || "NGN"})`}>
           <AdminInput
             type="number"
             value={form.unit_price}
@@ -689,7 +689,7 @@ function TileMaterialEditor({
         </AdminField>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <AdminField label="Labour Rate/m² (₦)">
+        <AdminField label={`Labour Rate/m² (${form.currency || "NGN"})`}>
           <AdminInput
             type="number"
             value={form.labour_rate_per_sqm}

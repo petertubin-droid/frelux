@@ -484,7 +484,7 @@ export default function AdminCreditsAds() {
                       {t("Credit Cost")}
                     </label>
                     <NumericInput
-                      aria-label="Price (₦)"
+                      aria-label={t("Credit cost in tokens")}
                       value={draft.credit_cost ?? f.credit_cost}
                       onValueChange={(n) =>
                         setEditingFeature((s) => ({
@@ -749,10 +749,10 @@ export default function AdminCreditsAds() {
               </div>
               <div>
                 <label className="text-xs font-semibold text-muted-foreground">
-                  Price (₦)
+                  Price (NGN / ₦)
                 </label>
                 <NumericInput
-                  aria-label="Price (₦)"
+                  aria-label="Token pack price (NGN)"
                   value={tokenConfigDraft.price_kobo / 100}
                   min={100}
                   onValueChange={(n) =>
