@@ -300,6 +300,7 @@ export default function AdminPriceSubmissions() {
             {r.status === "pending" || r.status === "community_verified" ? (
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <select
+                  aria-label="Select approved material for price submission"
                   value={
                     materialPick[r.id] ??
                     materials.find((m) => m.slug === r.material_slug)?.id ??

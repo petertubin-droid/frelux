@@ -254,6 +254,7 @@ export default function AdminEstimationEstimates() {
               Calculator:
             </span>
             <AdminSelect
+              aria-label="Filter estimates by calculator"
               className="text-xs py-1.5"
               value={calcFilter}
               onChange={(e) => setCalcFilter(e.target.value)}
@@ -273,6 +274,7 @@ export default function AdminEstimationEstimates() {
               Status:
             </span>
             <AdminSelect
+              aria-label="Filter estimates by status"
               className="text-xs py-1.5"
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}

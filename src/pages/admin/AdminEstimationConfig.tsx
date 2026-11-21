@@ -39,7 +39,31 @@ const CALCULATOR_TYPES = [
   "foundation",
   "doors_windows",
   "generator",
+  "drywall",
+  "paving",
+  "septic",
 ];
+
+const TAKEOFF_RULE_KEYS: Record<string, string[]> = {
+  drywall: [
+    "default_stud_spacing_mm (100–2000)",
+    "default_waste_margin_pct (0–50)",
+  ],
+  paving: [
+    "default_paver_length_mm (50–2000)",
+    "default_paver_width_mm (50–2000)",
+    "default_waste_margin_pct (0–50)",
+    "default_bedding_depth_mm (0–500)",
+    "default_subbase_depth_mm (0–1000)",
+  ],
+  septic: [
+    "default_design_flow_litres_per_person_per_day (1–2000)",
+    "default_retention_days (0–30)",
+    "default_storage_days (0–30)",
+    "default_freeboard_percent (0–100)",
+    "default_soakaway_depth_m (0.1–20)",
+  ],
+};
 
 const PURCHASE_RULES = [
   { value: "full_pack", label: "Full Pack" },
@@ -1232,6 +1256,14 @@ function CalcRuleForm({
           placeholder="e.g. standard_room_height"
         />
       </AdminField>
+      {calculatorType && TAKEOFF_RULE_KEYS[calculatorType] && (
+        <p className="-mt-2 text-xs leading-relaxed text-muted-foreground">
+          Supported keys: {TAKEOFF_RULE_KEYS[calculatorType].join(", ")}. Use a
+          JSON numeric value such as {`{"value": 600}`}; values outside the
+          listed ranges are ignored. Septic defaults are editable starting
+          assumptions and must be reviewed against local authority requirements.
+        </p>
+      )}
 
       <div className="grid gap-4 sm:grid-cols-2">
         <AdminField label="Calculator Type">

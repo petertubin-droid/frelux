@@ -443,6 +443,7 @@ function TemplateEditor({ template, onClose, onSaved }: TemplateEditorProps) {
             {tr("Calculator Type")}
           </label>
           <AdminSelect
+            aria-label="Calculator type for template"
             value={calculatorType}
             onChange={(e) =>
               setCalculatorType(e.target.value as CalculatorType)

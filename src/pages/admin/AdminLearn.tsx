@@ -698,6 +698,7 @@ export default function AdminLearn() {
         <div className="space-y-2">
           <div className="mb-4">
             <AdminSelect
+              aria-label="Filter FAQ articles"
               value={faqArticleFilter}
               onChange={(e) => setFaqArticleFilter(e.target.value)}
               className="max-w-xs"

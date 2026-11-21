@@ -1816,6 +1816,7 @@ function PlacementForm({
                           the format catalog. */}
                       {prov.slug === "adsterra" && (
                         <AdminSelect
+                          aria-label="Ad network unit format"
                           className="mt-1.5 text-xs"
                           value={
                             adUnitIds[prov.id] &&

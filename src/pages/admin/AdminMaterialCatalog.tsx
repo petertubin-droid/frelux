@@ -160,6 +160,7 @@ export default function AdminMaterialCatalog() {
           />
         </div>
         <AdminSelect
+          aria-label="Filter materials by category"
           value={categoryFilter}
           onChange={(e) => setCategoryFilter(e.target.value)}
           className="rounded-lg border border-border px-3 py-2 text-sm focus:border-brand-purple focus:outline-none"

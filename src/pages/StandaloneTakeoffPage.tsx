@@ -5,6 +5,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type FormEvent,
 } from "react";
@@ -31,6 +32,7 @@ import {
 } from "lucide-react";
 import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
 import { useEngineAccess } from "@/lib/use-engine-access";
+import { getRuleValue, useCalcRules } from "@/lib/use-calc-defaults";
 import { EnginePreviewLock } from "@/components/premium/EnginePreviewLock";
 import { QuoteShareButton } from "@/components/calculators/QuoteShareButton";
 import {
@@ -222,6 +224,8 @@ export default function StandaloneTakeoffPage({
     thickness: "12",
     paverLength: "200",
     paverWidth: "100",
+    beddingDepth: "30",
+    subbaseDepth: "150",
     spacing: "600",
     runLength: "20",
     diameter: "110",
@@ -244,6 +248,166 @@ export default function StandaloneTakeoffPage({
     bulking: "1.35",
     skipCapacity: "6",
   });
+  // The shared takeoff page reads the same admin rules configured in
+  // Admin → Estimation Config. Rules only seed untouched form defaults; they
+  // never overwrite values the user has edited.
+  const {
+    rules: takeoffRules,
+    loading: takeoffRulesLoading,
+    loadedCalculatorType,
+  } = useCalcRules(engine);
+  const editedTakeoffFields = useRef(new Set<string>());
+  useEffect(() => {
+    if (takeoffRulesLoading || loadedCalculatorType !== engine) return;
+    const mappings =
+      engine === "drywall"
+        ? [
+            {
+              rules: takeoffRules,
+              field: "spacing",
+              key: "default_stud_spacing_mm",
+              fallback: 600,
+              min: 100,
+              max: 2000,
+            },
+            {
+              rules: takeoffRules,
+              field: "waste",
+              key: "default_waste_margin_pct",
+              fallback: 5,
+              min: 0,
+              max: 50,
+            },
+          ]
+        : engine === "paving"
+          ? [
+              {
+                rules: takeoffRules,
+                field: "paverLength",
+                key: "default_paver_length_mm",
+                fallback: 200,
+                min: 50,
+                max: 2000,
+              },
+              {
+                rules: takeoffRules,
+                field: "paverWidth",
+                key: "default_paver_width_mm",
+                fallback: 100,
+                min: 50,
+                max: 2000,
+              },
+              {
+                rules: takeoffRules,
+                field: "waste",
+                key: "default_waste_margin_pct",
+                fallback: 5,
+                min: 0,
+                max: 50,
+              },
+              {
+                rules: takeoffRules,
+                field: "beddingDepth",
+                key: "default_bedding_depth_mm",
+                fallback: 30,
+                min: 0,
+                max: 500,
+              },
+              {
+                rules: takeoffRules,
+                field: "subbaseDepth",
+                key: "default_subbase_depth_mm",
+                fallback: 150,
+                min: 0,
+                max: 1000,
+              },
+            ]
+          : engine === "septic"
+            ? [
+                {
+                  rules: takeoffRules,
+                  field: "dailyFlow",
+                  key: "default_design_flow_litres_per_person_per_day",
+                  fallback: 120,
+                  min: 1,
+                  max: 2000,
+                },
+                {
+                  rules: takeoffRules,
+                  field: "retentionDays",
+                  key: "default_retention_days",
+                  fallback: 2,
+                  min: 0,
+                  max: 30,
+                },
+                {
+                  rules: takeoffRules,
+                  field: "storageDays",
+                  key: "default_storage_days",
+                  fallback: 0,
+                  min: 0,
+                  max: 30,
+                },
+                {
+                  rules: takeoffRules,
+                  field: "freeboard",
+                  key: "default_freeboard_percent",
+                  fallback: 20,
+                  min: 0,
+                  max: 100,
+                },
+                {
+                  rules: takeoffRules,
+                  field: "soakawayDepth",
+                  key: "default_soakaway_depth_m",
+                  fallback: 2,
+                  min: 0.1,
+                  max: 20,
+                },
+              ]
+            : [];
+    setValues((current) => {
+      let changed = false;
+      const next = { ...current };
+      for (const item of mappings) {
+        const configured = item.rules[item.key];
+        if (!configured || editedTakeoffFields.current.has(item.field))
+          continue;
+        const value = getRuleValue(configured, item.fallback);
+        if (!Number.isFinite(value) || value < item.min || value > item.max)
+          continue;
+        if (Number(current[item.field]) !== value) {
+          next[item.field] = String(value);
+          changed = true;
+        }
+      }
+      return changed ? next : current;
+    });
+  }, [engine, takeoffRules, takeoffRulesLoading, loadedCalculatorType]);
+  const activeDefaultRules =
+    takeoffRulesLoading || loadedCalculatorType !== engine
+      ? []
+      : engine === "drywall"
+        ? ["default_stud_spacing_mm", "default_waste_margin_pct"].filter(
+            (key) => takeoffRules[key],
+          )
+        : engine === "paving"
+          ? [
+              "default_paver_length_mm",
+              "default_paver_width_mm",
+              "default_waste_margin_pct",
+              "default_bedding_depth_mm",
+              "default_subbase_depth_mm",
+            ].filter((key) => takeoffRules[key])
+          : engine === "septic"
+            ? [
+                "default_design_flow_litres_per_person_per_day",
+                "default_retention_days",
+                "default_storage_days",
+                "default_freeboard_percent",
+                "default_soakaway_depth_m",
+              ].filter((key) => takeoffRules[key])
+            : [];
   const masonryConfig = useMemo(
     () => resolveMarketMasonryConfig(marketCode),
     [marketCode],
@@ -334,8 +498,10 @@ export default function StandaloneTakeoffPage({
   /** An area field typed in the visitor's unit, returned in square metres. */
   const areaM2 = (key: string, fallback = 0) =>
     areaUnit.toSqm(number(key, fallback));
-  const update = (key: string, value: string) =>
+  const update = (key: string, value: string) => {
+    editedTakeoffFields.current.add(key);
     setValues((old) => ({ ...old, [key]: value }));
+  };
   const field = (key: string, label: string, unit = "m", min = 0) => (
     <label className="block text-sm font-medium text-foreground" key={key}>
       {label}
@@ -457,6 +623,8 @@ export default function StandaloneTakeoffPage({
           paverLengthMm: number("paverLength", 200),
           paverWidthMm: number("paverWidth", 100),
           wastePercent: number("waste", 5),
+          beddingDepthMm: number("beddingDepth", 30),
+          subbaseDepthMm: number("subbaseDepth", 150),
         });
       else if (engine === "drainage")
         next = calculateDrainageTakeoff({
@@ -524,7 +692,14 @@ export default function StandaloneTakeoffPage({
         masonry: ["length", "height", "count", "waste"],
         plastering: ["area", "thickness", "waste"],
         drywall: ["length", "height", "count", "spacing", "waste"],
-        paving: ["area", "paverLength", "paverWidth", "waste"],
+        paving: [
+          "area",
+          "paverLength",
+          "paverWidth",
+          "waste",
+          "beddingDepth",
+          "subbaseDepth",
+        ],
         drainage: [
           "runLength",
           "diameter",
@@ -567,7 +742,13 @@ export default function StandaloneTakeoffPage({
         masonry: ["length", "height"],
         plastering: ["area", "thickness"],
         drywall: ["length", "height"],
-        paving: ["area", "paverLength", "paverWidth"],
+        paving: [
+          "area",
+          "paverLength",
+          "paverWidth",
+          "beddingDepth",
+          "subbaseDepth",
+        ],
         drainage: ["runLength", "diameter", "trenchWidth", "trenchDepth"],
         septic: ["occupants", "dailyFlow", "retentionDays"],
         insulation: ["area", "thickness", "layers"],
@@ -749,6 +930,18 @@ export default function StandaloneTakeoffPage({
                       "Choose the working market, then enter measured dimensions.",
                     )}
                   </p>
+                  {activeDefaultRules.length > 0 && (
+                    <p
+                      className="mt-2 text-xs text-muted-foreground"
+                      role="status"
+                    >
+                      {t(
+                        "Administrator-configured starting values are loaded and remain editable.",
+                      )}
+                      {engine === "septic" &&
+                        ` ${t("Confirm all septic design criteria with the relevant local authority; these are not permit or environmental design values.")}`}
+                    </p>
+                  )}
                 </div>
                 <Ruler className="h-5 w-5 text-primary" />
               </div>

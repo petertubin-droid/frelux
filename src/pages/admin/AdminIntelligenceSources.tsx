@@ -193,6 +193,7 @@ export default function AdminIntelligenceSources() {
               onChange={(e) => setDraft({ ...draft, base_url: e.target.value })}
             />
             <AdminSelect
+              aria-label="Intelligence source type"
               value={draft.source_type}
               onChange={(e) =>
                 setDraft({ ...draft, source_type: e.target.value })
@@ -205,6 +206,7 @@ export default function AdminIntelligenceSources() {
               ))}
             </AdminSelect>
             <AdminSelect
+              aria-label="Intelligence source reliability"
               value={draft.reliability}
               onChange={(e) =>
                 setDraft({ ...draft, reliability: e.target.value })
@@ -231,6 +233,7 @@ export default function AdminIntelligenceSources() {
               onChange={(e) => setDraft({ ...draft, region: e.target.value })}
             />
             <AdminSelect
+              aria-label="Crawl frequency"
               value={draft.crawl_frequency}
               onChange={(e) =>
                 setDraft({ ...draft, crawl_frequency: e.target.value })

@@ -196,6 +196,7 @@ export default function AdminTranslations() {
             />
           </div>
           <select
+            aria-label="Translation language"
             value={locale}
             onChange={(e) => setLocale(e.target.value)}
             className="h-10 rounded-md border bg-background px-3 text-sm"

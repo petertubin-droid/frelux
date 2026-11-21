@@ -213,6 +213,7 @@ function ListingsTab() {
           />
         </div>
         <AdminSelect
+          aria-label="Filter marketplace listings by status"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -396,6 +397,7 @@ function ProductsTab() {
           className="flex-1 rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
         />
         <AdminSelect
+          aria-label="Filter marketplace products by status"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -546,6 +548,7 @@ function OrdersTab() {
     <div>
       <div className="mb-4">
         <AdminSelect
+          aria-label="Filter marketplace orders by status"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -801,6 +804,7 @@ function ReportsTab() {
           {reports.length} reports
         </p>
         <AdminSelect
+          aria-label="Filter marketplace reports by status"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -970,6 +974,7 @@ function ReviewsTab() {
           {reviews.length} reviews
         </p>
         <AdminSelect
+          aria-label="Filter marketplace reviews by status"
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
           className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"
@@ -1197,6 +1202,7 @@ function SellersTab() {
           {sellers.length} sellers
         </p>
         <AdminSelect
+          aria-label="Filter marketplace sellers by verification status"
           value={verificationFilter}
           onChange={(e) => setVerificationFilter(e.target.value)}
           className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-background dark:text-primary-foreground"

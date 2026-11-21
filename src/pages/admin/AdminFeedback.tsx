@@ -168,6 +168,7 @@ export default function AdminFeedback() {
             )}
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <select
+                aria-label="Feedback status"
                 value={r.status}
                 onChange={(e) => void setStatus(r.id, e.target.value)}
                 className="rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs dark:border-white/10 dark:bg-background dark:text-primary-foreground"

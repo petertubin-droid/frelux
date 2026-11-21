@@ -820,6 +820,7 @@ function AiTab() {
     <div>
       <div className="mb-4 flex gap-2">
         <select
+          aria-label="Filter AI verification state"
           value={filter}
           onChange={(e) =>
             setFilter(e.target.value as AiVerificationState | "")

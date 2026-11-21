@@ -157,6 +157,7 @@ export default function AdminEstimationAudit() {
             Filter Entity:
           </span>
           <AdminSelect
+            aria-label="Filter audit by entity type"
             className="text-xs py-1.5 w-48"
             value={selectedEntityType}
             onChange={(e) => setSelectedEntityType(e.target.value)}

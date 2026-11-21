@@ -217,6 +217,7 @@ export default function AdminConstructionDictionary() {
           <div>
             <p className="mb-1 text-xs font-medium">{tr("Language")}</p>
             <AdminSelect
+              aria-label="Filter terms by language"
               value={languageFilter}
               onChange={(e) => setLanguageFilter(e.target.value)}
             >
@@ -231,6 +232,7 @@ export default function AdminConstructionDictionary() {
           <div>
             <p className="mb-1 text-xs font-medium">{tr("Category")}</p>
             <AdminSelect
+              aria-label="Filter terms by category"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
@@ -245,6 +247,7 @@ export default function AdminConstructionDictionary() {
           <div>
             <p className="mb-1 text-xs font-medium">{tr("Verification")}</p>
             <AdminSelect
+              aria-label="Filter terms by verification status"
               value={verifyFilter}
               onChange={(e) => setVerifyFilter(e.target.value)}
             >
@@ -257,6 +260,7 @@ export default function AdminConstructionDictionary() {
           <div>
             <p className="mb-1 text-xs font-medium">{tr("Confidence")}</p>
             <AdminSelect
+              aria-label="Filter terms by confidence"
               value={confidenceFilter}
               onChange={(e) => setConfidenceFilter(e.target.value)}
             >

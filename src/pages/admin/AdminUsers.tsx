@@ -669,6 +669,7 @@ export default function AdminUsers() {
                       <td className="py-3 pr-4 text-muted-foreground dark:text-muted-foreground/80">
                         {isEditing ? (
                           <AdminSelect
+                            aria-label="User subscription plan"
                             value={editPlan}
                             onChange={(e) => setEditPlan(e.target.value)}
                             className="rounded-md border border-border px-2 py-1 text-xs dark:border-border border-border dark:bg-card-foreground/90"
@@ -690,6 +691,7 @@ export default function AdminUsers() {
                       <td className="py-3 pr-4 text-muted-foreground dark:text-muted-foreground">
                         {isEditing ? (
                           <AdminSelect
+                            aria-label="Subscription duration in days"
                             value={editDays}
                             onChange={(e) => setEditDays(e.target.value)}
                             className="rounded-md border border-border px-2 py-1 text-xs dark:border-border border-border dark:bg-card-foreground/90"

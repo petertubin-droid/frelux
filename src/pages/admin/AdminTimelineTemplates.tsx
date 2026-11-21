@@ -329,6 +329,7 @@ function TemplateForm({
                   className="rounded-lg border border-border px-2 py-1.5 text-sm"
                 />
                 <AdminSelect
+                  aria-label="Construction phase"
                   value={phase.phase}
                   onChange={(e) => {
                     const p = [...phases];

@@ -7,7 +7,7 @@
  * instead of importing constants from calc.ts or utils.ts.
  */
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import type { EstimationCalcRule } from "@/types/estimation";
 
@@ -42,11 +42,17 @@ const EMPTY_DEFAULTS: CalcDefaults = {
 export function useCalcRules(calculatorType?: string) {
   const [rules, setRules] = useState<CalcRuleMap>({});
   const [loading, setLoading] = useState(true);
+  const [loadedCalculatorType, setLoadedCalculatorType] = useState<
+    string | null
+  >(null);
   const [error, setError] = useState<string | null>(null);
+  const requestId = useRef(0);
 
   const fetch = useCallback(async () => {
+    const currentRequest = ++requestId.current;
     setLoading(true);
     setError(null);
+    setRules({});
     try {
       // Fetch global rules (calculator_type IS NULL) + calculator-specific rules
       let query = supabase
@@ -61,6 +67,7 @@ export function useCalcRules(calculatorType?: string) {
         query = query.is("calculator_type", null);
       }
       const { data, error: dbError } = await query;
+      if (currentRequest !== requestId.current) return;
       if (dbError) throw new Error(dbError.message);
       const map: CalcRuleMap = {};
       for (const r of data ?? []) {
@@ -71,11 +78,16 @@ export function useCalcRules(calculatorType?: string) {
       }
       setRules(map);
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to load calc rules",
-      );
+      if (currentRequest === requestId.current) {
+        setError(
+          err instanceof Error ? err.message : "Failed to load calc rules",
+        );
+      }
     } finally {
-      setLoading(false);
+      if (currentRequest === requestId.current) {
+        setLoadedCalculatorType(calculatorType ?? null);
+        setLoading(false);
+      }
     }
   }, [calculatorType]);
 
@@ -83,7 +95,7 @@ export function useCalcRules(calculatorType?: string) {
     fetch();
   }, [fetch]);
 
-  return { rules, loading, error, refetch: fetch };
+  return { rules, loading, error, loadedCalculatorType, refetch: fetch };
 }
 
 /**

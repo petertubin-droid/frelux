@@ -541,6 +541,7 @@ export default function AdminSuppliers() {
                   </td>
                   <td className="px-3 py-2">
                     <select
+                      aria-label="Supplier subscription plan"
                       value={supplier.subscription_plan}
                       onChange={(e) =>
                         act(

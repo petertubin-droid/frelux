@@ -172,6 +172,7 @@ function ObservationsTab() {
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <select
+            aria-label="Filter market intelligence by validation status"
             value={statusFilter}
             onChange={(e) =>
               setStatusFilter(e.target.value as ValidationStatus | "all")

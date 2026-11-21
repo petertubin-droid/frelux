@@ -627,6 +627,7 @@ function SeoPagesTab() {
                 {t("Page Type")}
               </label>
               <AdminSelect
+                aria-label="SEO page type"
                 value={form.page_type}
                 onChange={(e) =>
                   setForm({ ...form, page_type: e.target.value })

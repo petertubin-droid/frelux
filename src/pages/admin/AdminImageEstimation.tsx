@@ -292,6 +292,7 @@ export default function AdminImageEstimation() {
               {t("Access Mode")}
             </label>
             <AdminSelect
+              aria-label="Image estimation access mode"
               value={config.estimation_access_mode}
               onChange={(e) =>
                 setConfig((prev) => ({
@@ -439,6 +440,7 @@ export default function AdminImageEstimation() {
               {t("Usage Reset Period")}
             </label>
             <AdminSelect
+              aria-label="Usage reset period"
               value={config.estimation_reset_period}
               onChange={(e) =>
                 setConfig((prev) => ({

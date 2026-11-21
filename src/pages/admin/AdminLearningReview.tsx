@@ -270,6 +270,7 @@ export default function AdminLearningReview() {
               onChange={(e) => setArchieCapability(e.target.value)}
             />
             <AdminSelect
+              aria-label="ARCHIE learning scope"
               value={archieScope}
               onChange={(e) => setArchieScope(e.target.value)}
             >
@@ -378,6 +379,7 @@ export default function AdminLearningReview() {
             </h2>
             <div className="flex items-center gap-2">
               <AdminSelect
+                aria-label="Filter learning records by status"
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
               >

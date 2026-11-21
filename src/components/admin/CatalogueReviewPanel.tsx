@@ -271,6 +271,7 @@ export default function CatalogueReviewPanel({ market }: { market?: string }) {
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-2">
               <select
+                aria-label="Select material to approve catalogue item"
                 defaultValue={row.material_slug ?? ""}
                 onChange={(e) => e.target.value && approve(row, e.target.value)}
                 disabled={busy === row.id}

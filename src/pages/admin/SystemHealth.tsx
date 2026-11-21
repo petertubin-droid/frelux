@@ -820,6 +820,7 @@ export default function SystemHealth() {
               className="flex-1 min-w-[200px] rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-card"
             />
             <select
+              aria-label="Filter alerts by severity"
               value={severityFilter}
               onChange={(e) =>
                 setSeverityFilter(e.target.value as SeverityFilter)
@@ -833,6 +834,7 @@ export default function SystemHealth() {
               <option value="low">{tr("Low")}</option>
             </select>
             <select
+              aria-label="Filter alerts by resolution status"
               value={showResolved}
               onChange={(e) =>
                 setShowResolved(
@@ -846,6 +848,7 @@ export default function SystemHealth() {
               <option value="all">{tr("All")}</option>
             </select>
             <select
+              aria-label="Filter alerts by date range"
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value as DateRange)}
               className="rounded-lg border border-border px-3 py-2 text-sm dark:border-white/10 dark:bg-card"

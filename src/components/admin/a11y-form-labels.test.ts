@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
+import * as ts from "typescript";
 
 /**
  * Screen-reader users need a programmatic name on every field. AdminField and
@@ -24,36 +25,117 @@ function adminFiles(): string[] {
 
 function unnamedInputs(file: string): number[] {
   const source = fs.readFileSync(path.resolve(process.cwd(), file), "utf8");
-  const found: number[] = [];
-
-  for (const match of source.matchAll(/<input\b/g)) {
-    let i = match.index + 6;
-    let braces = 0;
-    let quote: string | null = null;
-
-    while (i < source.length) {
-      const char = source[i];
-      if (quote) {
-        if (char === quote) quote = null;
-      } else if (char === '"' || char === "'" || char === "`") {
-        quote = char;
-      } else if (char === "{") braces += 1;
-      else if (char === "}") braces -= 1;
-      else if (char === ">" && braces === 0) break;
-      i += 1;
-    }
-
-    const tag = source.slice(match.index, i + 1);
-    const named =
-      /aria-label|aria-labelledby|\bid="|type="hidden"|\{\.\.\./.test(tag) ||
-      /<label[^>]*>\s*$/.test(
-        source.slice(Math.max(0, match.index - 400), match.index),
+  const parsed = ts.createSourceFile(
+    file,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  const unnamed: number[] = [];
+  const hasAttribute = (node: ts.JsxOpeningLikeElement, name: string) =>
+    node.attributes.properties.some(
+      (property) => property.name?.getText(parsed) === name,
+    );
+  const visit = (node: ts.Node) => {
+    if (
+      (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
+      node.tagName.getText(parsed) === "input"
+    ) {
+      const inputType = node.attributes.properties.find(
+        (property): property is ts.JsxAttribute =>
+          ts.isJsxAttribute(property) &&
+          property.name.getText(parsed) === "type",
       );
+      let named =
+        hasAttribute(node, "aria-label") ||
+        hasAttribute(node, "aria-labelledby") ||
+        hasAttribute(node, "id") ||
+        node.attributes.properties.some(ts.isJsxSpreadAttribute) ||
+        inputType?.initializer?.getText(parsed) === '"hidden"';
+      let parent: ts.Node | undefined = node.parent;
+      while (parent && !named) {
+        if (ts.isJsxElement(parent)) {
+          const parentTag = parent.openingElement.tagName.getText(parsed);
+          named =
+            parentTag === "label" ||
+            ((parentTag === "AdminField" || parentTag === "Field") &&
+              hasAttribute(parent.openingElement, "label"));
+        }
+        parent = parent.parent;
+      }
+      if (!named) {
+        unnamed.push(
+          parsed.getLineAndCharacterOfPosition(node.getStart(parsed)).line + 1,
+        );
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(parsed);
+  return unnamed;
+}
 
-    if (!named) found.push(source.slice(0, match.index).split("\n").length);
-  }
-
-  return found;
+function unnamedSelects(file: string): number[] {
+  // AdminUi defines the generic AdminSelect primitive itself; the call sites
+  // are checked below so names can be verified in their actual form context.
+  if (file === "src/components/admin/AdminUi.tsx") return [];
+  const source = fs.readFileSync(path.resolve(process.cwd(), file), "utf8");
+  const parsed = ts.createSourceFile(
+    file,
+    source,
+    ts.ScriptTarget.Latest,
+    true,
+    ts.ScriptKind.TSX,
+  );
+  const unnamed: number[] = [];
+  const hasAttribute = (node: ts.JsxOpeningLikeElement, name: string) =>
+    node.attributes.properties.some(
+      (property) => property.name?.getText(parsed) === name,
+    );
+  const visit = (node: ts.Node) => {
+    if (
+      (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
+      ["select", "AdminSelect"].includes(node.tagName.getText(parsed))
+    ) {
+      const idProperty = node.attributes.properties.find(
+        (property): property is ts.JsxAttribute =>
+          ts.isJsxAttribute(property) && property.name.getText(parsed) === "id",
+      );
+      const idValue =
+        idProperty?.initializer && ts.isStringLiteral(idProperty.initializer)
+          ? idProperty.initializer.text
+          : null;
+      const linkedLabel = idValue
+        ? new RegExp(`<label\\b[^>]*\\bhtmlFor=[\"']${idValue}[\"']`).test(
+            source,
+          )
+        : false;
+      let named =
+        hasAttribute(node, "aria-label") ||
+        hasAttribute(node, "aria-labelledby") ||
+        linkedLabel;
+      let parent: ts.Node | undefined = node.parent;
+      while (parent && !named) {
+        if (ts.isJsxElement(parent)) {
+          const parentTag = parent.openingElement.tagName.getText(parsed);
+          named =
+            parentTag === "label" ||
+            ((parentTag === "AdminField" || parentTag === "Field") &&
+              hasAttribute(parent.openingElement, "label"));
+        }
+        parent = parent.parent;
+      }
+      if (!named) {
+        unnamed.push(
+          parsed.getLineAndCharacterOfPosition(node.getStart(parsed)).line + 1,
+        );
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(parsed);
+  return unnamed;
 }
 
 describe("admin form accessibility", () => {
@@ -63,6 +145,14 @@ describe("admin form accessibility", () => {
     );
 
     expect(offenders.length).toBeLessThanOrEqual(REMAINING_UNNAMED);
+  });
+
+  it("gives admin dropdowns an accessible name", () => {
+    const offenders = adminFiles().flatMap((file) =>
+      unnamedSelects(file).map((line) => `${file}:${line}`),
+    );
+
+    expect(offenders).toEqual([]);
   });
 });
 
