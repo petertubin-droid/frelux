@@ -24,8 +24,8 @@ been exercised; `staged` means written but not executed.
 | 2   | Reinforcement / Steel              | structure | **Audited 2026-11-21**, 15 tests, no defect in anchorage or laps                |
 | 3   | ICF Wall Estimator                 | structure | **Audited 2026-11-21**, 19 tests, no defect in geometry or envelope             |
 | 4   | Concrete & Structural              | structure | **Audited 2026-11-21**, 16 tests, 2 DEFECTS FIXED: IS 456 tau_c and ACI axial   |
-| 5   | Concrete Slab Takeoff              | structure | Queued                                                                          |
-| 6   | Earthworks Cut & Fill              | structure | Queued                                                                          |
+| 5   | Concrete Slab Takeoff              | structure | **Audited 2026-11-21**, 11 tests, no defect in mix or rebar mass                |
+| 6   | Earthworks Cut & Fill              | structure | **Audited 2026-11-21**, 8 tests, no defect in volumes or soil conversion        |
 | 7   | Retaining Wall Calculator          | structure | **Audited 2026-11-21**, 9 tests, DEFECT FIXED: overturning 1.5 -> 2.0 (BS 8002) |
 | 8   | Roof Framing & Board Feet          | structure | Queued                                                                          |
 | 9   | Masonry & Blockwork                | structure | Queued                                                                          |
@@ -72,6 +72,70 @@ Found 2026-11-21 by mapping the 34 calculators to `src/lib/estimation/*.ts`:
 - `plumbing-engine.ts`, `plumbing-profiles.ts` - open.
 - `generator-engine.ts` - open.
 - `borehole-water-system-engine.ts` - open.
+
+---
+
+## Audit 5: Concrete Slab Takeoff (`advanced-takeoff-engine.ts`)
+
+Suite: `src/lib/estimation/__tests__/concrete-takeoff-conformance.test.ts`,
+11 tests, CI green only. Expected quantities are the published nominal-mix
+figures, worked in the test from the dry-volume method.
+
+Verified correct:
+
+- 1:2:4 at 1 m3 wet gives 6.34 bags of 50 kg, 0.44 m3 sand and 0.88 m3
+  granite, procured as 7 whole bags. That is the site figure the method
+  produces, and the engine reproduces it to two decimals.
+- 1:1.5:3 gives 8.06 bags, procured as 9. 1:3:6 gives 4.43, procured as 5.
+- A 25 kg market bag doubles the count (12.67, procured as 13), so the same
+  mix is right in every market that sells a different pack.
+- The allowance is applied to the wet volume before the 1.54 dry factor, which
+  is the correct order and matches audit 1's finding on the same method.
+- Scheduled rebar weight uses the BS 4449 nominal mass 0.006165 d squared
+  (T16 1.578 kg/m, T12 0.888 kg/m) and is reported as null, not zero, when no
+  schedule is entered. Rows with a zero count are dropped rather than counted.
+- Missing or non-positive dimensions return errors with no data, so a blank
+  field cannot produce a quantity.
+
+Recorded, not changed:
+
+- The volume is a rectangular prism. Haunches, drops, slab openings and
+  irregular geometry are neither deducted nor added, and the assumptions list
+  says so rather than implying a measured model.
+- Bar displacement is not deducted from the concrete volume. At normal
+  reinforcement ratios it is well under one per cent, and deducting it would
+  put the engine below the quantity a supplier invoices.
+
+---
+
+## Audit 6: Earthworks Cut & Fill (`advanced-takeoff-engine.ts`)
+
+Suite: `src/lib/estimation/__tests__/earthworks-conformance.test.ts`, 8 tests,
+CI green only.
+
+Verified correct:
+
+- Average end-area volumes, interval by interval: two stations 100 m apart at
+  10 and 20 m2 give 1500 m3, and a three-station run gives 750 + 1000 = 1750
+  m3, so intervals are added rather than the whole run being averaged once.
+- Bulking converts bank cut to loose haul only, and shrinkage converts
+  compacted fill back to a bank source volume only. 900 m3 compacted at 10 per
+  cent shrinkage needs 1000 m3 of bank material. The two factors never touch
+  the same figure.
+- The balance is split into a surplus or an import, never both, and both are
+  suppressed to null when the user has not confirmed the cut is suitable for
+  fill. The measured volumes are still reported in that case, which is the
+  honest split between measurement and reuse claim.
+- Fewer than two stations, duplicated or reversed chainages, and a shrinkage of
+  100 per cent (no finite source volume) are all refused with errors.
+
+Recorded, not changed:
+
+- No prismoidal correction is offered. Average end-area over-states volume
+  where the areas change non-linearly, which is conservative for cut and for
+  haul, so the simpler method stays and the assumption is printed.
+- Topsoil strip and subgrade layer volumes are not part of the model; they are
+  separate measured items in earthworks practice.
 
 ---
 
