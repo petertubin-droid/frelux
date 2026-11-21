@@ -409,6 +409,21 @@ export default function AdminSubscriptionPricing() {
         </AdminButton>
       </div>
 
+      <div className="mb-4 flex flex-wrap items-center gap-3 rounded-lg border border-border bg-card p-3 text-xs text-muted-foreground">
+        <span className="font-semibold text-foreground">Checkout Rails:</span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-medium text-emerald-600 dark:text-emerald-400">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+          Paystack (NGN Settlement)
+        </span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-500/10 px-2.5 py-0.5 text-xs font-medium text-blue-600 dark:text-blue-400">
+          <span className="h-1.5 w-1.5 rounded-full bg-blue-500" />
+          Flutterwave (USD & Multi-Currency International)
+        </span>
+        <span className="ml-auto text-[11px] text-muted-foreground/80">
+          Client checkout automatically routes by currency and customer market.
+        </span>
+      </div>
+
       <div className="mb-6 flex gap-2 border-b border-border pb-3">
         <button
           type="button"

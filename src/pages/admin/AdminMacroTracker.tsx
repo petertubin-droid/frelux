@@ -32,6 +32,7 @@ import { Badge } from "@/components/ui/shadcn/badge";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
 import { useToast } from "@/components/ui/Toast";
+import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/lib/i18n";
 import {
   fetchMarketMacroIndicators,
@@ -89,6 +90,9 @@ export default function AdminMacroTracker() {
   const [rules, setRules] = useState<MacroElasticityRule[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [isFixtureFallback, setIsFixtureFallback] = useState<boolean>(false);
+  const [liveMaterials, setLiveMaterials] = useState<
+    { name: string; category: string; basePrice: number }[]
+  >([]);
 
   // Modal states
   const [indicatorModalOpen, setIndicatorModalOpen] = useState(false);
@@ -166,10 +170,53 @@ export default function AdminMacroTracker() {
         setIsFixtureFallback(false);
       }
       setRules(fetchedRules);
+
+      try {
+        const { data: priceRows } = await supabase
+          .from("estimation_prices")
+          .select("price, ref_id")
+          .eq("market", mkt)
+          .eq("price_type", "material")
+          .eq("is_active", true)
+          .order("effective_date", { ascending: false })
+          .order("created_at", { ascending: false })
+          .limit(10);
+
+        if (priceRows && priceRows.length > 0) {
+          const refIds = priceRows.map((r) => r.ref_id);
+          const { data: matRows } = await supabase
+            .from("estimation_materials")
+            .select("id, name, category")
+            .in("id", refIds);
+
+          const matMap = new Map((matRows || []).map((m) => [m.id, m]));
+          const mapped = priceRows
+            .map((p) => {
+              const m = matMap.get(p.ref_id);
+              if (!m) return null;
+              return {
+                name: m.name,
+                category: m.category || "general",
+                basePrice: Number(p.price) || 0,
+              };
+            })
+            .filter(
+              (x): x is { name: string; category: string; basePrice: number } =>
+                Boolean(x && x.basePrice > 0),
+            );
+
+          setLiveMaterials(mapped);
+        } else {
+          setLiveMaterials([]);
+        }
+      } catch {
+        setLiveMaterials([]);
+      }
     } catch {
       setIndicators(DEFAULT_MACRO_INDICATORS[mkt] || []);
       setIsFixtureFallback(true);
       setRules([]);
+      setLiveMaterials([]);
     } finally {
       setLoading(false);
     }
@@ -181,34 +228,15 @@ export default function AdminMacroTracker() {
 
   useEffect(() => {
     runSimulation();
-  }, [selectedMarket, simCommodity, simSpikePct]);
+  }, [selectedMarket, simCommodity, simSpikePct, liveMaterials]);
 
   const runSimulation = () => {
-    const sampleItems = [
-      { name: "Y12 Rebar (12m Length)", category: "steel", basePrice: 1000 },
-      {
-        name: "Ready-Mix Concrete (Class 25)",
-        category: "concrete",
-        basePrice: 12000,
-      },
-      {
-        name: "Standard 9-inch Foundation Block",
-        category: "masonry",
-        basePrice: 95,
-      },
-      {
-        name: "Box Profile 28G Iron Sheet",
-        category: "roofing",
-        basePrice: 1450,
-      },
-      { name: "Silk Vinyl Emulsion 20L", category: "paint", basePrice: 8500 },
-    ];
-
+    const itemsToSimulate = liveMaterials;
     const sim = simulateMacroImpact({
       marketCode: selectedMarket,
       commodity: simCommodity,
       simulatedSpikePct: simSpikePct,
-      sampleItems,
+      sampleItems: itemsToSimulate,
     });
     setSimResults(sim);
   };
@@ -796,9 +824,21 @@ export default function AdminMacroTracker() {
 
               {/* Simulation Result Items */}
               <div className="pt-2 border-t border-slate-200 dark:border-slate-800 space-y-2">
-                <div className="text-xs font-semibold uppercase text-slate-500">
-                  {t("Calculated Estimate Adjustments")}
+                <div className="flex items-center justify-between text-xs font-semibold uppercase text-slate-500">
+                  <span>{t("Calculated Estimate Adjustments")}</span>
+                  <span className="text-[10px] font-normal lowercase tracking-normal text-slate-400">
+                    {liveMaterials.length > 0
+                      ? `${liveMaterials.length} pricebook materials`
+                      : "no market price data"}
+                  </span>
                 </div>
+                {simResults.length === 0 && (
+                  <p role="status" className="text-xs text-muted-foreground">
+                    No active material prices are available for{" "}
+                    {currentMarketMeta.name}. Add market-specific prices in the
+                    material pricebook to run this simulation.
+                  </p>
+                )}
                 {simResults.map((res, i) => (
                   <div
                     key={i}

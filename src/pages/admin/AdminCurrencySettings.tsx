@@ -15,7 +15,6 @@ import {
   DISPLAY_CURRENCIES,
   type DisplayCurrencyConfig,
 } from "@/lib/international/fx-display";
-
 /**
  * Admin: Currency & FX Rates (International Phase A).
  *
@@ -155,27 +154,79 @@ export default function AdminCurrencySettings() {
       </AdminCard>
 
       <AdminCard>
-        <div className="mb-3">
-          <h3 className="text-sm font-semibold">{t("FX rates")}</h3>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            How many units of the currency ONE NAIRA buys. Example: if 1 USD =
-            1,540 NGN, enter 0.000649. Leave blank to offer the currency with
-            Naira values ("no rate").
-          </p>
+        <div className="mb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+          <div>
+            <h3 className="text-sm font-semibold">{t("FX rates")}</h3>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              How many units of the currency ONE NAIRA buys. Example: if 1 USD =
+              1,540 NGN, enter 0.000649 or use the inverse helper below.
+            </p>
+          </div>
         </div>
-        <div className="space-y-3">
-          {DISPLAY_CURRENCIES.filter((c) => c.code !== "NGN").map((c) => (
-            <AdminField key={c.code} label={`${c.name} (${c.symbol})`}>
-              <AdminInput
-                value={rates[c.code] ?? ""}
-                onChange={(e) =>
-                  setRates((prev) => ({ ...prev, [c.code]: e.target.value }))
-                }
-                placeholder={`units per 1 NGN, e.g. 0.000649`}
-                inputMode="decimal"
-              />
-            </AdminField>
-          ))}
+        <div className="space-y-4">
+          {DISPLAY_CURRENCIES.filter((c) => c.code !== "NGN").map((c) => {
+            const rawRate = rates[c.code] ?? "";
+            const parsedRate = Number.parseFloat(rawRate);
+            const impliedNgn =
+              Number.isFinite(parsedRate) && parsedRate > 0
+                ? Math.round(1 / parsedRate)
+                : null;
+            return (
+              <div
+                key={c.code}
+                className="rounded-lg border border-border/60 p-3 bg-muted/20 space-y-2"
+              >
+                <div className="flex items-center justify-between text-xs font-medium">
+                  <span>
+                    {c.name} ({c.code} - {c.symbol})
+                  </span>
+                  {impliedNgn !== null && (
+                    <span className="text-muted-foreground">
+                      1 {c.code} ≈ ₦{impliedNgn.toLocaleString()}
+                    </span>
+                  )}
+                </div>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  <div>
+                    <label className="text-[11px] text-muted-foreground block mb-1">
+                      Rate (units per 1 NGN)
+                    </label>
+                    <AdminInput
+                      value={rawRate}
+                      onChange={(e) =>
+                        setRates((prev) => ({
+                          ...prev,
+                          [c.code]: e.target.value,
+                        }))
+                      }
+                      placeholder={`e.g. 0.000649`}
+                      inputMode="decimal"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] text-muted-foreground block mb-1">
+                      Or enter NGN per 1 {c.code}
+                    </label>
+                    <AdminInput
+                      placeholder={
+                        impliedNgn ? String(impliedNgn) : "e.g. 1540"
+                      }
+                      inputMode="decimal"
+                      onChange={(e) => {
+                        const val = Number.parseFloat(e.target.value);
+                        if (Number.isFinite(val) && val > 0) {
+                          setRates((prev) => ({
+                            ...prev,
+                            [c.code]: (1 / val).toFixed(8),
+                          }));
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </AdminCard>
 

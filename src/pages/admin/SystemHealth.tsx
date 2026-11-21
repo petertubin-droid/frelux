@@ -1152,7 +1152,7 @@ export default function SystemHealth() {
                 </h4>
                 <div className="flex gap-2">
                   <Link
-                    to="/admin/studio/error_analysis/"
+                    to="/admin/studio/error_analysis"
                     state={{ errorId: selectedError.id }}
                     className="text-xs font-medium text-brand-purple hover:underline"
                   >

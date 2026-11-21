@@ -431,6 +431,7 @@ export const navModules: NavModule[] = [
     heading: "Monetization",
     items: [
       { label: "Ad Management", to: "/admin/ads", icon: Megaphone },
+      { label: "Ad Networks & SDKs", to: "/admin/network-hub", icon: Plug },
       { label: "Ad Manager", to: "/admin/ad-manager", icon: Megaphone },
       { label: "AI Monetization", to: "/admin/ai-monetization", icon: Crown },
       { label: "Rewarded Access", to: "/admin/rewarded-access", icon: Gift },

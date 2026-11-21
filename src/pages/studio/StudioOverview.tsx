@@ -113,7 +113,7 @@ export default function StudioOverview() {
                 </h2>
               </div>
               <Link
-                to="/admin/studio/error_analysis/"
+                to="/admin/studio/error_analysis"
                 className="text-xs font-medium text-brand-purple hover:underline"
               >
                 Analyze all →
@@ -123,7 +123,7 @@ export default function StudioOverview() {
               {recentErrors.map((e) => (
                 <Link
                   key={e.id}
-                  to={`/admin/studio/error_analysis/?errorId=${e.id}`}
+                  to={`/admin/studio/error_analysis?errorId=${e.id}`}
                   className="flex items-center gap-3 rounded-lg border border-border/50 p-2 transition-colors hover:bg-muted/50 dark:border-white/5 dark:hover:bg-white/5"
                 >
                   <span

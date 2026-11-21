@@ -194,18 +194,18 @@ export const ENGINE_SURFACES: EngineSurface[] = [
   },
   {
     engineId: "screeding_system",
-    status: "divergent",
-    route: "/screeding-calculator",
-    label: "Screeding system engine (different model)",
+    status: "shared",
+    route: "/screeding-calculator?mode=cost",
+    label: "Screeding Cost Estimator (shared system code)",
     icon: Layers,
     evidence: {
       module: "@/lib/calc",
       fn: "calculateScreedingSystem",
-      page: "src/pages/ScreedingCalculator.tsx",
+      page: "src/pages/ScreedingCostEstimator.tsx",
       calledBy:
-        "no page calls it; ScreedingCalculator uses the per-kilogram material model instead",
+        "called directly by ScreedingCostEstimator on the cost estimate tab",
     },
-    note: "The engine works in bags per system config. ScreedingCalculator works per kilogram from the material table, where coverage is m2 per kg. Both are correct in their own convention.",
+    note: "ScreedingCostEstimator calls calculateScreedingSystem directly to compute system coats, bags, and material cost based on market config.",
   },
   {
     engineId: "takeoff",
@@ -239,11 +239,18 @@ export const ENGINE_SURFACES: EngineSurface[] = [
   },
   {
     engineId: "tyrolene_system",
-    status: "none",
-    route: null,
-    label: "Tyrolene system",
+    status: "shared",
+    route: "/tyrolene-estimator",
+    label: "Tyrolene Estimator (material quantities)",
     icon: Layers,
-    note: "Registered and tested, with no page that runs it.",
+    evidence: {
+      module: "@/lib/estimation/tyrolene-engine",
+      fn: "calculateTyroleneProject",
+      page: "src/pages/TyroleneEstimator.tsx",
+      calledBy:
+        "calculateTyroleneProject in tyrolene-engine, called by TyroleneEstimator",
+    },
+    note: "TyroleneEstimator runs calculateTyroleneProject for quantities and pricing, which this engine wraps for the registry.",
   },
   {
     engineId: "roof_geometry",
@@ -276,11 +283,17 @@ export const ENGINE_SURFACES: EngineSurface[] = [
   },
   {
     engineId: "timeline_estimator",
-    status: "none",
-    route: null,
-    label: "Project Timeline (separate logic)",
+    status: "shared",
+    route: "/project-timeline",
+    label: "Project Timeline (climate-aware schedule)",
     icon: CalendarDays,
-    note: "A timeline page exists, but its maths is its own and the engine is never executed.",
+    evidence: {
+      module: "@/lib/engineering/timeline-estimator",
+      fn: "estimateTimeline",
+      page: "src/pages/ProjectTimeline.tsx",
+      calledBy: "called directly by ProjectTimeline",
+    },
+    note: "ProjectTimeline calls estimateTimeline, which this AI adapter wraps for the canonical engine registry.",
   },
   {
     engineId: "quote_check",
@@ -292,11 +305,17 @@ export const ENGINE_SURFACES: EngineSurface[] = [
   },
   {
     engineId: "sequence_planner",
-    status: "none",
-    route: null,
-    label: "Work sequence planner",
+    status: "shared",
+    route: "/construction-sequence",
+    label: "Construction Sequence Planner",
     icon: ListChecks,
-    note: "Registered and tested, with no page that runs it.",
+    evidence: {
+      module: "@/lib/engineering/sequence-planner",
+      fn: "generateSequencePlan",
+      page: "src/pages/ConstructionSequence.tsx",
+      calledBy: "called directly by ConstructionSequence",
+    },
+    note: "ConstructionSequence runs generateSequencePlan with active market code, which this AI adapter wraps for the engine registry.",
   },
 ];
 

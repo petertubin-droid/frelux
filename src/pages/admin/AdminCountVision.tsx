@@ -16,6 +16,7 @@
  */
 
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { ScanLine } from "lucide-react";
 import {
   fetchCountVisionRules,
@@ -122,9 +123,15 @@ export default function AdminCountVision() {
         <>
           {/* Current behaviour rules: editable in Calc Rules */}
           <div className="rounded-lg border bg-card p-4">
-            <h3 className="mb-2 font-semibold">
-              {t("Current counting rules")}
-            </h3>
+            <div className="mb-2 flex items-center justify-between">
+              <h3 className="font-semibold">{t("Current counting rules")}</h3>
+              <Link
+                to="/admin/estimation-config"
+                className="text-xs font-medium text-brand-purple hover:underline"
+              >
+                Edit in Calc Rules →
+              </Link>
+            </div>
             <div className="grid gap-3 text-sm sm:grid-cols-3">
               <div>
                 <p className="text-muted-foreground">{t("Max photo size")}</p>

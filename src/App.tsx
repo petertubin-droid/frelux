@@ -348,6 +348,7 @@ const AdminAiMonetization = lazy(
 );
 const AdminAiSettings = lazy(() => import("@/pages/admin/AdminAiSettings"));
 const AdminAds = lazy(() => import("@/pages/admin/AdminAds"));
+const NetworkHub = lazy(() => import("@/pages/admin/NetworkHub"));
 const AdminRewardedAccess = lazy(
   () => import("@/pages/admin/AdminRewardedAccess"),
 );
@@ -2685,6 +2686,7 @@ export default function App() {
                           element={<AdminAiSettings />}
                         />
                         <Route path="ads" element={<AdminAds />} />
+                        <Route path="network-hub" element={<NetworkHub />} />
                         <Route
                           path="ad-manager"
                           element={

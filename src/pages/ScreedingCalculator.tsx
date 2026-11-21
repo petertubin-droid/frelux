@@ -425,7 +425,7 @@ export default function ScreedingCalculator({
                 {t("Start Over")}
               </Button>
               <Link
-                to="/screeding-calculator/?mode=cost"
+                to="/screeding-calculator?mode=cost"
                 state={{ netScreedingArea: screedingResult.totalAreaM2 }}
                 className="btn-primary btn-glow inline-flex items-center gap-2"
               >

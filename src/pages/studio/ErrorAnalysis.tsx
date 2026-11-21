@@ -237,14 +237,14 @@ export default function ErrorAnalysis() {
       {/* ── Navigation ── */}
       <div className="mb-4 flex items-center justify-between">
         <Link
-          to="/admin/studio/"
+          to="/admin/studio"
           className="flex items-center gap-1 text-xs text-muted-foreground hover:text-brand-purple"
         >
           <ArrowLeft aria-hidden="true" className="h-3 w-3" />{" "}
           {t("Back to Studio")}
         </Link>
         <Link
-          to="/admin/system-health/"
+          to="/admin/system-health"
           className="text-xs text-brand-purple hover:underline"
         >
           System Health →

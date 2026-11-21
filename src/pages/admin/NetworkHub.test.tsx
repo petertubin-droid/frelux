@@ -1,3 +1,5 @@
+import { readFileSync } from "fs";
+import { resolve } from "path";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
@@ -327,5 +329,21 @@ describe("monetagTagPreview", () => {
       '<script src="https://quge5.com/88/tag.min.js" data-zone="1234567" async data-cfasync="false"></script>',
     );
     expect(monetagTagPreview("")).toBe("");
+  });
+});
+
+describe("NetworkHub routing", () => {
+  const read = (p: string) => readFileSync(resolve(process.cwd(), p), "utf8");
+
+  it("is wired into the admin routes at /admin/network-hub", () => {
+    const src = read("src/App.tsx");
+    expect(src).toContain('import("@/pages/admin/NetworkHub")');
+    expect(src).toMatch(/path="network-hub"/);
+    expect(src).toMatch(/element=\{<NetworkHub \/>\}/);
+  });
+
+  it("is registered in the AdminLayout sidebar navigation", () => {
+    const nav = read("src/components/admin/AdminLayout.tsx");
+    expect(nav).toContain('"/admin/network-hub"');
   });
 });
