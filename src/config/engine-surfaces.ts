@@ -101,7 +101,7 @@ export const ENGINE_SURFACES: EngineSurface[] = [
     note: "Pipe runs, fittings and sanitary ware priced through the plumbing engine.",
   },
   {
-    engineId: "foundation",
+    engineId: "foundation_below_dpc",
     status: "live",
     route: "/foundation",
     label: "Foundation Estimator",
@@ -163,6 +163,36 @@ export const ENGINE_SURFACES: EngineSurface[] = [
     label: "Regional Cost Index",
     icon: Coins,
     note: "Cost differences between markets and regions.",
+  },
+  {
+    engineId: "steel_beam",
+    status: "live",
+    route: "/structural-steel-i-beam-calculator",
+    label: "Structural Steel I-Beam Calculator",
+    icon: Ruler,
+    evidence: {
+      module: "@/lib/estimation/steel-beam-engine",
+      fn: "calculateSteelBeam",
+      page: "src/pages/StructuralSteelCalculator.tsx",
+      calledBy:
+        "the steel calculator calls the same function this adapter wraps",
+    },
+    note: "Section mass and tonnage per beam run, from the published profiles.",
+  },
+  {
+    engineId: "foundation",
+    status: "live",
+    route: "/foundation-calculator",
+    label: "Foundation Calculator",
+    icon: Layers,
+    evidence: {
+      module: "@/lib/estimation/foundation-engine",
+      fn: "calculateFoundation",
+      page: "src/pages/FoundationCalculator.tsx",
+      calledBy:
+        "the foundation page calls the same function this adapter wraps",
+    },
+    note: "Concrete, blockwork, hardcore and formwork below DPC, using the engine's own rules.",
   },
   {
     engineId: "plastering_wall",

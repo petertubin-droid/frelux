@@ -48,6 +48,8 @@ export const UNRESOLVED_ENGINE_IDS = [
   "window_blinds",
   "takeoff",
   "plastering_wall",
+  "steel_beam",
+  "foundation_below_dpc",
 ] as const;
 
 export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
@@ -175,6 +177,18 @@ export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
     canonicalId: "sequence",
     confidence: "medium",
     note: "Construction sequence planning.",
+  },
+  {
+    aiEngineId: "steel_beam",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "The capability registry lists structural steel framing as a system rather than a beam-mass check, so no id describes this engine yet.",
+  },
+  {
+    aiEngineId: "foundation_below_dpc",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "A second foundation entry point: the below-DPC takeoff. It reports the same substructure the verified foundation id covers, so mapping it to that id would claim two registry engines share one implementation, which they do not.",
   },
   {
     aiEngineId: "plastering_wall",

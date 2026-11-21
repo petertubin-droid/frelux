@@ -704,6 +704,128 @@ registerEngine({
   },
 });
 
+// ── Structural steel: section mass and tonnage for a beam run ──
+//
+// Engine Studio could not check a steel beam at all. This adapter reaches the
+// same calculateSteelBeam the calculator page uses, with the buyer's own rate
+// left optional: a tonnage is a quantity, and pricing without a rate would be
+// invented.
+interface SteelBeamInputLike {
+  profile?: string;
+  span_m?: number;
+  beam_count?: number;
+  price_per_tonne?: number | null;
+  columns_included?: boolean;
+}
+
+registerEngine({
+  id: "steel_beam",
+  domain: "structure",
+  title: "FRELUX Structural Steel Beam Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX structural steel engine",
+  async run(rawInput) {
+    const { calculateSteelBeam } =
+      await import("@/lib/estimation/steel-beam-engine");
+    const supplied = (rawInput ?? {}) as SteelBeamInputLike;
+
+    // IPE 180 over a 5 m domestic floor span is the calculator's own starting
+    // point, not a new assumption.
+    const input = {
+      profile: supplied.profile ?? "ipe_180",
+      span_m: supplied.span_m ?? 5,
+      beam_count: supplied.beam_count ?? 1,
+      price_per_tonne: supplied.price_per_tonne ?? null,
+      columns_included: supplied.columns_included ?? false,
+    } as never;
+
+    const result = calculateSteelBeam(input, {});
+
+    if (!result.ok) {
+      return {
+        ok: false,
+        engine: "steel_beam",
+        calculatedAt: new Date().toISOString(),
+        quantities: [],
+        costs: null,
+        raw: result,
+        error:
+          result.errors.join(" ") || "The steel engine rejected the input.",
+      };
+    }
+
+    const quantities: EngineQuantityLine[] = result.lines
+      .filter((line) => line.quantity !== null)
+      .map((line) =>
+        quantityLine(line.label, Number(line.quantity), line.unit),
+      );
+
+    return {
+      ok: true,
+      engine: "steel_beam",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
+// ── Foundation: concrete, blockwork, hardcore and formwork below DPC ──
+//
+// The foundation engine takes rules and a price map. The rules it ships with
+// are passed through untouched; the price map stays empty, because this
+// adapter answers "how much", not "how much does it cost".
+registerEngine({
+  id: "foundation_below_dpc",
+  domain: "structure",
+  title: "FRELUX Foundation Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX foundation engine",
+  async run(rawInput) {
+    const { calculateFoundation, DEFAULT_FOUNDATION_RULES } =
+      await import("@/lib/estimation/foundation-engine");
+    const supplied = (rawInput ?? {}) as Record<string, unknown>;
+
+    const input = {
+      concrete_volume_m3: Number(supplied.concrete_volume_m3 ?? 12),
+      block_wall_area_m2: Number(supplied.block_wall_area_m2 ?? 40),
+      hardcore_volume_m3: Number(supplied.hardcore_volume_m3 ?? 8),
+      formwork_area_m2:
+        supplied.formwork_area_m2 === undefined
+          ? 20
+          : supplied.formwork_area_m2 === null
+            ? null
+            : Number(supplied.formwork_area_m2),
+      labour: (supplied.labour as never) ?? { mode: "none" },
+    } as never;
+
+    const result = calculateFoundation(input, DEFAULT_FOUNDATION_RULES, {});
+
+    const quantities: EngineQuantityLine[] = result.lines
+      .filter((line) => line.quantity !== null)
+      .map((line) =>
+        quantityLine(line.label, Number(line.quantity), line.unit),
+      );
+
+    return {
+      ok: result.ok,
+      engine: "foundation_below_dpc",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs: null,
+      raw: result,
+      ...(result.ok
+        ? {}
+        : {
+            error:
+              result.errors.join(" ") ||
+              "The foundation engine rejected the input.",
+          }),
+    };
+  },
+});
+
 export function listEngines(): EngineDescriptor[] {
   return [...REGISTRY.values()];
 }
