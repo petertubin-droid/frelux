@@ -130,6 +130,16 @@ const RESULT_LABELS: Record<string, string> = {
   cementBagWeightKg: "Cement bag weight (kg)",
   sandVolumeM3: "Sand volume (m³)",
   sandWeightTonnes: "Sand weight (t)",
+  jointingSandKg: "Jointing sand (kg)",
+  areaM2: "Paved area (m²)",
+  paversRequired: "Pavers required",
+  beddingSandVolumeM3: "Bedding sand, loose (m³)",
+  beddingSandTonnes: "Bedding sand (t)",
+  looseSubbaseVolumeM3: "Sub-base, loose (m³)",
+  compactedSubbaseVolumeM3: "Sub-base, compacted (m³)",
+  subbaseTonnes: "Sub-base (t)",
+  edgeUnits: "Edge units",
+  paverWastePercent: "Paver cutting allowance (%)",
   waterLiters: "Water (L)",
 };
 

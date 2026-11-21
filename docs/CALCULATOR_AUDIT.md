@@ -32,7 +32,7 @@ been exercised; `staged` means written but not executed.
 | 10  | German Floor Calculator            | structure | **Audited 2026-11-21**, 10 tests, DEFECT FIXED: blinding sand lacked allowance  |
 | 11  | Fence Block Calculator             | structure | **Audited 2026-11-21**, 18 tests, no defect in blocks, mortar or footing        |
 | 12  | Drywall & Partitions               | structure | **Audited 2026-11-21**, 17 tests, DEFECT FIXED: tape and compound per layer     |
-| 13  | Paving & External Works            | structure | Queued                                                                          |
+| 13  | Paving & External Works            | structure | **Audited 2026-11-21**, 26 tests, DEFECT FIXED: jointing sand was missing        |
 | 14  | Formwork & Temporary Works         | structure | Queued                                                                          |
 | 15  | Demolition & Debris Takeoff        | structure | Queued                                                                          |
 | 16  | Steel I-Beam Weight                | structure | Queued                                                                          |
@@ -72,6 +72,88 @@ Found 2026-11-21 by mapping the 34 calculators to `src/lib/estimation/*.ts`:
 - `plumbing-engine.ts`, `plumbing-profiles.ts` - open.
 - `generator-engine.ts` - open.
 - `borehole-water-system-engine.ts` - open.
+
+---
+
+## Audit 13: Paving & External Works (`paving-standalone-engine.ts`)
+
+Suite: `src/lib/estimation/__tests__/paving-conformance.test.ts`, 26 tests.
+Evidence label: `CI green only`.
+
+Expectations come from published practice rather than from the engine: the
+jointed module for unit counts, the BS 7533-3 bedding band, the driveway band
+for compacted DTp Type 1 sub-base, and the trade rate for kiln-dried jointing
+sand (one 25 kg bag over 8 to 15 m2, which is 1.7 to 3.1 kg/m2).
+
+Verified correct:
+
+- Unit count uses the jointed module, not the nominal face: a 200 x 100 paver
+  at a 3 mm joint occupies 0.203 x 0.103 m, so 100 m2 is 4783 units (47.8 per
+  m2). A nominal-face count would order 5000 and over-buy by 4.5 per cent.
+  Widening the joint orders fewer units, as it must.
+- The cutting allowance multiplies the module count and is applied once: 5 per
+  cent default for running bond, 10 per cent for herringbone, and an explicit
+  allowance overrides the pattern default.
+- Bedding sand is ordered loose for the compacted bed: 30 mm compacted x 1.20
+  is 36 mm loose per m2, inside the published 25 to 40 mm band, and converts at
+  the 1,600 kg/m3 bulk density (100 m2 gives 3.6 m3, 5.76 t).
+- Bedding sand is independent of paver size and of the laying pattern. That is
+  right: the sand is spread over the area, and the pattern only changes how the
+  pavers are cut.
+- Sub-base is 150 mm compacted by default (inside the 100 to 200 mm driveway
+  band), ordered loose at 1.25 (15 m3 compacted becomes 18.75 m3 loose, 33.75 t
+  at 1.8 t/m3), and the loose figure is always the larger of the two.
+- Edge units are counted from the run and the unit length, and a 600 mm kerb
+  doubles the count on the same run.
+- Degenerate input is refused, not guessed: zero area returns zeros rather than
+  NaN, negative dimensions clamp at zero, and a missing paver size falls back to
+  200 x 100 explicitly.
+
+Defect found and fixed:
+
+1. **DEFECT FIXED: the takeoff had no jointing sand at all.** The engine
+   returned pavers, bedding sand and sub-base, and nothing for the kiln-dried
+   sand that locks the pavement together. A takeoff built from it would send a
+   gang to site without the one material that makes block paving interlock.
+   Jointing sand is now the joint area of the specified unit (4.35 per cent of
+   the surface for a 200 x 100 at 3 mm) filled to a stated depth of 40 mm at the
+   sand's bulk density, giving 2.78 kg/m2. Two published cross-checks pin it: a
+   50 mm fill reproduces the 3.5 kg/m2 supplier figure, and one 25 kg bag then
+   covers 9 m2, inside the 8 to 15 m2 the trade quotes.
+
+Disclosure fixed:
+
+2. Edge units were counted at a silent 1 m per unit, and the assumptions list
+   never mentioned it. A user who left the field alone ordered 12 units for a
+   12 m run that needs 20 at a 600 mm kerb. The assumptions now state the unit
+   length used and say what changing it does, and the field returns null when no
+   edge run is entered, so the page shows no row at all instead of "Edge units
+   0" on a patio with no kerb. The default unit length itself is kept, since a
+   made-up kerb length would be worse than a stated one.
+3. The summary rows for this engine read "Area M2" and "Pavers Required",
+   falling back to the key humaniser. They now read "Paved area (m²)" and
+   "Pavers required", alongside labels for the sand and sub-base lines.
+
+Recorded, not changed:
+
+- The bedding depth field is the *compacted* bed, and the engine takes it loose
+  at 1.2. A specification that says "30 mm bedding sand" means loose laid, so a
+  user copying it into this field orders about 20 per cent more sand than the
+  drawing calls for. Conservative, and the assumption text says so; renaming the
+  field to "compacted bedding depth" is the cleaner fix when the page copy is
+  next touched.
+- The sub-base compaction factor defaults to 1.25 where the common site rule is
+  1.3, about 4 per cent light on a 150 mm bed. The field is editable and the
+  factor is printed, so it stays.
+- Kerb bedding and haunch concrete are not part of the model, and neither is the
+  sub-base under the kerb line. Both are real quantities; adding them is a
+  modelling change rather than a correction, and the assumptions do not claim
+  otherwise.
+- The page passes area, paver size, cutting allowance and both depths, so joint
+  width (3 mm), joint fill depth (40 mm) and edge length stay at their defaults
+  there. Exposing joint width would matter for a 10 mm-jointed clay paver, which
+  is a page change, not an engine one.
+- Quantities only: prices, tax and labour come from the price book.
 
 ---
 
