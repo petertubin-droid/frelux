@@ -1,32 +1,39 @@
 import { lazy, Suspense } from "react";
 import { Link } from "react-router-dom";
-import { Cookie, Mail, ShieldCheck } from "lucide-react";
+import { Globe } from "lucide-react";
 import Logo from "@/components/brand/Logo";
 import { siteConfig } from "@/config/site";
-import { withdrawConsent } from "@/lib/cookie-consent";
-import BrandBackdrop from "@/components/ui/BrandBackdrop";
-import { Button } from "@/components/ui/shadcn/button";
 import { useMarket } from "@/lib/international/market-context";
 import { useLanguage } from "@/lib/i18n";
 import { getMarketNavigationLabel } from "@/lib/globalization/construction-terminology";
+import {
+  listTemplateMarkets,
+  marketTemplatesPath,
+} from "@/lib/templates-market";
 
 // The newsletter form talks to an edge function, so it is fetched only when a
 // reader actually scrolls as far as the footer.
 const NewsletterSignup = lazy(
   () => import("@/components/newsletter/NewsletterSignup"),
 );
-import {
-  listTemplateMarkets,
-  marketTemplatesPath,
-} from "@/lib/templates-market";
 
-// Colors, services and showcase merged into one column; duplicate links
-// (Pricing, Project Gallery) removed so each destination appears once.
+// ---------------------------------------------------------------------------
+// Design contract (2026-11-21 rewrite)
 //
-// The six legacy columns (Calculate / Estimate / Explore / Resources /
-// Company / Legal) are consolidated into FOUR groups so the footer stays
-// compact on every breakpoint. On mobile (<md) each group is a collapsed
-// accordion row; on md+ the groups lay out as static columns.
+// The footer follows the flat, quiet pattern large reference sites use:
+//  - one flat surface with a single hairline rule, no gradient, no backdrop
+//    image, no rounded corners, no neon edge;
+//  - 13px link text on a 40px tap row, hover underline only, no colour-shift
+//    decoration;
+//  - TWO real link columns on phones, four from sm up, with headings always
+//    visible: nothing is hidden behind a disclosure control, because a footer
+//    is the last chance for a lost reader to find a page;
+//  - one bottom bar with copyright, compliance line, legal links and the
+//    active market.
+//
+// Every destination still appears exactly once (Footer.test.tsx enforces it).
+// ---------------------------------------------------------------------------
+
 const calculateLinks = [
   { label: "Painting Calculator", path: "/paint-calculator" },
   { label: "Screeding Calculator", path: "/screeding-calculator" },
@@ -103,6 +110,12 @@ const marketHubLinks = listTemplateMarkets().map((m) => ({
   path: marketTemplatesPath(m.country_code),
 }));
 
+const LINK_ROW =
+  "flex min-h-10 items-center text-[13px] leading-5 text-[#5f6368] transition-colors hover:text-[#202124] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:text-[#9aa0a6] dark:hover:text-[#e8eaed]";
+
+const HEADING =
+  "text-[13px] font-medium leading-5 text-[#202124] dark:text-[#e8eaed]";
+
 export default function Footer() {
   const { t } = useLanguage();
   const { marketCode } = useMarket();
@@ -110,8 +123,7 @@ export default function Footer() {
     ...link,
     label: getMarketNavigationLabel(link.path, marketCode, link.label),
   }));
-  // Consolidated footer columns: the six legacy groups merged into four
-  // so the mobile footer collapses to four short accordion rows.
+
   const groupedColumns = [
     {
       title: "Calculators",
@@ -126,188 +138,112 @@ export default function Footer() {
     <footer
       role="contentinfo"
       aria-label="Site footer"
-      className="neon-edge-soft relative overflow-hidden rounded-t-[2rem] border-t border-border/60 bg-muted/50 dark:border-white/5 dark:bg-background"
-      style={{ contentVisibility: "auto", containIntrinsicSize: "700px" }}
+      className="border-t border-black/10 bg-[#f8f9fa] dark:border-white/10 dark:bg-[#202124]"
+      style={{ contentVisibility: "auto", containIntrinsicSize: "900px" }}
     >
-      {/* Subtle top gradient */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/10 to-transparent" />
-
-      {/* Brand architectural backdrop (same layers as the entry screen) */}
-      <BrandBackdrop variant="footer" />
-
-      {/* relative: stack the content ABOVE the absolutely-positioned
-          BrandBackdrop. Without it the light-mode scrim (85% opaque
-          background) paints over the text and hides it. */}
-      <div className="relative mx-auto max-w-7xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8 lg:py-6">
-        <div className="grid grid-cols-1 gap-x-5 gap-y-1.5 md:grid-cols-3 md:gap-y-4 lg:grid-cols-12 lg:gap-x-6">
-          <div className="col-span-1 md:col-span-3 lg:col-span-4">
-            <Logo size="md" />
-            <div className="mt-1.5 text-xs font-semibold tracking-wide text-foreground">
-              FRELUX Technologies Ltd.
-            </div>
-            <p className="mt-1 line-clamp-2 max-w-xs text-xs leading-snug text-muted-foreground sm:mt-1.5 sm:line-clamp-none sm:text-[13px] sm:leading-snug">
-              Construction intelligence and quantity takeoff tools for projects
-              across markets, with localized data availability disclosed by
-              location.
+      <div className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 sm:py-12">
+        {/* Brand block and link columns. On phones the brand block comes
+            first and full width, then two link columns underneath. */}
+        <div className="grid gap-10 md:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] md:gap-12">
+          <div>
+            <Link
+              to="/"
+              aria-label="FRELUX home"
+              className="inline-flex items-center rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+            >
+              <Logo size="md" />
+            </Link>
+            <p className="mt-3 max-w-sm text-[13px] leading-6 text-[#5f6368] dark:text-[#9aa0a6]">
+              {t(
+                "Construction intelligence and quantity takeoff for projects across markets, with localized data availability disclosed by location.",
+              )}
             </p>
 
-            <div className="mt-2 sm:mt-2.5">
+            <div className="mt-5">
               <Suspense fallback={null}>
                 <NewsletterSignup source="footer" />
               </Suspense>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Industry intelligence & quarterly material rate reports. No
-                spam.
+              <p className="mt-2 text-[12px] leading-5 text-[#5f6368] dark:text-[#9aa0a6]">
+                {t(
+                  "Industry intelligence and quarterly material rate reports.",
+                )}
               </p>
             </div>
 
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <a
-                href={`mailto:${siteConfig.email}`}
-                aria-label="Email us"
-                className="inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-primary/10 px-2.5 text-xs font-semibold text-brand-purple transition-colors hover:bg-primary/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:bg-primary/15 dark:text-primary-foreground/90 dark:hover:bg-primary/25"
-              >
-                <Mail className="h-3.5 w-3.5" />
-                {siteConfig.email}
-              </a>
-              <span className="text-xs text-muted-foreground">
-                Monday to Friday, 8am to 6pm (WAT)
-              </span>
-            </div>
-
-            <p className="mt-2 hidden flex-wrap items-center gap-x-1.5 text-xs text-muted-foreground sm:flex">
-              <span className="font-medium text-foreground dark:text-primary-foreground/90">
-                {t("International market profiles")}
-              </span>
-              <span>{t("with local currency pricing and email support")}</span>
-            </p>
-
-            {/* Google Publisher & E-E-A-T Quality Indicators */}
-            <ul className="mt-2 hidden list-none flex-wrap items-center gap-x-4 gap-y-0.5 border-t border-border/40 pt-2 text-[11px] text-muted-foreground sm:flex dark:border-white/5">
-              <li className="inline-flex items-center gap-1">
-                <ShieldCheck
-                  aria-hidden="true"
-                  className="h-3.5 w-3.5 text-emerald-600 dark:text-emerald-400"
-                />
-                <span>256-bit TLS security</span>
-              </li>
-              <li>Google AdSense and AdChoices compliant</li>
-              <li>ISO and Eurocode takeoff logic</li>
-            </ul>
+            <a
+              href={`mailto:${siteConfig.email}`}
+              className="mt-3 inline-flex min-h-10 items-center text-[13px] text-[#1a73e8] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:text-[#8ab4f8]"
+            >
+              {siteConfig.email}
+            </a>
           </div>
 
-          {groupedColumns.map((column) => (
-            <FooterColumn key={column.title} {...column} />
-          ))}
+          <nav
+            aria-label={t("Footer links")}
+            className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4 sm:gap-x-8"
+          >
+            {groupedColumns.map((column) => (
+              <div key={column.title}>
+                <h2 className={HEADING}>{t(column.title)}</h2>
+                <ul className="mt-1">
+                  {column.links.map((link) => (
+                    <li key={link.path}>
+                      <Link to={link.path} className={LINK_ROW}>
+                        {t(link.label)}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
         </div>
 
-        {/* Market hubs are a flat list of country names, so they read as one
-            wrapped band instead of a column that grows a row per market. Same
-            links, a quarter of the height. */}
-        <FooterMarketBand links={marketHubLinks} />
+        {/* Country hubs as one quiet wrapped band rather than a column that
+            grows a row per market. */}
+        <nav
+          aria-label={t("Markets")}
+          className="mt-10 border-t border-black/10 pt-6 dark:border-white/10"
+        >
+          <h2 className={HEADING}>{t("Estimates by country")}</h2>
+          <ul className="mt-1 flex flex-wrap gap-x-5 gap-y-0">
+            {marketHubLinks.map((link) => (
+              <li key={link.path}>
+                <Link
+                  to={link.path}
+                  className="flex min-h-9 items-center text-[12px] leading-5 text-[#5f6368] hover:text-[#202124] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:text-[#9aa0a6] dark:hover:text-[#e8eaed]"
+                >
+                  {t(link.label)}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </nav>
 
-        <div className="mt-3 flex items-start justify-between gap-3 border-t border-border/60 pt-3 sm:flex-row sm:items-center dark:border-white/5">
-          <div className="flex flex-col gap-0.5 sm:flex-row sm:items-center sm:gap-4">
-            <p className="text-xs text-muted-foreground">
-              © {new Date().getFullYear()} {siteConfig.name}. All rights
-              reserved.
+        {/* Bottom bar: copyright and compliance on the left, the active market
+            on the right, legal links on their own row so they never wrap into
+            the copyright on a narrow phone. */}
+        <div className="mt-8 border-t border-black/10 pt-6 dark:border-white/10">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+            <p className="text-[12px] leading-5 text-[#5f6368] dark:text-[#9aa0a6]">
+              © {new Date().getFullYear()} {siteConfig.name}.{" "}
+              {t("All rights reserved.")}
             </p>
-            <p className="text-xs leading-snug text-muted-foreground sm:text-xs">
-              Estimates are for guidance only and not a guarantee of final cost
-              or quantity.
+            <p className="inline-flex items-center gap-1.5 text-[12px] leading-5 text-[#5f6368] dark:text-[#9aa0a6]">
+              <Globe aria-hidden="true" className="h-3.5 w-3.5" />
+              <span>{t("Prices shown for")}</span>
+              <span className="font-medium text-[#202124] dark:text-[#e8eaed]">
+                {marketCode}
+              </span>
             </p>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => withdrawConsent()}
-            aria-label="Cookie preferences"
-            title="Cookie preferences"
-            className="h-8 w-8 shrink-0 rounded-lg text-muted-foreground transition-colors hover:bg-muted hover:text-brand-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:self-auto dark:hover:bg-white/5 dark:hover:text-brand-purple-lighter"
-          >
-            <Cookie className="h-4 w-4" aria-hidden="true" />
-          </Button>
+          <p className="mt-2 text-[12px] leading-5 text-[#5f6368] dark:text-[#9aa0a6]">
+            {t(
+              "256-bit TLS, ISO and Eurocode takeoff logic, Google AdSense and AdChoices compliant.",
+            )}
+          </p>
         </div>
       </div>
     </footer>
-  );
-}
-
-function FooterColumn({
-  title,
-  links,
-}: {
-  title: string;
-  links: { label: string; path: string }[];
-}) {
-  // Every group is open on every breakpoint (owner report 2026-10-29: the
-  // collapse-to-dropdown footer read as unprofessional). Length is controlled
-  // by density instead of hiding links: two CSS columns on phones for the long
-  // groups, tighter type, and no per-row padding. The hit area is a 24 px
-  // minimum (WCAG 2.5.8) carried by the link itself, so the density is
-  // untouched while a thumb can actually land on a row.
-  const { t } = useLanguage();
-  return (
-    <nav aria-label={t(title)}>
-      <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-xs dark:text-muted-foreground">
-        {t(title)}
-      </h3>
-      <ul
-        id={`footer-${title.toLowerCase()}`}
-        className={`mt-0.5 gap-x-3 sm:gap-x-4 ${
-          links.length > 12
-            ? "columns-3"
-            : links.length > 5
-              ? "columns-2"
-              : "flex flex-wrap"
-        }`}
-      >
-        {links.map((link) => (
-          <li
-            key={link.path}
-            className="break-inside-avoid leading-[1.1] md:mb-0.5"
-          >
-            <Link
-              to={link.path}
-              className="inline-flex min-h-6 items-center rounded text-[12px] leading-[1.25] text-muted-foreground transition-colors hover:text-brand-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:text-[13px] dark:hover:text-brand-purple-lighter"
-            >
-              {t(link.label)}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
-  );
-}
-
-function FooterMarketBand({
-  links,
-}: {
-  links: { label: string; path: string }[];
-}) {
-  // One wrapped band of country links. A column would add a row per market
-  // (thirty-two of them), which is what made the footer tall on every screen.
-  const { t } = useLanguage();
-  return (
-    <nav
-      aria-label={t("Markets")}
-      className="mt-3 border-t border-border/40 pt-2.5 dark:border-white/5"
-    >
-      <h3 className="text-[11px] font-semibold uppercase tracking-[0.12em] text-muted-foreground sm:text-xs dark:text-muted-foreground">
-        {t("Markets")}
-      </h3>
-      <ul className="mt-0.5 flex flex-wrap gap-x-2.5 gap-y-0 sm:columns-3 sm:flex-none sm:gap-x-4 lg:columns-4">
-        {links.map((link) => (
-          <li key={link.path} className="break-inside-avoid leading-[1.05]">
-            <Link
-              to={link.path}
-              className="inline-flex min-h-4 items-center whitespace-nowrap rounded text-[10px] leading-[1.15] text-muted-foreground transition-colors hover:text-brand-purple focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:min-h-6 sm:text-[12px] sm:leading-[1.2] dark:hover:text-brand-purple-lighter"
-            >
-              {t(link.label)}
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </nav>
   );
 }

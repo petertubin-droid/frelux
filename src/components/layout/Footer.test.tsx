@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { fireEvent, render, screen, within } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Footer from "@/components/layout/Footer";
 
@@ -11,7 +11,7 @@ function renderComponent() {
   );
 }
 
-describe("Footer", () => {
+describe("Footer content", () => {
   it("renders without crashing", () => {
     const { container } = renderComponent();
     expect(container.innerHTML).not.toBe("");
@@ -31,7 +31,7 @@ describe("Footer", () => {
     expect(new Set(hrefs).size).toBe(hrefs.length);
   });
 
-  it("keeps key links reachable after the compaction", () => {
+  it("keeps key links reachable", () => {
     renderComponent();
     for (const name of [
       "Pricing",
@@ -44,46 +44,66 @@ describe("Footer", () => {
       expect(screen.getByRole("link", { name })).toBeInTheDocument();
     }
   });
-
-  it("uses compact vertical padding", () => {
-    const { container } = renderComponent();
-    const inner = container.querySelector("footer > div:last-child");
-    expect(inner?.className).toContain("py-6");
-    expect(inner?.className).not.toContain("py-16");
-  });
 });
 
-describe("Footer theme + mobile compaction", () => {
-  it("stacks the content above the brand backdrop (light-mode fix)", () => {
+describe("Footer layout contract (flat reference-site pattern)", () => {
+  it("uses one flat surface with a hairline rule, no decoration", () => {
     const { container } = renderComponent();
-    const inner = container.querySelector("footer > div:last-child");
-    // relative positioning puts the content layer above the absolutely
-    // positioned BrandBackdrop scrim that hid it in light mode.
-    expect(inner?.className).toContain("relative");
+    const footer = container.querySelector("footer") as HTMLElement;
+    // Owner report 2026-11-21: the rounded, image-backed, neon-edged footer
+    // looked unprofessional on phones.
+    expect(footer.className).toContain("border-t");
+    expect(footer.className).toContain("bg-[#f8f9fa]");
+    expect(footer.className).not.toContain("rounded-t-");
+    expect(footer.className).not.toContain("neon-edge");
+    expect(footer.className).not.toContain("overflow-hidden");
+    // No decorative backdrop or gradient overlay is rendered.
+    expect(container.querySelector("footer > div[aria-hidden]")).toBeNull();
+    expect(container.innerHTML).not.toContain("gradient");
+  });
+
+  it("gives every link a 40px tap row on phones", () => {
+    const { container } = renderComponent();
+    const links = Array.from(
+      container.querySelectorAll<HTMLAnchorElement>(
+        'footer nav[aria-label="Footer links"] ul a',
+      ),
+    );
+    expect(links.length).toBeGreaterThan(20);
+    for (const link of links) {
+      expect(link.className).toContain("min-h-10");
+      expect(link.className).toContain("text-[13px]");
+    }
+  });
+
+  it("shows two real link columns on phones and four from sm up", () => {
+    const { container } = renderComponent();
+    const nav = container.querySelector("footer nav") as HTMLElement;
+    expect(nav.className).toContain("grid-cols-2");
+    expect(nav.className).toContain("sm:grid-cols-4");
+    // The old design flowed long groups into CSS columns of 10px text, which
+    // is what made the phone footer unreadable.
+    expect(nav.className).not.toContain("columns-");
   });
 
   it("shows every link group with no disclosure controls", () => {
     const { container } = renderComponent();
-    // Owner report 2026-10-29: the dropdown footer looked unprofessional.
     expect(
       container.querySelectorAll("footer nav button[aria-expanded]").length,
     ).toBe(0);
-    const titles = Array.from(container.querySelectorAll("footer nav h3")).map(
+    const titles = Array.from(container.querySelectorAll("footer nav h2")).map(
       (h) => h.textContent,
     );
-    // Four link groups in the grid, then the Markets band, which sits below
-    // the grid so thirty-two country links cost a wrapped row instead of a
-    // thirty-two row column.
     expect(titles).toEqual([
       "Calculators",
       "Explore",
       "Resources",
       "Legal",
-      "Markets",
+      "Estimates by country",
     ]);
   });
 
-  it("renders every footer link without needing a tap", () => {
+  it("renders every footer list without hiding it", () => {
     const { container } = renderComponent();
     const lists = Array.from(
       container.querySelectorAll<HTMLUListElement>("footer nav ul"),
@@ -93,45 +113,43 @@ describe("Footer theme + mobile compaction", () => {
       expect(list.className).not.toContain("hidden");
       expect(within(list).getAllByRole("link").length).toBeGreaterThan(0);
     }
-    const calculators = container.querySelector(
-      "#footer-calculators",
-    ) as HTMLUListElement;
-    // Calculate plus Estimate links share the merged group. The exact count
-    // is not asserted: a hardcoded number goes red every time a calculator
-    // ships, which is how this broke when the wallpaper tool was added.
-    const calculatorLinks = within(calculators).getAllByRole("link");
-    expect(calculatorLinks.length).toBeGreaterThanOrEqual(10);
-    expect(calculatorLinks.map((link) => link.getAttribute("href"))).toContain(
-      "/wallpaper-calculator",
-    );
   });
 
-  it("keeps the ungrouped footer short on phones", () => {
+  it("keeps the calculator group complete without a hardcoded count", () => {
     const { container } = renderComponent();
-    const navs = Array.from(container.querySelectorAll("footer nav"));
-    expect(navs.length).toBe(5);
-    // Sections stack full width on phones so long groups can flow into two
-    // columns, then join the desktop grid from md up.
-    const grid = container.querySelector("footer nav")?.closest("div");
-    expect(grid?.className).toContain("grid-cols-1");
-    expect(grid?.className).toContain("md:grid-cols-3");
-    expect(grid?.className).not.toContain("grid-cols-2");
-    for (const nav of navs) {
-      const list = nav.querySelector("ul") as HTMLUListElement;
-      expect(list.className).not.toContain("hidden");
-      // Long groups flow into three columns on phones, mid groups into two,
-      // and a short group reads as one wrapped line.
-      const count = within(list).getAllByRole("link").length;
-      const expected =
-        count > 12 ? "columns-3" : count > 5 ? "columns-2" : "flex flex-wrap";
-      expect(list.className).toContain(expected);
-    }
+    const nav = container.querySelector("footer nav") as HTMLElement;
+    const calculators = within(nav)
+      .getAllByRole("link")
+      .filter((link) =>
+        [
+          "/wallpaper-calculator",
+          "/paint-calculator",
+          "/tile-calculator",
+        ].includes(link.getAttribute("href") ?? ""),
+      );
+    expect(calculators.length).toBe(3);
   });
 
-  it("keeps compact mobile vertical padding", () => {
+  it("puts the active market and compliance line in one bottom bar", () => {
     const { container } = renderComponent();
-    const inner = container.querySelector("footer > div:last-child");
-    expect(inner?.className).toContain("py-4");
-    expect(inner?.className).not.toContain("py-16");
+    const bottom = container.querySelector("footer > div > div:last-child");
+    expect(bottom?.textContent).toMatch(/All rights reserved/);
+    expect(bottom?.textContent).toMatch(/Prices shown for/);
+    // Legal links live in their own column only: rendering them twice made
+    // "Privacy Policy" ambiguous for screen readers and for this test.
+    const legalLinks = within(
+      container.querySelector(
+        'footer nav[aria-label="Footer links"]',
+      ) as HTMLElement,
+    ).getAllByRole("link", { name: "Cookie Policy" });
+    expect(legalLinks.length).toBe(1);
+  });
+
+  it("uses generous, not cramped, vertical rhythm", () => {
+    const { container } = renderComponent();
+    const inner = container.querySelector("footer > div") as HTMLElement;
+    expect(inner.className).toContain("py-10");
+    expect(inner.className).toContain("sm:py-12");
+    expect(inner.className).not.toContain("py-4");
   });
 });
