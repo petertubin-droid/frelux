@@ -33,7 +33,7 @@ been exercised; `staged` means written but not executed.
 | 11  | Fence Block Calculator             | structure | **Audited 2026-11-21**, 18 tests, no defect in blocks, mortar or footing        |
 | 12  | Drywall & Partitions               | structure | **Audited 2026-11-21**, 17 tests, DEFECT FIXED: tape and compound per layer     |
 | 13  | Paving & External Works            | structure | **Audited 2026-11-21**, 26 tests, DEFECT FIXED: jointing sand was missing        |
-| 14  | Formwork & Temporary Works         | structure | Queued                                                                          |
+| 14  | Formwork & Temporary Works          | structure | **Audited 2026-11-21**, 20 tests, 2 DEFECTS FIXED: half the standards, phantom frame |
 | 15  | Demolition & Debris Takeoff        | structure | Queued                                                                          |
 | 16  | Steel I-Beam Weight                | structure | Queued                                                                          |
 | 17  | Soffit, Fascia & Gutter            | structure | Queued                                                                          |
@@ -72,6 +72,64 @@ Found 2026-11-21 by mapping the 34 calculators to `src/lib/estimation/*.ts`:
 - `plumbing-engine.ts`, `plumbing-profiles.ts` - open.
 - `generator-engine.ts` - open.
 - `borehole-water-system-engine.ts` - open.
+
+---
+
+## Audit 14: Formwork & Temporary Works (`temporary-works-standalone-engine.ts`)
+
+Suite: `src/lib/estimation/__tests__/temporary-works-conformance.test.ts`,
+20 tests. Evidence label: `CI green only`.
+
+Expectations come from how the work is measured and bought: the concrete
+surface each element actually touches, plywood bought as 2440 x 1220 mm sheets
+of 2.98 m2, and a scaffold standing on two rows of standards.
+
+Verified correct:
+
+- Contact areas by element: slab soffit L x W; beam soffit plus two sides
+  L(2d + w), so 6 m at 0.3 wide and 0.6 deep is 9 m2; column perimeter x height,
+  so a 0.3 m square column 3 m high is 3.6 m2; wall on both faces, 2Ld. Repeated
+  elements multiply and a mixed pour sums.
+- The cutting allowance is added once to the contact area (10 per cent on 80 m2
+  is 88 m2) and reuse divides that gross figure (four cycles of 88 m2 is 22 m2
+  of sheet to own). A reuse count of zero is held at one rather than dividing by
+  zero.
+- Ledgers and guardrails are counted in pairs along the run, deck area is the
+  deck width over the run at each lift, and a part bay rounds up, so a 21 m run
+  at 2 m bays is 11 bays.
+- The safety notice is explicit that this is a quantity estimate, not a
+  scaffold design, and names the competent-person checks that are out of scope.
+
+Defects found and fixed:
+
+1. **DEFECT FIXED: standards were counted as a single row.** A scaffold stands
+   on an inner and an outer leg at every frame position, and the ledgers and
+   guardrails beside them were already counted in pairs, so the engine was
+   internally inconsistent as well as half short. On a 20 m run at 2 m bays and
+   4 m height it returned 33 standards where the grid needs 66. Standards are
+   the most expensive component in the bill, so this was a serious under-order.
+   Now 2 x (bays + 1) x (lifts + 1), pinned by three tests.
+2. **DEFECT FIXED: an empty input still returned a frame.** With no run and no
+   height the engine returned two standards (one before the row fix), because
+   the position count is bays + 1 and ceil(0) is 0. It now returns zero for
+   every scaffold line when either dimension is missing.
+3. **COMPLETENESS: there was no sheet count.** The engine reported formwork
+   area only, so the user had to divide by a sheet size the engine never
+   stated. It now returns whole sheets to buy after reuse, from a 2440 x 1220 mm
+   default with the size overridable per market (80 m2 with no waste is 27
+   sheets; at three reuses, 9).
+
+Recorded, not changed:
+
+- Transoms are counted as two per bay per lift, which is about 21 per cent above
+  a one-per-frame-per-lift reading of the same grid. It over-orders rather than
+  under-orders, and the grid is disclosed as simplified.
+- Reuse cycles apply to the whole formwork set rather than per element type. In
+  practice a slab soffit is struck later and reused fewer times than column
+  forms; splitting the cycles is a modelling change.
+- Props, walers, ties, bracing, base plates, toeboards and scaffold ties are not
+  in the model, and the assumptions say so rather than implying a complete bill.
+- Quantities only: prices, tax and labour come from the price book.
 
 ---
 

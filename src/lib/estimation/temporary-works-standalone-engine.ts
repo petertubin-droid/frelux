@@ -11,6 +11,9 @@ export interface TemporaryWorksInput {
   elements?: FormworkElement[];
   formworkReuseCycles?: number;
   formworkWastePercent?: number;
+  /** Plywood sheet the formwork is cut from, mm. Defaults to 2440 x 1220. */
+  formworkSheetLengthMm?: number;
+  formworkSheetWidthMm?: number;
   scaffoldRunLengthM?: number;
   scaffoldWorkingHeightM?: number;
   scaffoldBayLengthM?: number;
@@ -23,6 +26,8 @@ export interface TemporaryWorksResult {
   formContactAreaM2: number;
   grossFormworkSheetAreaM2: number;
   reusableFormworkSheetEquivalentM2: number;
+  /** Whole sheets to buy once reuse is taken into account. */
+  formworkSheets: number;
   scaffoldStandards: number;
   scaffoldLedgers: number;
   scaffoldTransoms: number;
@@ -59,11 +64,25 @@ export function calculateTemporaryWorksTakeoff(
   const bay = Math.max(0.1, input.scaffoldBayLengthM ?? 2),
     lift = Math.max(0.1, input.scaffoldLiftHeightM ?? 2),
     deck = Math.max(0, input.scaffoldDeckWidthM ?? 0.6);
-  const bays = Math.ceil(run / bay),
-    lifts = Math.ceil(height / lift);
-  const standards = (bays + 1) * (lifts + 1);
-  const ledgers = bays * (lifts + 1) * 2;
-  const transoms = bays * lifts * 2;
+  // No run or no height means no scaffold: without this guard an empty input
+  // still returned one frame (two standards) because ceil(0) is 0 but the
+  // position count is bays + 1.
+  const hasScaffold = run > 0 && height > 0;
+  const bays = hasScaffold ? Math.ceil(run / bay) : 0,
+    lifts = hasScaffold ? Math.ceil(height / lift) : 0;
+  // A scaffold stands on two rows of standards, inner and outer, at every bay
+  // position. Counting one row halved the standards while the ledgers and
+  // guardrails beside them were counted in pairs.
+  const standards = hasScaffold ? 2 * (bays + 1) * (lifts + 1) : 0;
+  const ledgers = hasScaffold ? bays * (lifts + 1) * 2 : 0;
+  const transoms = hasScaffold ? bays * lifts * 2 : 0;
+  // Sheets are what a merchant sells; the area alone leaves the user to divide.
+  const sheetLengthM = Math.max(0.1, (input.formworkSheetLengthMm ?? 2440) / 1000);
+  const sheetWidthM = Math.max(0.1, (input.formworkSheetWidthMm ?? 1220) / 1000);
+  const sheetAreaM2 = sheetLengthM * sheetWidthM;
+  const formworkSheets = Math.ceil(
+    reusableFormworkSheetEquivalentM2 / sheetAreaM2,
+  );
   return {
     marketCode,
     formContactAreaM2: Number(contact.toFixed(2)),
@@ -71,6 +90,7 @@ export function calculateTemporaryWorksTakeoff(
     reusableFormworkSheetEquivalentM2: Number(
       reusableFormworkSheetEquivalentM2.toFixed(2),
     ),
+    formworkSheets,
     scaffoldStandards: standards,
     scaffoldLedgers: ledgers,
     scaffoldTransoms: transoms,
@@ -80,7 +100,8 @@ export function calculateTemporaryWorksTakeoff(
       "Quantity estimate only. Scaffold stability, ties, foundations, access, edge protection, load class and erection sequence must be designed/checked by a competent person under applicable local requirements.",
     assumptions: [
       "Formwork areas are geometric contact areas; no allowance for propping, bracing, ties, walers, joints, corners or engineered falsework is included.",
-      "Scaffold member counts are a simplified bay/lift grid and are not a safe scaffold design or a complete bill of materials.",
+      "Scaffold member counts are a simplified bay/lift grid on two rows of standards, and are not a safe scaffold design or a complete bill of materials.",
+      `Formwork sheets are ${input.formworkSheetLengthMm ?? 2440} x ${input.formworkSheetWidthMm ?? 1220} mm (${sheetAreaM2.toFixed(2)} m2 each), ordered after the reuse cycles are applied.`,
     ],
   };
 }
