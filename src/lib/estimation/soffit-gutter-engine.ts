@@ -114,7 +114,25 @@ export function calculateSoffitGutter(
   const wasteFactor = 1 + rules.waste_pct / 100;
   const fasciaLength = money(perimeter * wasteFactor);
   const gutterLength = money(perimeter * wasteFactor);
-  const soffitArea = money(perimeter * input.overhang_m * wasteFactor);
+  // A soffit is a band around the building, not a straight strip. Walking the
+  // perimeter and multiplying by the overhang counts the four corner squares
+  // twice: 15 x 10 m at a 0.6 m overhang is 32.88 m2 that way against a true
+  // band of 31.44 m2, and the error grows with the overhang. When the footprint
+  // is known the exact band is (L + 2o)(W + 2o) - L x W; when only a measured
+  // perimeter is known the strip figure stays, as an upper bound.
+  const lengthM = Number(input.building_length_m);
+  const widthM = Number(input.building_width_m);
+  const hasFootprint =
+    input.mode === "footprint" &&
+    Number.isFinite(lengthM) &&
+    Number.isFinite(widthM) &&
+    lengthM > 0 &&
+    widthM > 0;
+  const soffitBandArea = hasFootprint
+    ? (lengthM + 2 * input.overhang_m) * (widthM + 2 * input.overhang_m) -
+      lengthM * widthM
+    : perimeter * input.overhang_m;
+  const soffitArea = money(soffitBandArea * wasteFactor);
   const downpipes = ceilQty(perimeter / rules.downpipe_spacing_m);
   const brackets = ceilQty(gutterLength / rules.bracket_spacing_m);
 
@@ -132,7 +150,9 @@ export function calculateSoffitGutter(
     },
     {
       label: "Soffit area",
-      detail: `${perimeter} m × ${input.overhang_m} m overhang × ${wasteFactor} = ${soffitArea} m²`,
+      detail: hasFootprint
+        ? `(${input.building_length_m} + 2 × ${input.overhang_m}) × (${input.building_width_m} + 2 × ${input.overhang_m}) − ${input.building_length_m} × ${input.building_width_m} = ${money(soffitBandArea)} m² of band × ${wasteFactor} = ${soffitArea} m²`
+        : `${perimeter} m × ${input.overhang_m} m overhang × ${wasteFactor} = ${soffitArea} m² (strip figure; each corner counted once)`, 
     },
     {
       label: "Downpipes",

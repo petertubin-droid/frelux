@@ -36,7 +36,7 @@ been exercised; `staged` means written but not executed.
 | 14  | Formwork & Temporary Works          | structure | **Audited 2026-11-21**, 20 tests, 2 DEFECTS FIXED: half the standards, phantom frame |
 | 15  | Demolition & Debris Takeoff        | structure | **Audited 2026-11-21**, 18 tests, COMPLETENESS FIXED: no debris mass        |
 | 16  | Steel I-Beam Weight                | structure | **Audited 2026-11-21**, 13 tests, DEFECT FIXED: IPE 150 does not exist       |
-| 17  | Soffit, Fascia & Gutter            | structure | Queued                                                                          |
+| 17  | Soffit, Fascia & Gutter            | structure | **Audited 2026-11-21**, 16 tests, DEFECT FIXED: soffit corners counted twice  |
 | 18  | Overhead Water Tank Staging        | structure | Queued                                                                          |
 | 19  | Tall Building Structure            | structure | Queued                                                                          |
 | 20  | Build-to-Roof Estimator            | structure | Queued (engine has tests, page chain untested)                                  |
@@ -72,6 +72,59 @@ Found 2026-11-21 by mapping the 34 calculators to `src/lib/estimation/*.ts`:
 - `plumbing-engine.ts`, `plumbing-profiles.ts` - open.
 - `generator-engine.ts` - open.
 - `borehole-water-system-engine.ts` - open.
+
+---
+
+## Audit 17: Soffit, Fascia & Gutter (`soffit-gutter-engine.ts`)
+
+Suite: `src/lib/estimation/__tests__/soffit-gutter-conformance.test.ts`, 16
+tests. Evidence label: `CI green only`.
+
+Expectations come from the geometry of an eaves line and from how the materials
+are bought: a perimeter measured at the fascia, linear runs with a cutting
+allowance, a soffit that is a band rather than a strip, and fittings bought as
+whole pieces at a spacing.
+
+Defect found and fixed:
+
+1. **DEFECT FIXED: the soffit area counted the four corner squares twice.** The
+   engine took the eaves perimeter and multiplied by the overhang, which is a
+   strip, not a band. On 15 x 10 m with a 0.6 m overhang that is 32.88 m2
+   against a true band of 31.44 m2; the error is exactly 4o^2, so a 1 m overhang
+   on the same building over-orders 4 m2 of panel. Where the footprint is known
+   the engine now takes (L + 2o)(W + 2o) - L x W, the outer rectangle less the
+   building. Where only a measured perimeter is known the strip figure stays,
+   because the footprint is not there to subtract, and the step now says it is
+   a strip figure with each corner counted once.
+
+Verified correct:
+
+- The eaves perimeter is measured at the fascia, so the overhang adds to all
+  four sides: 2(15 + 1.2) + 2(10 + 1.2) = 54.8 m, not 50 m at the wall.
+- Fascia and gutter are each the perimeter with the cutting allowance (54.8 m
+  at 5 per cent is 57.54 m), and a missing side, a zero length or a negative
+  overhang is refused with a reason rather than producing a run.
+- Downpipes are whole pieces at the spacing, 54.8 / 12 rounded up to 5, and
+  brackets are whole pieces along the gutter, 57.54 / 0.6 rounded up to 96. A
+  tighter spacing buys more brackets.
+- The soffit line picks its price slug from the chosen material, aluminium or
+  PVC, rather than pricing one material under another's name.
+- The warnings cover the three things that catch people: measure at the eaves
+  not the wall, an overhang past 0.9 m needs a bearer, and outlets, stop ends
+  and the receiving water are not in the list.
+
+Recorded, not changed:
+
+1. Downpipes are counted from the gutter run, one every 12 m, rather than from
+   the roof area the manufacturer's table uses (roughly 50 to 100 m2 per
+   downpipe). A 54.8 m perimeter bungalow therefore gets 5 downpipes where the
+   area method might give 2 or 3. It over-orders, the spacing is a rule the
+   owner can edit, and under-drainage is the more expensive mistake.
+2. Bracket spacing is one figure for both materials, at 600 mm. Aluminium
+   systems commonly allow wider centres than PVC; a per-material default is a
+   modelling change.
+3. Outlets, stop ends, corner pieces, sealant and the soakaway or storage that
+   receives the water are outside the model, as the warnings state.
 
 ---
 
