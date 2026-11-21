@@ -22,10 +22,10 @@ describe("Footer content", () => {
     expect(screen.getAllByText(/FRELUX/i).length).toBeGreaterThan(0);
   });
 
-  it("lists each destination only once (no duplicate links)", () => {
+  it("lists each destination only once across every footer nav", () => {
     const { container } = renderComponent();
-    const hrefs = Array.from(container.querySelectorAll("nav a")).map((a) =>
-      a.getAttribute("href"),
+    const hrefs = Array.from(container.querySelectorAll("footer nav a")).map(
+      (a) => a.getAttribute("href"),
     );
     expect(hrefs.length).toBeGreaterThan(20);
     expect(new Set(hrefs).size).toBe(hrefs.length);
@@ -46,23 +46,26 @@ describe("Footer content", () => {
   });
 });
 
-describe("Footer layout contract (flat reference-site pattern)", () => {
-  it("uses one flat surface with a hairline rule, no decoration", () => {
+describe("Footer layout contract (premium surface, phone-first)", () => {
+  it("uses one deep surface with a single brand hairline", () => {
     const { container } = renderComponent();
     const footer = container.querySelector("footer") as HTMLElement;
-    // Owner report 2026-11-21: the rounded, image-backed, neon-edged footer
-    // looked unprofessional on phones.
-    expect(footer.className).toContain("border-t");
-    expect(footer.className).toContain("bg-[#f8f9fa]");
+    // Owner report 2026-11-21: the footer looked unprofessional on phones, so
+    // it is a deep, quiet surface with exactly one decorative rule.
+    expect(footer.className).toContain("bg-[#0B0B14]");
     expect(footer.className).not.toContain("rounded-t-");
     expect(footer.className).not.toContain("neon-edge");
     expect(footer.className).not.toContain("overflow-hidden");
-    // No decorative backdrop or gradient overlay is rendered.
-    expect(container.querySelector("footer > div[aria-hidden]")).toBeNull();
-    expect(container.innerHTML).not.toContain("gradient");
+    // The only decorative child is the 1px brand hairline.
+    const decorative = container.querySelectorAll("footer > div[aria-hidden]");
+    expect(decorative.length).toBe(1);
+    expect(decorative[0].className).toContain("h-px");
+    // No photographic backdrop behind the text.
+    expect(container.innerHTML).not.toContain("entry-bg");
+    expect(container.innerHTML).not.toContain("BrandBackdrop");
   });
 
-  it("gives every link a 40px tap row on phones", () => {
+  it("gives every column link a 40px tap row", () => {
     const { container } = renderComponent();
     const links = Array.from(
       container.querySelectorAll<HTMLAnchorElement>(
@@ -72,7 +75,7 @@ describe("Footer layout contract (flat reference-site pattern)", () => {
     expect(links.length).toBeGreaterThan(20);
     for (const link of links) {
       expect(link.className).toContain("min-h-10");
-      expect(link.className).toContain("text-[13px]");
+      expect(link.className).toContain("text-[13.5px]");
     }
   });
 
@@ -98,7 +101,7 @@ describe("Footer layout contract (flat reference-site pattern)", () => {
       "Calculators",
       "Explore",
       "Resources",
-      "Legal",
+      "Company",
       "Estimates by country",
     ]);
   });
@@ -130,26 +133,39 @@ describe("Footer layout contract (flat reference-site pattern)", () => {
     expect(calculators.length).toBe(3);
   });
 
-  it("puts the active market and compliance line in one bottom bar", () => {
+  it("keeps legal links in the bottom bar exactly once", () => {
     const { container } = renderComponent();
-    const bottom = container.querySelector("footer > div > div:last-child");
-    expect(bottom?.textContent).toMatch(/All rights reserved/);
-    expect(bottom?.textContent).toMatch(/Prices shown for/);
-    // Legal links live in their own column only: rendering them twice made
-    // "Privacy Policy" ambiguous for screen readers and for this test.
-    const legalLinks = within(
-      container.querySelector(
-        'footer nav[aria-label="Footer links"]',
-      ) as HTMLElement,
-    ).getAllByRole("link", { name: "Cookie Policy" });
-    expect(legalLinks.length).toBe(1);
+    // Legal moved out of the column grid: one place to look, no duplicate
+    // "Privacy Policy" for screen readers or for this test.
+    const legalNav = container.querySelector(
+      'footer nav[aria-label="Legal"]',
+    ) as HTMLElement;
+    expect(legalNav).toBeTruthy();
+    expect(
+      within(legalNav).getAllByRole("link", { name: "Cookie Policy" }).length,
+    ).toBe(1);
+    const allCookieLinks = Array.from(
+      container.querySelectorAll('footer a[href="/cookie-policy"]'),
+    );
+    expect(allCookieLinks.length).toBe(1);
+  });
+
+  it("puts the active market and compliance line in the bottom bar", () => {
+    const { container } = renderComponent();
+    const text = container.querySelector("footer")?.textContent ?? "";
+    expect(text).toMatch(/All rights reserved/);
+    expect(text).toMatch(/Prices shown for/);
+    expect(text).toMatch(/AdChoices compliant/);
+    expect(text).toMatch(/guidance only/);
   });
 
   it("uses generous, not cramped, vertical rhythm", () => {
     const { container } = renderComponent();
-    const inner = container.querySelector("footer > div") as HTMLElement;
-    expect(inner.className).toContain("py-10");
-    expect(inner.className).toContain("sm:py-12");
+    const inner = container.querySelector(
+      "footer > div:last-child",
+    ) as HTMLElement;
+    expect(inner.className).toContain("pt-12");
+    expect(inner.className).toContain("sm:pt-16");
     expect(inner.className).not.toContain("py-4");
   });
 });

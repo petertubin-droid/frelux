@@ -18,20 +18,22 @@ const NewsletterSignup = lazy(
 );
 
 // ---------------------------------------------------------------------------
-// Design contract (2026-11-21 rewrite)
+// Design contract (2026-11-21, premium pass)
 //
-// The footer follows the flat, quiet pattern large reference sites use:
-//  - one flat surface with a single hairline rule, no gradient, no backdrop
-//    image, no rounded corners, no neon edge;
-//  - 13px link text on a 40px tap row, hover underline only, no colour-shift
-//    decoration;
-//  - TWO real link columns on phones, four from sm up, with headings always
+// The footer is a deep, quiet surface rather than a decorated panel:
+//  - one near-black surface (#0B0B14) in both themes, so the page ends on a
+//    deliberate edge instead of fading into gray. The only decorative element
+//    is a single 1px brand hairline at the very top;
+//  - no backdrop image, no neon edge, no rounded corners, no glass;
+//  - 13.5px links on 40px tap rows, headings as 11px tracked small caps, and
+//    generous vertical rhythm (48px between sections on phones);
+//  - TWO real link columns on phones, four from sm up, headings always
 //    visible: nothing is hidden behind a disclosure control, because a footer
 //    is the last chance for a lost reader to find a page;
-//  - one bottom bar with copyright, compliance line, legal links and the
-//    active market.
+//  - legal links live in the bottom bar, where readers look for them, so no
+//    destination renders twice.
 //
-// Every destination still appears exactly once (Footer.test.tsx enforces it).
+// Every destination appears exactly once (Footer.test.tsx enforces it).
 // ---------------------------------------------------------------------------
 
 const calculateLinks = [
@@ -110,11 +112,16 @@ const marketHubLinks = listTemplateMarkets().map((m) => ({
   path: marketTemplatesPath(m.country_code),
 }));
 
-const LINK_ROW =
-  "flex min-h-10 items-center text-[13px] leading-5 text-[#5f6368] transition-colors hover:text-[#202124] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:text-[#9aa0a6] dark:hover:text-[#e8eaed]";
-
 const HEADING =
-  "text-[13px] font-medium leading-5 text-[#202124] dark:text-[#e8eaed]";
+  "text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45";
+
+const LINK_ROW =
+  "flex min-h-10 items-center text-[13.5px] leading-5 text-white/65 transition-colors duration-150 hover:text-white hover:underline hover:decoration-white/40 hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0B14]";
+
+const QUIET = "text-[12px] leading-5 text-white/45";
+
+const SMALL_LINK =
+  "flex min-h-9 items-center text-[12.5px] leading-5 text-white/55 transition-colors hover:text-white hover:underline hover:underline-offset-4 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0B14]";
 
 export default function Footer() {
   const { t } = useLanguage();
@@ -124,68 +131,80 @@ export default function Footer() {
     label: getMarketNavigationLabel(link.path, marketCode, link.label),
   }));
 
+  // Four columns, no legal column: legal links live in the bottom bar where a
+  // reader looks for them, so nothing renders twice.
   const groupedColumns = [
     {
       title: "Calculators",
       links: [...marketCalculateLinks, ...estimateLinks],
     },
-    { title: "Explore", links: [...exploreLinks, ...companyLinks] },
+    { title: "Explore", links: exploreLinks },
     { title: "Resources", links: resourcesLinks },
-    { title: "Legal", links: legalLinks },
+    { title: "Company", links: companyLinks },
   ];
 
   return (
     <footer
       role="contentinfo"
       aria-label="Site footer"
-      className="border-t border-black/10 bg-[#f8f9fa] dark:border-white/10 dark:bg-[#202124]"
-      style={{ contentVisibility: "auto", containIntrinsicSize: "900px" }}
+      className="relative bg-[#0B0B14] text-white dark:bg-[#08080F]"
+      style={{ contentVisibility: "auto", containIntrinsicSize: "1100px" }}
     >
-      <div className="mx-auto w-full max-w-7xl px-5 py-10 sm:px-8 sm:py-12">
-        {/* Brand block and link columns. On phones the brand block comes
-            first and full width, then two link columns underneath. */}
-        <div className="grid gap-10 md:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] md:gap-12">
+      {/* Brand accent hairline: one 1px rule, the only decorative element. */}
+      <div
+        aria-hidden="true"
+        className="h-px w-full bg-gradient-to-r from-brand-purple/70 via-brand-accent/60 to-transparent"
+      />
+
+      <div className="mx-auto w-full max-w-7xl px-5 pb-8 pt-12 sm:px-8 sm:pb-10 sm:pt-16">
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)] lg:gap-16">
+          {/* Brand block */}
           <div>
             <Link
               to="/"
               aria-label="FRELUX home"
-              className="inline-flex items-center rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              className="inline-flex items-center rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-4 focus-visible:ring-offset-[#0B0B14]"
             >
-              <Logo size="md" />
+              <Logo size="md" light decorative />
             </Link>
-            <p className="mt-3 max-w-sm text-[13px] leading-6 text-[#5f6368] dark:text-[#9aa0a6]">
+
+            <p className="mt-4 max-w-sm text-[13.5px] leading-6 text-white/60">
               {t(
                 "Construction intelligence and quantity takeoff for projects across markets, with localized data availability disclosed by location.",
               )}
             </p>
 
-            <div className="mt-5">
-              <Suspense fallback={null}>
-                <NewsletterSignup source="footer" />
-              </Suspense>
-              <p className="mt-2 text-[12px] leading-5 text-[#5f6368] dark:text-[#9aa0a6]">
-                {t(
-                  "Industry intelligence and quarterly material rate reports.",
-                )}
+            <div className="mt-6">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-white/45">
+                {t("Weekly price updates")}
+              </p>
+              <div className="mt-3">
+                <Suspense fallback={null}>
+                  <NewsletterSignup source="footer" />
+                </Suspense>
+              </div>
+              <p className="mt-2 text-[12px] leading-5 text-white/45">
+                {t("One email every Monday. Unsubscribe any time.")}
               </p>
             </div>
 
             <a
               href={`mailto:${siteConfig.email}`}
-              className="mt-3 inline-flex min-h-10 items-center text-[13px] text-[#1a73e8] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:text-[#8ab4f8]"
+              className="mt-4 inline-flex min-h-10 items-center text-[13px] text-white/75 underline decoration-white/25 underline-offset-4 transition-colors hover:text-white hover:decoration-white/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0B0B14]"
             >
               {siteConfig.email}
             </a>
           </div>
 
+          {/* Link columns */}
           <nav
             aria-label={t("Footer links")}
-            className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4 sm:gap-x-8"
+            className="grid grid-cols-2 gap-x-6 gap-y-10 sm:grid-cols-4 sm:gap-x-8"
           >
             {groupedColumns.map((column) => (
               <div key={column.title}>
                 <h2 className={HEADING}>{t(column.title)}</h2>
-                <ul className="mt-1">
+                <ul className="mt-3">
                   {column.links.map((link) => (
                     <li key={link.path}>
                       <Link to={link.path} className={LINK_ROW}>
@@ -199,20 +218,16 @@ export default function Footer() {
           </nav>
         </div>
 
-        {/* Country hubs as one quiet wrapped band rather than a column that
-            grows a row per market. */}
+        {/* Country hubs */}
         <nav
           aria-label={t("Markets")}
-          className="mt-10 border-t border-black/10 pt-6 dark:border-white/10"
+          className="mt-12 border-t border-white/10 pt-8"
         >
           <h2 className={HEADING}>{t("Estimates by country")}</h2>
-          <ul className="mt-1 flex flex-wrap gap-x-5 gap-y-0">
+          <ul className="mt-3 flex flex-wrap gap-x-6 gap-y-0">
             {marketHubLinks.map((link) => (
               <li key={link.path}>
-                <Link
-                  to={link.path}
-                  className="flex min-h-9 items-center text-[12px] leading-5 text-[#5f6368] hover:text-[#202124] hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:text-[#9aa0a6] dark:hover:text-[#e8eaed]"
-                >
+                <Link to={link.path} className={SMALL_LINK}>
                   {t(link.label)}
                 </Link>
               </li>
@@ -220,28 +235,45 @@ export default function Footer() {
           </ul>
         </nav>
 
-        {/* Bottom bar: copyright and compliance on the left, the active market
-            on the right, legal links on their own row so they never wrap into
-            the copyright on a narrow phone. */}
-        <div className="mt-8 border-t border-black/10 pt-6 dark:border-white/10">
-          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-[12px] leading-5 text-[#5f6368] dark:text-[#9aa0a6]">
-              © {new Date().getFullYear()} {siteConfig.name}.{" "}
-              {t("All rights reserved.")}
+        {/* Bottom bar */}
+        <div className="mt-10 border-t border-white/10 pt-8">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div className="max-w-xl">
+              <p className="text-[12.5px] leading-5 text-white/55">
+                © {new Date().getFullYear()} {siteConfig.name}.{" "}
+                {t("All rights reserved.")}
+              </p>
+              <p className={`mt-1.5 ${QUIET}`}>
+                {t(
+                  "Estimates are guidance only, not a guarantee of final cost or quantity.",
+                )}
+              </p>
+            </div>
+
+            <nav
+              aria-label={t("Legal")}
+              className="flex flex-wrap gap-x-6 gap-y-0"
+            >
+              {legalLinks.map((link) => (
+                <Link key={link.path} to={link.path} className={SMALL_LINK}>
+                  {t(link.label)}
+                </Link>
+              ))}
+            </nav>
+          </div>
+
+          <div className="mt-5 flex flex-col gap-2 border-t border-white/10 pt-5 sm:flex-row sm:items-center sm:justify-between">
+            <p className={QUIET}>
+              {t(
+                "256-bit TLS, ISO and Eurocode takeoff logic, Google AdSense and AdChoices compliant.",
+              )}
             </p>
-            <p className="inline-flex items-center gap-1.5 text-[12px] leading-5 text-[#5f6368] dark:text-[#9aa0a6]">
+            <p className="inline-flex items-center gap-1.5 text-[12px] leading-5 text-white/45">
               <Globe aria-hidden="true" className="h-3.5 w-3.5" />
               <span>{t("Prices shown for")}</span>
-              <span className="font-medium text-[#202124] dark:text-[#e8eaed]">
-                {marketCode}
-              </span>
+              <span className="font-medium text-white/80">{marketCode}</span>
             </p>
           </div>
-          <p className="mt-2 text-[12px] leading-5 text-[#5f6368] dark:text-[#9aa0a6]">
-            {t(
-              "256-bit TLS, ISO and Eurocode takeoff logic, Google AdSense and AdChoices compliant.",
-            )}
-          </p>
         </div>
       </div>
     </footer>
