@@ -38,7 +38,7 @@ been exercised; `staged` means written but not executed.
 | 16  | Steel I-Beam Weight                | structure | **Audited 2026-11-21**, 13 tests, DEFECT FIXED: IPE 150 does not exist       |
 | 17  | Soffit, Fascia & Gutter            | structure | **Audited 2026-11-21**, 16 tests, DEFECT FIXED: soffit corners counted twice  |
 | 18  | Overhead Water Tank Staging        | structure | **Audited 2026-11-21**, 23 tests, no arithmetic defect, wind method disclosed |
-| 19  | Tall Building Structure            | structure | Queued                                                                          |
+| 19  | Tall Building Structure            | structure | **Audited 2026-11-21**, 18 tests, no defect; first suite on a 1,935-line engine |
 | 20  | Build-to-Roof Estimator            | structure | Queued (engine has tests, page chain untested)                                  |
 | 21  | Mathematical Plan Elevation        | structure | Queued                                                                          |
 | 22  | Foundation Cost Estimate           | structure | Queued                                                                          |
@@ -74,6 +74,55 @@ Found 2026-11-21 by mapping the 34 calculators to `src/lib/estimation/*.ts`:
 - `borehole-water-system-engine.ts` - open.
 
 ---
+
+---
+
+## Audit 19: Tall Building Structure (`engineering/tall-building-engine.ts`)
+
+Suite: `src/lib/engineering/__tests__/tall-building-conformance.test.ts`, 18
+tests. Evidence label: `CI green only`.
+
+This engine had no test file at all, which is why it sat near the top of the
+queue: 1,935 lines producing wind, seismic, gravity, foundation and schedule
+output for a tower, with nothing pinning any of it. The suite now works from
+ASCE 7-22 and ACI 318-19 rather than from the implementation.
+
+Verified against the published tables:
+
+- Kz reproduces the ASCE 7-22 rows at the heights the table actually tabulates.
+  The table steps in feet, so the quoted "10 m" value of 0.98 is the 30 ft row
+  (9.144 m); at exactly 10 m the formula gives 1.00, and both readings are
+  correct. 15 ft = 0.85, 30 ft = 0.98, 100 ft = 1.26, and exposure B at 30 ft =
+  0.70, all reproduced to the table's two decimals.
+- Rougher exposure gives a higher coefficient at the same height (B < C < D), and
+  the coefficient rises with height and holds its 4.6 m floor rather than
+  extrapolating toward zero below it.
+- Ec = 4700 sqrt(fc) in MPa, per ACI 318-19 19.2.2: 29,725 MPa at 40 MPa, and
+  the ratio between two strengths follows the square root.
+- Live load reduction per ASCE 7-22 4.7.2 with KLL = 4: 0.707 at 25 m2, 0.4785
+  at 100 m2, floored at 0.50 for one floor and 0.40 for two or more, never above
+  1.0.
+- Gust effect factor per 26.11.5: rigid at 1 Hz and above with no resonant term
+  and G near 0.85, and a flexible case that adds resonance without ever coming
+  out below the rigid factor.
+
+Verified as whole-building behaviour: a complete result with a selected system
+and a populated check list; the system changes with height; base shear and
+overturning moment both grow with height; the top velocity pressure scales with
+the square of the wind speed (45 to 60 m/s is 1.78 on pressure); both drift
+limits are carried as H/500 and H/400 in millimetres with a storey drift limit
+alongside; seismic base shear stays below the seismic weight, as a Cs fraction
+must; and the foundation carries a positive service load with an allowable
+bearing.
+
+One disclosure checked rather than changed: the engine implements ASCE 7-22 +
+ACI 318-19 only, and a caller asking for EN 1991/EN 1992 is told that in the
+check list instead of being handed ASCE numbers under a European label. That is
+the right behaviour and the suite now pins it.
+
+No arithmetic defect found. Recorded, not changed: the drift band is a plus or
+minus 50 per cent stiffness bracket rather than a cracked-section analysis, and
+the schedule is a floor-cycle planning figure, not a programme.
 
 ## Audit 18: Overhead Water Tank Staging (`water-tower-staging-engine.ts`)
 
