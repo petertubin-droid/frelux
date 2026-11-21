@@ -28,7 +28,7 @@ been exercised; `staged` means written but not executed.
 | 6   | Earthworks Cut & Fill              | structure | **Audited 2026-11-21**, 8 tests, no defect in volumes or soil conversion        |
 | 7   | Retaining Wall Calculator          | structure | **Audited 2026-11-21**, 9 tests, DEFECT FIXED: overturning 1.5 -> 2.0 (BS 8002) |
 | 8   | Roof Framing & Board Feet          | structure | **Audited 2026-11-21**, 12 tests, DEFECT FIXED: sections entered as actual      |
-| 9   | Masonry & Blockwork                | structure | Queued                                                                          |
+| 9   | Masonry & Blockwork                | structure | **Audited 2026-11-21**, 17 tests, no defect in module, mortar or cement         |
 | 10  | German Floor Calculator            | structure | Queued                                                                          |
 | 11  | Fence Block Calculator             | structure | Queued                                                                          |
 | 12  | Drywall & Partitions               | structure | Queued                                                                          |
@@ -72,6 +72,51 @@ Found 2026-11-21 by mapping the 34 calculators to `src/lib/estimation/*.ts`:
 - `plumbing-engine.ts`, `plumbing-profiles.ts` - open.
 - `generator-engine.ts` - open.
 - `borehole-water-system-engine.ts` - open.
+
+---
+
+## Audit 9: Masonry & Blockwork (`masonry-standalone-engine.ts`)
+
+Suite: `src/lib/estimation/__tests__/masonry-conformance.test.ts`, 17 tests,
+CI green only. Rates are worked in the test from the module.
+
+Verified correct:
+
+- Units per m2 from the jointed module, 1/((L + j)(H + j)): the Nigerian
+  9-inch sandcrete block at a 12 mm joint gives 9.13, the US CMU at its 3/8
+  inch joint gives 12.43, and a UK facing brick at 10 mm gives 59.26. Widening
+  the joint orders fewer units, as it must.
+- Leaf count scales the order and the mortar without changing the face rate,
+  so a two-leaf wall is not billed as one.
+- Openings are deducted by area and quantity (30 m2 gross less 7.89 m2 of
+  openings gives 22.11 m2 net), the wall count multiplies, and openings larger
+  than the wall hold the net at zero with a notice rather than a negative
+  quantity.
+- Solid mortar is wall volume less unit volume, exactly, on the 125 mm solid
+  block.
+- Hollow mortar scales with the joint, doubling when the joint doubles, which
+  is the correction recorded in the code from an earlier pass.
+- Dry factor 1.33, then the mix split (1:5 gives cement one part in six), then
+  cement at 1440 kg/m3 and whole bags; water at a 0.55 water/cement ratio by
+  mass; a richer mix orders more cement from the same mortar volume.
+- The cement bag mass is the market's own (50 kg NG, 42.6 kg US), not a fixed
+  50 kg, and a market with no maintained profile is flagged as an unverified
+  placeholder instead of being presented as fact.
+- Custom units are used when complete, ignored with a notice naming the unit
+  actually used when incomplete, and an unknown unit id falls back to the
+  market default with a notice.
+
+Recorded, not changed:
+
+- The hollow-unit mortar allowance is a calibration (0.018 m3 per m2 at 200 mm)
+  scaled by thickness and joint, not a geometric derivation from web and
+  face-shell dimensions. Deriving it per unit profile would be more exact and
+  is a candidate for a later pass; the current figure is inside the published
+  0.015 to 0.022 m3 per m2 band.
+- Mason and helper hours use one fixed productivity (0.06 h per block, 0.03 h
+  per brick) for every market. Productivity is market-specific, so this is a
+  labour-rate gap rather than a quantity defect, and it belongs with the
+  market labour rates rather than in the quantity engine.
 
 ---
 
