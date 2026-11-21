@@ -229,7 +229,12 @@ export function calculateGermanFloor(
   const bags = bagM3 > 0 ? Math.ceil(cementM3 / bagM3) : 0;
 
   // Blinding sand is bought with the concrete sand: same material, one order.
-  const sandTotalM3 = Number((sandM3 + blinding.cubicMetres).toFixed(3));
+  // It is added at its purchase volume, not its neat volume: the assumptions
+  // say every layer carries the wastage allowance, and the neat figure quietly
+  // left the blinding layer as the one that did not.
+  const sandTotalM3 = Number(
+    (sandM3 + blinding.purchaseCubicMetres).toFixed(3),
+  );
   const siteUnits = measureInSiteUnits(sandTotalM3, input.market);
   const preferredSandUnit = sandUnitOptions(input.market)[0];
 

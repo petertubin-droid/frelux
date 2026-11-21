@@ -58,8 +58,10 @@ describe("german floor engine", () => {
 
   it("adds blinding sand to the concrete sand and quotes every tipper", () => {
     const { result } = calculateGermanFloor(base);
+    // Blinding joins the order at its purchase volume: every layer carries the
+    // wastage allowance, blinding included.
     expect(result!.sand.cubicMetres).toBeCloseTo(
-      result!.mix.sandM3 + result!.layers.blinding.cubicMetres,
+      result!.mix.sandM3 + result!.layers.blinding.purchaseCubicMetres,
       2,
     );
     expect(result!.sand.trips.length).toBeGreaterThan(0);

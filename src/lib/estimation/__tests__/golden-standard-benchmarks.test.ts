@@ -143,8 +143,10 @@ describe("Standardized Trade Benchmark Test Suite (Multi-Trade Takeoff & Boundar
     expect(res.cement.bags).toBeGreaterThanOrEqual(118);
     expect(res.cement.bags).toBeLessThanOrEqual(125);
 
-    // Sand volume includes both slab concrete sand (8.3 m³) and 50mm blinding sand (6.0 m³) = ~14.3 m³
-    expect(res.sand.cubicMetres).toBeCloseTo(14.3, 1);
+    // Sand volume includes slab concrete sand (8.3 m³) and the 50mm blinding
+    // bed at its purchase volume, 6.0 m³ plus the same 5 per cent every layer
+    // carries = ~14.6 m³.
+    expect(res.sand.cubicMetres).toBeCloseTo(14.6, 1);
 
     // Coarse aggregate (granite): 4/7 * 29.1 m³ = ~16.6 m³
     expect(res.aggregate.cubicMetres).toBeCloseTo(16.6, 1);
@@ -171,7 +173,9 @@ describe("Standardized Trade Benchmark Test Suite (Multi-Trade Takeoff & Boundar
     // Hardcore compacted volume = 48 * 0.15 = 7.2 m³.
     // With 1.25 loose bulking factor: loose stone = 7.2 * 1.25 = 9.0 m³.
     expect(res.layers.hardcore.cubicMetres).toBeCloseTo(7.2, 1);
-    expect(res.layers.hardcore.cubicMetres * HARDCORE_LOOSE_BULKING_FACTOR).toBeCloseTo(9.0, 1);
+    expect(
+      res.layers.hardcore.cubicMetres * HARDCORE_LOOSE_BULKING_FACTOR,
+    ).toBeCloseTo(9.0, 1);
 
     // 100mm slab concrete wet volume = 4.8 m³ -> 32 bags cement
     expect(res.cement.bags).toBeGreaterThanOrEqual(30);
@@ -196,7 +200,10 @@ describe("Standardized Trade Benchmark Test Suite (Multi-Trade Takeoff & Boundar
     // Wet volume with 5% waste = 40 m² * 0.012m * 1.05 = 0.504 m³.
     expect(takeoff.wetMortarVolumeM3).toBeCloseTo(0.504, 3);
     // Dry mortar volume with 1.33 shrinkage factor and 5% waste = 0.504 * 1.33 * 1.05 = 0.704 m³.
-    expect(takeoff.dryMortarVolumeM3).toBeCloseTo(0.504 * MORTAR_DRY_VOLUME_FACTOR * 1.05, 3);
+    expect(takeoff.dryMortarVolumeM3).toBeCloseTo(
+      0.504 * MORTAR_DRY_VOLUME_FACTOR * 1.05,
+      3,
+    );
 
     // In 1:5 mix: cement is 1/6th of dry volume -> 3 to 4 bags.
     expect(takeoff.cementBagsRequired).toBeGreaterThanOrEqual(3);
@@ -222,7 +229,10 @@ describe("Standardized Trade Benchmark Test Suite (Multi-Trade Takeoff & Boundar
     // Wet volume = 145 * 0.02 * 1.05 = 3.045 m³.
     expect(takeoff.wetMortarVolumeM3).toBeCloseTo(3.045, 3);
     // Dry volume = 3.045 * 1.33 * 1.05 = ~4.252 m³.
-    expect(takeoff.dryMortarVolumeM3).toBeCloseTo(3.045 * MORTAR_DRY_VOLUME_FACTOR * 1.05, 3);
+    expect(takeoff.dryMortarVolumeM3).toBeCloseTo(
+      3.045 * MORTAR_DRY_VOLUME_FACTOR * 1.05,
+      3,
+    );
 
     // 1:4 mix has 1 part cement to 4 parts sand -> 24 to 25 bags.
     expect(takeoff.cementBagsRequired).toBeGreaterThanOrEqual(23);

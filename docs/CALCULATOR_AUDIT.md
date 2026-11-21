@@ -367,3 +367,42 @@ Findings:
    engines, not any single engine.
 3. Services category is untouched. It starts at plumbing, then conduit wiring,
    then generator and borehole, in that order.
+
+---
+
+## Audit 10: German Floor (`german-floor.ts`)
+
+Suite: `src/lib/estimation/__tests__/german-floor-conformance.test.ts`, 10 tests.
+Evidence: `CI green only`.
+
+The page calls this a German floor; the engine's own term is the standard one,
+slab-on-grade, and it says so in the result.
+
+Verified against site practice:
+
+- Layer volumes are area times thickness for hardcore, blinding and slab.
+- Hardcore is bought loose at 1.25 times its compacted volume, because 150 mm
+  of fill is 150 mm only after compaction. The 100 m2 floor orders 19.688 m3
+  for 15 m3 placed.
+- Concrete runs wet to dry to parts: 10 m3 slab plus 5 per cent is 16.17 m3 dry
+  at the 1.54 factor, which splits 1:2:4 into 2.31 m3 cement, 4.62 sand and
+  9.24 granite. At 1440 kg/m3 that is 67 whole 50 kg bags, and a 25 kg pack
+  doubles the count for the same mass.
+- Membrane is bought at the floor area plus 10 per cent for the laps between
+  rolls: 100 m2 floor, 110 m2 ordered.
+
+Findings:
+
+1. **DEFECT FIXED: blinding sand was the one layer with no allowance.** The
+   assumptions panel promises that 5 per cent is added to every layer, and the
+   sand order read the blinding layer's neat volume, so a 5 m3 blinding bed was
+   ordered as 5 m3 while the slab beside it was ordered at 10.5. The order now
+   uses the blinding purchase volume, 5.25 m3. This is a 5 per cent increase on
+   one line of every slab estimate, which is why it is recorded rather than
+   slipped in.
+2. Blinding is modelled as sand, not as a weak concrete. That is a deliberate
+   simplification, it is stated in the assumptions, and it is not changed here:
+   a 1:4:8 blinding mix would need cement the engine does not buy.
+3. Cement pack size comes from the market with a named 50 kg fallback and a
+   warning when the market has no pack configured, so a market without a profile
+   is told rather than silently given a Nigerian bag.
