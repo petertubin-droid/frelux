@@ -34,7 +34,7 @@ been exercised; `staged` means written but not executed.
 | 12  | Drywall & Partitions               | structure | **Audited 2026-11-21**, 17 tests, DEFECT FIXED: tape and compound per layer     |
 | 13  | Paving & External Works            | structure | **Audited 2026-11-21**, 26 tests, DEFECT FIXED: jointing sand was missing        |
 | 14  | Formwork & Temporary Works          | structure | **Audited 2026-11-21**, 20 tests, 2 DEFECTS FIXED: half the standards, phantom frame |
-| 15  | Demolition & Debris Takeoff        | structure | Queued                                                                          |
+| 15  | Demolition & Debris Takeoff        | structure | **Audited 2026-11-21**, 18 tests, COMPLETENESS FIXED: no debris mass        |
 | 16  | Steel I-Beam Weight                | structure | Queued                                                                          |
 | 17  | Soffit, Fascia & Gutter            | structure | Queued                                                                          |
 | 18  | Overhead Water Tank Staging        | structure | Queued                                                                          |
@@ -72,6 +72,57 @@ Found 2026-11-21 by mapping the 34 calculators to `src/lib/estimation/*.ts`:
 - `plumbing-engine.ts`, `plumbing-profiles.ts` - open.
 - `generator-engine.ts` - open.
 - `borehole-water-system-engine.ts` - open.
+
+---
+
+## Audit 15: Demolition & Debris Takeoff (`demolition-standalone-engine.ts`)
+
+Suite: `src/lib/estimation/__tests__/demolition-conformance.test.ts`, 18 tests.
+Evidence label: `CI green only`.
+
+Expectations come from how debris is measured and carted away: geometry in
+place, a published bulking band for masonry rubble, a skip that is limited by
+mass as well as volume, and the loading fraction that stops a skip being booked
+as if rubble filled it edge to edge.
+
+Verified correct:
+
+- Volume in place is length x height x thickness per element, times quantity,
+  summed across types. A 5 x 2.5 m wall at 115 mm is 1.4375 m3, and three of
+  them are three times that.
+- Loose volume is the in-place volume times the bulking factor, default 1.35,
+  which sits inside the published 1.3-1.5 band for concrete and brickwork
+  rubble.
+- Skip loads divide the loose volume by nominal capacity times loading
+  efficiency, and round a part-filled skip up: 1.94 m3 loose against a 6.1 m3
+  skip at 0.85 usable is one booking, four walls is two.
+- No capacity, or a zero loading efficiency, returns null rather than a divide
+  by zero or an invented count.
+- A bulking factor below 1 is treated as 1, and the assumptions now say so
+  instead of clamping in silence.
+
+Completeness fixed:
+
+1. **DEFECT FIXED: the takeoff had no mass.** Volume alone cannot book a skip.
+   An 8-yard skip holds about 6.1 m3 but is limited to roughly 8 tonnes on the
+   road, so a load of concrete can be legal by volume and illegal by weight.
+   The engine now reports mass from the in-place volume at an editable density
+   (default 1.8 t/m3, mixed masonry and concrete rubble; 2.35 for concrete),
+   and the assumptions state the density used and the 8-tonne check.
+
+Recorded, not changed:
+
+1. One bulking factor covers every element type. Timber and sheet roofing bulk
+   far more than a slab (published ranges run to 1.8-2.5), so a mixed
+   demolition containing a roof is under-bulked. A per-type factor is a
+   modelling change, not a correction, and the field is editable.
+2. Loading efficiency defaults to 0.85, which is optimistic for irregular
+   rubble; published practice often uses 0.7-0.8. Kept, and now visible next to
+   the skip figure.
+3. Wall openings are not deducted: a demolished wall with a door and two
+   windows is measured as solid. Conservative for debris, but it over-orders.
+4. Permits, service isolation, hazardous-material surveys and waste
+   classification remain out of scope, stated in the safety notice.
 
 ---
 
