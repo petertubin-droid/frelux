@@ -317,7 +317,8 @@ export function calculateWaterTowerStaging(
     );
   }
 
-  const warnings: string[] = [];
+  const warnings: string[] = [
+];
   // A tower's footings and overturning depend on two values that belong to the
   // site, not to a country: the ground's allowable bearing pressure and the
   // location's basic wind speed. These used to default to Nigerian values
@@ -383,6 +384,14 @@ export function calculateWaterTowerStaging(
   // Tank is a cylinder: projected area = D x H. Frame is open, so taken at
   // 20 % solidity of the face it presents.
   const windPressurePa = round(WIND_PRESSURE_COEFFICIENT * windMs * windMs, 0);
+  // q = 0.613 v^2 is the BASIC velocity pressure. EN 1991-1-4 and ASCE 7 both
+  // then apply exposure/height, gust and directionality factors, which at 6-10 m
+  // in open terrain multiply the pressure by roughly 1.7 to 2.2. A designer who
+  // enters the code's basic wind speed would otherwise be checking the tower
+  // against a pressure well below the design value, so the method is stated.
+  warnings.push(
+    `Wind is applied as the basic velocity pressure q = 0.613 v² (${windPressurePa} Pa at ${windMs} m/s) with drag coefficients on the tank and frame. Exposure, height, gust and directionality factors (EN 1991-1-4 c_e(z), ASCE 7 K_z K_zt K_d) are not applied: enter a wind speed that already includes them, or have the wind load checked for the site.`,
+  );
   const dragTank = 0.8; // cylinder
   const dragFrame = 2.0; // open lattice, 20 % solidity -> ~2.0 on solid area
   const tankAreaM2 = tankDiameter * tankHeight;

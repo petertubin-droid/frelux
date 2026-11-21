@@ -37,7 +37,7 @@ been exercised; `staged` means written but not executed.
 | 15  | Demolition & Debris Takeoff        | structure | **Audited 2026-11-21**, 18 tests, COMPLETENESS FIXED: no debris mass        |
 | 16  | Steel I-Beam Weight                | structure | **Audited 2026-11-21**, 13 tests, DEFECT FIXED: IPE 150 does not exist       |
 | 17  | Soffit, Fascia & Gutter            | structure | **Audited 2026-11-21**, 16 tests, DEFECT FIXED: soffit corners counted twice  |
-| 18  | Overhead Water Tank Staging        | structure | Queued                                                                          |
+| 18  | Overhead Water Tank Staging        | structure | **Audited 2026-11-21**, 23 tests, no arithmetic defect, wind method disclosed |
 | 19  | Tall Building Structure            | structure | Queued                                                                          |
 | 20  | Build-to-Roof Estimator            | structure | Queued (engine has tests, page chain untested)                                  |
 | 21  | Mathematical Plan Elevation        | structure | Queued                                                                          |
@@ -72,6 +72,64 @@ Found 2026-11-21 by mapping the 34 calculators to `src/lib/estimation/*.ts`:
 - `plumbing-engine.ts`, `plumbing-profiles.ts` - open.
 - `generator-engine.ts` - open.
 - `borehole-water-system-engine.ts` - open.
+
+---
+
+## Audit 18: Overhead Water Tank Staging (`water-tower-staging-engine.ts`)
+
+Suite: `src/lib/estimation/__tests__/water-tower-conformance.test.ts`, 23 tests.
+Evidence label: `CI green only`.
+
+Expectations are published physics and code rules worked by hand: 1 L of water
+is 1 kg, q = 0.613 v^2, the dead-only ultimate case is 1.4 x dead, overturning
+resistance is weight x base/2 with a 1.5 factor required, and a four-leg square
+base with wind on the diagonal puts the extreme legs at b/sqrt(2).
+
+No arithmetic defect found. Verified correct:
+
+- Loads: a 1,000 L tank is 1,000 kg of water, dead load is water plus tank plus
+  deck, and the design load is exactly 1.4 x dead x g.
+- Wind: pressure is 0.613 v^2 (552 Pa at 30 m/s) and quadruples when the speed
+  doubles. The moment about the base exceeds force x height/2, because the tank
+  sits above the frame and adds lever arm.
+- Stability is evaluated per load case, and the EMPTY case governs: a full tank
+  is stabilised by a tonne of water, an empty one is not, and the reported factor
+  is the worst case rather than the normal operating case. That is the single
+  most important thing this engine gets right.
+- Resisting moment is the case weight x base/2 for each case, the factor of
+  safety is resisting over overturning, and a reported pass never sits below 1.5
+  on overturning or sliding.
+- Leg loads: max + min = half the total vertical load (the couple cancels), and
+  max - min = 2M/(b sqrt 2), which is the diagonal wind case.
+- Footings: the pad is solved from the worst leg over the allowable bearing, so
+  bearing pressure cannot exceed the allowable by construction. Checked across
+  400, 200, 150, 100 and 50 kPa. A tower heavy enough for bearing to govern buys
+  a bigger pad and more concrete on weaker ground.
+- Soil bearing capacity, wind speed and the cement bag weight (via market or
+  explicit override) are required inputs and throw rather than defaulting.
+
+Disclosure fixed:
+
+1. **The wind method was not stated.** q = 0.613 v^2 is the BASIC velocity
+   pressure. EN 1991-1-4 then applies c_e(z) and ASCE 7 applies K_z K_zt K_d,
+   which at 6-10 m in open terrain multiply the pressure by roughly 1.7 to 2.2.
+   A designer entering the code's basic wind speed would have been checking the
+   tower against a pressure well below the design value. The warnings now name
+   the method, the factors that are not applied, and what the entered speed has
+   to include. No number changed.
+
+Recorded, not changed:
+
+1. Drag coefficients are 0.8 on the tank cylinder and 2.0 on the frame face at
+   20 per cent solidity. EN 1991-1-4 gives about 0.7 for a smooth cylinder, so
+   the tank figure is marginally conservative; the frame figure is inside the
+   published 1.6-2.0 range for low-solidity lattice towers.
+2. A 1,000 L tower sits on the 0.6 m minimum pad whatever the soil, because the
+   minimum that lets a gang build and stand on the pad binds first. The engine
+   notes when the minimum applies rather than pretending bearing governed.
+3. Frame self-weight in the empty case uses a nominal section mass before the
+   leg section is chosen, then the cases are rebuilt with the real section. The
+   sequence is disclosed in the code comments.
 
 ---
 
