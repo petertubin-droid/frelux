@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import {
   Trash2,
@@ -1135,7 +1135,8 @@ function ProjectExplorer() {
         name: "src",
         path: "src",
         type: "dir",
-        purpose: "Application source code including UI components, pages, and shared business logic.",
+        purpose:
+          "Application source code including UI components, pages, and shared business logic.",
         children: [
           {
             name: "components",
@@ -1143,11 +1144,40 @@ function ProjectExplorer() {
             type: "dir",
             purpose: "Reusable presentation and interactive UI components.",
             children: [
-              { name: "admin", path: "src/components/admin", type: "dir", purpose: "Administration panels, controls, and management views." },
-              { name: "studio", path: "src/components/studio", type: "dir", purpose: "AI developer studio tools, prompt editors, and metrics." },
-              { name: "layout", path: "src/components/layout", type: "dir", purpose: "Navigation bars, footers, headers, and container layouts." },
-              { name: "home", path: "src/components/home", type: "dir", purpose: "Landing page and marketing components." },
-              { name: "ui", path: "src/components/ui", type: "dir", purpose: "Shared design system primitives (buttons, modals, tabs, toasts)." },
+              {
+                name: "admin",
+                path: "src/components/admin",
+                type: "dir",
+                purpose:
+                  "Administration panels, controls, and management views.",
+              },
+              {
+                name: "studio",
+                path: "src/components/studio",
+                type: "dir",
+                purpose:
+                  "AI developer studio tools, prompt editors, and metrics.",
+              },
+              {
+                name: "layout",
+                path: "src/components/layout",
+                type: "dir",
+                purpose:
+                  "Navigation bars, footers, headers, and container layouts.",
+              },
+              {
+                name: "home",
+                path: "src/components/home",
+                type: "dir",
+                purpose: "Landing page and marketing components.",
+              },
+              {
+                name: "ui",
+                path: "src/components/ui",
+                type: "dir",
+                purpose:
+                  "Shared design system primitives (buttons, modals, tabs, toasts).",
+              },
             ],
           },
           {
@@ -1156,32 +1186,114 @@ function ProjectExplorer() {
             type: "dir",
             purpose: "Top-level routed screens and page containers.",
             children: [
-              { name: "admin", path: "src/pages/admin", type: "dir", purpose: "Administrative control center and reporting dashboards." },
-              { name: "studio", path: "src/pages/studio", type: "dir", purpose: "AI developer studio management and experimentation tools." },
-              { name: "legal", path: "src/pages/legal", type: "dir", purpose: "Terms of service, privacy policies, and compliance disclosures." },
+              {
+                name: "admin",
+                path: "src/pages/admin",
+                type: "dir",
+                purpose:
+                  "Administrative control center and reporting dashboards.",
+              },
+              {
+                name: "studio",
+                path: "src/pages/studio",
+                type: "dir",
+                purpose:
+                  "AI developer studio management and experimentation tools.",
+              },
+              {
+                name: "legal",
+                path: "src/pages/legal",
+                type: "dir",
+                purpose:
+                  "Terms of service, privacy policies, and compliance disclosures.",
+              },
             ],
           },
-          { name: "lib", path: "src/lib", type: "dir", purpose: "Core calculation engines, AI adapters, internationalization, and Supabase client." },
-          { name: "types", path: "src/types", type: "dir", purpose: "TypeScript definitions, database schema interfaces, and engine contracts." },
-          { name: "App.tsx", path: "src/App.tsx", type: "file", purpose: "Main application router and lazy chunk boundary orchestrator." },
-          { name: "main.tsx", path: "src/main.tsx", type: "file", purpose: "Client entry point bootstrapping React DOM and providers." },
-          { name: "index.css", path: "src/index.css", type: "file", purpose: "Global Tailwind styles and typography tokens." },
+          {
+            name: "lib",
+            path: "src/lib",
+            type: "dir",
+            purpose:
+              "Core calculation engines, AI adapters, internationalization, and Supabase client.",
+          },
+          {
+            name: "types",
+            path: "src/types",
+            type: "dir",
+            purpose:
+              "TypeScript definitions, database schema interfaces, and engine contracts.",
+          },
+          {
+            name: "App.tsx",
+            path: "src/App.tsx",
+            type: "file",
+            purpose:
+              "Main application router and lazy chunk boundary orchestrator.",
+          },
+          {
+            name: "main.tsx",
+            path: "src/main.tsx",
+            type: "file",
+            purpose:
+              "Client entry point bootstrapping React DOM and providers.",
+          },
+          {
+            name: "index.css",
+            path: "src/index.css",
+            type: "file",
+            purpose: "Global Tailwind styles and typography tokens.",
+          },
         ],
       },
       {
         name: "supabase",
         path: "supabase",
         type: "dir",
-        purpose: "Backend infrastructure, serverless Edge Functions, and database migrations.",
+        purpose:
+          "Backend infrastructure, serverless Edge Functions, and database migrations.",
         children: [
-          { name: "functions", path: "supabase/functions", type: "dir", purpose: "Deno-based serverless Edge Functions handling secure RPCs, webhooks, and AI calls." },
-          { name: "migrations", path: "supabase/migrations", type: "dir", purpose: "PostgreSQL schemas, RLS security policies, and database triggers." },
+          {
+            name: "functions",
+            path: "supabase/functions",
+            type: "dir",
+            purpose:
+              "Deno-based serverless Edge Functions handling secure RPCs, webhooks, and AI calls.",
+          },
+          {
+            name: "migrations",
+            path: "supabase/migrations",
+            type: "dir",
+            purpose:
+              "PostgreSQL schemas, RLS security policies, and database triggers.",
+          },
         ],
       },
-      { name: "public", path: "public", type: "dir", purpose: "Static web assets, icons, manifest files, and robots.txt." },
-      { name: "package.json", path: "package.json", type: "file", purpose: "Project dependencies, scripts, and package metadata." },
-      { name: "vite.config.ts", path: "vite.config.ts", type: "file", purpose: "Vite bundler build pipeline and alias resolution configuration." },
-      { name: "tailwind.config.js", path: "tailwind.config.js", type: "file", purpose: "Tailwind CSS theme extensions, color schemes, and breakpoints." },
+      {
+        name: "public",
+        path: "public",
+        type: "dir",
+        purpose: "Static web assets, icons, manifest files, and robots.txt.",
+      },
+      {
+        name: "package.json",
+        path: "package.json",
+        type: "file",
+        purpose: "Project dependencies, scripts, and package metadata.",
+      },
+      {
+        name: "vite.config.ts",
+        path: "vite.config.ts",
+        type: "file",
+        purpose:
+          "Vite bundler build pipeline and alias resolution configuration.",
+      },
+      {
+        name: "tailwind.config.js",
+        path: "tailwind.config.js",
+        type: "file",
+        purpose:
+          "Tailwind CSS theme extensions, color schemes, and breakpoints.",
+      },
     ],
     [],
   );
@@ -1195,7 +1307,10 @@ function ProjectExplorer() {
       />
 
       <div className="mb-4 rounded-lg border border-border bg-card p-3 text-xs text-muted-foreground flex items-center justify-between">
-        <span>To view, download, or delete generated project artifacts and files, use the File Manager tool.</span>
+        <span>
+          To view, download, or delete generated project artifacts and files,
+          use the File Manager tool.
+        </span>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-3">
@@ -1223,23 +1338,37 @@ function ProjectExplorer() {
           {selectedNode ? (
             <div className="space-y-3">
               <div>
-                <span className="text-xs font-mono text-brand-purple">{selectedNode.path}</span>
-                <h4 className="text-sm font-semibold text-foreground mt-0.5">{selectedNode.name}</h4>
+                <span className="text-xs font-mono text-brand-purple">
+                  {selectedNode.path}
+                </span>
+                <h4 className="text-sm font-semibold text-foreground mt-0.5">
+                  {selectedNode.name}
+                </h4>
               </div>
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Type</p>
-                <p className="text-xs text-foreground capitalize">{selectedNode.type === "dir" ? "Directory Module" : "Configuration / Source File"}</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Type
+                </p>
+                <p className="text-xs text-foreground capitalize">
+                  {selectedNode.type === "dir"
+                    ? "Directory Module"
+                    : "Configuration / Source File"}
+                </p>
               </div>
               <div>
-                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Architectural Role</p>
+                <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+                  Architectural Role
+                </p>
                 <p className="text-xs text-muted-foreground leading-relaxed mt-1">
-                  {selectedNode.purpose ?? "Component of the application architecture."}
+                  {selectedNode.purpose ??
+                    "Component of the application architecture."}
                 </p>
               </div>
             </div>
           ) : (
             <p className="text-xs text-muted-foreground">
-              Select any directory or file in the architecture tree to inspect its role and responsibility.
+              Select any directory or file in the architecture tree to inspect
+              its role and responsibility.
             </p>
           )}
         </div>
@@ -1269,7 +1398,9 @@ function TreeNode({
       <div
         className={classNames(
           "flex w-full items-center justify-between rounded px-2 py-1 text-sm transition-colors",
-          isSelected ? "bg-brand-purple/10 text-brand-purple font-medium" : "hover:bg-muted/50"
+          isSelected
+            ? "bg-brand-purple/10 text-brand-purple font-medium"
+            : "hover:bg-muted/50",
         )}
         style={{ paddingLeft: `${depth * 16 + 8}px` }}
       >
@@ -1284,7 +1415,10 @@ function TreeNode({
           {isDir ? (
             <FolderOpen
               aria-hidden="true"
-              className={classNames("h-4 w-4", open ? "text-brand-purple" : "text-muted-foreground")}
+              className={classNames(
+                "h-4 w-4",
+                open ? "text-brand-purple" : "text-muted-foreground",
+              )}
             />
           ) : (
             <FolderTree className="h-4 w-4 text-muted-foreground" />

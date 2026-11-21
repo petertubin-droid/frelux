@@ -405,7 +405,14 @@ export default function AdminTileMaterials() {
                             </span>
                           </div>
                           <p className="mt-0.5 text-xs text-muted-foreground dark:text-muted-foreground">
-                            {m.coverage_rate} {m.coverage_unit} · {formatByCode(m.unit_price, m.currency || "NGN")} · Labour {formatByCode(m.labour_rate_per_sqm, m.currency || "NGN")}/m²
+                            {m.coverage_rate} {m.coverage_unit} ·{" "}
+                            {formatByCode(m.unit_price, m.currency || "NGN")} ·
+                            Labour{" "}
+                            {formatByCode(
+                              m.labour_rate_per_sqm,
+                              m.currency || "NGN",
+                            )}
+                            /m²
                           </p>
                         </div>
                         <div className="flex items-center gap-2">
@@ -591,6 +598,9 @@ function TileMaterialEditor({
     package_size: material?.package_size ?? 1,
     package_unit: material?.package_unit ?? "unit",
     unit_price: material?.unit_price ?? 0,
+    // The price labels print the material's own currency, so the form has to
+    // carry it; a row with no currency stays unpriced rather than borrowing one.
+    currency: material?.currency ?? "",
     labour_rate_per_sqm: material?.labour_rate_per_sqm ?? 0,
     is_active: material?.is_active ?? true,
     sort_order: material?.sort_order ?? 0,
@@ -678,7 +688,9 @@ function TileMaterialEditor({
             onChange={(e) => setForm({ ...form, package_unit: e.target.value })}
           />
         </AdminField>
-        <AdminField label={`Unit Price (${form.currency || "NGN"})`}>
+        <AdminField
+          label={`Unit Price${form.currency ? ` (${form.currency})` : ""}`}
+        >
           <AdminInput
             type="number"
             value={form.unit_price}
@@ -689,7 +701,9 @@ function TileMaterialEditor({
         </AdminField>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
-        <AdminField label={`Labour Rate/m² (${form.currency || "NGN"})`}>
+        <AdminField
+          label={`Labour Rate/m²${form.currency ? ` (${form.currency})` : ""}`}
+        >
           <AdminInput
             type="number"
             value={form.labour_rate_per_sqm}
