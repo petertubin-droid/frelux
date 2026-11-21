@@ -10,6 +10,11 @@ import FaqSpotlight from "@/components/seo/FaqSpotlight";
 import { SITE_URL } from "@/lib/seo";
 import { getSafeError } from "@/lib/safeError";
 import { useLearnMarketScope } from "@/lib/learn-scope";
+import { Link } from "react-router-dom";
+import {
+  fetchWallFinishingLibrary,
+  type WallFinishingTopic,
+} from "@/lib/learn/wall-finishing-library";
 import type { DbLearnArticle } from "@/types/database";
 import { useLanguage } from "@/lib/i18n";
 
@@ -43,6 +48,18 @@ export default function LearnLibrary() {
   const scope = useLearnMarketScope();
   const [articles, setArticles] = useState<DbLearnArticle[]>([]);
   const [total, setTotal] = useState<number | null>(null);
+
+  // Verified wall-finishing systems, published from the admin library.
+  const [wallTopics, setWallTopics] = useState<WallFinishingTopic[]>([]);
+  useEffect(() => {
+    let active = true;
+    fetchWallFinishingLibrary().then((topics) => {
+      if (active) setWallTopics(topics);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
   const [status, setStatus] = useState<Status>("loading");
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -221,6 +238,55 @@ export default function LearnLibrary() {
             />
           </div>
         </div>
+
+        {wallTopics.length > 0 && !searchQuery.trim() && (
+          <section
+            aria-label={t("Wall finishing systems by market")}
+            className="mb-10"
+          >
+            <h2 className="font-display text-lg font-bold text-foreground dark:text-primary-foreground">
+              {t("Wall finishing systems by market")}
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t(
+                "Local systems checked against a published source, with the guide that covers each one.",
+              )}
+            </p>
+            <ul className="mt-4 grid gap-4 sm:grid-cols-2">
+              {wallTopics.map((topic) => (
+                <li
+                  key={topic.id}
+                  className="rounded-2xl border border-border bg-card p-4 dark:border-white/10"
+                >
+                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    {topic.marketCode}
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-foreground">
+                    {topic.title}
+                  </p>
+                  {topic.articles.length > 0 ? (
+                    <ul className="mt-2 space-y-1">
+                      {topic.articles.map((article) => (
+                        <li key={article.slug}>
+                          <Link
+                            to={`/learn/${article.slug}`}
+                            className="text-xs font-medium text-brand-purple underline-offset-2 hover:underline dark:text-brand-purple-lighter"
+                          >
+                            {article.theme}: {article.title}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-2 text-xs text-muted-foreground">
+                      {t("Guide in preparation.")}
+                    </p>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {searching ? (
           <div className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">

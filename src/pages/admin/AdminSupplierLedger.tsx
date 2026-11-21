@@ -157,7 +157,7 @@ export default function AdminSupplierLedger() {
     <div className="space-y-6">
       <AdminHeader
         title="Supplier ledger"
-        subtitle="What the business owes its suppliers, aged by due date, in each currency separately."
+        subtitle="Internal ledger: what the business owes its suppliers, aged by due date, in each currency separately. Customers never see this page."
         action={
           <AdminButton onClick={() => void load()} disabled={loading}>
             <RefreshCw className="mr-2 h-4 w-4" aria-hidden="true" />

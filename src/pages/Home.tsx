@@ -61,6 +61,7 @@ import { getPublicTemplates } from "@/lib/templates";
 import { Link } from "react-router-dom";
 import { ShoppingBag, Plus } from "lucide-react";
 import { SITE_URL } from "@/lib/seo";
+import { fetchSiteSettings } from "@/lib/queries";
 import { useLanguage } from "@/lib/i18n";
 
 // Reserves approximate vertical space for a below-the-fold lazy section
@@ -93,6 +94,33 @@ export default function Home() {
   const [featuredSlugs, setFeaturedSlugs] = useState<
     { name: string; slug: string; type: string }[]
   >([]);
+  // The schema description and site name are brand copy an admin already
+  // maintains in AdminSeo / AdminSettings. Reading them here keeps the
+  // structured data from drifting away from the page it describes.
+  const [seoSettings, setSeoSettings] = useState<{
+    name: string | null;
+    description: string | null;
+  }>({ name: null, description: null });
+
+  useEffect(() => {
+    let active = true;
+    fetchSiteSettings()
+      .then(({ data }) => {
+        if (!active || !data) return;
+        const name = (data.site_name ?? "").trim();
+        const description = (data.seo_description ?? "").trim();
+        setSeoSettings({
+          name: name || null,
+          description: description || null,
+        });
+      })
+      .catch(() => {
+        // Fall back to the approved defaults below.
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   useEffect(() => {
     (async () => {
@@ -117,9 +145,10 @@ export default function Home() {
       {
         "@context": "https://schema.org",
         "@type": "WebApplication",
-        name: "FRELUX",
+        name: seoSettings.name ?? "FRELUX",
         applicationCategory: "HomeAndGardenApplication",
         description:
+          seoSettings.description ??
           "Calculate materials and estimate costs for construction projects worldwide. Free calculators for every trade, full-building estimating, AI photo estimates, professional BOQs, saved templates, and a worldwide 3D site map.",
         offers: {
           "@type": "Offer",
@@ -140,7 +169,7 @@ export default function Home() {
       {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        name: "FRELUX",
+        name: seoSettings.name ?? "FRELUX",
         url: SITE_URL,
         potentialAction: {
           "@type": "SearchAction",
@@ -153,7 +182,7 @@ export default function Home() {
       },
       faqSchema(HOME_FAQS),
     ],
-    [featuredSlugs, seoOfferCurrency],
+    [featuredSlugs, seoOfferCurrency, seoSettings],
   );
 
   useSeo({

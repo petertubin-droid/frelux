@@ -22,6 +22,7 @@ import {
 } from "@/lib/regulatory/compliance-checklist";
 import { ALL_20_MARKETS } from "@/lib/international/engine-inventory-types";
 import { useLanguage } from "@/lib/i18n";
+import { supabase } from "@/lib/supabase";
 
 /** Engine scopes the registry tracks (applies_to->engines union, stable order). */
 const ENGINE_SCOPES = [
@@ -74,6 +75,33 @@ export default function ComplianceStandards() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // Marketplace worker-safety thresholds an admin sets live. The table is
+  // publicly readable, so the page can state the protections a worker
+  // actually gets instead of describing them in prose.
+  const [safety, setSafety] = useState<{
+    hide_phone_until_escrow: boolean;
+    require_client_identity: boolean;
+    auto_release_hours: number;
+    min_work_proof_photos: number;
+  } | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    supabase
+      .from("worker_safety_settings")
+      .select(
+        "hide_phone_until_escrow,require_client_identity,auto_release_hours,min_work_proof_photos",
+      )
+      .eq("id", 1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (active && data) setSafety(data);
+      });
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const toggleEngine = (e: string) =>
     setEngines((prev) =>
@@ -132,6 +160,45 @@ export default function ComplianceStandards() {
           )}
         </div>
       </div>
+
+      {safety && (
+        <section
+          aria-label={t("Marketplace protections")}
+          className="rounded-xl border border-border bg-card p-4 dark:border-white/5"
+        >
+          <div className="flex items-center gap-2">
+            <ShieldCheck aria-hidden="true" className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold">
+              {t("Marketplace protections")}
+            </h3>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {t(
+              "These rules are set by the platform and apply to every job, whatever the market.",
+            )}
+          </p>
+          <ul className="mt-2 space-y-1 text-xs text-foreground/80">
+            {safety.hide_phone_until_escrow && (
+              <li>
+                {t(
+                  "Phone numbers stay hidden until payment is held in escrow.",
+                )}
+              </li>
+            )}
+            {safety.require_client_identity && (
+              <li>{t("Clients must verify their identity before hiring.")}</li>
+            )}
+            <li>
+              {t("Work proof: at least")} {safety.min_work_proof_photos}{" "}
+              {t("photos before a job can close.")}
+            </li>
+            <li>
+              {t("Funds auto-release after")} {safety.auto_release_hours}{" "}
+              {t("hours.")}
+            </li>
+          </ul>
+        </section>
+      )}
 
       {/* ── Scope controls ── */}
       <div className="rounded-xl border border-border bg-card p-4 dark:border-white/5">

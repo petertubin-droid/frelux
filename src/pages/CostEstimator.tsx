@@ -62,6 +62,11 @@ import {
   calculateLabourCost,
   DEFAULT_LABOUR_CONFIG,
 } from "@/lib/labour";
+import {
+  coverageSourceLabel,
+  litresForArea,
+  resolvePaintCoverage,
+} from "@/lib/paint/coverage";
 
 interface PassedState {
   projectType?: ProjectType;
@@ -331,6 +336,29 @@ export default function CostEstimator({
     return settings?.manual_paint_bucket_sizes ?? [20, 4];
   }, [selectedPaintTypeId, paintTypes, settings?.manual_paint_bucket_sizes]);
 
+  // Coverage has one owner: the selected paint type, then the admin calc
+  // rule, then the documented 10 m²/L. Deriving litres here means this page
+  // and the Paint Calculator can no longer disagree about the same wall.
+  const selectedPaintType = useMemo(
+    () =>
+      paintTypes.find(
+        (t) =>
+          t.id === selectedPaintTypeId ||
+          t.name.toLowerCase() === selectedPaintTypeId.toLowerCase(),
+      ) ?? null,
+    [paintTypes, selectedPaintTypeId],
+  );
+  const coverage = useMemo(
+    () =>
+      resolvePaintCoverage(
+        selectedPaintType,
+        typeof calcDefaults.coverageM2PerLiter === "number"
+          ? calcDefaults.coverageM2PerLiter
+          : null,
+      ),
+    [selectedPaintType, calcDefaults.coverageM2PerLiter],
+  );
+
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const { market, preferredAreaUnit, setAreaUnit } = useMarket();
@@ -390,6 +418,16 @@ export default function CostEstimator({
     currency,
     currencySymbol,
   });
+
+  // Litres for the current area at the resolved coverage. Shown as a
+  // suggestion so the figure always says which admin setting produced it.
+  const suggestedLiters = useMemo(
+    () =>
+      input.paintableArea > 0
+        ? litresForArea(input.paintableArea, input.coats ?? 2, coverage)
+        : null,
+    [input.paintableArea, input.coats, coverage],
+  );
   const [result, setResult] = useState<CostEstimateResult | null>(null);
   const [shoppingListOpen, setShoppingListOpen] = useState(false);
   const [pdfGateOpen, setPdfGateOpen] = useState(false);
@@ -768,6 +806,24 @@ export default function CostEstimator({
                     className="input-field"
                     placeholder="0.00"
                   />
+                  {suggestedLiters != null && (
+                    <div className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-muted-foreground">
+                      <span>
+                        {suggestedLiters} L for {input.coats ?? 2} coats at{" "}
+                        {coverage.m2PerLiter} m²/L from{" "}
+                        {coverageSourceLabel(coverage.source)}.
+                      </span>
+                      {suggestedLiters !== input.paintLiters && (
+                        <button
+                          type="button"
+                          onClick={() => update("paintLiters", suggestedLiters)}
+                          className="font-semibold text-brand-purple underline-offset-2 hover:underline dark:text-brand-purple-lighter"
+                        >
+                          Use {suggestedLiters} L
+                        </button>
+                      )}
+                    </div>
+                  )}
                 </Field>
               </div>
               {passed.paintTypeName && (

@@ -305,7 +305,7 @@ export default function AdminWallFinishingLibrary() {
     <div className="space-y-6">
       <AdminHeader
         title={tr("Wall Finishing Knowledge Library")}
-        subtitle="Research, citations and market-specific articles. Catalog entries are candidates, not verified local guidance."
+        subtitle="Research, citations and market-specific articles. Catalog entries are candidates, not verified local guidance. Verified topics appear on /learn; market coverage status is an internal editorial signal, never shown to visitors."
         action={
           <AdminButton variant="secondary" onClick={() => void refresh()}>
             <RefreshCw className="mr-2 h-4 w-4" />

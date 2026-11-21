@@ -26,6 +26,14 @@ import MaterialPriceForecast from "@/components/estimation/MaterialPriceForecast
 import PriceSubmissionForm from "@/components/estimation/PriceSubmissionForm";
 import { formatCurrency } from "@/lib/utils";
 import { useLanguage } from "@/lib/i18n";
+import { useMarket } from "@/lib/international/market-context";
+import {
+  confidenceLabel,
+  fetchActiveAlerts,
+  fetchRecentObservations,
+  type MarketObservation,
+  type MarketPriceAlert,
+} from "@/lib/market/observations";
 
 import { useEscapeKey } from "@/lib/use-escape-key";
 const fmt = (v: number) => formatCurrency(v || 0);
@@ -46,6 +54,27 @@ export default function MaterialPriceTracker() {
   useEscapeKey(() => setHistoryFor(null));
   const [history, setHistory] = useState<DbMaterialPriceHistory[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
+
+  // Scanner output: confirmed supplier observations and live price alerts.
+  // Both were admin-only reads until now, so a stale price reached nobody.
+  const { marketCode } = useMarket();
+  const [observations, setObservations] = useState<MarketObservation[]>([]);
+  const [alerts, setAlerts] = useState<MarketPriceAlert[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    Promise.all([
+      fetchRecentObservations(marketCode),
+      fetchActiveAlerts(marketCode),
+    ]).then(([obs, alertRows]) => {
+      if (!active) return;
+      setObservations(obs);
+      setAlerts(alertRows);
+    });
+    return () => {
+      active = false;
+    };
+  }, [marketCode]);
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -165,6 +194,75 @@ export default function MaterialPriceTracker() {
 
         {/* Community price reporting: feeds the review queue */}
         <PriceSubmissionForm />
+
+        {/* Live scanner output: an unacknowledged alert is the reason a price
+            on this page may be out of date, so it is said plainly. */}
+        {alerts.length > 0 && (
+          <section
+            aria-label={t("Active price alerts")}
+            className="rounded-xl border border-amber-300/60 bg-amber-50/70 p-4 dark:border-amber-500/30 dark:bg-amber-500/10"
+          >
+            <h2 className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+              {t("Active price alerts")}
+            </h2>
+            <ul className="mt-2 space-y-1.5">
+              {alerts.map((alert) => (
+                <li
+                  key={alert.id}
+                  className="text-xs text-amber-900/90 dark:text-amber-100/90"
+                >
+                  <span className="font-semibold uppercase tracking-wide">
+                    {alert.severity}
+                  </span>{" "}
+                  {alert.message}
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        {/* Confirmed supplier observations behind the price list. */}
+        {observations.length > 0 && (
+          <section aria-label={t("Latest supplier observations")}>
+            <h2 className="text-sm font-semibold">
+              {t("Latest supplier observations")}
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {t(
+                "Prices recorded from supplier sources, newest first. Each one names where it came from and how confident the reading is.",
+              )}
+            </p>
+            <ul className="mt-3 divide-y divide-border/60 rounded-xl border bg-card">
+              {observations.map((obs) => (
+                <li
+                  key={obs.id}
+                  className="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5"
+                >
+                  <div className="min-w-0">
+                    <p className="truncate text-sm font-medium">
+                      {obs.brand ? `${obs.brand} ` : ""}
+                      {obs.material_slug.replace(/-/g, " ")}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      {[
+                        obs.supplier_name,
+                        obs.supplier_location,
+                        confidenceLabel(obs.confidence),
+                        obs.observed_on,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  </div>
+                  <p className="text-sm font-semibold tabular-nums">
+                    {obs.currency} {obs.price.toLocaleString()}
+                    {obs.unit ? ` / ${obs.unit}` : ""}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
