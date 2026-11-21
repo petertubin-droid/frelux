@@ -3,36 +3,58 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AdminEngineStudio from "@/pages/admin/AdminEngineStudio";
 
-vi.mock("@/lib/ai-foundation/engines-registry", () => ({
-  listEngines: vi.fn().mockReturnValue([
-    {
-      id: "engine-fence-block",
-      title: "Perimeter Fence Block Engine",
-      domain: "masonry",
-      description: "Calculates block count, mortar bags, sand tonnes and pillars",
-      version: "1.2.0",
-      category: "masonry",
-      run: vi.fn().mockResolvedValue({
-        ok: true,
-        quantities: { blocks: 1450, cement_bags: 32, sand_tonnes: 12 },
-        costs: { total_ngn: 1850000 },
-      }),
-    },
-  ]),
-  executeEngine: vi.fn().mockResolvedValue({
-    ok: true,
-    quantities: { blocks: 1450, cement_bags: 32 },
-    costs: { total_ngn: 1850000 },
-  }),
-}));
+// The page now activates the adapter modules on mount, and those call
+// registerEngine. A mock that omits it makes activation throw, so the mock
+// spreads the real module and overrides only the listing and execution.
+vi.mock("@/lib/ai-foundation/engines-registry", async (importOriginal) => {
+  const actual =
+    await importOriginal<
+      typeof import("@/lib/ai-foundation/engines-registry")
+    >();
+  return {
+    ...actual,
+    registerEngine: vi.fn(),
+    listEngines: vi.fn().mockReturnValue([
+      {
+        id: "engine-fence-block",
+        title: "Perimeter Fence Block Engine",
+        domain: "masonry",
+        description:
+          "Calculates block count, mortar bags, sand tonnes and pillars",
+        version: "1.2.0",
+        category: "masonry",
+        run: vi.fn().mockResolvedValue({
+          ok: true,
+          quantities: { blocks: 1450, cement_bags: 32, sand_tonnes: 12 },
+          costs: { total_ngn: 1850000 },
+        }),
+      },
+    ]),
+    executeEngine: vi.fn().mockResolvedValue({
+      ok: true,
+      quantities: { blocks: 1450, cement_bags: 32 },
+      costs: { total_ngn: 1850000 },
+    }),
+  };
+});
 
 vi.mock("@/lib/ai-foundation/requirements", () => ({
   TASK_REQUIREMENTS: {
     fence: {
       engineId: "engine-fence-block",
       fields: [
-        { name: "length_m", label: "Fence Length (meters)", unit: "m", required: true },
-        { name: "height_m", label: "Fence Height (meters)", unit: "m", required: true },
+        {
+          name: "length_m",
+          label: "Fence Length (meters)",
+          unit: "m",
+          required: true,
+        },
+        {
+          name: "height_m",
+          label: "Fence Height (meters)",
+          unit: "m",
+          required: true,
+        },
       ],
     },
   },

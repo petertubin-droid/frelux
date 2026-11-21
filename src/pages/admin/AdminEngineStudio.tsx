@@ -26,6 +26,7 @@ import {
   StateMessage,
 } from "@/components/admin/AdminUi";
 import { listEngines } from "@/lib/ai-foundation/engines-registry";
+import { registerAllEngines } from "@/lib/ai-foundation/register-all";
 import { executeEngine } from "@/lib/ai-foundation/engines-registry";
 import { TASK_REQUIREMENTS } from "@/lib/ai-foundation/requirements";
 import type { EngineResult } from "@/lib/ai-foundation/types";
@@ -125,7 +126,12 @@ function coerce(value: string, unit?: string): unknown {
 }
 
 export default function AdminEngineStudio() {
-  const engines = useMemo(() => listEngines(), []);
+  // Activate every adapter module before listing. Without this the page showed
+  // only the engines the registry module registers itself.
+  const engines = useMemo(() => {
+    registerAllEngines();
+    return listEngines();
+  }, []);
 
   // Coverage is reported from the build itself. Engine Studio can only run
   // engines with a registered adapter, and until now nothing said how many
