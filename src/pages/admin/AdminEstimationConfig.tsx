@@ -42,6 +42,10 @@ const CALCULATOR_TYPES = [
   "drywall",
   "paving",
   "septic",
+  "drainage",
+  "temporary_works",
+  "insulation",
+  "demolition",
 ];
 
 const TAKEOFF_RULE_KEYS: Record<string, string[]> = {
@@ -62,6 +66,34 @@ const TAKEOFF_RULE_KEYS: Record<string, string[]> = {
     "default_storage_days (0–30)",
     "default_freeboard_percent (0–100)",
     "default_soakaway_depth_m (0.1–20)",
+  ],
+  drainage: [
+    "default_pipe_diameter_mm (50–1000)",
+    "default_fall_mm_per_m (1–100)",
+    "default_trench_width_m (0.1–5)",
+    "default_trench_depth_m (0.1–10)",
+    "default_bedding_depth_mm (0–500)",
+    "default_waste_margin_pct (0–50)",
+  ],
+  temporary_works: [
+    "default_element_length_m (0.5–100)",
+    "default_element_width_m (0.5–100)",
+    "default_element_depth_m (0.05–5)",
+    "default_scaffold_length_m (1–200)",
+    "default_scaffold_height_m (1–100)",
+    "default_formwork_waste_pct (0–50)",
+    "default_formwork_reuse_cycles (1–50)",
+  ],
+  insulation: [
+    "default_thickness_mm (10–500)",
+    "default_layers (1–10)",
+    "default_pack_coverage_m2 (0.1–100)",
+    "default_waste_margin_pct (0–50)",
+  ],
+  demolition: [
+    "default_bulking_factor (1.0–3.0)",
+    "default_skip_capacity_m3 (1–50)",
+    "default_loading_efficiency_pct (10–100)",
   ],
 };
 
@@ -1260,8 +1292,9 @@ function CalcRuleForm({
         <p className="-mt-2 text-xs leading-relaxed text-muted-foreground">
           Supported keys: {TAKEOFF_RULE_KEYS[calculatorType].join(", ")}. Use a
           JSON numeric value such as {`{"value": 600}`}; values outside the
-          listed ranges are ignored. Septic defaults are editable starting
-          assumptions and must be reviewed against local authority requirements.
+          listed ranges are ignored. Takeoff defaults are editable starting
+          assumptions and must be confirmed against site-specific specifications
+          and local authority requirements.
         </p>
       )}
 

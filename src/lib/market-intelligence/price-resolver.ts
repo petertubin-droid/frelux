@@ -24,14 +24,14 @@
  * The resolver NEVER invents a price.
  */
 
-import { supabase } from '@/lib/supabase';
+import { supabase } from "@/lib/supabase";
 import type {
   ResolvedCalculatorPrice,
   MiApprovedPrice,
   Freshness,
-} from '@/types/market-intelligence';
-import { NO_PRICE_AVAILABLE } from '@/types/market-intelligence';
-import { calculateFreshness } from './price-validator';
+} from "@/types/market-intelligence";
+import { NO_PRICE_AVAILABLE } from "@/types/market-intelligence";
+import { calculateFreshness } from "./price-validator";
 
 /**
  * Age of an approved price, computed from when it was last updated.
@@ -46,7 +46,12 @@ export function derivedFreshness(price: MiApprovedPrice): Freshness {
   const stored = price.freshness;
   const anchor = price.last_updated ?? price.approved_at ?? null;
   const computed: Freshness = anchor ? calculateFreshness(anchor) : stored;
-  const order: Record<Freshness, number> = { fresh: 0, recent: 1, stale: 2, expired: 3 };
+  const order: Record<Freshness, number> = {
+    fresh: 0,
+    recent: 1,
+    stale: 2,
+    expired: 3,
+  };
   const rank = (f: Freshness) => order[f] ?? 3;
   return rank(computed) >= rank(stored) ? computed : stored;
 }
@@ -82,15 +87,17 @@ export async function resolveCalculatorPrice(
   try {
     // Build query for approved prices
     let query = supabase
-      .from('mi_approved_prices')
-      .select('*')
-      .eq('market_code', marketCode)
-      .eq('canonical_product_id', productId)
-      .eq('is_active', true)
-      .order('last_updated', { ascending: false });
+      .from("mi_approved_prices")
+      .select("*")
+      .eq("market_code", marketCode)
+      .eq("canonical_product_id", productId)
+      .eq("is_active", true)
+      .order("last_updated", { ascending: false });
 
-    if (options?.packageSize) query = query.eq('package_size', options.packageSize);
-    if (options?.packageUnit) query = query.eq('package_unit', options.packageUnit);
+    if (options?.packageSize)
+      query = query.eq("package_size", options.packageSize);
+    if (options?.packageUnit)
+      query = query.eq("package_unit", options.packageUnit);
 
     const { data, error } = await query.limit(10);
 
@@ -99,18 +106,31 @@ export async function resolveCalculatorPrice(
       return tryFallback(marketCode, productId, options);
     }
 
-    const prices = (data as unknown as MiApprovedPrice[]).map(withDerivedFreshness);
+    const prices = (data as unknown as MiApprovedPrice[]).map(
+      withDerivedFreshness,
+    );
 
     // Filter by region if specified
     let filtered = prices;
     if (options?.region) {
-      const regional = prices.filter((p) => p.region === options.region);
-      if (regional.length > 0) filtered = regional;
+      // Never silently substitute another region for an explicitly requested one.
+      // A country-level record without a region is not evidence for this region.
+      filtered = prices.filter((p) => p.region === options.region);
+      if (filtered.length === 0) {
+        return tryFallback(marketCode, productId, options);
+      }
     }
 
     // Sort by freshness: fresh > recent > stale > expired
-    const freshnessOrder: Record<Freshness, number> = { fresh: 0, recent: 1, stale: 2, expired: 3 };
-    filtered.sort((a, b) => freshnessOrder[a.freshness] - freshnessOrder[b.freshness]);
+    const freshnessOrder: Record<Freshness, number> = {
+      fresh: 0,
+      recent: 1,
+      stale: 2,
+      expired: 3,
+    };
+    filtered.sort(
+      (a, b) => freshnessOrder[a.freshness] - freshnessOrder[b.freshness],
+    );
 
     // Use the freshest price
     const best = filtered[0];
@@ -141,25 +161,40 @@ export async function resolveCalculatorPriceByName(
 ): Promise<ResolvedCalculatorPrice> {
   try {
     let query = supabase
-      .from('mi_approved_prices')
-      .select('*')
-      .eq('market_code', marketCode)
-      .eq('is_active', true)
-      .ilike('product_name', `%${productName}%`)
-      .order('last_updated', { ascending: false });
+      .from("mi_approved_prices")
+      .select("*")
+      .eq("market_code", marketCode)
+      .eq("is_active", true)
+      .ilike("product_name", `%${productName}%`)
+      .order("last_updated", { ascending: false });
 
-    if (options?.packageSize) query = query.eq('package_size', options.packageSize);
-    if (options?.packageUnit) query = query.eq('package_unit', options.packageUnit);
+    if (options?.packageSize)
+      query = query.eq("package_size", options.packageSize);
+    if (options?.packageUnit)
+      query = query.eq("package_unit", options.packageUnit);
 
     const { data, error } = await query.limit(5);
 
     if (error || !data || data.length === 0) return NO_PRICE_AVAILABLE;
 
-    const prices = (data as unknown as MiApprovedPrice[]).map(withDerivedFreshness);
-    const freshnessOrder: Record<Freshness, number> = { fresh: 0, recent: 1, stale: 2, expired: 3 };
-    prices.sort((a, b) => freshnessOrder[a.freshness] - freshnessOrder[b.freshness]);
+    let prices = (data as unknown as MiApprovedPrice[]).map(
+      withDerivedFreshness,
+    );
+    if (options?.region) {
+      prices = prices.filter((price) => price.region === options.region);
+      if (prices.length === 0) return NO_PRICE_AVAILABLE;
+    }
+    const freshnessOrder: Record<Freshness, number> = {
+      fresh: 0,
+      recent: 1,
+      stale: 2,
+      expired: 3,
+    };
+    prices.sort(
+      (a, b) => freshnessOrder[a.freshness] - freshnessOrder[b.freshness],
+    );
 
-    return formatResolvedPrice(prices[0]);
+    return prices[0] ? formatResolvedPrice(prices[0]) : NO_PRICE_AVAILABLE;
   } catch {
     return NO_PRICE_AVAILABLE;
   }
@@ -172,20 +207,33 @@ export async function resolveCalculatorPriceByName(
 async function tryFallback(
   marketCode: string,
   productId: string,
-  _options?: { packageSize?: number; packageUnit?: string; region?: string },
+  options?: { packageSize?: number; packageUnit?: string; region?: string },
 ): Promise<ResolvedCalculatorPrice> {
   // Try any approved price for this product (ignore package size/unit)
   const { data } = await supabase
-    .from('mi_approved_prices')
-    .select('*')
-    .eq('market_code', marketCode)
-    .eq('canonical_product_id', productId)
-    .eq('is_active', true)
-    .order('last_updated', { ascending: false })
+    .from("mi_approved_prices")
+    .select("*")
+    .eq("market_code", marketCode)
+    .eq("canonical_product_id", productId)
+    .eq("is_active", true)
+    .order("last_updated", { ascending: false })
     .limit(1);
 
   if (data && data.length > 0) {
-    const price = withDerivedFreshness(data[0] as unknown as MiApprovedPrice);
+    const candidates = (data as unknown as MiApprovedPrice[])
+      .map(withDerivedFreshness)
+      .filter((price) => !options?.region || price.region === options.region);
+    candidates.sort((a, b) => {
+      const order: Record<Freshness, number> = {
+        fresh: 0,
+        recent: 1,
+        stale: 2,
+        expired: 3,
+      };
+      return order[a.freshness] - order[b.freshness];
+    });
+    const price = candidates[0];
+    if (!price) return NO_PRICE_AVAILABLE;
     const resolved = formatResolvedPrice(price);
     return {
       ...resolved,
@@ -202,15 +250,16 @@ async function tryFallback(
 // ============================================================
 
 function formatResolvedPrice(price: MiApprovedPrice): ResolvedCalculatorPrice {
-  const isStale = price.freshness === 'stale' || price.freshness === 'expired';
-  const isRecent = price.freshness === 'recent';
+  const isStale = price.freshness === "stale" || price.freshness === "expired";
+  const isRecent = price.freshness === "recent";
 
   return {
     found: true,
     price: price.price,
     currency: price.currency_code,
     freshness: price.freshness,
-    confidence: price.confidence as 'high' | 'medium' | 'low' | 'review_required',
+    confidence: price.confidence as
+      "high" | "medium" | "low" | "review_required",
     sourceCount: price.source_count,
     lastUpdated: price.last_updated,
     isStale,
@@ -218,8 +267,8 @@ function formatResolvedPrice(price: MiApprovedPrice): ResolvedCalculatorPrice {
     message: isStale
       ? `Last known price (stale as of ${new Date(price.last_updated).toLocaleDateString()})`
       : isRecent
-      ? 'Recent market price'
-      : 'Current market price',
+        ? "Recent market price"
+        : "Current market price",
   };
 }
 
@@ -240,12 +289,12 @@ export async function resolveCalculatorPricesBulk(
   if (productIds.length === 0) return results;
 
   const { data, error } = await supabase
-    .from('mi_approved_prices')
-    .select('*')
-    .eq('market_code', marketCode)
-    .eq('is_active', true)
-    .in('canonical_product_id', productIds)
-    .order('last_updated', { ascending: false });
+    .from("mi_approved_prices")
+    .select("*")
+    .eq("market_code", marketCode)
+    .eq("is_active", true)
+    .in("canonical_product_id", productIds)
+    .order("last_updated", { ascending: false });
 
   if (error || !data) {
     for (const id of productIds) results.set(id, NO_PRICE_AVAILABLE);
@@ -254,13 +303,21 @@ export async function resolveCalculatorPricesBulk(
 
   // Group by product and pick freshest
   const byProduct = new Map<string, MiApprovedPrice>();
-  const freshnessOrder: Record<Freshness, number> = { fresh: 0, recent: 1, stale: 2, expired: 3 };
+  const freshnessOrder: Record<Freshness, number> = {
+    fresh: 0,
+    recent: 1,
+    stale: 2,
+    expired: 3,
+  };
 
   for (const row of data as unknown as MiApprovedPrice[]) {
     const fresh = withDerivedFreshness(row);
-    const existing = byProduct.get(fresh.canonical_product_id ?? '');
-    if (!existing || freshnessOrder[fresh.freshness] < freshnessOrder[existing.freshness]) {
-      byProduct.set(fresh.canonical_product_id ?? '', fresh);
+    const existing = byProduct.get(fresh.canonical_product_id ?? "");
+    if (
+      !existing ||
+      freshnessOrder[fresh.freshness] < freshnessOrder[existing.freshness]
+    ) {
+      byProduct.set(fresh.canonical_product_id ?? "", fresh);
     }
   }
 

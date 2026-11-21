@@ -251,14 +251,16 @@ export default function StandaloneTakeoffPage({
   // The shared takeoff page reads the same admin rules configured in
   // Admin → Estimation Config. Rules only seed untouched form defaults; they
   // never overwrite values the user has edited.
+  const calcRuleType =
+    engine === "temporary-works" ? "temporary_works" : engine;
   const {
     rules: takeoffRules,
     loading: takeoffRulesLoading,
     loadedCalculatorType,
-  } = useCalcRules(engine);
+  } = useCalcRules(calcRuleType);
   const editedTakeoffFields = useRef(new Set<string>());
   useEffect(() => {
-    if (takeoffRulesLoading || loadedCalculatorType !== engine) return;
+    if (takeoffRulesLoading || loadedCalculatorType !== calcRuleType) return;
     const mappings =
       engine === "drywall"
         ? [
@@ -365,7 +367,155 @@ export default function StandaloneTakeoffPage({
                   max: 20,
                 },
               ]
-            : [];
+            : engine === "drainage"
+              ? [
+                  {
+                    rules: takeoffRules,
+                    field: "diameter",
+                    key: "default_pipe_diameter_mm",
+                    fallback: 110,
+                    min: 50,
+                    max: 1000,
+                  },
+                  {
+                    rules: takeoffRules,
+                    field: "fall",
+                    key: "default_fall_mm_per_m",
+                    fallback: 10,
+                    min: 1,
+                    max: 100,
+                  },
+                  {
+                    rules: takeoffRules,
+                    field: "trenchWidth",
+                    key: "default_trench_width_m",
+                    fallback: 0.45,
+                    min: 0.1,
+                    max: 5,
+                  },
+                  {
+                    rules: takeoffRules,
+                    field: "trenchDepth",
+                    key: "default_trench_depth_m",
+                    fallback: 0.75,
+                    min: 0.1,
+                    max: 10,
+                  },
+                  {
+                    rules: takeoffRules,
+                    field: "beddingDepth",
+                    key: "default_bedding_depth_mm",
+                    fallback: 30,
+                    min: 0,
+                    max: 500,
+                  },
+                  {
+                    rules: takeoffRules,
+                    field: "waste",
+                    key: "default_waste_margin_pct",
+                    fallback: 5,
+                    min: 0,
+                    max: 50,
+                  },
+                ]
+              : engine === "temporary-works"
+                ? [
+                    {
+                      rules: takeoffRules,
+                      field: "elementLength",
+                      key: "default_element_length_m",
+                      fallback: 10,
+                      min: 0.5,
+                      max: 100,
+                    },
+                    {
+                      rules: takeoffRules,
+                      field: "elementWidth",
+                      key: "default_element_width_m",
+                      fallback: 8,
+                      min: 0.5,
+                      max: 100,
+                    },
+                    {
+                      rules: takeoffRules,
+                      field: "elementDepth",
+                      key: "default_element_depth_m",
+                      fallback: 0.2,
+                      min: 0.05,
+                      max: 5,
+                    },
+                    {
+                      rules: takeoffRules,
+                      field: "scaffoldLength",
+                      key: "default_scaffold_length_m",
+                      fallback: 12,
+                      min: 1,
+                      max: 200,
+                    },
+                    {
+                      rules: takeoffRules,
+                      field: "scaffoldHeight",
+                      key: "default_scaffold_height_m",
+                      fallback: 6,
+                      min: 1,
+                      max: 100,
+                    },
+                    {
+                      rules: takeoffRules,
+                      field: "waste",
+                      key: "default_formwork_waste_pct",
+                      fallback: 10,
+                      min: 0,
+                      max: 50,
+                    },
+                  ]
+                : engine === "insulation"
+                  ? [
+                      {
+                        rules: takeoffRules,
+                        field: "thickness",
+                        key: "default_thickness_mm",
+                        fallback: 100,
+                        min: 10,
+                        max: 500,
+                      },
+                      {
+                        rules: takeoffRules,
+                        field: "packCoverage",
+                        key: "default_pack_coverage_m2",
+                        fallback: 5,
+                        min: 0.1,
+                        max: 100,
+                      },
+                      {
+                        rules: takeoffRules,
+                        field: "waste",
+                        key: "default_waste_margin_pct",
+                        fallback: 5,
+                        min: 0,
+                        max: 50,
+                      },
+                    ]
+                  : engine === "demolition"
+                    ? [
+                        {
+                          rules: takeoffRules,
+                          field: "bulking",
+                          key: "default_bulking_factor",
+                          fallback: 1.35,
+                          min: 1.0,
+                          max: 3.0,
+                        },
+                        {
+                          rules: takeoffRules,
+                          field: "skipCapacity",
+                          key: "default_skip_capacity_m3",
+                          fallback: 6,
+                          min: 1,
+                          max: 50,
+                        },
+                      ]
+                    : [];
     setValues((current) => {
       let changed = false;
       const next = { ...current };
@@ -383,9 +533,15 @@ export default function StandaloneTakeoffPage({
       }
       return changed ? next : current;
     });
-  }, [engine, takeoffRules, takeoffRulesLoading, loadedCalculatorType]);
+  }, [
+    calcRuleType,
+    engine,
+    takeoffRules,
+    takeoffRulesLoading,
+    loadedCalculatorType,
+  ]);
   const activeDefaultRules =
-    takeoffRulesLoading || loadedCalculatorType !== engine
+    takeoffRulesLoading || loadedCalculatorType !== calcRuleType
       ? []
       : engine === "drywall"
         ? ["default_stud_spacing_mm", "default_waste_margin_pct"].filter(
@@ -407,7 +563,39 @@ export default function StandaloneTakeoffPage({
                 "default_freeboard_percent",
                 "default_soakaway_depth_m",
               ].filter((key) => takeoffRules[key])
-            : [];
+            : engine === "drainage"
+              ? [
+                  "default_pipe_diameter_mm",
+                  "default_fall_mm_per_m",
+                  "default_trench_width_m",
+                  "default_trench_depth_m",
+                  "default_bedding_depth_mm",
+                  "default_waste_margin_pct",
+                ].filter((key) => takeoffRules[key])
+              : engine === "temporary-works"
+                ? [
+                    "default_element_length_m",
+                    "default_element_width_m",
+                    "default_element_depth_m",
+                    "default_scaffold_length_m",
+                    "default_scaffold_height_m",
+                    "default_formwork_waste_pct",
+                    "default_formwork_reuse_cycles",
+                  ].filter((key) => takeoffRules[key])
+                : engine === "insulation"
+                  ? [
+                      "default_thickness_mm",
+                      "default_layers",
+                      "default_pack_coverage_m2",
+                      "default_waste_margin_pct",
+                    ].filter((key) => takeoffRules[key])
+                  : engine === "demolition"
+                    ? [
+                        "default_bulking_factor",
+                        "default_skip_capacity_m3",
+                        "default_loading_efficiency_pct",
+                      ].filter((key) => takeoffRules[key])
+                    : [];
   const masonryConfig = useMemo(
     () => resolveMarketMasonryConfig(marketCode),
     [marketCode],
@@ -940,6 +1128,12 @@ export default function StandaloneTakeoffPage({
                       )}
                       {engine === "septic" &&
                         ` ${t("Confirm all septic design criteria with the relevant local authority; these are not permit or environmental design values.")}`}
+                      {engine === "drainage" &&
+                        ` ${t("Verify drainage falls and invert levels against local authority hydraulic and stormwater requirements.")}`}
+                      {engine === "temporary-works" &&
+                        ` ${t("Scaffold member grids and formwork contact areas are geometric takeoffs; engineered safety sign-off remains mandatory.")}`}
+                      {engine === "demolition" &&
+                        ` ${t("Debris volumes exclude hazardous materials, environmental permits, and waste classification requirements.")}`}
                     </p>
                   )}
                 </div>

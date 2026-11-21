@@ -88,6 +88,8 @@ interface PdfDocumentProxy {
   destroy?: () => Promise<void> | void;
 }
 const COLORS = ["#2563eb", "#e11d48", "#059669", "#d97706", "#7c3aed"];
+const BLUEPRINT_DRAFT_KEY = "frelux:blueprint_takeoff_draft";
+const BLUEPRINT_RETENTION_PREF_KEY = "frelux:blueprint_takeoff_retention";
 
 export default function BlueprintTakeoff() {
   // Marks, calibration scales and the draft polygon clear. The loaded sheet,
@@ -157,6 +159,94 @@ export default function BlueprintTakeoff() {
   const [nativePdfCanvas, setNativePdfCanvas] =
     useState<HTMLCanvasElement | null>(null);
   const importedProjectRef = useRef<TakeoffProjectExport | null>(null);
+  const [retentionEnabled, setRetentionEnabled] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem(BLUEPRINT_RETENTION_PREF_KEY) !== "disabled";
+    } catch {
+      return true;
+    }
+  });
+  const [savedDraft, setSavedDraft] = useState<TakeoffProjectExport | null>(
+    () => {
+      try {
+        const raw = localStorage.getItem(BLUEPRINT_DRAFT_KEY);
+        if (!raw) return null;
+        const parsed = parseTakeoffProjectExport(raw);
+        return parsed.ok && parsed.project ? parsed.project : null;
+      } catch {
+        return null;
+      }
+    },
+  );
+
+  useEffect(() => {
+    if (!retentionEnabled) return;
+    if (
+      !fileName &&
+      marks.length === 0 &&
+      Object.keys(scalesByPage).length === 0
+    )
+      return;
+    try {
+      const draft = createTakeoffProjectExport({
+        sourceFileName: fileName || "untitled-takeoff",
+        marketCode,
+        pageCount,
+        scalesByPage,
+        marks,
+      });
+      localStorage.setItem(BLUEPRINT_DRAFT_KEY, serializeTakeoffProject(draft));
+    } catch {
+      // Ignore quota exceeded or storage unavailable
+    }
+  }, [retentionEnabled, fileName, marketCode, pageCount, scalesByPage, marks]);
+
+  const restoreDraft = () => {
+    if (!savedDraft) return;
+    setMarks(savedDraft.marks);
+    setFileName(savedDraft.sourceFileName);
+    setPageCount(savedDraft.pageCount);
+    setScalesByPage(savedDraft.scalesByPage);
+    setPage(1);
+    if (savedDraft.marketCode) {
+      setSearchParams((params) => {
+        params.set("market", savedDraft.marketCode);
+        return params;
+      });
+    }
+    setMessage(
+      `Restored saved markup session for ${savedDraft.sourceFileName} (${savedDraft.marks.length} marks). Upload matching drawing sheet to render visual overlay.`,
+    );
+    setSavedDraft(null);
+  };
+
+  const clearSavedDraft = () => {
+    try {
+      localStorage.removeItem(BLUEPRINT_DRAFT_KEY);
+    } catch {
+      // ignore
+    }
+    setSavedDraft(null);
+    setMessage("Saved draft session cleared from browser storage.");
+  };
+
+  const toggleRetention = () => {
+    setRetentionEnabled((prev) => {
+      const next = !prev;
+      try {
+        if (!next) {
+          localStorage.setItem(BLUEPRINT_RETENTION_PREF_KEY, "disabled");
+          localStorage.removeItem(BLUEPRINT_DRAFT_KEY);
+          setSavedDraft(null);
+        } else {
+          localStorage.removeItem(BLUEPRINT_RETENTION_PREF_KEY);
+        }
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
 
   const loadPdfPage = async (doc: PdfDocumentProxy, pageNumber: number) => {
     const pdfPage = await doc.getPage(pageNumber);
@@ -735,39 +825,93 @@ export default function BlueprintTakeoff() {
     >
       <div className="min-h-screen bg-background pb-14">
         <Container as="main" className="space-y-5 py-6 sm:py-8">
-          <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={exportProject}>
-              Export project JSON
-            </Button>
-            <Button variant="outline" onClick={exportCsv}>
-              Export CSV
-            </Button>
-            <label className="inline-flex cursor-pointer items-center rounded-md border px-3 py-2 text-sm">
-              Compare previous revision
-              <input
-                type="file"
-                accept="application/json,.json"
-                className="sr-only"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) void compareWithRevision(file);
-                  event.currentTarget.value = "";
-                }}
-              />
-            </label>
-            <label className="inline-flex cursor-pointer items-center rounded-md border px-3 py-2 text-sm">
-              Import project
-              <input
-                type="file"
-                accept="application/json,.json"
-                className="sr-only"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) void importProject(file);
-                  event.currentTarget.value = "";
-                }}
-              />
-            </label>
+          {savedDraft && marks.length === 0 && (
+            <div
+              role="region"
+              aria-label="Saved takeoff draft"
+              className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm"
+            >
+              <div>
+                <p className="font-semibold text-foreground">
+                  Saved takeoff session found: {savedDraft.sourceFileName}
+                </p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Contains {savedDraft.marks.length} recorded mark(s) and{" "}
+                  {Object.keys(savedDraft.scalesByPage).length} calibrated
+                  scale(s).
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button size="sm" onClick={restoreDraft}>
+                  Restore session
+                </Button>
+                <Button size="sm" variant="ghost" onClick={clearSavedDraft}>
+                  Dismiss / Clear
+                </Button>
+              </div>
+            </div>
+          )}
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button variant="outline" onClick={exportProject}>
+                Export project JSON
+              </Button>
+              <Button variant="outline" onClick={exportCsv}>
+                Export CSV
+              </Button>
+              <label className="inline-flex cursor-pointer items-center rounded-md border px-3 py-2 text-sm">
+                Compare previous revision
+                <input
+                  type="file"
+                  accept="application/json,.json"
+                  className="sr-only"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) void compareWithRevision(file);
+                    event.currentTarget.value = "";
+                  }}
+                />
+              </label>
+              <label className="inline-flex cursor-pointer items-center rounded-md border px-3 py-2 text-sm">
+                Import project
+                <input
+                  type="file"
+                  accept="application/json,.json"
+                  className="sr-only"
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    if (file) void importProject(file);
+                    event.currentTarget.value = "";
+                  }}
+                />
+              </label>
+            </div>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1 rounded bg-muted px-2 py-1">
+                Local draft: {retentionEnabled ? "auto-save on" : "disabled"}
+              </span>
+              <button
+                type="button"
+                onClick={toggleRetention}
+                className="underline hover:text-foreground"
+              >
+                {retentionEnabled ? "Turn off auto-save" : "Turn on auto-save"}
+              </button>
+              {marks.length > 0 && (
+                <button
+                  type="button"
+                  onClick={clearSavedDraft}
+                  className="text-destructive/80 underline hover:text-destructive"
+                >
+                  Clear storage
+                </button>
+              )}
+            </div>
+          </div>
+          <div className="rounded-lg border bg-muted/30 p-2.5 text-xs text-muted-foreground">
+            <strong>Privacy &amp; Data Retention:</strong> Plan drawings and
+            markups are kept locally in your browser storage on this device;
+            drawings and coordinates are not transmitted to external servers.
           </div>
           <section className="grid gap-4 rounded-2xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto] sm:items-end">
             <label className="block text-sm font-medium">

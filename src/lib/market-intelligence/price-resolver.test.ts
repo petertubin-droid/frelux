@@ -115,6 +115,68 @@ describe("price-resolver", () => {
     expect(res.price).toBe(4800);
   });
 
+  it("does not substitute another region when the requested region has no evidence", async () => {
+    const rows: Partial<MiApprovedPrice>[] = [
+      {
+        price: 5000,
+        currency_code: "NGN",
+        freshness: "fresh",
+        region: "Lagos",
+        last_updated: new Date().toISOString(),
+      },
+      {
+        price: 4800,
+        currency_code: "NGN",
+        freshness: "fresh",
+        region: "Abuja",
+        last_updated: new Date().toISOString(),
+      },
+    ];
+    const exact: Record<string, unknown> = {};
+    exact.select = vi.fn().mockReturnValue(exact);
+    exact.eq = vi.fn().mockReturnValue(exact);
+    exact.order = vi.fn().mockReturnValue(exact);
+    exact.limit = vi.fn().mockResolvedValueOnce({ data: rows, error: null });
+    const fallback: Record<string, unknown> = {};
+    fallback.select = vi.fn().mockReturnValue(fallback);
+    fallback.eq = vi.fn().mockReturnValue(fallback);
+    fallback.order = vi.fn().mockReturnValue(fallback);
+    fallback.limit = vi.fn().mockResolvedValueOnce({ data: rows, error: null });
+    mockFrom.mockReturnValueOnce(exact).mockReturnValueOnce(fallback);
+
+    const result = await resolveCalculatorPrice("NG", "p1", {
+      region: "Port Harcourt",
+      packageSize: 20,
+    });
+    expect(result).toEqual(NO_PRICE_AVAILABLE);
+  });
+
+  it("does not return a different region for name-based lookups", async () => {
+    const chain: Record<string, unknown> = {};
+    chain.select = vi.fn().mockReturnValue(chain);
+    chain.eq = vi.fn().mockReturnValue(chain);
+    chain.ilike = vi.fn().mockReturnValue(chain);
+    chain.order = vi.fn().mockReturnValue(chain);
+    chain.limit = vi.fn().mockResolvedValueOnce({
+      data: [
+        {
+          price: 3500,
+          currency_code: "NGN",
+          freshness: "fresh",
+          region: "Lagos",
+          last_updated: new Date().toISOString(),
+        },
+      ],
+      error: null,
+    });
+    mockFrom.mockReturnValue(chain);
+
+    const result = await resolveCalculatorPriceByName("NG", "Cement", {
+      region: "Kano",
+    });
+    expect(result).toEqual(NO_PRICE_AVAILABLE);
+  });
+
   it("resolveCalculatorPrice tries fallback when query returns no data", async () => {
     const chain1: Record<string, unknown> = {};
     chain1.select = vi.fn().mockReturnValue(chain1);
@@ -273,6 +335,8 @@ describe("approved price age is derived, not trusted", () => {
   });
 
   it("falls back to the stored label when there is no date at all", () => {
-    expect(derivedFreshness({ freshness: "recent", last_updated: null } as never)).toBe("recent");
+    expect(
+      derivedFreshness({ freshness: "recent", last_updated: null } as never),
+    ).toBe("recent");
   });
 });
