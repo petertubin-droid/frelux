@@ -29,8 +29,8 @@ been exercised; `staged` means written but not executed.
 | 7   | Retaining Wall Calculator          | structure | **Audited 2026-11-21**, 9 tests, DEFECT FIXED: overturning 1.5 -> 2.0 (BS 8002) |
 | 8   | Roof Framing & Board Feet          | structure | **Audited 2026-11-21**, 12 tests, DEFECT FIXED: sections entered as actual      |
 | 9   | Masonry & Blockwork                | structure | **Audited 2026-11-21**, 17 tests, no defect in module, mortar or cement         |
-| 10  | German Floor Calculator            | structure | Queued                                                                          |
-| 11  | Fence Block Calculator             | structure | Queued                                                                          |
+| 10  | German Floor Calculator            | structure | **Audited 2026-11-21**, 10 tests, DEFECT FIXED: blinding sand lacked allowance  |
+| 11  | Fence Block Calculator             | structure | **Audited 2026-11-21**, 18 tests, no defect in blocks, mortar or footing        |
 | 12  | Drywall & Partitions               | structure | Queued                                                                          |
 | 13  | Paving & External Works            | structure | Queued                                                                          |
 | 14  | Formwork & Temporary Works         | structure | Queued                                                                          |
@@ -406,3 +406,48 @@ Findings:
 3. Cement pack size comes from the market with a named 50 kg fallback and a
    warning when the market has no pack configured, so a market without a profile
    is told rather than silently given a Nigerian bag.
+
+---
+
+## Audit 11: Fence Block Calculator (`fence-blockwork.ts`)
+
+Suite: `src/lib/estimation/__tests__/fence-blockwork-conformance.test.ts`, 18
+tests. Evidence label: `CI green only`.
+
+Expectations come from the geometry a site builds: a perimeter run, coaches of a
+named unit at a 10 mm joint, a gate cut out of wall and footing, and mortar as
+the joint volume of the blocks actually laid.
+
+Verified against published practice:
+
+- Perimeter is the whole plot, not one side: 30 x 15 m reads 90 m.
+- One coach is one unit face plus its bed joint (225 + 10 = 235 mm), so ten
+  coaches is 2.35 m, not 2.25 m. The block count uses the same jointed module,
+  giving 9.25 blocks per square metre for a 450 x 225 sandcrete block.
+- Whole blocks plus a separate breakage line, never a fractional order.
+- The gate is deducted from the wall, the mortar and the footing run, and a gate
+  wider than the run is clamped instead of producing a negative wall.
+- Mortar is the bed and head joint volume of the blocks laid, dry-factor 1.33,
+  split exactly one part cement to four parts sand at the default mix, and a
+  richer mix moves cement up and sand down.
+- Strip footing is twice the wall thickness wide by 200 mm deep unless measured,
+  in 1:3:6, and its cement, sand and aggregate split follows the dry volume.
+- Cement is counted in the market's own bag (50 kg NG against a smaller US pack,
+  so the US count is higher), and a market with no pack configured says so
+  rather than borrowing one.
+
+Findings:
+
+1. **Region-locked site units, recorded not fixed.** The result carries sand in
+   wheelbarrows and head pans for every market, and the page prints both labels
+   unconditionally. Head pans are a West African and Indian site unit; a US or
+   UK reader is shown a measure their gang does not use. This belongs with the
+   market sand-unit registry in `aggregate-units.ts`, which already knows the
+   trips each market sells, so the fix is to gate the two site measures on the
+   market rather than to remove them.
+2. **Bed joint volume carries one extra joint width of length**,
+   `(L + j) x t x j` instead of `L x t x j`, about 2 per cent on a 450 mm block.
+   Kept: it offsets the head joint that is not laid above the top course, and
+   changing it would move every fence estimate for no measured gain.
+3. Quantities only: prices, tax and labour come from the price book, which the
+   assumptions already state.
