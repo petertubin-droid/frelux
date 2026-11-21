@@ -306,4 +306,14 @@ describe("RoofFramingEstimator reading a roof plan", () => {
       /No roof has been read from a plan yet/i,
     );
   });
+
+  it("states that sections are entered nominal, the way timber is traded", () => {
+    renderPage();
+    // Board feet are traded on nominal sizes: a 2 x 4 bills as 2 x 4, not as
+    // the 1.5 x 3.5 in it measures. The page has to say which one it wants.
+    expect(
+      screen.getByText(/nominal sizes in inches, as timber is traded/i),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Enter actual section dimensions/i)).toBeNull();
+  });
 });

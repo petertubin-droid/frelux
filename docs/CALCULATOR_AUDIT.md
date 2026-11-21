@@ -27,7 +27,7 @@ been exercised; `staged` means written but not executed.
 | 5   | Concrete Slab Takeoff              | structure | **Audited 2026-11-21**, 11 tests, no defect in mix or rebar mass                |
 | 6   | Earthworks Cut & Fill              | structure | **Audited 2026-11-21**, 8 tests, no defect in volumes or soil conversion        |
 | 7   | Retaining Wall Calculator          | structure | **Audited 2026-11-21**, 9 tests, DEFECT FIXED: overturning 1.5 -> 2.0 (BS 8002) |
-| 8   | Roof Framing & Board Feet          | structure | Queued                                                                          |
+| 8   | Roof Framing & Board Feet          | structure | **Audited 2026-11-21**, 12 tests, DEFECT FIXED: sections entered as actual      |
 | 9   | Masonry & Blockwork                | structure | Queued                                                                          |
 | 10  | German Floor Calculator            | structure | Queued                                                                          |
 | 11  | Fence Block Calculator             | structure | Queued                                                                          |
@@ -72,6 +72,49 @@ Found 2026-11-21 by mapping the 34 calculators to `src/lib/estimation/*.ts`:
 - `plumbing-engine.ts`, `plumbing-profiles.ts` - open.
 - `generator-engine.ts` - open.
 - `borehole-water-system-engine.ts` - open.
+
+---
+
+## Audit 8: Roof Framing & Board Feet (`advanced-takeoff-engine.ts`)
+
+Suite: `src/lib/estimation/__tests__/roof-framing-conformance.test.ts`, 12 tests,
+CI green only. Geometry is worked in the test from the plan.
+
+Verified correct:
+
+- Gable: ridge at the extended building length, rise at half span x tan(pitch),
+  rafter measured along the slope (4.5 m plan run at 6:12 is 5.031 m of rafter,
+  longer than the run). At 12:12 the rise equals the half span and the rafter is
+  half span x sqrt(2).
+- Rafter counts land on real spacing: ceil(11 / 0.6) = 19 intervals, so 20
+  positions per slope and 40 in total, with the 0.579 m actual spacing printed
+  rather than the requested 0.6 m.
+- Hip: ridge is long eave less short eave (11 - 9 = 2 m), four hips at
+  half span x sqrt(2 + tan^2 pitch), no ridge at all on a square hip, and no
+  jack longer than the full run to the ridge.
+- Board feet = length (ft) x width (in) x depth (in) / 12, checked against a
+  single 10 ft 2x4 (4.375 BF), with group totals summing to the reported total.
+- Valleys are refused rather than guessed, and the refusal is printed.
+
+Defect found and fixed:
+
+1. **The page asked for "actual" inches while board feet are traded on nominal
+   inches.** The engine is right, but the guidance told the user to enter the
+   milled size, so a 2 x 4 was entered as 1.5 x 3.5 and the board feet came out
+   33 per cent below what a yard bills for the same timber. The fields now read
+   "Width (in, nominal)" and the note says a 2 x 4 is entered as 2 and 4, with
+   the milled size shown for clarity. A page test locks the wording so it
+   cannot drift back.
+
+Recorded, not changed:
+
+- The takeoff section fields accept inches only. The market timber schedule
+  (`timber-sections.ts`, milled sizes and stock lengths per market) is wired to
+  the section-properties panel but not to the takeoff fields, so a metric user
+  converts by hand. Offering a market preset that writes nominal inches is a
+  small follow-up, not a correctness fix.
+- Member counts are geometric quantities, not a structural design; the
+  assumptions say so.
 
 ---
 

@@ -440,8 +440,9 @@ export default function RoofFramingEstimator() {
                     {t("Timber sections")}
                   </h3>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Enter actual section dimensions in inches. Board feet are
-                    calculated only from these inputs.
+                    {t(
+                      "Enter nominal sizes in inches, as timber is traded: a 2 x 4 is entered as 2 and 4, even though it measures 1.5 x 3.5 in milled. Board feet are calculated from these nominal sizes and from nothing else.",
+                    )}
                   </p>
                   <div className="mt-3 grid gap-3">
                     {(
@@ -468,8 +469,8 @@ export default function RoofFramingEstimator() {
                             className="grid gap-1 text-xs text-muted-foreground"
                           >
                             {dimension === "widthIn"
-                              ? "Width (in)"
-                              : "Depth (in)"}
+                              ? "Width (in, nominal)"
+                              : "Depth (in, nominal)"}
                             <input
                               aria-label={`${key} ${dimension}`}
                               className={inputClass}
