@@ -339,6 +339,11 @@ export const navModules: NavModule[] = [
     items: [
       { label: "User Management", to: "/admin/users", icon: Users },
       {
+        label: "Subscriber Broadcasts",
+        to: "/admin/broadcasts",
+        icon: Mail,
+      },
+      {
         label: "Roles & Permissions",
         to: "/admin/studio/role_management",
         icon: KeyRound,

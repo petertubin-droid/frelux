@@ -385,6 +385,7 @@ const AdminTileMaterials = lazy(
   () => import("@/pages/admin/AdminTileMaterials"),
 );
 const AdminMedia = lazy(() => import("@/pages/admin/AdminMedia"));
+const AdminBroadcasts = lazy(() => import("@/pages/admin/AdminBroadcasts"));
 const AdminUsers = lazy(() => import("@/pages/admin/AdminUsers"));
 const AdminGallery = lazy(() => import("@/pages/admin/AdminGallery"));
 const AdminCaseStudies = lazy(() => import("@/pages/admin/AdminCaseStudies"));
@@ -2711,6 +2712,10 @@ export default function App() {
 
                         {/* Users */}
                         <Route path="users" element={<AdminUsers />} />
+                        <Route
+                          path="broadcasts"
+                          element={<AdminBroadcasts />}
+                        />
 
                         {/* Analytics */}
                         <Route path="analytics" element={<AdminAnalytics />} />
