@@ -84,6 +84,19 @@ export function parseRetainingWallRules(
 }
 
 /** Lateral thrust factors applied to the recommended footing width. */
+/**
+ * Minimum factors of safety against the two failure modes.
+ *
+ * BS 8002 and established UK practice ask for 2.0 against overturning and 1.5
+ * against sliding. This engine used 1.5 for both, so a wall with a 1.6
+ * overturning factor was reported as passing while a checking engineer would
+ * reject it. Passive resistance in front of the toe is NOT counted anywhere in
+ * the stability sum, which is why the overturning figure here is conservative
+ * for a wall that will be backfilled only after construction.
+ */
+export const MIN_FOS_OVERTURNING = 2.0;
+export const MIN_FOS_SLIDING = 1.5;
+
 export const SOIL_FOOTING_FACTOR: Record<SoilType, number> = {
   stable: 1,
   loose_sand: 1.15,
@@ -226,19 +239,17 @@ export function computeRetainingWallStability(
 
   const max_q = W_total > 0 && B > 0 ? (W_total / B) * (1 + (6 * e) / B) : 0;
 
-  const ot_pass = fs_ot >= 1.5;
-  const sl_pass = fs_sl >= 1.5;
+  const ot_pass = fs_ot >= MIN_FOS_OVERTURNING;
+  const sl_pass = fs_sl >= MIN_FOS_SLIDING;
 
   let summary = "Adequate geotechnical stability (BS 8002 / Eurocode 7)";
   if (!ot_pass && !sl_pass) {
     summary =
       "Unstable against both overturning and sliding — footing width must be increased";
   } else if (!ot_pass) {
-    summary =
-      "Overturning factor of safety is below 1.50 — widen the footing base";
+    summary = `Overturning factor of safety is below ${MIN_FOS_OVERTURNING.toFixed(2)} — widen the footing base`;
   } else if (!sl_pass) {
-    summary =
-      "Sliding factor of safety is below 1.50 — add a shear key or widen base";
+    summary = `Sliding factor of safety is below ${MIN_FOS_SLIDING.toFixed(2)} — add a shear key or widen base`;
   } else if (!middle_third_pass) {
     summary = "Eccentricity outside middle third — risk of heel liftoff";
   }
@@ -367,7 +378,7 @@ export function calculateRetainingWall(
     },
     {
       label: "Geotechnical stability (Rankine / BS 8002)",
-      detail: `Ka = ${geo.stability.ka.toFixed(3)}, Active thrust Pa = ${geo.stability.active_thrust_kn_m.toFixed(1)} kN/m. Overturning FS = ${geo.stability.factor_of_safety_overturning.toFixed(2)} (target ≥ 1.50, ${geo.stability.overturning_pass ? "PASS" : "FAIL"}), Sliding FS = ${geo.stability.factor_of_safety_sliding.toFixed(2)} (target ≥ 1.50, ${geo.stability.sliding_pass ? "PASS" : "FAIL"}). Max soil bearing pressure = ${geo.stability.max_bearing_pressure_kpa.toFixed(1)} kPa.`,
+      detail: `Ka = ${geo.stability.ka.toFixed(3)}, Active thrust Pa = ${geo.stability.active_thrust_kn_m.toFixed(1)} kN/m. Overturning FS = ${geo.stability.factor_of_safety_overturning.toFixed(2)} (target ≥ ${MIN_FOS_OVERTURNING.toFixed(2)}, ${geo.stability.overturning_pass ? "PASS" : "FAIL"}), Sliding FS = ${geo.stability.factor_of_safety_sliding.toFixed(2)} (target ≥ ${MIN_FOS_SLIDING.toFixed(2)}, ${geo.stability.sliding_pass ? "PASS" : "FAIL"}). Max soil bearing pressure = ${geo.stability.max_bearing_pressure_kpa.toFixed(1)} kPa.`,
     },
     {
       label: "Concrete volume",

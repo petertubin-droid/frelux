@@ -218,7 +218,7 @@ export default function RetainingWallEstimator() {
                       {preview.stability.factor_of_safety_overturning.toFixed(
                         2,
                       )}{" "}
-                      (≥1.5)
+                      (≥2.0)
                     </span>
                   </div>
                   <div>
