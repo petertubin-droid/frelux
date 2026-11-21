@@ -181,18 +181,50 @@ export default function AdminSubscriptionPricing() {
       };
 
       if (typeof (supabase as any)?.from === "function") {
-        await (supabase as any).from("subscription_tier_configs").upsert({
-          id: updatedTier.id,
-          name: updatedTier.name,
-          tagline: updatedTier.tagline,
-          monthly_price: updatedTier.monthlyPrice,
-          yearly_price: updatedTier.yearlyPrice,
-          badge: updatedTier.badge ?? null,
-          highlight: updatedTier.highlight ?? false,
-          cta: updatedTier.cta,
-          features: updatedTier.features,
-          updated_at: new Date().toISOString(),
-        });
+        const { error: tierError } = await (supabase as any)
+          .from("subscription_tier_configs")
+          .upsert({
+            id: updatedTier.id,
+            name: updatedTier.name,
+            tagline: updatedTier.tagline,
+            monthly_price: updatedTier.monthlyPrice,
+            yearly_price: updatedTier.yearlyPrice,
+            badge: updatedTier.badge ?? null,
+            highlight: updatedTier.highlight ?? false,
+            cta: updatedTier.cta,
+            features: updatedTier.features,
+            updated_at: new Date().toISOString(),
+          });
+        if (tierError) throw tierError;
+
+        // The checkout edge function charges from subscription_plan_prices, so a
+        // price edited here must reach that table too. Without this the pricing
+        // page advertises the new amount while checkout charges the old one.
+        if (updatedTier.monthlyPrice > 0) {
+          for (const [cycle, usd] of [
+            ["monthly", updatedTier.monthlyPrice],
+            ["yearly", updatedTier.yearlyPrice],
+          ] as const) {
+            const minor = Math.round(Number(usd) * 100);
+            if (!Number.isFinite(minor) || minor <= 0) continue;
+            const { error: priceError } = await (supabase as any)
+              .from("subscription_plan_prices")
+              .upsert(
+                {
+                  plan: updatedTier.id,
+                  billing_cycle: cycle,
+                  currency: "USD",
+                  price_minor: minor,
+                  // Legacy naira column: USD rows carry the same minor amount,
+                  // exactly as the USD pricing migration backfilled it.
+                  price_kobo: minor,
+                  active: true,
+                },
+                { onConflict: "plan,billing_cycle" },
+              );
+            if (priceError) throw priceError;
+          }
+        }
       }
 
       setTiers((prev) =>

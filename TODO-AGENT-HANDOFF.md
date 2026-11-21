@@ -179,6 +179,37 @@ GROUP BY scan_confidence;
 
 - 2026-11 UI & Theme Configuration update: added administrative toggle switches for the mobile bottom navigation bar and the floating AI live chat assistant widget in Admin Settings and Admin AI Settings (both defaulted to toggled off). Updated website default visual mode from dark to light mode across theme provider, pre-paint inline script in index.html, and admin theme unmount restoration.
 
+## Subscription tiers are admin data (2026-11-21)
+
+Tier copy and prices are editable from AdminSubscriptionPricing, and the price
+an admin sets is the price checkout charges.
+
+- `subscription_tier_configs` (migration 20261121120000, originally pushed as
+  20261121090000 by a parallel session) holds name, tagline, monthly/yearly USD,
+  badge, highlight, features, cta, sort_order. Public SELECT, admin-only writes,
+  RLS on.
+- `subscription_plan_prices` is what `flutterwave-checkout` charges from. The
+  admin tier save now upserts USD rows there for paid plans, so editing a price
+  cannot leave the pricing page advertising one amount while checkout charges
+  another.
+- GOTCHAS, all live-verified:
+  1. Two migrations shared the prefix 20261121090000 (this project records only
+     the 14 digits), so the second was silently skipped and
+     `subscription_tier_configs` never existed live while the code read it. The
+     file is renamed to 20261121120000.
+  2. `subscription_plan_prices` had RLS forced with NO policies and NO grants to
+     anon/authenticated: only service_role could read it. Policies
+     (20261121100000) and grants (20261121110000) fixed it; anon now reads
+     active rows and anon writes are refused (42501).
+  3. 20261121120000 grants only SELECT on the tier table, so the admin write
+     policy had no privilege behind it. 20261121130000 adds INSERT/UPDATE/DELETE
+     for authenticated, still gated by is_admin().
+  4. My own `subscription_plans` table was applied live before the collision was
+     found; it is dropped and its recorded version removed. One catalogue only.
+
+Applied live: see the runner output in the commit. Tests: 7 admin subscription
+tests including the tier save writing both tables, tsc 0.
+
 ## DEFS shares the EIFS core (2026-11-20)
 
 One calculation core, two systems, no duplicated layer maths.

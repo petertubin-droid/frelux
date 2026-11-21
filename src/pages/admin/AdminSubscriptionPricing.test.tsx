@@ -12,7 +12,35 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 // ---------------------------------------------------------
 
 const rpc = vi.hoisted(() => vi.fn());
-vi.mock("@/lib/supabase", () => ({ supabase: { rpc } }));
+const upsert = vi.hoisted(() => vi.fn(() => Promise.resolve({ error: null })));
+const from = vi.hoisted(() =>
+  vi.fn(() => {
+    const chain: Record<string, unknown> = {};
+    for (const method of [
+      "select",
+      "eq",
+      "order",
+      "limit",
+      "in",
+      "is",
+      "match",
+    ]) {
+      chain[method] = vi.fn(() => chain);
+    }
+    chain.upsert = upsert;
+    chain.then = (resolve: (value: unknown) => unknown) =>
+      resolve({ data: [], error: null });
+    chain.maybeSingle = vi.fn(() =>
+      Promise.resolve({ data: null, error: null }),
+    );
+    chain.single = vi.fn(() => Promise.resolve({ data: null, error: null }));
+    return chain;
+  }),
+);
+vi.mock("@/lib/supabase", () => ({
+  supabase: { rpc, from },
+  isSupabaseConfigured: true,
+}));
 vi.mock("@/components/ui/Toast", () => ({
   useToast: vi.fn(() => ({
     toast: vi.fn(),
@@ -170,5 +198,39 @@ describe("AdminSubscriptionPricing", () => {
     expect(
       screen.getByRole("button", { name: /use the rate/i }),
     ).toBeDisabled();
+  });
+
+  it("writes an edited tier to the catalogue and to the price checkout reads", async () => {
+    rpc.mockResolvedValue({ data: [row()], error: null });
+    render(<AdminSubscriptionPricing />);
+
+    fireEvent.click(
+      await screen.findByRole("button", { name: /usd base tiers/i }),
+    );
+    const editButtons = await screen.findAllByRole("button", {
+      name: /edit tier & features/i,
+    });
+    fireEvent.click(editButtons[0]);
+
+    const nameField = await screen.findByDisplayValue("Free");
+    fireEvent.change(nameField, { target: { value: "Free" } });
+    const monthly = screen.getAllByDisplayValue("0")[0];
+    fireEvent.change(monthly, { target: { value: "2.50" } });
+    fireEvent.click(screen.getByRole("button", { name: /save tier changes/i }));
+
+    await waitFor(() => expect(upsert).toHaveBeenCalled());
+    const calls = upsert.mock.calls as unknown as Array<
+      [Record<string, unknown>]
+    >;
+    // Tier copy goes to the catalogue table...
+    expect(
+      calls.some(([payload]) => payload && "monthly_price" in payload),
+    ).toBe(true);
+    // ...and the price reaches the row the checkout edge function charges from.
+    const priceCall = calls.find(
+      ([payload]) => payload && payload.currency === "USD",
+    );
+    expect(priceCall).toBeDefined();
+    expect(priceCall?.[0].price_minor).toBe(250);
   });
 });
