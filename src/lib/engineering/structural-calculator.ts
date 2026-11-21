@@ -2307,6 +2307,13 @@ export interface DesignShearCapacityInput {
   asMm2: number; // tensile reinforcement area mm2
   fyMpa?: number; // rebar yield strength MPa
   axialForceKn?: number; // axial force in kN (positive = compression)
+  /**
+   * Overall section depth, mm. The codes form the axial term from the gross
+   * area (Ag = bw x h), which the effective depth alone cannot give. Supply it
+   * and the code's own factor is applied; omit it and the axial benefit is
+   * left out rather than guessed, which errs on the safe side.
+   */
+  memberDepthMm?: number;
 }
 
 export interface DesignShearCapacityResult {
@@ -2332,20 +2339,42 @@ export function computeDesignShearCapacity(
   let explanation = "";
 
   if (standard === "aci_astm") {
-    // ACI 318-19: Simplified Vc = (0.17 * lambda * sqrt(f_c) + Nu / (6 * Ag)) * bw * d
-    // With f_c in MPa: 0.17 * sqrt(fck)
+    // ACI 318-19 Table 22.5.5.1: with axial compression the concrete term is
+    //   V_c = 0.17 lambda sqrt(f'c) (1 + Nu/(14 Ag)) bw d,  capped at
+    //   0.42 lambda sqrt(f'c) bw d.
+    // The factor needs the gross area, so it is applied only when the overall
+    // depth is supplied. Guessing Ag from d alone overstated the capacity by
+    // about a third on a 250 x 550 section at 500 kN.
     const lambda = 1.0; // normal weight concrete
     const fc = fckOrFcuMpa;
-    vcMpa = 0.17 * lambda * Math.sqrt(fc) + sigma_cp / 6;
-    explanation = `ACI 318-19: V_c = (0.17 * sqrt(${fc.toFixed(1)} MPa) + ${(sigma_cp / 6).toFixed(2)}) * ${bw} * ${d} = ${((vcMpa * bw * d) / 1000).toFixed(1)} kN`;
+    const axialN = axialKn > 0 ? axialKn * 1000 : 0;
+    const grossArea =
+      input.memberDepthMm && input.memberDepthMm > 0
+        ? bw * input.memberDepthMm
+        : null;
+    const axialFactor =
+      grossArea && axialN > 0 ? 1 + axialN / (14 * grossArea) : 1;
+    const plainVc = 0.17 * lambda * Math.sqrt(fc);
+    const capVc = 0.42 * lambda * Math.sqrt(fc);
+    vcMpa = Math.min(plainVc * axialFactor, capVc);
+    explanation =
+      axialFactor > 1
+        ? `ACI 318-19 Table 22.5.5.1: V_c = 0.17 x sqrt(${fc.toFixed(1)}) x (1 + Nu/(14 Ag)) with Ag = ${grossArea} mm² gives ${vcMpa.toFixed(2)} MPa = ${((vcMpa * bw * d) / 1000).toFixed(1)} kN`
+        : `ACI 318-19 Table 22.5.5.1: V_c = 0.17 x sqrt(${fc.toFixed(1)} MPa) x ${bw} x ${d} = ${((vcMpa * bw * d) / 1000).toFixed(1)} kN (no axial factor: no axial force, or no gross depth supplied)`;
   } else if (standard === "is_456") {
-    // IS 456:2000 Table 19 approximation for tau_c
+    // IS 456:2000 Table 19. The closed form in the code's own notation is
+    //   tau_c = 0.85 sqrt(0.8 fck) (sqrt(1 + 5 beta) - 1) / (6 beta)
+    //   beta  = 0.8 fck / (6.89 pt), taken as 1 when it falls below 1.
+    // Feeding pt in place of beta (the previous code) read the table at a
+    // reinforcement ratio several times the real one: M25 at 0.5 per cent came
+    // out 1.10 N/mm² against the table's 0.49.
     const pt = rho_l * 100;
+    const beta = pt > 0 ? Math.max((0.8 * fckOrFcuMpa) / (6.89 * pt), 1) : 1;
     vcMpa =
-      (0.85 * Math.sqrt(0.8 * fckOrFcuMpa) * (Math.sqrt(1 + 5 * pt) - 1)) /
-      (6 * pt || 1);
+      (0.85 * Math.sqrt(0.8 * fckOrFcuMpa) * (Math.sqrt(1 + 5 * beta) - 1)) /
+      (6 * beta);
     vcMpa = Math.max(0.28, Math.min(1.2, vcMpa));
-    explanation = `IS 456:2000 Table 19: tau_c = ${vcMpa.toFixed(2)} N/mm² (Pt = ${pt.toFixed(2)}%)`;
+    explanation = `IS 456:2000 Table 19: tau_c = ${vcMpa.toFixed(2)} N/mm² (Pt = ${pt.toFixed(2)}%, beta = ${beta.toFixed(2)})`;
   } else {
     // Eurocode 2 / BS 8110:
     // EC2: VRd,c = [CRd,c * k * (100 * rho_l * fck)^(1/3) + k1 * sigma_cp] * bw * d
@@ -2353,7 +2382,14 @@ export function computeDesignShearCapacity(
     const CRd_c = 0.18 / 1.5; // 0.12
     const v_min = 0.035 * Math.pow(k, 1.5) * Math.sqrt(fckOrFcuMpa);
     const basicVc = CRd_c * k * Math.cbrt(100 * rho_l * fckOrFcuMpa);
-    vcMpa = Math.max(v_min, basicVc) + 0.15 * sigma_cp;
+    // sigma_cp is NEd/Ac. With the overall depth the gross area is known, so
+    // the code's own stress is used; without it the 1.5 b d proxy stays, which
+    // understates the area and therefore the benefit.
+    const axialStress =
+      input.memberDepthMm && input.memberDepthMm > 0 && axialKn > 0
+        ? (axialKn * 1000) / (bw * input.memberDepthMm)
+        : sigma_cp;
+    vcMpa = Math.max(v_min, basicVc) + 0.15 * axialStress;
     explanation = `Eurocode 2 (EN 1992-1-1): v_Rd,c = max(${v_min.toFixed(2)}, ${basicVc.toFixed(2)}) = ${vcMpa.toFixed(2)} MPa`;
   }
 

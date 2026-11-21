@@ -23,7 +23,7 @@ been exercised; `staged` means written but not executed.
 | 1   | Foundation Designer                | structure | **Audited 2026-11-21**, 18 tests, no arithmetic defect                          |
 | 2   | Reinforcement / Steel              | structure | **Audited 2026-11-21**, 15 tests, no defect in anchorage or laps                |
 | 3   | ICF Wall Estimator                 | structure | **Audited 2026-11-21**, 19 tests, no defect in geometry or envelope             |
-| 4   | Concrete & Structural              | structure | Queued                                                                          |
+| 4   | Concrete & Structural              | structure | **Audited 2026-11-21**, 16 tests, 2 DEFECTS FIXED: IS 456 tau_c and ACI axial   |
 | 5   | Concrete Slab Takeoff              | structure | Queued                                                                          |
 | 6   | Earthworks Cut & Fill              | structure | Queued                                                                          |
 | 7   | Retaining Wall Calculator          | structure | **Audited 2026-11-21**, 9 tests, DEFECT FIXED: overturning 1.5 -> 2.0 (BS 8002) |
@@ -66,11 +66,76 @@ Found 2026-11-21 by mapping the 34 calculators to `src/lib/estimation/*.ts`:
 
 - `foundation-engine.ts` (685 lines) - **closed** by audit 1.
 - `reinforcement-engine.ts` (1319 lines) - **closed** by audit 2.
-- `icf-engine.ts`, `icf-eifs-market.ts`, `system-boq-pricing.ts` - open.
+- `icf-engine.ts` - **closed** by audit 3. `icf-eifs-market.ts`,
+  `system-boq-pricing.ts` - open.
 - `conduit-wiring-engine.ts`, `mep-conduit-router-engine.ts` - open.
 - `plumbing-engine.ts`, `plumbing-profiles.ts` - open.
 - `generator-engine.ts` - open.
 - `borehole-water-system-engine.ts` - open.
+
+---
+
+## Audit 4: Concrete & Structural (`structural-calculator.ts`)
+
+Suite: `src/lib/engineering/__tests__/structural-conformance.test.ts`, 16 tests,
+CI green only. Expected values are computed in the test from the clause, not
+read back from the engine.
+
+Verified correct against the published clauses:
+
+- BS 8110-1 Table 3.9 basic span/effective depth ratios: cantilever 7, simply
+  supported 20, continuous and fixed 26. Correct.
+- EN 1992-1-1 Table 3.1: fctm = 0.30 fck^(2/3) to C50/60, then
+  2.12 ln(1 + fcm/10). Both branches correct.
+- Minimum tension steel, all five codes, each from its own clause and with no
+  blending between them: EC2 9.2.1.1 max(0.26 fctm/fyk, 0.0013) including the
+  floor case; ACI 318-19 9.6.1.2 max(0.25 sqrt(f'c)/fy, 1.4/fy) including the
+  1.4/fy floor case; BS 8110-1 Table 3.25 at 0.24 per cent for fy 250 and 0.13
+  per cent for fy 460; IS 456 26.5.1.1 at 0.85/fy.
+- EN 1992-1-1 6.2.2 VRd,c reproduced by hand on a 300 x 500 section with 1000
+  mm2 of steel: k = 1.632, vRdc = 0.5315 MPa, 79.7 kN. Matches.
+- ACI 318-19 Table 22.5.5.1(a) with no axial force: 0.17 sqrt(f'c) = 0.8996 MPa
+  on 250 x 500. Matches.
+- Beam statics: a 6 m simply supported beam at 66 kN/m factored gives
+  wL^2/8 and wL/2 on the effective span, and the recommended depth never falls
+  below the Table 3.9 minimum of L/20.
+
+Defects found and fixed:
+
+1. **IS 456 shear capacity was read at the wrong point on Table 19.** The
+   closed form printed in the code is
+
+       tau_c = 0.85 sqrt(0.8 fck) (sqrt(1 + 5 beta) - 1) / (6 beta)
+       beta  = 0.8 fck / (6.89 pt)
+
+   and the engine fed `pt` where `beta` belongs. Because beta is the reciprocal
+   kind of quantity (5.8 at pt 0.5 per cent on M25), substituting pt reads the
+   table at a reinforcement ratio several times the real one. M25 at 0.5 per
+   cent returned 1.10 N/mm2 against the table's 0.49, and M20 at 1.0 per cent
+   returned 0.82 against 0.62. The error was unconservative, so links would
+   have been under-designed on any IS 456 job. Now computed with beta, with
+   beta floored at 1 as the code requires, and locked by two table values.
+
+2. **The ACI axial term was not ACI's.** Table 22.5.5.1 makes the axial
+   benefit multiplicative on the concrete term,
+   0.17 lambda sqrt(f'c) (1 + Nu/(14 Ag)), capped at 0.42 lambda sqrt(f'c).
+   The engine added Nu/(6 Ag) as a separate stress instead, which is about 2.6
+   times the code's bonus at 28 MPa: 1.34 MPa against 1.13 on a 250 x 550
+   section at 500 kN. Now multiplicative and capped. The factor needs a gross
+   area, so `memberDepthMm` was added to the input; when it is not supplied the
+   axial benefit is left out entirely and the explanation says so, because
+   guessing Ag from d alone was the source of the overstatement.
+
+Recorded, not changed:
+
+- IS 456 Cl 40.2.1.1 scales tau_c by k, which is above 1 for sections shallower
+  than 300 mm. The engine does not apply k, so shallow sections are
+  under-stated, never over-stated. Adding it changes existing Indian estimates,
+  so it is left for a turn that can show the before and after.
+- EC2 and BS 8110 axial stress used 1.5 b d as a stand-in for the gross area,
+  which understates Ac and therefore the benefit. With `memberDepthMm` supplied
+  the code's own NEd/Ac is used; the proxy survives only as the no-depth
+  fallback and is documented in the explanation.
 
 ---
 
@@ -135,6 +200,12 @@ Findings:
 ---
 
 ## Open questions carried forward
+
+0. **Repo typecheck is red on the pulled main, not from this audit.**
+   `npx tsc --noEmit` reports `AdminLayout.tsx` adding a `Languages` nav item the
+   `NavItem` type does not declare, and `AdminTileMaterials.tsx` reading a
+   `currency` field that is not in its row type. Both are in admin code from
+   commit 9722a39c and block `npm run typecheck` in CI.
 
 1. **Price-book sanity, not calculator logic.** `block-per-piece` for CH is
    23.98 CHF per block against 0.48 EUR in DE. That is a data defect, not an
