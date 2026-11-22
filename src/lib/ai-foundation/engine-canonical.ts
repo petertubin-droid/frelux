@@ -52,6 +52,8 @@ export const UNRESOLVED_ENGINE_IDS = [
   "foundation_below_dpc",
   "icf_wall",
   "concrete_takeoff",
+  "masonry",
+  "concrete_volume",
 ] as const;
 
 export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
@@ -179,6 +181,18 @@ export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
     canonicalId: "sequence",
     confidence: "medium",
     note: "Construction sequence planning.",
+  },
+  {
+    aiEngineId: "masonry",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "The international lists model masonry as a system with market-specific unit profiles, while this engine resolves the unit from the market code. The ids describe different shapes, so no mapping is claimed.",
+  },
+  {
+    aiEngineId: "concrete_volume",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "A second concrete entry point, stated as an auditable contract in millimetres. Mapping it onto the concrete id would claim one implementation serves both, which is not true.",
   },
   {
     aiEngineId: "icf_wall",

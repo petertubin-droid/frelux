@@ -25,25 +25,26 @@ Rules for every batch:
    a cost without a rate is invented.
 4. Compare by label, not by index, and expect the engine's own rounding.
 
-## Batch 1: Concrete and substructure (partly done, 22 November 2026)
+## Batch 1: Concrete and substructure (closed, 22 November 2026)
 
-| Module                                  | Entry point                | State                                                                                                                                                                                  |
-| --------------------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `estimation/advanced-takeoff-engine.ts` | `calculateConcreteTakeoff` | done as `concrete_takeoff`                                                                                                                                                             |
-| `estimation/icf-engine.ts`              | `calculateIcfWall`         | done as `icf_wall`                                                                                                                                                                     |
-| `estimation/reinforcement-engine.ts`    | `calculateReinforcement`   | dropped: `engines-structural.ts` already registers a `reinforcement` engine under that id. The registry refuses a second claimant, and renaming mine would report the same maths twice |
-| `globalization/takeoff-engines.ts`      | `calculateConcreteVolume`  | open                                                                                                                                                                                   |
-| `estimation/increte-engine.ts`          | `calculateIncrete`         | open, needs a product catalogue to mean anything                                                                                                                                       |
+| Module                                  | Entry point                | State                                                                                                                                                                                                  |
+| --------------------------------------- | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `estimation/advanced-takeoff-engine.ts` | `calculateConcreteTakeoff` | done as `concrete_takeoff`                                                                                                                                                                             |
+| `estimation/icf-engine.ts`              | `calculateIcfWall`         | done as `icf_wall`                                                                                                                                                                                     |
+| `globalization/takeoff-engines.ts`      | `calculateConcreteVolume`  | done as `concrete_volume`, surface marked `none` because no page calls it yet                                                                                                                          |
+| `estimation/reinforcement-engine.ts`    | `calculateReinforcement`   | declined: `engines-structural.ts` already registers a `reinforcement` engine under that id, so a second claimant is refused and a rename would report the same maths twice                             |
+| `estimation/increte-engine.ts`          | `calculateIncrete`         | declined: the engine takes a product list with per-package coverage, and there is no catalogue in the code. Inventing coverage figures would produce quantities that are wrong in a way nobody can see |
 
-Both shipped adapters have a parity test that calls the adapter and the engine
-directly and compares by label.
+## Batch 2: Masonry and blockwork (closed, 22 November 2026)
 
-## Batch 2: Masonry and blockwork
+| Module                                    | Entry point               | State                                                                                                                   |
+| ----------------------------------------- | ------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `estimation/masonry-standalone-engine.ts` | `calculateMasonryTakeoff` | done as `masonry`, surface `shared` with `/masonry-calculator`                                                          |
+| `measurement/fence-engine.ts`             | `createFenceDimension`    | open: it builds a dimension record rather than quantities, so it needs a different adapter shape than the trade engines |
 
-| Module                                    | Entry point                  |
-| ----------------------------------------- | ---------------------------- |
-| `estimation/masonry-standalone-engine.ts` | `resolveMarketMasonryConfig` |
-| `measurement/fence-engine.ts`             | `createFenceDimension`       |
+The masonry adapter passes the market code and lets the engine resolve the unit
+profile, so a US CMU wall, a UK block wall and an Indian brick wall are all read
+with their own unit size rather than a default.
 
 ## Batch 3: Roofing, timber and envelope
 

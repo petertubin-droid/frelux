@@ -17,6 +17,7 @@ import {
   Ruler,
   Zap,
   LayoutList,
+  Boxes,
 } from "lucide-react";
 
 /**
@@ -163,6 +164,28 @@ export const ENGINE_SURFACES: EngineSurface[] = [
     label: "Regional Cost Index",
     icon: Coins,
     note: "Cost differences between markets and regions.",
+  },
+  {
+    engineId: "masonry",
+    status: "shared",
+    route: "/masonry-calculator",
+    label: "Standalone Takeoff (masonry)",
+    icon: Boxes,
+    evidence: {
+      module: "@/lib/estimation/masonry-standalone-engine",
+      fn: "calculateMasonryTakeoff",
+      page: "src/pages/StandaloneTakeoffPage.tsx",
+      calledBy: "the masonry tab calls the same function this adapter wraps",
+    },
+    note: "Blocks, mortar, cement and sand for a wall, using the market's own unit profile.",
+  },
+  {
+    engineId: "concrete_volume",
+    status: "none",
+    route: null,
+    label: "Concrete Volume (auditable contract)",
+    icon: Layers,
+    note: "No user-facing entry point yet. This is the globalization module's auditable concrete volume calculation, available to the calculations API and to Engine Studio for verification.",
   },
   {
     engineId: "icf_wall",

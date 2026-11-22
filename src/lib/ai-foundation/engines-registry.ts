@@ -972,6 +972,136 @@ registerEngine({
   },
 });
 
+// ── Masonry: blocks, mortar and sand for a wall in a given market ──
+//
+// The market's own unit is resolved inside the engine (CMU in the US, block in
+// the UK, brick in India), so the adapter passes the market code rather than
+// assuming a unit size. Defaults are the standalone takeoff page's: a 10 m by
+// 3 m single-leaf wall, 1:4 mortar, 5 percent waste.
+interface MasonryInputLike {
+  marketCode?: string;
+  wallLengthM?: number;
+  wallHeightM?: number;
+  wallCount?: number;
+  jointThicknessMm?: number;
+  mortarMixRatio?: "1:3" | "1:4" | "1:5" | "1:6";
+  wastePercent?: number;
+  lengthUnit?: "m" | "ft";
+  leafCount?: number;
+}
+
+registerEngine({
+  id: "masonry",
+  domain: "masonry",
+  title: "FRELUX Masonry Takeoff Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX masonry engine",
+  async run(rawInput) {
+    const { calculateMasonryTakeoff } =
+      await import("@/lib/estimation/masonry-standalone-engine");
+    const supplied = (rawInput ?? {}) as MasonryInputLike;
+
+    const input = {
+      marketCode: supplied.marketCode ?? "NG",
+      wallLengthM: supplied.wallLengthM ?? 10,
+      wallHeightM: supplied.wallHeightM ?? 3,
+      wallCount: supplied.wallCount ?? 1,
+      jointThicknessMm: supplied.jointThicknessMm ?? 10,
+      mortarMixRatio: supplied.mortarMixRatio ?? "1:4",
+      wastePercent: supplied.wastePercent ?? 5,
+      lengthUnit: supplied.lengthUnit ?? "m",
+      leafCount: supplied.leafCount ?? 1,
+    } as never;
+
+    const result = calculateMasonryTakeoff(input);
+
+    const quantities: EngineQuantityLine[] = [
+      quantityLine(
+        `Units (${result.unit.name})`,
+        result.unitsRequiredGross,
+        "units",
+      ),
+      quantityLine("Net wall area", result.netWallAreaM2, "m²"),
+      quantityLine("Mortar volume", result.mortarVolumeM3Gross, "m³"),
+      quantityLine("Cement", result.cementBagsRequired, "bags"),
+      quantityLine("Sand", result.sandVolumeM3, "m³"),
+      quantityLine("Water", result.waterLiters, "litres"),
+    ];
+
+    return {
+      ok: true,
+      engine: "masonry",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
+// ── Concrete volume, auditable contract ──
+//
+// The globalization module states its result as an auditable calculation
+// (units, methodology, rounding, assumptions) rather than a line list, and no
+// page calls it yet: it exists for the calculations API. It is registered so
+// the console can exercise it, with its surface honestly marked as having no
+// user-facing entry point.
+interface ConcreteVolumeInputLike {
+  lengthMm?: number;
+  widthMm?: number;
+  depthMm?: number;
+  wastagePercent?: number;
+}
+
+registerEngine({
+  id: "concrete_volume",
+  domain: "structure",
+  title: "FRELUX Concrete Volume (Auditable) Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX concrete volume engine",
+  async run(rawInput) {
+    const { calculateConcreteVolume } =
+      await import("@/lib/globalization/takeoff-engines");
+    const supplied = (rawInput ?? {}) as ConcreteVolumeInputLike;
+
+    // A 5,000 mm by 4,000 mm slab at 150 mm with 5 percent wastage.
+    const outcome = calculateConcreteVolume({
+      lengthMm: supplied.lengthMm ?? 5000,
+      widthMm: supplied.widthMm ?? 4000,
+      depthMm: supplied.depthMm ?? 150,
+      wastagePercent: supplied.wastagePercent ?? 5,
+    } as never);
+
+    if (outcome.status !== "valid" || !outcome.outputs) {
+      return {
+        ok: false,
+        engine: "concrete_volume",
+        calculatedAt: new Date().toISOString(),
+        quantities: [],
+        costs: null,
+        raw: outcome,
+        error:
+          outcome.errors.map((e) => e.message).join(" ") ||
+          "The concrete volume engine rejected the input.",
+      };
+    }
+
+    const out = outcome.outputs;
+    return {
+      ok: true,
+      engine: "concrete_volume",
+      calculatedAt: new Date().toISOString(),
+      quantities: [
+        quantityLine("Base volume", out.baseVolumeM3, "m³"),
+        quantityLine("Required volume", out.requiredVolumeM3, "m³"),
+        quantityLine("Required volume", out.requiredVolumeYd3, "yd³"),
+      ],
+      costs: null,
+      raw: outcome,
+    };
+  },
+});
+
 export function listEngines(): EngineDescriptor[] {
   return [...REGISTRY.values()];
 }
