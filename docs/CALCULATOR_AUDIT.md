@@ -44,16 +44,16 @@ been exercised; `staged` means written but not executed.
 | 22  | Foundation Cost Estimate           | structure | Queued                                                                                     |
 | 23  | Plumbing                           | services  | **Audited 2026-11-22**, 36 tests, DEFECT FIXED: cold-only buildings were never completable |
 | 24  | Electrical Wiring                  | services  | Queued                                                                                     |
-| 25  | Conduit & Wiring Loops             | services  | Queued                                                                                     |
+| 25  | Conduit & Wiring Loops             | services  | **Audited 2026-11-22**, 12 tests, no defect (already hardened)                             |
 | 26  | Solar PV Estimator                 | services  | Queued                                                                                     |
 | 27  | Backup Power / Generator           | services  | Queued                                                                                     |
 | 28  | Heat & Comfort                     | services  | Queued                                                                                     |
 | 29  | Autonomous Borehole & Water Supply | services  | Queued                                                                                     |
-| 30  | Conduit & Wiring Loops             | services  | **Audited 2026-11-22**, 12 tests, no defect (already hardened)                             |
 | 31  | External Drainage Takeoff          | services  | Queued                                                                                     |
 | 32  | Live Material Price Index          | services  | Queued                                                                                     |
 | 33  | International Code Reference       | services  | Queued                                                                                     |
 | 34  | Climate Material Advisor           | services  | Queued                                                                                     |
+| 35  | Septic & Soakaway Worksheet        | services  | **Audited 2026-11-22**, 11 tests, no defect (BS 6297 cross-check)                          |
 
 Queue order is by risk: engines with no tests at all come first, because an
 untested engine can be wrong in a way a tested one cannot.
