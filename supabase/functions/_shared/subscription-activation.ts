@@ -31,7 +31,7 @@ export async function applySubscriptionPurchase(
     rpc: (
       fn: string,
       args: Record<string, unknown>,
-    ) => Promise<{ data: unknown; error: { message: string } | null }>;
+    ) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
   },
   args: {
     userId: string;

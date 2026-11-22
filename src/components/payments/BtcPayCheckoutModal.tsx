@@ -138,9 +138,9 @@ export default function BtcPayCheckoutModal({
     toast.success("Copied to clipboard");
   };
 
-  const qrUrl = invoice.qr_code_data
+  const qrUrl = invoice.qr_code_data && invoice.btc_address
     ? `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=4&data=${encodeURIComponent(invoice.qr_code_data)}`
-    : `https://api.qrserver.com/v1/create-qr-code/?size=220x220&margin=4&data=${encodeURIComponent(`bitcoin:${invoice.btc_address}?amount=${invoice.amount_btc}`)}`;
+    : null;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -217,17 +217,25 @@ export default function BtcPayCheckoutModal({
                 </p>
               </div>
             ) : (
-              <>
-                <img
-                  src={qrUrl}
-                  alt="Bitcoin Payment QR Code"
-                  className="h-48 w-48 rounded-lg shadow-sm"
-                  loading="eager"
-                />
-                <span className="text-[11px] text-muted-foreground mt-2">
-                  Scan with any Lightning or Bitcoin on-chain wallet
-                </span>
-              </>
+              qrUrl ? (
+                <>
+                  <img
+                    src={qrUrl}
+                    alt="Bitcoin payment QR code"
+                    className="h-48 w-48 rounded-lg shadow-sm"
+                    loading="eager"
+                  />
+                  <span className="text-[11px] text-muted-foreground mt-2">
+                    Scan with a Bitcoin wallet
+                  </span>
+                </>
+              ) : (
+                <div className="py-10 px-4 text-center text-muted-foreground">
+                  <Bitcoin className="h-10 w-10 mx-auto mb-2 text-amber-500" />
+                  <p className="font-medium text-sm">Continue in the secure BTCPay checkout</p>
+                  <p className="text-xs mt-1">The payment address is available in the hosted checkout window.</p>
+                </div>
+              )
             )}
           </div>
 

@@ -272,3 +272,34 @@ export function mapBtcPayStatus(
   if (additionalStatus === "Marked") return "Refunded";
   return "Pending";
 }
+
+/**
+ * Bind a live provider invoice to the immutable server-side checkout record.
+ * This prevents webhook or polling activation for an invoice belonging to a
+ * different store, amount, user, purpose, or order.
+ */
+export function btcPayInvoiceMatchesExpected(
+  invoice: BtcPayInvoiceResponse,
+  expected: {
+    invoiceId: string;
+    storeId: string;
+    amountFiat: number;
+    currencyFiat: string;
+    userId: string;
+    purpose: string;
+    orderId: string;
+  },
+): boolean {
+  const metadata = invoice.metadata;
+  return Boolean(
+    invoice.id === expected.invoiceId &&
+      invoice.storeId === expected.storeId &&
+      Math.round(Number(invoice.amount) * 100) ===
+        Math.round(expected.amountFiat * 100) &&
+      invoice.currency?.toUpperCase() === expected.currencyFiat.toUpperCase() &&
+      metadata &&
+      metadata.userId === expected.userId &&
+      metadata.purpose === expected.purpose &&
+      metadata.orderId === expected.orderId,
+  );
+}

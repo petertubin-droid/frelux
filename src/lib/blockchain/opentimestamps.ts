@@ -33,9 +33,12 @@ export interface VerificationLookupResult {
     | "verified_confirmed"
     | "verified_pending_block"
     | "hash_match_proof_pending"
+    | "record_found"
     | "tampered_mismatch"
     | "not_found";
   message?: string;
+  record_found?: boolean;
+  fingerprint_matches?: boolean | null;
   document?: {
     verification_id: string;
     document_title: string;
@@ -47,10 +50,12 @@ export interface VerificationLookupResult {
     status: string;
   };
   proof?: {
-    bitcoin_block_height?: number;
-    bitcoin_block_hash?: string;
+    bitcoin_block_height?: number | null;
+    bitcoin_block_hash?: string | null;
+    bitcoin_block_time?: string | null;
     calendar_urls: string[];
-    ots_proof_base64: string;
+    ots_proof_base64: string | null;
+    status?: string;
     is_blockchain_confirmed: boolean;
   };
 }
@@ -155,8 +160,17 @@ export async function fetchUserVerifiedDocuments(
     if (!supabase || typeof supabase.from !== "function") return [];
     const query = supabase
       .from("blockchain_document_records")
-      .select("*") as any;
-    if (typeof query?.eq !== "function") return [];
+      .select("*") as unknown as {
+        eq: (column: string, value: string) => {
+          order: (
+            column: string,
+            options: { ascending: boolean },
+          ) => PromiseLike<{
+            data: DocumentVerificationRecord[] | null;
+            error: unknown | null;
+          }>;
+        };
+      };
     const { data, error } = await query
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
@@ -178,20 +192,28 @@ export function generateVerificationCertificateJson(
     verified_at: new Date().toISOString(),
     document: result.document,
     blockchain_proof: {
-      is_confirmed: result.proof?.is_blockchain_confirmed,
-      bitcoin_block_height:
-        result.proof?.bitcoin_block_height ?? "Pending Block Mining",
+      is_confirmed: result.proof?.is_blockchain_confirmed ?? false,
+      bitcoin_block_height: result.proof?.bitcoin_block_height ?? null,
       bitcoin_block_hash: result.proof?.bitcoin_block_hash ?? null,
+      bitcoin_block_time: result.proof?.bitcoin_block_time ?? null,
+      timestamp_status: result.proof?.status ?? null,
       calendar_servers: result.proof?.calendar_urls ?? [],
     },
     verification_status: result.result,
+    record_found: result.record_found ?? Boolean(result.document),
+    fingerprint_matches: result.fingerprint_matches === undefined
+      ? result.verified
+      : result.fingerprint_matches,
     authenticity_statement:
       result.result === "verified_confirmed"
-        ? "Document SHA-256 fingerprint matches the original creation record and is cryptographically anchored in the Bitcoin blockchain."
-        : result.result === "verified_pending_block" ||
-            result.result === "hash_match_proof_pending"
-          ? "Document SHA-256 fingerprint matches the original creation record. Blockchain confirmation is pending Bitcoin block inclusion."
-          : "Document verification could not be confirmed. Hash mismatch or unrecorded document.",
+        ? "The supplied document SHA-256 fingerprint matches the original creation record and its OpenTimestamps proof was independently verified against Bitcoin block data."
+        : result.result === "verified_pending_block"
+          ? "The supplied document SHA-256 fingerprint matches the original creation record. Its timestamp proof is awaiting Bitcoin block confirmation."
+          : result.result === "hash_match_proof_pending"
+            ? "The supplied document SHA-256 fingerprint matches the registration record, but a valid timestamp proof is not currently available. Bitcoin anchoring is not confirmed."
+            : result.result === "record_found"
+              ? "A FRELUX verification record was found by its identifier. No file fingerprint was supplied, so this certificate does not verify a document against the record."
+              : "Document verification could not be confirmed. The fingerprint did not match a registered record or the record was not found.",
   };
 
   return JSON.stringify(certificate, null, 2);

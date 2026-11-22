@@ -1,14 +1,5 @@
-// =========================================================
-// BTCPay Checkout — Initialize Bitcoin Payment Session
-// FRELUX PAY
-//
-// 1. Authenticates caller session
-// 2. Resolves canonical server-side price (never trusts client amount)
-// 3. Connects strictly to BTCPay Greenfield API (no demo/mock fallbacks)
-// 4. Retrieves live Bitcoin payment address, exchange rate, and due sats
-// 5. Records invoice in crypto_payment_invoices
-// =========================================================
-
+// FRELUX PAY: server-priced BTCPay invoices. No client-supplied amounts or
+// synthetic plan/token pricing are accepted.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
@@ -33,232 +24,204 @@ const corsHeaders = {
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
-
-// Approved token purchase tiers (USD)
-const TOKEN_PACK_PRICES: Record<string, number> = {
-  starter: 10.0,
-  builder: 25.0,
-  contractor: 50.0,
-  enterprise: 100.0,
-};
+const json = (body: unknown, status = 200) =>
+  new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 
 serveWithCors(async (req: Request) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method !== "POST") return json({ error: "METHOD_NOT_ALLOWED" }, 405);
 
-  if (req.method !== "POST") {
-    return new Response(JSON.stringify({ error: "method not allowed" }), {
-      status: 405,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
-
-  // 1. Verify User Authentication
   const userId = await getVerifiedUserId(req);
-  if (!userId) {
-    return new Response(JSON.stringify({ error: "unauthorized" }), {
-      status: 401,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
-  }
+  if (!userId) return json({ error: "UNAUTHORIZED" }, 401);
 
-  // 2. Rate Limiting
-  const rlKey = `btcpay-checkout:${userId}`;
-  const allowed = await checkRateLimit(
-    rlKey,
-    RATE_LIMITS.PAYMENT_INITIALIZE || { max: 10, windowMs: 60000 },
+  const limit = await checkRateLimit(
+    `btcpay-checkout:${userId}`,
+    RATE_LIMITS.PAYMENT,
   );
-  if (!allowed) {
-    return rateLimitedResponse(corsHeaders);
-  }
+  if (!limit.allowed) return rateLimitedResponse(limit.resetAt);
 
   try {
     const body = await req.json();
-    const {
-      purpose = "subscription",
-      plan_id = "pro",
-      billing_cycle = "monthly",
-      token_pack = "starter",
-      market_code = null,
-      origin_market = null,
-      email: clientEmail = "",
-    } = body;
-
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const adminClient = createClient(supabaseUrl, serviceRoleKey);
-
-    // Fetch user profile email if not provided
-    let buyerEmail = clientEmail;
-    if (!buyerEmail) {
-      const { data: userRecord } =
-        await adminClient.auth.admin.getUserById(userId);
-      buyerEmail =
-        userRecord?.user?.email || `user-${userId.slice(0, 8)}@freluxtools.com`;
+    if (!body || typeof body !== "object" || Array.isArray(body)) {
+      return json({ error: "INVALID_REQUEST" }, 400);
+    }
+    const purpose = body.purpose ?? "subscription";
+    const plan = typeof body.plan_id === "string" ? body.plan_id.trim() : "";
+    const billingCycle = body.billing_cycle;
+    if (!(["subscription", "token_purchase"] as unknown[]).includes(purpose)) {
+      return json({ error: "UNSUPPORTED_PURPOSE" }, 400);
     }
 
-    // 3. Resolve canonical server-side price (never trust client amounts)
-    let amountFiat = 29.0;
-    let currencyFiat = "USD";
-    let itemDescription = `FRELUX ${plan_id.toUpperCase()} (${billing_cycle})`;
+    const supabaseUrl = Deno.env.get("SUPABASE_URL");
+    const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+    if (!supabaseUrl || !serviceRoleKey) {
+      return json({ error: "PAYMENT_SERVICE_UNAVAILABLE" }, 503);
+    }
+    const admin = createClient(supabaseUrl, serviceRoleKey);
+    const config = getBtcPayConfig();
+    if (!config) return json({ error: "BTCPAY_NOT_CONFIGURED" }, 503);
+
+    const siteUrlValue = Deno.env.get("SITE_URL");
+    let siteUrl: URL;
+    try {
+      siteUrl = new URL(siteUrlValue || "");
+    } catch {
+      return json({ error: "SITE_URL_NOT_CONFIGURED" }, 503);
+    }
+    if (siteUrl.protocol !== "https:" || siteUrl.username || siteUrl.password) {
+      return json({ error: "SITE_URL_INVALID" }, 503);
+    }
+
+    let amountMinor: number;
+    let tokenAmount: number | null = null;
+    let itemDescription: string;
+    const currency = "USD";
 
     if (purpose === "subscription") {
-      const priceRows = await loadPlanPriceRows(adminClient);
-      const charge = resolveSubscriptionPrice(
-        plan_id,
-        billing_cycle,
-        priceRows,
-        market_code,
-        origin_market,
-      );
-      amountFiat = charge.amount;
-      currencyFiat = charge.currency;
-      itemDescription = `FRELUX ${plan_id.toUpperCase()} (${billing_cycle})`;
-    } else if (purpose === "token_purchase") {
-      amountFiat = TOKEN_PACK_PRICES[token_pack] || 10.0;
-      currencyFiat = "USD";
-      itemDescription = `FRELUX AI Tokens (${token_pack.toUpperCase()} Pack)`;
+      if (!plan || !["monthly", "yearly"].includes(billingCycle)) {
+        return json({ error: "INVALID_SUBSCRIPTION_SELECTION" }, 400);
+      }
+      const priceRows = await loadPlanPriceRows(async (columns) => {
+        const { data, error } = await admin
+          .from("subscription_plan_prices")
+          .select(columns)
+          .eq("active", true);
+        return { data: data as unknown[] | null, error };
+      });
+      if (!priceRows) return json({ error: "PRICE_CATALOG_UNAVAILABLE" }, 503);
+      const price = resolveSubscriptionPrice(priceRows, plan, billingCycle, currency);
+      if (!price || price.priceMinor <= 0) {
+        return json({ error: "PLAN_NOT_AVAILABLE_IN_USD" }, 400);
+      }
+      amountMinor = price.priceMinor;
+      itemDescription = `FRELUX ${plan.toUpperCase()} (${billingCycle})`;
+    } else {
+      const [{ data: configRow, error: configError }, { data: priceRow, error: priceError }] =
+        await Promise.all([
+          admin.from("token_purchase_config").select("token_amount,is_enabled").eq("id", 1).maybeSingle(),
+          admin.from("token_purchase_prices").select("price_minor,is_active").eq("currency_code", "USD").maybeSingle(),
+        ]);
+      if (configError || priceError) return json({ error: "TOKEN_PRICE_CATALOG_UNAVAILABLE" }, 503);
+      tokenAmount = Number(configRow?.token_amount);
+      amountMinor = Number(priceRow?.price_minor);
+      if (!configRow?.is_enabled || priceRow?.is_active !== true ||
+          !Number.isSafeInteger(tokenAmount) || tokenAmount <= 0 ||
+          !Number.isSafeInteger(amountMinor) || amountMinor <= 0) {
+        return json({ error: "TOKEN_PURCHASE_NOT_AVAILABLE_IN_USD" }, 400);
+      }
+      itemDescription = `FRELUX AI Credits (${tokenAmount} tokens)`;
     }
 
-    // 4. Validate BTCPay Greenfield Configuration (Fail Closed — No Fake Invoices)
-    const btcpayConfig = getBtcPayConfig();
-    if (!btcpayConfig || !btcpayConfig.apiKey || !btcpayConfig.storeId) {
-      return new Response(
-        JSON.stringify({
-          error: "BTCPAY_NOT_CONFIGURED",
-          message:
-            "FRELUX PAY (BTCPay Server) is not configured on this server environment. Please set BTCPAY_URL, BTCPAY_STORE_ID, and BTCPAY_API_KEY.",
-        }),
-        {
-          status: 503,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+    const amountFiat = amountMinor / 100;
+    if (!Number.isFinite(amountFiat) || amountFiat <= 0) {
+      return json({ error: "INVALID_PRICE_CONFIGURATION" }, 503);
     }
-
-    const orderId = `FRX-${purpose.slice(0, 3).toUpperCase()}-${Date.now()}-${userId.slice(0, 6)}`;
-    const siteUrl = Deno.env.get("SITE_URL") || "https://freluxtools.com";
-    const redirectUrl = `${siteUrl}/dashboard?payment=btcpay_success&orderId=${orderId}`;
-
-    // 5. Create Dynamic Invoice on BTCPay Server
-    const invoice = await createBtcPayInvoice(btcpayConfig, {
+    const orderId = `FRX-${crypto.randomUUID()}`;
+    const invoice = await createBtcPayInvoice(config, {
       amount: amountFiat,
-      currency: currencyFiat,
+      currency,
       orderId,
       itemDesc: itemDescription,
-      buyerEmail,
-      redirectUrl,
       metadata: {
         userId,
         purpose,
-        plan: plan_id,
-        billingCycle: billing_cycle,
+        plan: purpose === "subscription" ? plan : null,
+        billingCycle: purpose === "subscription" ? billingCycle : null,
+        tokenAmount,
       },
+      redirectUrl: `${siteUrl.origin}/dashboard?payment=btcpay_success&orderId=${encodeURIComponent(orderId)}`,
     });
 
-    const invoiceId = invoice.id;
-    const checkoutLink = invoice.checkoutLink;
-    const expiresAt = new Date(invoice.expirationTime * 1000).toISOString();
+    if (!invoice.id || invoice.storeId !== config.storeId ||
+        Number(invoice.amount) !== amountFiat || invoice.currency.toUpperCase() !== currency ||
+        !invoice.checkoutLink || !Number.isFinite(invoice.expirationTime)) {
+      throw new Error("BTCPay returned an invoice that does not match the server quote");
+    }
+    const checkoutUrl = new URL(invoice.checkoutLink);
+    if (checkoutUrl.protocol !== "https:" || checkoutUrl.origin !== new URL(config.serverUrl).origin) {
+      throw new Error("BTCPay returned a checkout URL outside the configured server origin");
+    }
 
     let btcAddress = "";
     let amountBtc = 0;
     let rateFiat = 0;
     let qrCodeData = "";
-
-    // 6. Query Payment Methods for Real BTC Address and Amount
     try {
-      const paymentMethods = await getBtcPayPaymentMethods(
-        btcpayConfig,
-        invoiceId,
-      );
-      const btcMethod = paymentMethods.find(
-        (p) => p.paymentMethod === "BTC" || p.cryptoCode === "BTC",
+      const methods = await getBtcPayPaymentMethods(config, invoice.id);
+      const btcMethod = methods.find((method) =>
+        method.paymentMethod?.toUpperCase().startsWith("BTC") ||
+        method.cryptoCode?.toUpperCase() === "BTC",
       );
       if (btcMethod) {
-        btcAddress = btcMethod.destination;
-        amountBtc = parseFloat(btcMethod.due || btcMethod.amount);
-        rateFiat = parseFloat(btcMethod.rate);
-        qrCodeData =
-          btcMethod.paymentLink || `bitcoin:${btcAddress}?amount=${amountBtc}`;
+        btcAddress = btcMethod.destination || "";
+        amountBtc = Number(btcMethod.due || btcMethod.amount || 0);
+        rateFiat = Number(btcMethod.rate || 0);
+        qrCodeData = btcMethod.paymentLink || (btcAddress && amountBtc > 0
+          ? `bitcoin:${btcAddress}?amount=${amountBtc}` : "");
+        if (!Number.isFinite(amountBtc) || amountBtc <= 0) {
+          btcAddress = "";
+          amountBtc = 0;
+          qrCodeData = "";
+        }
       }
-    } catch (pmError) {
-      console.warn("[btcpay-checkout] payment methods query:", pmError);
+    } catch (error) {
+      console.warn("[btcpay-checkout] hosted checkout fallback:", error);
     }
 
-    const amountSats = btcToSatoshis(amountBtc);
-
-    // 7. Persist Invoice in Database
-    const { error: insertError } = await adminClient
+    const expiresAt = new Date(invoice.expirationTime * 1000).toISOString();
+    const metadata = {
+      order_id: orderId,
+      token_amount: tokenAmount,
+      amount_minor: amountMinor,
+      currency,
+    };
+    const { error: insertError } = await admin
       .from("crypto_payment_invoices")
       .insert({
-        invoice_id: invoiceId,
-        store_id: btcpayConfig.storeId,
+        invoice_id: invoice.id,
+        store_id: config.storeId,
         user_id: userId,
         purpose,
-        plan_id,
-        billing_cycle,
+        plan_id: purpose === "subscription" ? plan : null,
+        billing_cycle: purpose === "subscription" ? billingCycle : null,
         amount_fiat: amountFiat,
-        currency_fiat: currencyFiat,
-        amount_btc: amountBtc,
-        amount_sats: amountSats,
-        btc_address: btcAddress,
+        currency_fiat: currency,
+        amount_btc: amountBtc || null,
+        amount_sats: amountBtc ? btcToSatoshis(amountBtc) : null,
+        btc_address: btcAddress || null,
         payment_method: "BTC",
         status: "Pending",
-        rate_fiat: rateFiat,
-        rate_usd: rateFiat,
-        checkout_url: checkoutLink,
-        redirect_url: redirectUrl,
-        qr_code_data: qrCodeData,
+        rate_fiat: Number.isFinite(rateFiat) && rateFiat > 0 ? rateFiat : null,
+        rate_usd: Number.isFinite(rateFiat) && rateFiat > 0 ? rateFiat : null,
+        checkout_url: invoice.checkoutLink,
+        redirect_url: `${siteUrl.origin}/dashboard?payment=btcpay_success&orderId=${encodeURIComponent(orderId)}`,
+        qr_code_data: qrCodeData || null,
         expires_at: expiresAt,
-        metadata: {
-          buyer_email: buyerEmail,
-          order_id: orderId,
-        },
+        metadata,
       });
-
     if (insertError) {
-      console.error(
-        "[btcpay-checkout] failed to store invoice in database:",
-        insertError.message,
-      );
-      return new Response(
-        JSON.stringify({
-          error: "DATABASE_ERROR",
-          message: "Failed to record payment invoice in database.",
-        }),
-        {
-          status: 500,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        },
-      );
+      console.error("[btcpay-checkout] invoice persistence failed:", insertError.message);
+      return json({ error: "INVOICE_PERSISTENCE_FAILED" }, 500);
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        invoice_id: invoiceId,
-        checkout_url: checkoutLink,
-        btc_address: btcAddress,
-        amount_btc: amountBtc,
-        amount_sats: amountSats,
-        amount_fiat: amountFiat,
-        currency_fiat: currencyFiat,
-        rate_fiat: rateFiat,
-        qr_code_data: qrCodeData,
-        expires_at: expiresAt,
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      },
-    );
-  } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error("[btcpay-checkout] error:", msg);
-    return new Response(JSON.stringify({ error: msg }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    return json({
+      success: true,
+      invoice_id: invoice.id,
+      checkout_url: invoice.checkoutLink,
+      btc_address: btcAddress,
+      amount_btc: amountBtc,
+      amount_sats: amountBtc ? btcToSatoshis(amountBtc) : 0,
+      amount_fiat: amountFiat,
+      currency_fiat: currency,
+      rate_fiat: rateFiat,
+      qr_code_data: qrCodeData,
+      expires_at: expiresAt,
     });
+  } catch (error) {
+    console.error("[btcpay-checkout] failed:", error instanceof Error ? error.message : error);
+    return json({ error: "CHECKOUT_INITIALIZATION_FAILED" }, 500);
   }
 });

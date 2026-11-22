@@ -118,7 +118,7 @@ export async function submitHashToOpenTimestamps(
           "Content-Type": "application/x-www-form-urlencoded",
           Accept: "application/vnd.opentimestamps.v1",
         },
-        body: hashBytes,
+        body: new Blob([hashBytes.buffer.slice(hashBytes.byteOffset, hashBytes.byteOffset + hashBytes.byteLength) as ArrayBuffer]),
         signal: AbortSignal.timeout(5000),
       });
 
@@ -160,70 +160,29 @@ export async function submitHashToOpenTimestamps(
   };
 }
 
-/** Parse an OTS proof and check for Bitcoin block attestation */
-export function parseOtsProof(proofBase64: string): {
-  isConfirmed: boolean;
-  bitcoinBlockHeight?: number;
-  bitcoinBlockHash?: string;
-  calendarUrls: string[];
-} {
-  if (!proofBase64) {
-    return { isConfirmed: false, calendarUrls: [] };
-  }
+import { read as readOts } from "./vendor/ots/read.ts";
+import { write as writeOts } from "./vendor/ots/write.ts";
+import { upgrade as upgradeOts } from "./vendor/ots/upgrade.ts";
+import { verify as verifyOts } from "./vendor/ots/verify.ts";
+import { treeToPaths } from "./vendor/ots/internals.ts";
+import verifiers from "./vendor/ots/verifiers/index.ts";
+import { uint8ArrayToBase64, uint8ArrayFromBase64, uint8ArrayToHex } from "./vendor/ots/utils.ts";
 
-  try {
-    const raw = atob(proofBase64);
-    const bytes = new Uint8Array(raw.length);
-    for (let i = 0; i < raw.length; i++) {
-      bytes[i] = raw.charCodeAt(i);
-    }
-
-    const calendarUrls: string[] = [];
-    const text = raw;
-
-    for (const pool of DEFAULT_CALENDAR_POOLS) {
-      if (text.includes(pool) || text.includes(pool.replace("https://", ""))) {
-        calendarUrls.push(pool);
-      }
-    }
-
-    // Bitcoin block attestation tag search: 0x05, 0x88, 0x96, 0x0d, 0x73, 0xd7, 0x19, 0x01
-    let isConfirmed = false;
-    let blockHeight: number | undefined;
-
-    for (let i = 0; i < bytes.length - 12; i++) {
-      if (
-        bytes[i] === 0x05 &&
-        bytes[i + 1] === 0x88 &&
-        bytes[i + 2] === 0x96 &&
-        bytes[i + 3] === 0x0d
-      ) {
-        isConfirmed = true;
-        // Read variable integer height
-        blockHeight =
-          (bytes[i + 8] << 16) | (bytes[i + 9] << 8) | bytes[i + 10];
-        break;
-      }
-    }
-
-    return {
-      isConfirmed,
-      bitcoinBlockHeight: blockHeight,
-      calendarUrls:
-        calendarUrls.length > 0 ? calendarUrls : DEFAULT_CALENDAR_POOLS,
-    };
-  } catch {
-    return {
-      isConfirmed: false,
-      calendarUrls: DEFAULT_CALENDAR_POOLS,
-    };
-  }
+function findBitcoinHeight(timestamp: ReturnType<typeof readOts>): number | undefined {
+  return treeToPaths(timestamp.tree)
+    .map(({ leaf }) => leaf)
+    .find((leaf) => leaf.type === "bitcoin")?.height;
 }
 
-/** Upgrade an OTS proof by querying calendar servers */
+/**
+ * Parse, calendar-upgrade, and cryptographically verify an OpenTimestamps proof.
+ * A Bitcoin leaf in the serialized proof is not itself a verified attestation:
+ * confirmation is reported only when two independent block explorers agree on
+ * the timestamp for the block's merkle root.
+ */
 export async function upgradeOtsProof(
   proofBase64: string,
-  calendarPools: string[] = DEFAULT_CALENDAR_POOLS,
+  expectedDocumentHash: string,
 ): Promise<{
   upgradedProofBase64: string;
   status:
@@ -232,67 +191,68 @@ export async function upgradeOtsProof(
     | "Bitcoin Confirmation Pending"
     | "Blockchain Verified";
   bitcoinBlockHeight?: number;
+  bitcoinBlockHash?: string;
+  bitcoinBlockTime?: string;
 }> {
   if (!proofBase64) {
+    return { upgradedProofBase64: "", status: "Awaiting Timestamp" };
+  }
+
+  const initialTimestamp = readOts(uint8ArrayFromBase64(proofBase64));
+  const allowedCalendarOrigins = new Set(DEFAULT_CALENDAR_POOLS.map((url) => new URL(url).origin));
+  for (const { leaf } of treeToPaths(initialTimestamp.tree)) {
+    if (leaf.type === "pending" && !allowedCalendarOrigins.has(leaf.url.origin)) {
+      throw new Error("OpenTimestamps proof references an untrusted calendar endpoint");
+    }
+  }
+  if (initialTimestamp.fileHash.algorithm !== "sha256" ||
+      uint8ArrayToHex(initialTimestamp.fileHash.value) !== expectedDocumentHash.toLowerCase()) {
+    throw new Error("OpenTimestamps proof does not match the registered document hash");
+  }
+  const upgraded = await upgradeOts(initialTimestamp);
+  const serialized = writeOts(upgraded.timestamp);
+  const upgradedProofBase64 = uint8ArrayToBase64(serialized);
+  const bitcoinBlockHeight = findBitcoinHeight(upgraded.timestamp);
+
+  if (bitcoinBlockHeight === undefined) {
+    return { upgradedProofBase64, status: "Timestamp Submitted" };
+  }
+
+  // The upstream verifiers each recompute the OTS operation chain and compare
+  // its result to the block's actual merkle root. Require both providers to
+  // independently confirm the same block time before asserting verification.
+  const verification = await verifyOts(upgraded.timestamp, verifiers);
+  const agreeingTime = Object.entries(verification.attestations).find(
+    ([, names]) => names.length >= 2,
+  )?.[0];
+
+  if (!agreeingTime) {
     return {
-      upgradedProofBase64: "",
-      status: "Awaiting Timestamp",
+      upgradedProofBase64,
+      status: "Bitcoin Confirmation Pending",
+      bitcoinBlockHeight,
     };
   }
 
-  const current = parseOtsProof(proofBase64);
-  if (current.isConfirmed && current.bitcoinBlockHeight) {
-    return {
-      upgradedProofBase64: proofBase64,
-      status: "Blockchain Verified",
-      bitcoinBlockHeight: current.bitcoinBlockHeight,
-    };
-  }
-
-  // Attempt upgrade against calendar server
+  let bitcoinBlockHash: string | undefined;
   try {
-    const raw = atob(proofBase64);
-    const bytes = new Uint8Array(raw.length);
-    for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i);
-
-    for (const cal of calendarPools) {
-      try {
-        const url = `${cal.replace(/\/+$/, "")}/upgrade`;
-        const res = await fetch(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            Accept: "application/vnd.opentimestamps.v1",
-          },
-          body: bytes,
-          signal: AbortSignal.timeout(5000),
-        });
-
-        if (res.ok) {
-          const buffer = await res.arrayBuffer();
-          if (buffer.byteLength > bytes.length) {
-            const upgraded = new Uint8Array(buffer);
-            const upgradedBase64 = btoa(String.fromCharCode(...upgraded));
-            const parsed = parseOtsProof(upgradedBase64);
-            if (parsed.isConfirmed) {
-              return {
-                upgradedProofBase64: upgradedBase64,
-                status: "Blockchain Verified",
-                bitcoinBlockHeight: parsed.bitcoinBlockHeight,
-              };
-            }
-          }
-        }
-      } catch {
-        // Continue
-      }
+    const hashResponse = await fetch(
+      `https://blockstream.info/api/block-height/${bitcoinBlockHeight}`,
+      { signal: AbortSignal.timeout(5000) },
+    );
+    if (hashResponse.ok) {
+      const candidate = (await hashResponse.text()).trim();
+      if (/^[0-9a-f]{64}$/i.test(candidate)) bitcoinBlockHash = candidate;
     }
   } catch {
-    // Continue
+    // A block hash is useful display metadata, but not required for the proof verdict.
   }
 
   return {
-    upgradedProofBase64: proofBase64,
-    status: "Bitcoin Confirmation Pending",
+    upgradedProofBase64,
+    status: "Blockchain Verified",
+    bitcoinBlockHeight,
+    bitcoinBlockHash,
+    bitcoinBlockTime: new Date(Number(agreeingTime) * 1000).toISOString(),
   };
 }

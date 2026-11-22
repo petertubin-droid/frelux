@@ -27,6 +27,16 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+
+      - name: Edge function proof and payment tests
+        run: deno test --allow-read=supabase/functions/_shared/vendor/ots/fixtures supabase/functions/_shared/opentimestamps.test.ts supabase/functions/_shared/btcpay.test.ts
+
+      - name: Edge function type check
+        run: deno check supabase/functions/_shared/opentimestamps.ts supabase/functions/btcpay-checkout/index.ts supabase/functions/btcpay-verify/index.ts supabase/functions/btcpay-webhook/index.ts supabase/functions/opentimestamps-stamp/index.ts supabase/functions/opentimestamps-verify/index.ts
+
       - name: Type check
         run: npx tsc --noEmit -p tsconfig.app.json
 

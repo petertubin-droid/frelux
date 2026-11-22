@@ -84,7 +84,7 @@ describe("FRELUX VERIFY — Blockchain Document Verification", () => {
     expect(parsed.blockchain_proof.is_confirmed).toBe(true);
     expect(parsed.blockchain_proof.bitcoin_block_height).toBe(924512);
     expect(parsed.authenticity_statement).toContain(
-      "cryptographically anchored in the Bitcoin blockchain",
+      "independently verified against Bitcoin block data",
     );
   });
 
@@ -113,13 +113,58 @@ describe("FRELUX VERIFY — Blockchain Document Verification", () => {
     const parsed = JSON.parse(certJson);
 
     expect(parsed.blockchain_proof.is_confirmed).toBe(false);
-    expect(parsed.blockchain_proof.bitcoin_block_height).toBe(
-      "Pending Block Mining",
-    );
+    expect(parsed.blockchain_proof.bitcoin_block_height).toBe(null);
     expect(parsed.authenticity_statement).toContain(
-      "Blockchain confirmation is pending Bitcoin block inclusion",
+      "timestamp proof is awaiting Bitcoin block confirmation",
     );
   });
+  it("does not claim a document was checked when only its verification ID is found", () => {
+    const recordOnly: VerificationLookupResult = {
+      success: true,
+      verified: false,
+      record_found: true,
+      fingerprint_matches: null,
+      result: "record_found",
+      document: {
+        verification_id: "FRX-VER-2026-ABC2345678",
+        document_title: "Design estimate",
+        document_type: "boq",
+        document_hash: "a".repeat(64),
+        created_at: "2026-11-22T09:00:00Z",
+        status: "Timestamp Submitted",
+      },
+      proof: {
+        calendar_urls: [],
+        ots_proof_base64: null,
+        status: "Timestamp Submitted",
+        is_blockchain_confirmed: false,
+      },
+    };
+    const parsed = JSON.parse(generateVerificationCertificateJson(recordOnly));
+    expect(parsed.record_found).toBe(true);
+    expect(parsed.fingerprint_matches).toBe(null);
+    expect(parsed.authenticity_statement).toContain("No file fingerprint was supplied");
+  });
+
+  it("states that a matching fingerprint is not Bitcoin-anchored when no proof is available", () => {
+    const pendingWithoutProof: VerificationLookupResult = {
+      success: true,
+      verified: true,
+      record_found: true,
+      fingerprint_matches: true,
+      result: "hash_match_proof_pending",
+      proof: {
+        calendar_urls: [],
+        ots_proof_base64: null,
+        status: "Awaiting Timestamp",
+        is_blockchain_confirmed: false,
+      },
+    };
+    const parsed = JSON.parse(generateVerificationCertificateJson(pendingWithoutProof));
+    expect(parsed.blockchain_proof.is_confirmed).toBe(false);
+    expect(parsed.authenticity_statement).toContain("Bitcoin anchoring is not confirmed");
+  });
+
 });
 
 describe("FRELUX VERIFY — Tamper & Mismatch Detection", () => {
@@ -128,8 +173,6 @@ describe("FRELUX VERIFY — Tamper & Mismatch Detection", () => {
       success: false,
       verified: false,
       result: "not_found",
-      // VerificationLookupResult carries the reason on `message`; the
-      // certificate reads the status, not the wording, so this is context.
       message: "No registered document matches the provided hash.",
     };
 

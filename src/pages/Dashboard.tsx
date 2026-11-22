@@ -12,8 +12,6 @@ import {
   Bitcoin,
   ShieldCheck,
   FileCheck,
-  CheckCircle,
-  Clock as ClockIcon,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import EmptyState from "@/components/ui/EmptyState";
@@ -31,7 +29,6 @@ import {
   fetchUserCryptoInvoices,
   type UserCryptoInvoiceRow,
   formatBtc,
-  formatSats,
 } from "@/lib/payments/btcpay";
 import {
   fetchUserVerifiedDocuments,
@@ -152,17 +149,10 @@ export default function Dashboard() {
       setLoading(false);
       return;
     }
-    loadAll();
+    void loadAll(user.id);
   }, [user]);
 
-  async function loadAll() {
-    // The effect guards the signed-out case, but this function is called from
-    // more than one place, so it has to guard the user itself before reading
-    // an id from it.
-    if (!user) {
-      setLoading(false);
-      return;
-    }
+  async function loadAll(userId: string) {
     setLoading(true);
     const [projRes, favRes, recentRes, contractorRes, cryptoRes, docRes] =
       await Promise.all([
@@ -176,8 +166,8 @@ export default function Dashboard() {
           )
           .order("updated_at", { ascending: false })
           .limit(6),
-        fetchUserCryptoInvoices(user.id),
-        fetchUserVerifiedDocuments(user.id),
+        fetchUserCryptoInvoices(userId),
+        fetchUserVerifiedDocuments(userId),
       ]);
     setCryptoInvoices(cryptoRes);
     setVerifiedDocs(docRes);

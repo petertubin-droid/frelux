@@ -30,7 +30,6 @@ import {
   Copy,
   Check,
   Download,
-  ExternalLink,
   CheckCircle2,
   AlertTriangle,
   RefreshCw,
@@ -257,46 +256,60 @@ export default function Verify() {
           <Card className="border border-border shadow-lg overflow-hidden animate-in fade-in-50 duration-300">
             <div
               className={`p-4 border-b flex items-center justify-between ${
-                result.verified
+                result.fingerprint_matches === true
                   ? result.result === "verified_confirmed"
                     ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-700 dark:text-emerald-400"
                     : "bg-blue-500/10 border-blue-500/20 text-blue-700 dark:text-blue-400"
-                  : "bg-destructive/10 border-destructive/20 text-destructive"
+                  : result.fingerprint_matches === null && result.record_found
+                    ? "bg-muted border-border text-foreground"
+                    : "bg-destructive/10 border-destructive/20 text-destructive"
               }`}
             >
               <div className="flex items-center gap-3">
-                {result.verified ? (
+                {result.fingerprint_matches === true ? (
                   result.result === "verified_confirmed" ? (
                     <CheckCircle2 className="h-6 w-6 text-emerald-500" />
                   ) : (
                     <Clock className="h-6 w-6 text-blue-500" />
                   )
+                ) : result.fingerprint_matches === null && result.record_found ? (
+                  <Clock className="h-6 w-6 text-muted-foreground" />
                 ) : (
                   <ShieldAlert className="h-6 w-6 text-destructive" />
                 )}
                 <div>
                   <div className="font-semibold text-base">
-                    {result.verified
+                    {result.fingerprint_matches === true
                       ? result.result === "verified_confirmed"
-                        ? "Cryptographically Verified & Bitcoin Anchored"
-                        : "Cryptographically Verified (Bitcoin Confirmation Pending)"
-                      : "Verification Failed / Unregistered Document"}
+                        ? "Fingerprint Matched & Bitcoin Anchored"
+                        : result.result === "hash_match_proof_pending"
+                          ? "Fingerprint Matched; Timestamp Proof Pending"
+                          : "Fingerprint Matched; Bitcoin Confirmation Pending"
+                      : result.record_found && result.fingerprint_matches === null
+                        ? "Verification Record Found; File Not Compared"
+                        : result.record_found
+                          ? "Fingerprint Does Not Match This Record"
+                          : "Verification Failed / Unregistered Document"}
                   </div>
                   <div className="text-xs opacity-90">
-                    {result.verified
-                      ? "The cryptographic fingerprint matches the original document creation record exactly."
-                      : "The document fingerprint does not match any registered FRELUX record, or the document has been altered."}
+                    {result.fingerprint_matches === true
+                      ? "The SHA-256 fingerprint matches the registered record. Bitcoin anchoring is confirmed only when the proof status below says it is confirmed."
+                      : result.record_found && result.fingerprint_matches === null
+                        ? "This verification ID identifies a FRELUX record. Upload the document to compare its fingerprint; finding the record alone does not verify a file."
+                        : result.record_found
+                          ? result.message || "The supplied document fingerprint does not match the registered record."
+                          : "The document fingerprint does not match any registered FRELUX record, or the document has been altered."}
                   </div>
                 </div>
               </div>
 
               <Badge
                 variant={
-                  result.verified
+                  result.fingerprint_matches === true
                     ? result.result === "verified_confirmed"
                       ? "default"
                       : "secondary"
-                    : "destructive"
+                    : result.fingerprint_matches === null && result.record_found ? "outline" : "destructive"
                 }
                 className="text-xs font-mono uppercase"
               >
@@ -406,14 +419,22 @@ export default function Verify() {
                     >
                       {result.proof?.is_blockchain_confirmed
                         ? `Block #${result.proof.bitcoin_block_height}`
-                        : "Confirmation Pending"}
+                        : result.proof?.status === "Awaiting Timestamp"
+                          ? "Timestamp Not Yet Submitted"
+                          : result.proof?.status === "Verification Failed"
+                            ? "Proof Could Not Be Validated"
+                            : "Confirmation Pending"}
                     </Badge>
                   </div>
 
                   <p className="text-xs text-muted-foreground">
                     {result.proof?.is_blockchain_confirmed
-                      ? `Anchored in Bitcoin block height ${result.proof.bitcoin_block_height}. The timestamp proof guarantees that this document existed in this exact byte-for-byte state prior to this block.`
-                      : "The cryptographic digest has been submitted to OpenTimestamps calendar pools. Bitcoin block confirmation takes standard network cycle time (approx. a few hours)."}
+                      ? `Anchored in Bitcoin block height ${result.proof.bitcoin_block_height}. The independently checked proof commits to this exact SHA-256 fingerprint.`
+                      : result.proof?.status === "Awaiting Timestamp"
+                        ? "The document fingerprint is registered, but no timestamp proof has been returned by a calendar yet. Retry verification later; Bitcoin anchoring is not confirmed."
+                        : result.proof?.status === "Verification Failed"
+                          ? "The stored timestamp proof could not be validated against the registered fingerprint. It is not considered Bitcoin-confirmed."
+                          : "The timestamp proof is awaiting Bitcoin block confirmation. Confirmation timing depends on the Bitcoin network and calendar availability."}
                   </p>
 
                   {result.proof?.calendar_urls &&
@@ -465,13 +486,13 @@ export default function Verify() {
               </CardContent>
             )}
 
-            {!result.verified && (
+            {(!result.record_found || result.fingerprint_matches === false) && (
               <CardContent className="p-6 space-y-4">
                 <div className="rounded-lg bg-destructive/10 border border-destructive/20 p-4 text-destructive flex items-start gap-3">
                   <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
                   <div className="text-sm">
                     <p className="font-semibold mb-1">
-                      Untrusted or Modified File
+                      {result.record_found ? "Fingerprint Mismatch" : "Untrusted or Modified File"}
                     </p>
                     <p className="text-xs opacity-90 leading-relaxed">
                       {result.message ||
