@@ -124,6 +124,19 @@ describe("health (native)", () => {
     expect(body.checks.database).toBe("unknown");
   });
 
+  it("reports a sane uptime instead of the epoch", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => jsonResponse([{ id: 1 }])));
+    const res = await health(
+      new Request("https://files.example/api/fn/health"),
+      env(),
+      new URL("https://files.example/api/fn/health"),
+    );
+    const body = (await res.json()) as { uptime_seconds: number };
+    // Module scope runs with a frozen clock on Workers; uptime must be
+    // measured from the first request, so it can never be the epoch.
+    expect(body.uptime_seconds).toBeLessThan(60);
+  });
+
   it("rejects non-GET methods", async () => {
     const res = await health(
       new Request("https://files.example/api/fn/health", { method: "POST" }),

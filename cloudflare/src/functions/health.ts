@@ -13,7 +13,12 @@
  */
 import { json, type ApiEnv } from "../api";
 
-const startedAt = Date.now();
+/**
+ * Cloudflare freezes `Date.now()` while module scope is evaluated, so a
+ * module-level timestamp reads as 0 and `uptime_seconds` came out as the
+ * epoch. The clock starts on the first request instead.
+ */
+let startedAt: number | null = null;
 
 interface HealthStatus {
   status: "healthy" | "degraded" | "down";
@@ -62,6 +67,8 @@ export async function health(
     return json({ error: "Method not allowed" }, 405, cors);
   }
 
+  if (startedAt === null) startedAt = Date.now();
+
   const checks: HealthStatus["checks"] = {
     database: "unknown",
     ai_providers: "unknown",
@@ -92,7 +99,7 @@ export async function health(
     timestamp: new Date().toISOString(),
     version: "1.0.0",
     checks,
-    uptime_seconds: Math.floor((Date.now() - startedAt) / 1000),
+    uptime_seconds: Math.max(0, Math.floor((Date.now() - startedAt) / 1000)),
   };
 
   return json(body, body.status === "down" ? 503 : 200, {
