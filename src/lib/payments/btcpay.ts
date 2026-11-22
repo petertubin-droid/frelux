@@ -104,7 +104,19 @@ export async function fetchUserCryptoInvoices(
 ): Promise<UserCryptoInvoiceRow[]> {
   try {
     if (!supabase || typeof supabase.from !== "function") return [];
-    const query = supabase.from("crypto_payment_invoices").select("*") as any;
+    const query = supabase
+      .from("crypto_payment_invoices")
+      .select("*") as unknown as {
+        eq: (column: string, value: string) => {
+          order: (
+            column: string,
+            options: { ascending: boolean },
+          ) => PromiseLike<{
+            data: UserCryptoInvoiceRow[] | null;
+            error: unknown | null;
+          }>;
+        };
+      };
     if (typeof query?.eq !== "function") return [];
     const { data, error } = await query
       .eq("user_id", userId)

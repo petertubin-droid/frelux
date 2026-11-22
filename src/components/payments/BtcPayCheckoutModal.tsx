@@ -196,8 +196,20 @@ export default function BtcPayCheckoutModal({
               </span>
             </div>
             <div className="text-right">
-              <div className="font-mono text-base font-bold text-foreground">
-                {formatBtc(invoice.amount_btc)} BTC
+              <div className="flex items-center justify-end gap-1 font-mono text-base font-bold text-foreground">
+                <span>{formatBtc(invoice.amount_btc)} BTC</span>
+                <button
+                  type="button"
+                  onClick={() => copyToClipboard(formatBtc(invoice.amount_btc), "amount")}
+                  title="Copy BTC amount"
+                  className="text-muted-foreground hover:text-foreground transition-colors ml-1"
+                >
+                  {copiedAmount ? (
+                    <Check className="h-3.5 w-3.5 text-emerald-500" />
+                  ) : (
+                    <Copy className="h-3.5 w-3.5" />
+                  )}
+                </button>
               </div>
               <span className="text-xs text-muted-foreground">
                 ≈ {formatSats(invoice.amount_sats)} sats ($
