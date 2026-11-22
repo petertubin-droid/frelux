@@ -1,4 +1,11 @@
 import AdSlot from "@/components/ui/AdSlot";
+import OpeningsEditor from "@/components/estimators/OpeningsEditor";
+import {
+  DEFAULT_DOOR_WIDTH_M,
+  DEFAULT_DOOR_HEIGHT_M,
+  DEFAULT_WINDOW_WIDTH_M,
+  DEFAULT_WINDOW_HEIGHT_M,
+} from "@/lib/utils";
 import { useState, useEffect, useRef } from "react";
 import { useAreaUnit } from "@/lib/use-length-unit";
 import { CheckCircle2, RotateCcw, ArrowRight } from "lucide-react";
@@ -152,6 +159,33 @@ export default function ScreedingCalculator({
 
   // Template prefill (?template=<id>): loads the template's room into
   // the measurement project, converted to the visitor's market unit.
+  // Shared openings editor binding: the first wall measurement's door and
+  // window counts. The measurement UI hides its own door/window fields for
+  // this page (showOpenings={false}), so there is exactly one control.
+  const firstEntry = project.sections[0]?.groups[0];
+  const screedingOpenings =
+    firstEntry && firstEntry.entry.surfaceType === "wall"
+      ? {
+          groupId: firstEntry.id,
+          rows: [
+            {
+              id: "door",
+              label: "Door",
+              widthM: DEFAULT_DOOR_WIDTH_M,
+              heightM: DEFAULT_DOOR_HEIGHT_M,
+              count: Math.max(0, Math.floor(firstEntry.entry.doors ?? 0)),
+            },
+            {
+              id: "window",
+              label: "Window",
+              widthM: DEFAULT_WINDOW_WIDTH_M,
+              heightM: DEFAULT_WINDOW_HEIGHT_M,
+              count: Math.max(0, Math.floor(firstEntry.entry.windows ?? 0)),
+            },
+          ],
+        }
+      : null;
+
   const { templateData: loadedTemplate } = useTemplateLoader();
   const screedTemplateApplied = useRef<string | null>(null);
   useEffect(() => {
@@ -294,6 +328,7 @@ export default function ScreedingCalculator({
               onAddMeasurement={addMeasurement}
               onUpdateMeasurement={updateMeasurement}
               onRemoveMeasurement={removeMeasurement}
+              showOpenings={false}
               marketCode={marketCode}
               onApplyPreset={(presetId) =>
                 applyBuildingPreset(marketCode, presetId, "screeding")
@@ -321,6 +356,33 @@ export default function ScreedingCalculator({
                 </div>
               )}
             </MeasurementInput>
+
+            {/* Openings come from the shared editor in locked mode: the
+                engine measures doors and windows at its fixed default
+                sizes, so only the counts are editable here. */}
+            {screedingOpenings && (
+              <OpeningsEditor
+                mode="locked"
+                allowAdd={false}
+                openings={screedingOpenings.rows}
+                onChange={(rows) => {
+                  const doors = rows.find((r) => r.id === "door")?.count ?? 0;
+                  const windows = rows.find((r) => r.id === "window")?.count ?? 0;
+                  updateMeasurement(screedingOpenings.groupId, { doors, windows });
+                }}
+                title="Doors & windows"
+                description="Counts only: the engine deducts a door at 0.8 x 2.4 m and a window at 1.2 x 1.2 m."
+                addLabel="Add opening"
+                emptyHint="No doors or windows recorded for this surface."
+                createRow={(existing) => ({
+                  id: `opening-${Date.now()}-${existing.length}`,
+                  label: "Window",
+                  widthM: DEFAULT_WINDOW_WIDTH_M,
+                  heightM: DEFAULT_WINDOW_HEIGHT_M,
+                  count: 1,
+                })}
+              />
+            )}
 
             <MissingFieldsNotice fields={missing} />
 

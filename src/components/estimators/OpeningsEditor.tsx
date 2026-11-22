@@ -51,6 +51,10 @@ export interface OpeningsEditorProps {
   /** "card" (default) renders its own Card; "bare" embeds inside a host
    *  Card that keeps its own header/footer (EIFS summary). */
   variant?: "card" | "bare";
+  /** Set false when the host engine accepts only its fixed opening kinds
+   *  (screeding: one door kind, one window kind), so adding a row would be
+   *  silently ignored. Defaults to true. */
+  allowAdd?: boolean;
 }
 
 const FT = 0.3048;
@@ -87,6 +91,7 @@ export default function OpeningsEditor({
   showLabels = true,
   createRow = createDefaultOpening,
   variant = "card",
+  allowAdd = true,
 }: OpeningsEditorProps) {
   const update = (id: string, patch: Partial<OpeningRow>) =>
     onChange(openings.map((row) => (row.id === id ? { ...row, ...patch } : row)));
@@ -103,16 +108,18 @@ export default function OpeningsEditor({
           <p className="text-xs text-muted-foreground mt-1">{description}</p>
         ) : null}
       </div>
-      <Button
-        type="button"
-        size="sm"
-        variant="outline"
-        onClick={() => onChange([...openings, createRow(openings)])}
-        className="h-7 text-xs flex items-center gap-1"
-      >
-        <Plus className="h-3.5 w-3.5" />
-        {addLabel}
-      </Button>
+      {allowAdd ? (
+        <Button
+          type="button"
+          size="sm"
+          variant="outline"
+          onClick={() => onChange([...openings, createRow(openings)])}
+          className="h-7 text-xs flex items-center gap-1"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          {addLabel}
+        </Button>
+      ) : null}
     </div>
   );
 

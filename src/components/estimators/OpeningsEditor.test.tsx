@@ -60,6 +60,11 @@ describe("OpeningsEditor", () => {
     expect(screen.getByText(/need a width, height and quantity above zero/i)).toBeInTheDocument();
   });
 
+  it("hides the add button when the host engine cannot accept new kinds", () => {
+    setup({ mode: "locked", allowAdd: false });
+    expect(screen.queryByRole("button", { name: /add opening/i })).not.toBeInTheDocument();
+  });
+
   it("locks the size cells in count mode and keeps the quantity editable", () => {
     const { onChange } = setup({ mode: "locked" });
     expect(screen.getByText(/1\.2 x 1\.2 m fixed/)).toBeInTheDocument();

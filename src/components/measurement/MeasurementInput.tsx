@@ -127,6 +127,7 @@ function EntryCard({
   onRemove,
   index,
   entryTitleLabel = `Measurement ${index + 1}`,
+  showOpenings = true,
 }: {
   entry: MeasurementEntry;
   context: CalculatorContext;
@@ -135,6 +136,8 @@ function EntryCard({
   onRemove?: () => void;
   index: number;
   entryTitleLabel?: string;
+  /** False when the host page renders its own openings editor. */
+  showOpenings?: boolean;
 }) {
   const { t } = useLanguage();
   const [expanded, setExpanded] = useState(true);
@@ -314,7 +317,8 @@ function EntryCard({
           {isTiling && <TileConfigFields entry={entry} onUpdate={onUpdate} />}
 
           {/* Doors/windows (for wall surfaces) */}
-          {(entry.surfaceType === "wall" || needsHeight) &&
+          {showOpenings &&
+            (entry.surfaceType === "wall" || needsHeight) &&
             !isFence &&
             !isTiling && (
               <div className="grid grid-cols-2 gap-3">
@@ -713,6 +717,10 @@ export interface MeasurementInputProps {
   onRemoveMeasurement: (groupId: string) => void;
   /** Market code (e.g. "NG", "US") driving the house-type presets. */
   marketCode?: string;
+  /** Set false when the host page renders its own openings editor
+   *  (e.g. screeding's shared OpeningsEditor in locked mode), so the
+   *  door/window fields are not shown twice. Defaults to true. */
+  showOpenings?: boolean;
   /** House / Building mode: seed the room list from a preset. */
   onApplyPreset?: (presetId: string) => void;
   /** Id for the root, so a page can name this block in a missing-field notice. */
@@ -732,6 +740,7 @@ export function MeasurementInput({
   onApplyPreset,
   containerId,
   children,
+  showOpenings = true,
 }: MeasurementInputProps) {
   const { t } = useLanguage();
   // Use the first section (auto-created by the hook)
@@ -809,6 +818,7 @@ export function MeasurementInput({
               entry={group.entry}
               context={context}
               index={idx}
+              showOpenings={showOpenings}
               entryTitleLabel={
                 project.projectMode === "fence"
                   ? `Fence Dimension ${idx + 1}`
