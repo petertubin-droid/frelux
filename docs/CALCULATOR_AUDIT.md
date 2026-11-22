@@ -49,7 +49,7 @@ been exercised; `staged` means written but not executed.
 | 27  | Backup Power / Generator           | services  | Queued                                                                                     |
 | 28  | Heat & Comfort                     | services  | Queued                                                                                     |
 | 29  | Autonomous Borehole & Water Supply | services  | Queued                                                                                     |
-| 30  | Septic & Soakaway Worksheet        | services  | Queued                                                                                     |
+| 30  | Conduit & Wiring Loops             | services  | **Audited 2026-11-22**, 12 tests, no defect (already hardened)                             |
 | 31  | External Drainage Takeoff          | services  | Queued                                                                                     |
 | 32  | Live Material Price Index          | services  | Queued                                                                                     |
 | 33  | International Code Reference       | services  | Queued                                                                                     |
@@ -102,6 +102,46 @@ prices are never invented.
 0.4 WSFU^0.55) runs conservative against Hunter's curve, roughly +70% at 10
 WSFU and +29% at 100, so it oversizes the header rather than undersizing it.
 That is the safe direction and the behaviour is now locked by tests.
+
+---
+
+## Services audit 2: Conduit & Wiring Loops (`conduit-wiring-engine.ts`, #30)
+
+12 conformance tests, no defect. This engine had already been hardened against
+the rule failures that were still live elsewhere: a zero `conduit_length_m`
+would once have produced Infinity lengths, and a negative allowance would have
+priced a credit against the works. Both are now refused with named errors, and
+the suite locks that in.
+
+Arithmetic verified: 100 m2 at 1.8 m/m2 is 180 m of run bought as 63 x 2.9 m
+lengths, cable buys whole 100 m coils (240 m is 3 coils, not 2.4), one switch
+plate per lighting point, one outlet per socket point, junction boxes rounded
+up, a complete price book totals 598,000 on the fixture, and one missing price
+withholds the subtotal rather than inventing one. The result states that cable
+lengths are allowances rather than measured routes and that a licensed
+electrician signs off the installation, which is the correct scope line for a
+material takeoff.
+
+**Correction to a claim I made on 2026-11-21.** I reported block-per-piece at
+23.98 CHF against 0.48 EUR in DE as evidence of a data defect. That comparison
+was not like-for-like: the DE row is an FX reference derived from the Nigerian
+price (NGN 800 at an indicative rate), not a German retail price. Checked
+against the live book on 2026-11-22:
+
+- CH 23.98 CHF, origin `scan`, median of 10 observations from OBI CH,
+  `verification_status = unverified`. Large-format Swiss blocks can legitimately
+  cost this much, so it is unverified, not proven wrong. Needs a product-level
+  check against the OBI listing before anyone changes it.
+- DE 0.48 EUR, origin `reference`, explicitly an FX conversion awaiting a live
+  scan. Correctly labelled, but it should not be cited as a local price.
+- GB 1.50 GBP, origin `reference`, from a named merchant listing with the spec
+  (440x215x100 dense 7.3N) and a date. This is the standard the other rows
+  should meet.
+- NG 800 NGN, origin `manual`, admin-verified, unit stated as piece.
+
+Action taken: none on the data. Repricing a market on an inference would
+violate the same rule the engines follow, so the row stays unverified and the
+open task is a product-level verification, not a correction.
 
 ---
 
