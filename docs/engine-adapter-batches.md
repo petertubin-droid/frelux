@@ -66,26 +66,25 @@ with their own unit size rather than a default.
 
 ## Batch 5: Finishing trades (in progress, 22 November 2026)
 
-| Module                                       | Entry point                  | State                                                  |
-| -------------------------------------------- | ---------------------------- | ------------------------------------------------------ |
-| `estimation/drywall-standalone-engine.ts`    | `calculateDrywallTakeoff`    | done as `drywall`, surface `/drywall-calculator`       |
-| `estimation/insulation-standalone-engine.ts` | `calculateInsulationTakeoff` | done as `insulation`, surface `/insulation-calculator` |
-| `estimation/paint-engine.ts`                 | `calculateTheoreticalLitres` | open, next                                             |
-| `estimation/painting-engine.ts`              | `litresToBuckets`            | open, next, pairs with paint-engine                    |
-| `estimation/plaster-render-engine.ts`        | render takeoff               | open                                                   |
-| `estimation/exterior-finish-engine.ts`       | `sharedFinishLayers`         | open                                                   |
-| `estimation/flooring-engine.ts`              | `parseFlooringRules`         | open                                                   |
-| `estimation/mineral-stone-engine.ts`         | `calculateMineralStone`      | open                                                   |
-| `wallfinishing/quantity-engine.ts`           | `calculateWallAreas`         | open                                                   |
-| `wallfinishing/cost-engine.ts`               | `calculateLayerCost`         | open                                                   |
+| Module                                       | Entry point                  | State                                                          |
+| -------------------------------------------- | ---------------------------- | -------------------------------------------------------------- |
+| `estimation/drywall-standalone-engine.ts`    | `calculateDrywallTakeoff`    | done as `drywall`, surface `/drywall-calculator`               |
+| `estimation/insulation-standalone-engine.ts` | `calculateInsulationTakeoff` | done as `insulation`, surface `/insulation-calculator`         |
+| `estimation/paint-engine.ts`                 | `calculateTheoreticalLitres` | open, next                                                     |
+| `estimation/painting-engine.ts`              | `litresToBuckets`            | open, next, pairs with paint-engine                            |
+| `estimation/plaster-render-engine.ts`        | `calculatePlasterRender`     | done as `plaster_render`, surface `/plaster-render-calculator` |
+| `estimation/exterior-finish-engine.ts`       | `sharedFinishLayers`         | open                                                           |
+| `estimation/flooring-engine.ts`              | `parseFlooringRules`         | open                                                           |
+| `estimation/mineral-stone-engine.ts`         | `calculateMineralStone`      | open                                                           |
+| `wallfinishing/quantity-engine.ts`           | `calculateWallAreas`         | open                                                           |
+| `wallfinishing/cost-engine.ts`               | `calculateLayerCost`         | open                                                           |
 
 The paint pair was taken as one job, as planned: the `paint` adapter reports
 theoretical litres from `paint-engine`, then the exact packs and the whole packs
 to buy from `painting-engine`'s `litresToBuckets`. Coverage (10 m²/L) and pack
 size (20 L) are inputs with disclosed defaults, because both are product
-properties rather than rules. Six modules remain in this batch: plaster and
-render, exterior finish, flooring, mineral stone, and the wall finishing
-quantity and cost pair.
+properties rather than rules. Five modules remain in this batch: exterior finish,
+flooring, mineral stone, and the wall finishing quantity and cost pair.
 
 ## Batch 6: Building services
 

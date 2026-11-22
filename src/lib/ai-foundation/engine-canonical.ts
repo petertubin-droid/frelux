@@ -61,6 +61,7 @@ export const UNRESOLVED_ENGINE_IDS = [
   "drywall",
   "insulation",
   "paint",
+  "plaster_render",
 ] as const;
 
 export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
@@ -200,6 +201,12 @@ export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
     canonicalId: null,
     confidence: "unresolved",
     note: "Drywall is described as a partition system in the international lists, with plasterboard as its material. Neither id covers a board, stud and screw takeoff as one calculation.",
+  },
+  {
+    aiEngineId: "plaster_render",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "The canonical lists carry tyrolene as one textured finish and plastering as cement-sand work. This engine spans gypsum plaster, exterior render and Tyrolene in one calculation, so mapping it to either id would claim more than that id covers.",
   },
   {
     aiEngineId: "insulation",

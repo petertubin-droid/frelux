@@ -1410,6 +1410,75 @@ registerEngine({
   },
 });
 
+// ── Plaster and render: gypsum, exterior render and Tyrolene ──
+interface PlasterRenderInputLike {
+  system?: "gypsum_interior" | "exterior_render" | "textured_tyrolene";
+  marketCode?: string;
+  areaM2?: number;
+  openingAreaM2?: number;
+  substrate?: string;
+  thicknessMm?: number;
+  grainMm?: 1.5 | 2 | 3;
+  texturedCoatMm?: number;
+  externalCornerLengthM?: number;
+  openingPerimeterM?: number;
+  wastePercent?: number;
+  wetZone?: boolean;
+}
+
+registerEngine({
+  id: "plaster_render",
+  domain: "finishing",
+  title: "FRELUX Plaster & Render Engine",
+  authoritative: true,
+  creditedAs:
+    "Calculated by the authoritative FRELUX plaster and render engine",
+  async run(rawInput) {
+    const { calculatePlasterRender } =
+      await import("@/lib/estimation/plaster-render-engine");
+    const supplied = (rawInput ?? {}) as PlasterRenderInputLike;
+
+    // The calculator page's own starting point: 100 m2 of exterior render at
+    // 15 mm on clay brick, 2 mm grain, 4 mm textured coat, 10 per cent waste.
+    // No prices are passed: quantities are the job, and a price without a rate
+    // would be invented.
+    const input = {
+      system: supplied.system ?? "exterior_render",
+      marketCode: supplied.marketCode ?? "GB",
+      areaM2: supplied.areaM2 ?? 100,
+      openingAreaM2: supplied.openingAreaM2 ?? 0,
+      substrate: supplied.substrate ?? "clay_brick",
+      thicknessMm: supplied.thicknessMm ?? 15,
+      grainMm: supplied.grainMm ?? 2,
+      texturedCoatMm: supplied.texturedCoatMm ?? 4,
+      externalCornerLengthM: supplied.externalCornerLengthM ?? 0,
+      openingPerimeterM: supplied.openingPerimeterM ?? 0,
+      wastePercent: supplied.wastePercent ?? 10,
+      wetZone: supplied.wetZone ?? false,
+    } as never;
+
+    const result = calculatePlasterRender(input);
+
+    // Every layer and accessory the engine reports, in its own order. The key
+    // is appended because a system can repeat a material name across coats.
+    const lines = [...result.layers, ...result.accessories];
+    return {
+      ok: true,
+      engine: "plaster_render",
+      calculatedAt: new Date().toISOString(),
+      quantities: lines.map((line) =>
+        quantityLine(
+          line.key ? `${line.material} (${line.key})` : line.material,
+          line.quantity,
+          line.unit,
+        ),
+      ),
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
 // ── Insulation: area, volume and packs for a wall or roof ──
 interface InsulationInputLike {
   marketCode?: string;

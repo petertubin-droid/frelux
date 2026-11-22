@@ -5,12 +5,14 @@ import {
 } from "@/lib/ai-foundation/engines-registry";
 import { calculateDrywallTakeoff } from "@/lib/estimation/drywall-standalone-engine";
 import { calculateInsulationTakeoff } from "@/lib/estimation/insulation-standalone-engine";
+import { calculatePlasterRender } from "@/lib/estimation/plaster-render-engine";
 
 describe("batch 5 finishing adapters", () => {
   it("are registered", () => {
     const ids = listEngines().map((e) => e.id);
     expect(ids).toContain("drywall");
     expect(ids).toContain("insulation");
+    expect(ids).toContain("plaster_render");
   });
 
   it("drywall matches the engine", async () => {
@@ -53,5 +55,36 @@ describe("batch 5 finishing adapters", () => {
     expect(volume?.quantity).toBeCloseTo(direct.installedVolumeM3, 6);
     const packs = result.quantities.find((q) => q.label === "Packs");
     expect(packs?.quantity).toBe(direct.packsRequired);
+  });
+
+  it("plaster and render matches the engine, layer for layer", async () => {
+    const direct = calculatePlasterRender({
+      system: "exterior_render",
+      marketCode: "GB",
+      areaM2: 100,
+      openingAreaM2: 0,
+      substrate: "clay_brick",
+      thicknessMm: 15,
+      grainMm: 2,
+      texturedCoatMm: 4,
+      externalCornerLengthM: 0,
+      openingPerimeterM: 0,
+      wastePercent: 10,
+      wetZone: false,
+    } as never);
+    const result = await executeEngine("plaster_render", {});
+    expect(result.ok).toBe(true);
+
+    // Every layer and accessory the engine reports has to appear with the same
+    // quantity and unit; a dropped line would hide material from the console.
+    const lines = [...direct.layers, ...direct.accessories];
+    for (const line of lines) {
+      const label = line.key ? `${line.material} (${line.key})` : line.material;
+      const found = result.quantities.find((q) => q.label === label);
+      expect(found, label).toBeDefined();
+      expect(found!.quantity).toBeCloseTo(line.quantity, 2);
+      expect(found!.unit).toBe(line.unit);
+    }
+    expect(result.quantities.length).toBe(lines.length);
   });
 });

@@ -195,6 +195,20 @@ export const ENGINE_SURFACES: EngineSurface[] = [
     note: "Boards, studs, track, screws, tape and compound for a partition.",
   },
   {
+    engineId: "plaster_render",
+    status: "shared",
+    route: "/plaster-render-calculator",
+    label: "Plaster & Render Calculator",
+    icon: Layers,
+    evidence: {
+      module: "@/lib/estimation/plaster-render-engine",
+      fn: "calculatePlasterRender",
+      page: "src/pages/PlasterRenderCalculator.tsx",
+      calledBy: "the page calls the same function with its own form values",
+    },
+    note: "Gypsum, exterior render and Tyrolene layers with bags, mesh and beads, priced per market pack.",
+  },
+  {
     engineId: "insulation",
     status: "shared",
     route: "/insulation-calculator",
