@@ -89,3 +89,71 @@ describe("septic and soakaway sizing", () => {
     expect(noRate.indicativeSoakawayDiameterM).toBeNull();
   });
 });
+
+describe("soakaway geometry the earlier suite left unverified", () => {
+  it("solves a sidewall-only pit back to its own wetted area", () => {
+    const r = calculateSepticSizing({
+      ...base,
+      sidewallOnly: true,
+      soakawayDepthM: 1.5,
+    });
+    const d = r.indicativeSoakawayDiameterM as number;
+    expect(d).toBeCloseTo(12 / (Math.PI * 1.5), 2);
+    expect(areaOf(d, 1.5, true)).toBeCloseTo(12, 1);
+  });
+
+  it("treats a zero-depth pit as base area only", () => {
+    const r = calculateSepticSizing({
+      ...base,
+      sidewallOnly: false,
+      soakawayDepthM: 0,
+    });
+    const d = r.indicativeSoakawayDiameterM as number;
+    expect(d).toBeCloseTo(2 * Math.sqrt(12 / Math.PI), 2);
+    expect((Math.PI * d * d) / 4).toBeCloseTo(12, 1);
+  });
+
+  it("returns no diameter at all when a sidewall pit has no depth", () => {
+    // A sidewall-only pit with zero depth has no wetted area, so there is no
+    // honest diameter to print; the worksheet must say nothing rather than
+    // divide by zero.
+    const r = calculateSepticSizing({
+      ...base,
+      sidewallOnly: true,
+      soakawayDepthM: 0,
+    });
+    expect(r.indicativeSoakawayDiameterM).toBeNull();
+    expect(r.soakawayRequiredAbsorptionAreaM2).toBeCloseTo(12, 2);
+  });
+
+  it("withholds the absorption area when no soil loading rate is given", () => {
+    const r = calculateSepticSizing({
+      ...base,
+      acceptedSoilLoadingRateLitresPerM2PerDay: undefined,
+    });
+    expect(r.soakawayRequiredAbsorptionAreaM2).toBeNull();
+    expect(r.soakawayRequiredAbsorptionAreaSqFt).toBeNull();
+    expect(r.indicativeSoakawayDiameterM).toBeNull();
+    expect(r.assumptions.join(" ")).toMatch(
+      /no national rule is silently assumed/i,
+    );
+  });
+
+  it("reproduces the BS 6297 domestic figure when fed its own criteria", () => {
+    // BS 6297 domestic sizing is 180 L per person per day plus a 2000 L sludge
+    // allowance. Fed those criteria explicitly, the worksheet must land on the
+    // same volume: 5 users -> 900 L working + 2000 L storage = 2.9 m3.
+    const r = calculateSepticSizing({
+      marketCode: "GB",
+      occupants: 5,
+      designFlowLitresPerPersonPerDay: 180,
+      retentionDays: 1,
+      storageAllowanceDays: 2000 / 900,
+      freeboardPercent: 0,
+    });
+    // The worksheet folds the sludge allowance into the working volume, so the
+    // total is 900 L of flow plus 2000 L of storage = 2.9 m3.
+    expect(r.tankWorkingVolumeM3).toBeCloseTo(2.9, 2);
+    expect(r.tankTotalVolumeM3).toBeCloseTo(2.9, 2);
+  });
+});
