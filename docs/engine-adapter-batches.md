@@ -55,14 +55,14 @@ with their own unit size rather than a default.
 | `roof/geometry-engine.ts`            | roof geometry generation | declined: it returns a geometry object for the 3D roof view, not quantity lines, so it needs a viewer adapter rather than a trade adapter |
 | `roof/roof-material-engine.ts`       | `createRoofMaterialSpec` | declined: it builds a material specification record, the same shape problem as `createFenceDimension`                                     |
 
-## Batch 4: Structural and temporary works
+## Batch 4: Structural and temporary works (closed, 22 November 2026)
 
-| Module                                            | Entry point                      |
-| ------------------------------------------------- | -------------------------------- |
-| `estimation/retaining-wall-engine.ts`             | `parseRetainingWallRules`        |
-| `estimation/temporary-works-standalone-engine.ts` | `calculateTemporaryWorksTakeoff` |
-| `engineering/tall-building-engine.ts`             | wind and elevation checks        |
-| `engineering/mathematical-elevation-engine.ts`    | `calculateMathematicalElevation` |
+| Module                                            | Entry point                      | State                                                                                                                                                                              |
+| ------------------------------------------------- | -------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `estimation/retaining-wall-engine.ts`             | `calculateRetainingWall`         | done as `retaining_wall`, surface `/retaining-wall-calculator`                                                                                                                     |
+| `estimation/temporary-works-standalone-engine.ts` | `calculateTemporaryWorksTakeoff` | done as `temporary_works`, surface `/temporary-works-calculator`                                                                                                                   |
+| `engineering/tall-building-engine.ts`             | wind and elevation checks        | declined: it performs design checks and returns pressure coefficients, not a quantity list, so there is nothing for a takeoff console to report                                    |
+| `engineering/mathematical-elevation-engine.ts`    | `calculateMathematicalElevation` | declined: it returns a nested per-level math report plus discrepancies against hand calculations, and no page calls it. Flattening that into quantities would lose the point of it |
 
 ## Batch 5: Finishing trades
 

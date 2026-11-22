@@ -1231,6 +1231,126 @@ registerEngine({
   },
 });
 
+// ── Retaining walls: concrete, blockwork and backfill for a retaining wall ──
+interface RetainingWallInputLike {
+  length_m?: number;
+  height_m?: number;
+  soil_type?: "stable" | "loose_sand" | "wet_clay" | "lateritic";
+  stem_type?: "block" | "concrete";
+  marketCode?: string;
+  bagWeightKg?: number;
+}
+
+registerEngine({
+  id: "retaining_wall",
+  domain: "structure",
+  title: "FRELUX Retaining Wall Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX retaining wall engine",
+  async run(rawInput) {
+    const { calculateRetainingWall, DEFAULT_RETAINING_WALL_RULES } =
+      await import("@/lib/estimation/retaining-wall-engine");
+    const supplied = (rawInput ?? {}) as RetainingWallInputLike;
+
+    // A 10 m wall at 2 m in stable soil with a block stem: the estimator's own
+    // starting point. Prices stay empty, since this answers quantities.
+    const input = {
+      length_m: supplied.length_m ?? 10,
+      height_m: supplied.height_m ?? 2,
+      soil_type: supplied.soil_type ?? "stable",
+      stem_type: supplied.stem_type ?? "block",
+      marketCode: supplied.marketCode ?? "NG",
+      bagWeightKg: supplied.bagWeightKg ?? null,
+    } as never;
+
+    const result = calculateRetainingWall(
+      input,
+      DEFAULT_RETAINING_WALL_RULES,
+      {},
+    );
+
+    const quantities: EngineQuantityLine[] = result.lines
+      .filter((line) => line.quantity !== null)
+      .map((line) =>
+        quantityLine(line.label, Number(line.quantity), line.unit),
+      );
+
+    return {
+      ok: result.ok,
+      engine: "retaining_wall",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs: null,
+      raw: result,
+      ...(result.ok
+        ? {}
+        : {
+            error:
+              result.errors.join(" ") ||
+              "The retaining wall engine rejected the input.",
+          }),
+    };
+  },
+});
+
+// ── Temporary works: formwork sheets and scaffold members ──
+interface TemporaryWorksInputLike {
+  marketCode?: string;
+  formworkReuseCycles?: number;
+  formworkWastePercent?: number;
+  scaffoldRunLengthM?: number;
+  scaffoldWorkingHeightM?: number;
+  scaffoldBayLengthM?: number;
+  scaffoldLiftHeightM?: number;
+  scaffoldDeckWidthM?: number;
+}
+
+registerEngine({
+  id: "temporary_works",
+  domain: "structure",
+  title: "FRELUX Temporary Works Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX temporary works engine",
+  async run(rawInput) {
+    const { calculateTemporaryWorksTakeoff } =
+      await import("@/lib/estimation/temporary-works-standalone-engine");
+    const supplied = (rawInput ?? {}) as TemporaryWorksInputLike;
+
+    // A 20 m scaffold run at 6 m working height, and formwork reused 4 times,
+    // which is what the estimator starts from.
+    const input = {
+      marketCode: supplied.marketCode ?? "NG",
+      elements: [],
+      formworkReuseCycles: supplied.formworkReuseCycles ?? 4,
+      formworkWastePercent: supplied.formworkWastePercent ?? 5,
+      scaffoldRunLengthM: supplied.scaffoldRunLengthM ?? 20,
+      scaffoldWorkingHeightM: supplied.scaffoldWorkingHeightM ?? 6,
+      scaffoldBayLengthM: supplied.scaffoldBayLengthM ?? 2.4,
+      scaffoldLiftHeightM: supplied.scaffoldLiftHeightM ?? 2,
+      scaffoldDeckWidthM: supplied.scaffoldDeckWidthM ?? 0.9,
+    } as never;
+
+    const result = calculateTemporaryWorksTakeoff(input);
+
+    return {
+      ok: true,
+      engine: "temporary_works",
+      calculatedAt: new Date().toISOString(),
+      quantities: [
+        quantityLine("Formwork contact area", result.formContactAreaM2, "m²"),
+        quantityLine("Formwork sheets", result.formworkSheets, "sheets"),
+        quantityLine("Scaffold standards", result.scaffoldStandards, "members"),
+        quantityLine("Scaffold ledgers", result.scaffoldLedgers, "members"),
+        quantityLine("Scaffold transoms", result.scaffoldTransoms, "members"),
+        quantityLine("Scaffold deck area", result.scaffoldDeckAreaM2, "m²"),
+        quantityLine("Guardrail length", result.scaffoldGuardrailLengthM, "m"),
+      ],
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
 export function listEngines(): EngineDescriptor[] {
   return [...REGISTRY.values()];
 }

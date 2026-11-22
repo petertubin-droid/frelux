@@ -166,6 +166,35 @@ export const ENGINE_SURFACES: EngineSurface[] = [
     note: "Cost differences between markets and regions.",
   },
   {
+    engineId: "retaining_wall",
+    status: "live",
+    route: "/retaining-wall-calculator",
+    label: "Retaining Wall Estimator",
+    icon: Building2,
+    evidence: {
+      module: "@/lib/estimation/retaining-wall-engine",
+      fn: "calculateRetainingWall",
+      page: "src/pages/RetainingWallEstimator.tsx",
+      calledBy:
+        "the estimator calls the same function with the same default rules",
+    },
+    note: "Concrete, blockwork and backfill for a retaining wall, with the footing width the engine recommends for the soil.",
+  },
+  {
+    engineId: "temporary_works",
+    status: "shared",
+    route: "/temporary-works-calculator",
+    label: "Temporary Works Calculator",
+    icon: Layers,
+    evidence: {
+      module: "@/lib/estimation/temporary-works-standalone-engine",
+      fn: "calculateTemporaryWorksTakeoff",
+      page: "src/pages/StandaloneTakeoffPage.tsx",
+      calledBy: "the temporary works tab calls the same function",
+    },
+    note: "Formwork sheets after reuse and the scaffold member counts for a run.",
+  },
+  {
     engineId: "waterproofing",
     status: "live",
     route: "/waterproofing",

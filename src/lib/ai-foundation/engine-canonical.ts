@@ -56,6 +56,8 @@ export const UNRESOLVED_ENGINE_IDS = [
   "concrete_volume",
   "waterproofing",
   "soffit_gutter",
+  "retaining_wall",
+  "temporary_works",
 ] as const;
 
 export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
@@ -183,6 +185,18 @@ export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
     canonicalId: "sequence",
     confidence: "medium",
     note: "Construction sequence planning.",
+  },
+  {
+    aiEngineId: "retaining_wall",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "Retaining structures appear in the inventory under substructure and earth retention. Neither id distinguishes a block stem from a concrete stem, which is what changes this engine's output.",
+  },
+  {
+    aiEngineId: "temporary_works",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "Formwork and scaffolding are site establishment items in the international lists, not a single engine, so no id covers a combined takeoff.",
   },
   {
     aiEngineId: "waterproofing",

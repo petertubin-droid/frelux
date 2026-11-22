@@ -8,7 +8,7 @@ Written 22 November 2026 for whoever picks this up next. Everything here is on
 Engine Studio (`/admin/engine-studio`) runs an estimation engine only when that
 engine has an adapter registered in `src/lib/ai-foundation/`. The repository has
 110 engine modules. Before this work the console listed 10, because only
-`engines-registry.ts` was active in the running app. It now lists 32.
+`engines-registry.ts` was active in the running app. It now lists 34.
 
 An adapter is a small wrapper that imports the engine module, supplies the same
 defaults the calculator page ships, calls the engine's own function, and maps
@@ -72,7 +72,8 @@ calculator is worse than no adapter.
 
 Adapters added in this run, each with a parity test: `plastering_wall`,
 `steel_beam`, `foundation_below_dpc`, `concrete_takeoff`, `icf_wall`,
-`masonry`, `concrete_volume`, `waterproofing`, `soffit_gutter`.
+`masonry`, `concrete_volume`, `waterproofing`, `soffit_gutter`,
+`retaining_wall`, `temporary_works`.
 
 Also in this run: `register-all.ts` activates `engines-expanded`,
 `engines-phase2` and `engines-structural`, which were written but never called
