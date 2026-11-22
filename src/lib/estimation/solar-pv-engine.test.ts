@@ -104,7 +104,12 @@ describe("calculateSolarPv: roof area mode", () => {
 
     expect(res.labor_cost_naira).toBe(345000);
     expect(res.total_cost_naira).toBe(9386460);
-    expect(res.warnings).toEqual([]);
+    // The one standing warning is the string-length disclosure: this fixture
+    // supplies no module voltage data, so the series limit cannot be computed.
+    expect(res.warnings).toHaveLength(1);
+    expect(res.warnings[0]).toMatch(
+      /String length is the configured assumption/,
+    );
   });
 
   it("refuses a roof smaller than one panel: nothing to estimate", () => {
@@ -208,7 +213,9 @@ describe("calculateSolarPv: honesty guarantees", () => {
     delete partialPrices["inverter_price_per_kw"];
     const res = calculateSolarPv(makeInput({ prices: partialPrices }));
     expect(res.ok).toBe(true);
-    expect(res.warnings[0]).toMatch(/No price is configured for: Inverter/);
+    expect(
+      res.warnings.some((w) => /No price is configured for: Inverter/.test(w)),
+    ).toBe(true);
     expect(res.total_cost_naira).toBeNull();
     // 9,386,460 − 3,850,000 = 5,536,460 still reported as the priced-lines sum
     expect(res.total_of_priced_lines_naira).toBe(5536460);
@@ -224,7 +231,11 @@ describe("calculateSolarPv: honesty guarantees", () => {
       makeInput({ panel: { ...panel, unit_price_naira: null } }),
     );
     expect(res.ok).toBe(true);
-    expect(res.warnings[0]).toMatch(/No price is configured for: Solar panels/);
+    expect(
+      res.warnings.some((w) =>
+        /No price is configured for: Solar panels/.test(w),
+      ),
+    ).toBe(true);
     // total without panels: 9,386,460 − 4,140,000 = 5,246,460
     expect(res.total_of_priced_lines_naira).toBe(5246460);
   });

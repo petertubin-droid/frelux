@@ -79,6 +79,28 @@ export interface SolarPvInput {
    * skipped (behaviour unchanged) with a warning recommending chemistry.
    */
   battery_chemistry?: "lead_acid" | "lifepo4" | null;
+  // ---- String voltage design (IEC 62548-1 / IEC 60364-7-712) ----
+  //
+  // Without these, string length is only an admin constant and nothing checks
+  // that the array's open-circuit voltage on the coldest morning stays under
+  // the inverter's DC limit. A string one panel too long destroys the inverter
+  // input on a cold, bright morning, which is exactly when Voc peaks.
+  /** Module open-circuit voltage at STC, volts. */
+  module_voc_v?: number | null;
+  /** Module voltage at maximum power at STC, volts. */
+  module_vmp_v?: number | null;
+  /** Voc temperature coefficient as a fraction per degC (e.g. -0.0029). */
+  module_voc_temp_coeff_per_c?: number | null;
+  /** Vmp temperature coefficient as a fraction per degC (e.g. -0.0035). */
+  module_vmp_temp_coeff_per_c?: number | null;
+  /** Inverter maximum DC input voltage, volts. */
+  inverter_max_dc_voltage_v?: number | null;
+  /** Inverter MPPT lower tracking limit, volts. */
+  inverter_mppt_min_v?: number | null;
+  /** Lowest expected cell temperature at the site, degC. */
+  design_min_cell_temp_c?: number | null;
+  /** Highest expected cell temperature at the site, degC. */
+  design_max_cell_temp_c?: number | null;
   prices: Record<string, SolarPriceInput>;
   rules: SolarPvRule[];
 }
@@ -200,6 +222,72 @@ const COMPONENT_LABELS: Record<string, { label: string; unit: string }> = {
   inverter_price_per_kw: { label: "Inverter", unit: "kW" },
   battery_unit: { label: "Battery units", unit: "unit" },
 };
+
+/**
+ * Series modules a string may hold, from the module's own voltage data.
+ *
+ * Upper bound: Voc corrected to the coldest expected cell temperature must stay
+ * at or below the inverter's maximum DC input voltage (IEC 62548-1; NEC 690.7
+ * for the temperature correction). Lower bound: Vmp corrected to the hottest
+ * expected cell temperature must still reach the MPPT window, otherwise the
+ * array stops producing in the afternoon heat.
+ *
+ * Returns null when the data needed is absent, so a caller must disclose that
+ * the string length is an assumption rather than a check.
+ */
+export function stringSeriesLimits(params: {
+  module_voc_v?: number | null;
+  module_vmp_v?: number | null;
+  module_voc_temp_coeff_per_c?: number | null;
+  module_vmp_temp_coeff_per_c?: number | null;
+  inverter_max_dc_voltage_v?: number | null;
+  inverter_mppt_min_v?: number | null;
+  design_min_cell_temp_c?: number | null;
+  design_max_cell_temp_c?: number | null;
+}): {
+  max_series: number | null;
+  min_series: number | null;
+  voc_cold_v: number | null;
+  vmp_hot_v: number | null;
+} {
+  const num = (v: unknown): number | null => {
+    const x = Number(v);
+    return Number.isFinite(x) && x > 0 ? x : null;
+  };
+  const voc = num(params.module_voc_v);
+  const vmp = num(params.module_vmp_v);
+  const vdcMax = num(params.inverter_max_dc_voltage_v);
+  const mpptMin = num(params.inverter_mppt_min_v);
+  const tMin = Number(params.design_min_cell_temp_c);
+  const tMax = Number(params.design_max_cell_temp_c);
+  const bVoc = Number(params.module_voc_temp_coeff_per_c);
+  const bVmp = Number(params.module_vmp_temp_coeff_per_c);
+
+  const vocCold =
+    voc !== null && Number.isFinite(tMin) && Number.isFinite(bVoc)
+      ? voc * (1 + bVoc * (tMin - 25))
+      : null;
+  const vmpHot =
+    vmp !== null && Number.isFinite(tMax) && Number.isFinite(bVmp)
+      ? vmp * (1 + bVmp * (tMax - 25))
+      : null;
+
+  const maxSeries =
+    vocCold !== null && vdcMax !== null && vocCold > 0
+      ? Math.floor(vdcMax / vocCold)
+      : null;
+  const minSeries =
+    vmpHot !== null && mpptMin !== null && vmpHot > 0
+      ? Math.ceil(mpptMin / vmpHot)
+      : null;
+
+  return {
+    max_series: maxSeries !== null && maxSeries > 0 ? maxSeries : null,
+    min_series: minSeries,
+    voc_cold_v: vocCold === null ? null : Math.round(vocCold * 100) / 100,
+    vmp_hot_v: vmpHot === null ? null : Math.round(vmpHot * 100) / 100,
+  };
+}
 
 export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
   const warnings: string[] = [];
@@ -407,7 +495,36 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
     (1 - rv.system_loss_factor) *
     arrayTempFactor;
   const inverterKw = arrayKwp / rv.inverter_dc_ac_ratio;
-  const strings = Math.ceil(panelCount / rv.string_size_max);
+  // ── String length: computed from the module's voltage data where supplied ──
+  const seriesLimits = stringSeriesLimits(input);
+  let seriesMax = rv.string_size_max;
+  const vocCold = seriesLimits.voc_cold_v;
+  if (seriesLimits.max_series !== null && vocCold !== null) {
+    if (rv.string_size_max > seriesLimits.max_series) {
+      warnings.push(
+        `The configured maximum string of ${rv.string_size_max} panels exceeds the ${seriesLimits.max_series} the module voltage allows. At ${seriesLimits.voc_cold_v} V per panel on the coldest design morning, ${rv.string_size_max} in series reaches ${Math.round(vocCold * rv.string_size_max)} V against a ${input.inverter_max_dc_voltage_v} V inverter limit. Strings are sized to ${seriesLimits.max_series} instead.`,
+      );
+      seriesMax = seriesLimits.max_series;
+    }
+    steps.push({
+      label: "String voltage limit",
+      detail: `Voc corrected to ${input.design_min_cell_temp_c} degC is ${vocCold} V per panel, so at most ${seriesLimits.max_series} panels in series stay under the ${input.inverter_max_dc_voltage_v} V DC limit.`,
+    });
+    if (
+      seriesLimits.min_series !== null &&
+      seriesLimits.min_series > seriesMax
+    ) {
+      warnings.push(
+        `No string length satisfies both limits: the MPPT needs at least ${seriesLimits.min_series} panels at ${seriesLimits.vmp_hot_v} V in the heat, but the DC limit allows at most ${seriesMax}. The inverter is mismatched to this module; check its MPPT window.`,
+      );
+    }
+  } else {
+    warnings.push(
+      "String length is the configured assumption of " +
+        `${rv.string_size_max} panels, not a voltage check. Supply the module Voc, its temperature coefficient and the inverter's maximum DC voltage to have the series limit computed instead.`,
+    );
+  }
+  const strings = Math.ceil(panelCount / seriesMax);
 
   steps.push({
     label: "Array size",

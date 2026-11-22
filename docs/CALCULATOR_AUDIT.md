@@ -18,42 +18,42 @@ been exercised; `staged` means written but not executed.
 
 ## Status summary
 
-| #   | Calculator                         | Category  | Status                                                                                          |
-| --- | ---------------------------------- | --------- | ----------------------------------------------------------------------------------------------- |
-| 1   | Foundation Designer                | structure | **Audited 2026-11-21**, 18 tests, no arithmetic defect                                          |
-| 2   | Reinforcement / Steel              | structure | **Audited 2026-11-21**, 15 tests, no defect in anchorage or laps                                |
-| 3   | ICF Wall Estimator                 | structure | **Audited 2026-11-21**, 19 tests, no defect in geometry or envelope                             |
-| 4   | Concrete & Structural              | structure | **Audited 2026-11-21**, 16 tests, 2 DEFECTS FIXED: IS 456 tau_c and ACI axial                   |
-| 5   | Concrete Slab Takeoff              | structure | **Audited 2026-11-21**, 11 tests, no defect in mix or rebar mass                                |
-| 6   | Earthworks Cut & Fill              | structure | **Audited 2026-11-22**, 7 tests, no arithmetic defect (end-area bias documented)                |
-| 7   | Retaining Wall Calculator          | structure | **Audited 2026-11-21**, 9 tests, DEFECT FIXED: overturning 1.5 -> 2.0 (BS 8002)                 |
-| 8   | Roof Framing & Board Feet          | structure | **Audited 2026-11-21**, 12 tests, DEFECT FIXED: sections entered as actual                      |
-| 9   | Masonry & Blockwork                | structure | **Audited 2026-11-21**, 17 tests, no defect in module, mortar or cement                         |
-| 10  | German Floor Calculator            | structure | **Audited 2026-11-21**, 10 tests, DEFECT FIXED: blinding sand lacked allowance                  |
-| 11  | Fence Block Calculator             | structure | **Audited 2026-11-21**, 18 tests, no defect in blocks, mortar or footing                        |
-| 12  | Drywall & Partitions               | structure | **Audited 2026-11-21**, 17 tests, DEFECT FIXED: tape and compound per layer                     |
-| 13  | Paving & External Works            | structure | **Audited 2026-11-21**, 26 tests, DEFECT FIXED: jointing sand was missing                       |
-| 14  | Formwork & Temporary Works         | structure | **Audited 2026-11-21**, 20 tests, 2 DEFECTS FIXED: half the standards, phantom frame            |
-| 15  | Demolition & Debris Takeoff        | structure | **Audited 2026-11-21**, 18 tests, COMPLETENESS FIXED: no debris mass                            |
-| 16  | Steel I-Beam Weight                | structure | **Audited 2026-11-21**, 13 tests, DEFECT FIXED: IPE 150 does not exist                          |
-| 17  | Soffit, Fascia & Gutter            | structure | **Audited 2026-11-21**, 16 tests, DEFECT FIXED: soffit corners counted twice                    |
-| 18  | Overhead Water Tank Staging        | structure | **Audited 2026-11-21**, 23 tests, no arithmetic defect, wind method disclosed                   |
-| 19  | Tall Building Structure            | structure | **Audited 2026-11-21**, 18 tests, no defect; first suite on a 1,935-line engine                 |
-| 20  | Build-to-Roof Estimator            | structure | **Audited 2026-11-22**, chain 10 tests, 2 disclosure defects fixed                              |
-| 21  | Mathematical Plan Elevation        | structure | Queued                                                                                          |
-| 22  | Foundation Cost Estimate           | structure | Queued                                                                                          |
-| 23  | Plumbing                           | services  | **Audited 2026-11-22**, 36 tests, DEFECT FIXED: cold-only buildings were never completable      |
-| 24  | Electrical Wiring                  | services  | **Audited 2026-11-22**, 18 tests, DEFECT FIXED: ampacity table was free air, not clipped direct |
-| 25  | Conduit & Wiring Loops             | services  | **Audited 2026-11-22**, 12 tests, no defect (already hardened)                                  |
-| 26  | Solar PV Estimator                 | services  | Queued                                                                                          |
-| 27  | Backup Power / Generator           | services  | **Audited 2026-11-22**, 16 tests, DEFECT FIXED: surge planning 1.5x -> 2.5x                     |
-| 28  | Heat & Comfort                     | services  | Queued                                                                                          |
-| 29  | Autonomous Borehole & Water Supply | services  | **Audited 2026-11-22**, 15 tests, DEFECT FIXED: head breakdown now sums                         |
-| 31  | External Drainage Takeoff          | services  | Queued                                                                                          |
-| 32  | Live Material Price Index          | services  | Queued                                                                                          |
-| 33  | International Code Reference       | services  | Queued                                                                                          |
-| 34  | Climate Material Advisor           | services  | Queued                                                                                          |
-| 35  | Septic & Soakaway Worksheet        | services  | **Audited 2026-11-22**, 11 tests, no defect (BS 6297 cross-check)                               |
+| #   | Calculator                         | Category  | Status                                                                                             |
+| --- | ---------------------------------- | --------- | -------------------------------------------------------------------------------------------------- |
+| 1   | Foundation Designer                | structure | **Audited 2026-11-21**, 18 tests, no arithmetic defect                                             |
+| 2   | Reinforcement / Steel              | structure | **Audited 2026-11-21**, 15 tests, no defect in anchorage or laps                                   |
+| 3   | ICF Wall Estimator                 | structure | **Audited 2026-11-21**, 19 tests, no defect in geometry or envelope                                |
+| 4   | Concrete & Structural              | structure | **Audited 2026-11-21**, 16 tests, 2 DEFECTS FIXED: IS 456 tau_c and ACI axial                      |
+| 5   | Concrete Slab Takeoff              | structure | **Audited 2026-11-21**, 11 tests, no defect in mix or rebar mass                                   |
+| 6   | Earthworks Cut & Fill              | structure | **Audited 2026-11-22**, 7 tests, no arithmetic defect (end-area bias documented)                   |
+| 7   | Retaining Wall Calculator          | structure | **Audited 2026-11-21**, 9 tests, DEFECT FIXED: overturning 1.5 -> 2.0 (BS 8002)                    |
+| 8   | Roof Framing & Board Feet          | structure | **Audited 2026-11-21**, 12 tests, DEFECT FIXED: sections entered as actual                         |
+| 9   | Masonry & Blockwork                | structure | **Audited 2026-11-21**, 17 tests, no defect in module, mortar or cement                            |
+| 10  | German Floor Calculator            | structure | **Audited 2026-11-21**, 10 tests, DEFECT FIXED: blinding sand lacked allowance                     |
+| 11  | Fence Block Calculator             | structure | **Audited 2026-11-21**, 18 tests, no defect in blocks, mortar or footing                           |
+| 12  | Drywall & Partitions               | structure | **Audited 2026-11-21**, 17 tests, DEFECT FIXED: tape and compound per layer                        |
+| 13  | Paving & External Works            | structure | **Audited 2026-11-21**, 26 tests, DEFECT FIXED: jointing sand was missing                          |
+| 14  | Formwork & Temporary Works         | structure | **Audited 2026-11-21**, 20 tests, 2 DEFECTS FIXED: half the standards, phantom frame               |
+| 15  | Demolition & Debris Takeoff        | structure | **Audited 2026-11-21**, 18 tests, COMPLETENESS FIXED: no debris mass                               |
+| 16  | Steel I-Beam Weight                | structure | **Audited 2026-11-21**, 13 tests, DEFECT FIXED: IPE 150 does not exist                             |
+| 17  | Soffit, Fascia & Gutter            | structure | **Audited 2026-11-21**, 16 tests, DEFECT FIXED: soffit corners counted twice                       |
+| 18  | Overhead Water Tank Staging        | structure | **Audited 2026-11-21**, 23 tests, no arithmetic defect, wind method disclosed                      |
+| 19  | Tall Building Structure            | structure | **Audited 2026-11-21**, 18 tests, no defect; first suite on a 1,935-line engine                    |
+| 20  | Build-to-Roof Estimator            | structure | **Audited 2026-11-22**, chain 10 tests, 2 disclosure defects fixed                                 |
+| 21  | Mathematical Plan Elevation        | structure | Queued                                                                                             |
+| 22  | Foundation Cost Estimate           | structure | Queued                                                                                             |
+| 23  | Plumbing                           | services  | **Audited 2026-11-22**, 36 tests, DEFECT FIXED: cold-only buildings were never completable         |
+| 24  | Electrical Wiring                  | services  | **Audited 2026-11-22**, 21 tests, DEFECT FIXED: ampacity table was 4D2A armoured under a 4D5 claim |
+| 25  | Conduit & Wiring Loops             | services  | **Audited 2026-11-22**, 12 tests, no defect (already hardened)                                     |
+| 26  | Solar PV Estimator                 | services  | **Audited 2026-11-22**, 7 tests, DEFECT FIXED: string length was a constant, no voltage check      |
+| 27  | Backup Power / Generator           | services  | **Audited 2026-11-22**, 16 tests, DEFECT FIXED: surge planning 1.5x -> 2.5x                        |
+| 28  | Heat & Comfort                     | services  | **Audited 2026-11-22**, 7 tests, no arithmetic defect; emittance gap recorded                      |
+| 29  | Autonomous Borehole & Water Supply | services  | **Audited 2026-11-22**, 15 tests, DEFECT FIXED: head breakdown now sums                            |
+| 31  | External Drainage Takeoff          | services  | **Audited 2026-11-22**, 11 tests, no defect; hydraulic capacity gap recorded                       |
+| 32  | Live Material Price Index          | services  | Queued                                                                                             |
+| 33  | International Code Reference       | services  | Queued                                                                                             |
+| 34  | Climate Material Advisor           | services  | Queued                                                                                             |
+| 35  | Septic & Soakaway Worksheet        | services  | **Audited 2026-11-22**, 11 tests, no defect (BS 6297 cross-check)                                  |
 
 Queue order is by risk: engines with no tests at all come first, because an
 untested engine can be wrong in a way a tested one cannot.
@@ -938,6 +938,71 @@ Findings:
 2. Bar diameter 0 or negative returns 0 rather than dividing by zero. Correct.
 
 ---
+
+## Services audit 7: Solar PV (`solar-pv-engine.ts`, ledger #26)
+
+Suite: `src/lib/estimation/__tests__/solar-pv-conformance.test.ts`, 7 tests.
+
+**Defect found.** String length was `ceil(panelCount / string_size_max)`, where
+`string_size_max` is an admin rule. The engine held no module Voc, no temperature
+coefficient and no inverter DC limit, so nothing ever checked the array's
+open-circuit voltage against the inverter. A string one panel too long destroys
+the inverter input on the coldest bright morning, which is exactly when Voc
+peaks, and a fixed constant cannot know that.
+
+**Fix.** `stringSeriesLimits()` implements both bounds from IEC 62548-1, with the
+temperature correction of NEC 690.7:
+
+- upper: Voc corrected to the coldest design cell temperature must stay at or
+  below the inverter's maximum DC voltage, so `max = floor(Vdc_max / Voc_cold)`;
+- lower: Vmp corrected to the hottest design cell temperature must still reach
+  the MPPT window, so `min = ceil(Vmppt_min / Vmp_hot)`.
+
+Strings are sized to the computed ceiling when it is lower than the rule, the
+warning states both figures so the user can check them, and an inverter that
+cannot satisfy both bounds at once is named rather than quietly producing a
+number. With no module data the engine still runs on the rule but says in the
+result that the string length is an assumption, not a voltage check.
+
+Hand-checked anchors: Voc 41.2 V at -0.29 %/degC and 0 degC gives 44.19 V, so a
+600 V inverter allows 13 in series; Vmp 34.5 V at -0.35 %/degC and 70 degC gives
+29.07 V, so a 200 V MPPT floor needs 7.
+
+**Still absent:** Isc and the 1.25 factor for conductor and breaker sizing
+(NEC 690.8 / IEC 62548), module-level shading, inverter efficiency curves.
+
+## Services audit 8: Heat & Comfort (`heat-comfort-engine.ts`, ledger #28)
+
+Suite: `src/lib/estimation/__tests__/heat-comfort-conformance.test.ts`, 7 tests.
+
+**No arithmetic defect.** The daily delta is `area x irradiance x (albedo_prop -
+albedo_cur)`, which is identical to the difference of the absorbed fractions
+`I(1-a)`, and the reduction percentage divides by the energy absorbed before, not
+by total incident energy. Square feet convert at 0.092903 exactly. The engine
+refuses an albedo outside 0 to 1 and refuses to assume an unconfigured one.
+
+**Recorded gap, not patched.** Reflectance alone does not set a surface's
+temperature: thermal emittance is the other half, and ASTM E1980's Solar
+Reflectance Index needs both. Two finishes with the same albedo and different
+emittance are indistinguishable here. Adding it means a new configured factor per
+finish plus a surface-temperature model, which is a capability decision.
+
+## Services audit 9: External Drainage (`drainage-standalone-engine.ts`, ledger #31)
+
+Suite: `src/lib/estimation/__tests__/external-drainage-conformance.test.ts`,
+11 tests.
+
+**No defect found in scope.** Run arithmetic is right: fall is length x gradient,
+pieces are whole stock lengths, several runs sum. The self-cleansing gradient
+table matches BS EN 752 / BS 8000 practice and the lookup takes the smallest pipe
+not above the run, so a 200 mm sewer is held to 1 in 200 instead of falling
+through to no minimum. The earlier fix for that regression is now pinned by test.
+
+**Recorded gap, not patched.** There is no hydraulic capacity check at all: no
+Manning solution, no velocity at full bore, no check that the gradient delivers
+0.7 m/s. The engine is a material takeoff and says so, but a user reading "110 mm
+at 1 in 80" may reasonably believe capacity was verified. Closing it needs pipe
+roughness per material and a design flow per run.
 
 ## Open questions carried forward
 
