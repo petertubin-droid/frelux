@@ -223,7 +223,10 @@ describe("planning multipliers and unreadable prices", () => {
   it("states the surge multiplier as an allowance, not as the set's capacity", () => {
     const r = calculateGenerator(makeInput(), rules, FULL_PRICES);
     const unitStep = r.steps.find((s) => s.label === "Generator unit");
-    expect(unitStep?.detail).toContain("1.5× planning multiplier");
+    // Raised from 1.5x: a DOL motor start draws about 6x full load and an
+    // alternator rides through roughly 2.5-3x, so 1.5x undersized the set.
+    expect(unitStep?.detail).toContain("2.5× planning multiplier");
+    expect(unitStep?.detail).toContain("40 kW");
     expect(unitStep?.detail).toContain("alternator data sheet");
     expect(unitStep?.detail).not.toContain("inductive inrush capacity");
   });

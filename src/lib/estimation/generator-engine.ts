@@ -67,7 +67,16 @@ export type GeneratorSize = "10kva" | "20kva" | "30kva" | "50kva";
  * running current as it starts, and whether a given alternator rides through
  * that is in its data sheet.
  */
-const SURGE_MULTIPLIER = 1.5;
+/**
+ * Planning multiplier from continuous kW to the surge the set must ride
+ * through. A direct-on-line motor draws about six times its full-load current
+ * at start, and an alternator carries roughly 2.5 to 3 times its rating for the
+ * few seconds that lasts, so planning at 2.5 x is the figure that does not
+ * undersize the set when an air conditioner or a borehole pump starts. The
+ * alternator data sheet still governs: this is a planning figure, not a motor
+ * starting study.
+ */
+const SURGE_MULTIPLIER = 2.5;
 
 /**
  * A price is money. A missing or unreadable entry in the shared material
@@ -142,8 +151,6 @@ export type GeneratorPriceMap = Record<string, number | null>;
 
 // Shared cent rule (src/lib/money/round.ts).
 const money = roundMoney;
-
-
 
 function roundTo(v: number, dp: number): number {
   const f = 10 ** dp;
