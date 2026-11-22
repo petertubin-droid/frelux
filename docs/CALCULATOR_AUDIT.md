@@ -18,42 +18,42 @@ been exercised; `staged` means written but not executed.
 
 ## Status summary
 
-| #   | Calculator                         | Category  | Status                                                                               |
-| --- | ---------------------------------- | --------- | ------------------------------------------------------------------------------------ |
-| 1   | Foundation Designer                | structure | **Audited 2026-11-21**, 18 tests, no arithmetic defect                               |
-| 2   | Reinforcement / Steel              | structure | **Audited 2026-11-21**, 15 tests, no defect in anchorage or laps                     |
-| 3   | ICF Wall Estimator                 | structure | **Audited 2026-11-21**, 19 tests, no defect in geometry or envelope                  |
-| 4   | Concrete & Structural              | structure | **Audited 2026-11-21**, 16 tests, 2 DEFECTS FIXED: IS 456 tau_c and ACI axial        |
-| 5   | Concrete Slab Takeoff              | structure | **Audited 2026-11-21**, 11 tests, no defect in mix or rebar mass                     |
-| 6   | Earthworks Cut & Fill              | structure | **Audited 2026-11-22**, 7 tests, no arithmetic defect (end-area bias documented)     |
-| 7   | Retaining Wall Calculator          | structure | **Audited 2026-11-21**, 9 tests, DEFECT FIXED: overturning 1.5 -> 2.0 (BS 8002)      |
-| 8   | Roof Framing & Board Feet          | structure | **Audited 2026-11-21**, 12 tests, DEFECT FIXED: sections entered as actual           |
-| 9   | Masonry & Blockwork                | structure | **Audited 2026-11-21**, 17 tests, no defect in module, mortar or cement              |
-| 10  | German Floor Calculator            | structure | **Audited 2026-11-21**, 10 tests, DEFECT FIXED: blinding sand lacked allowance       |
-| 11  | Fence Block Calculator             | structure | **Audited 2026-11-21**, 18 tests, no defect in blocks, mortar or footing             |
-| 12  | Drywall & Partitions               | structure | **Audited 2026-11-21**, 17 tests, DEFECT FIXED: tape and compound per layer          |
-| 13  | Paving & External Works            | structure | **Audited 2026-11-21**, 26 tests, DEFECT FIXED: jointing sand was missing            |
-| 14  | Formwork & Temporary Works         | structure | **Audited 2026-11-21**, 20 tests, 2 DEFECTS FIXED: half the standards, phantom frame |
-| 15  | Demolition & Debris Takeoff        | structure | **Audited 2026-11-21**, 18 tests, COMPLETENESS FIXED: no debris mass                 |
-| 16  | Steel I-Beam Weight                | structure | **Audited 2026-11-21**, 13 tests, DEFECT FIXED: IPE 150 does not exist               |
-| 17  | Soffit, Fascia & Gutter            | structure | **Audited 2026-11-21**, 16 tests, DEFECT FIXED: soffit corners counted twice         |
-| 18  | Overhead Water Tank Staging        | structure | **Audited 2026-11-21**, 23 tests, no arithmetic defect, wind method disclosed        |
-| 19  | Tall Building Structure            | structure | **Audited 2026-11-21**, 18 tests, no defect; first suite on a 1,935-line engine      |
-| 20  | Build-to-Roof Estimator            | structure | Queued (engine has tests, page chain untested)                                       |
-| 21  | Mathematical Plan Elevation        | structure | Queued                                                                               |
-| 22  | Foundation Cost Estimate           | structure | Queued                                                                               |
-| 23  | Plumbing                           | services  | Queued                                                                               |
-| 24  | Electrical Wiring                  | services  | Queued                                                                               |
-| 25  | Conduit & Wiring Loops             | services  | Queued                                                                               |
-| 26  | Solar PV Estimator                 | services  | Queued                                                                               |
-| 27  | Backup Power / Generator           | services  | Queued                                                                               |
-| 28  | Heat & Comfort                     | services  | Queued                                                                               |
-| 29  | Autonomous Borehole & Water Supply | services  | Queued                                                                               |
-| 30  | Septic & Soakaway Worksheet        | services  | Queued                                                                               |
-| 31  | External Drainage Takeoff          | services  | Queued                                                                               |
-| 32  | Live Material Price Index          | services  | Queued                                                                               |
-| 33  | International Code Reference       | services  | Queued                                                                               |
-| 34  | Climate Material Advisor           | services  | Queued                                                                               |
+| #   | Calculator                         | Category  | Status                                                                                     |
+| --- | ---------------------------------- | --------- | ------------------------------------------------------------------------------------------ |
+| 1   | Foundation Designer                | structure | **Audited 2026-11-21**, 18 tests, no arithmetic defect                                     |
+| 2   | Reinforcement / Steel              | structure | **Audited 2026-11-21**, 15 tests, no defect in anchorage or laps                           |
+| 3   | ICF Wall Estimator                 | structure | **Audited 2026-11-21**, 19 tests, no defect in geometry or envelope                        |
+| 4   | Concrete & Structural              | structure | **Audited 2026-11-21**, 16 tests, 2 DEFECTS FIXED: IS 456 tau_c and ACI axial              |
+| 5   | Concrete Slab Takeoff              | structure | **Audited 2026-11-21**, 11 tests, no defect in mix or rebar mass                           |
+| 6   | Earthworks Cut & Fill              | structure | **Audited 2026-11-22**, 7 tests, no arithmetic defect (end-area bias documented)           |
+| 7   | Retaining Wall Calculator          | structure | **Audited 2026-11-21**, 9 tests, DEFECT FIXED: overturning 1.5 -> 2.0 (BS 8002)            |
+| 8   | Roof Framing & Board Feet          | structure | **Audited 2026-11-21**, 12 tests, DEFECT FIXED: sections entered as actual                 |
+| 9   | Masonry & Blockwork                | structure | **Audited 2026-11-21**, 17 tests, no defect in module, mortar or cement                    |
+| 10  | German Floor Calculator            | structure | **Audited 2026-11-21**, 10 tests, DEFECT FIXED: blinding sand lacked allowance             |
+| 11  | Fence Block Calculator             | structure | **Audited 2026-11-21**, 18 tests, no defect in blocks, mortar or footing                   |
+| 12  | Drywall & Partitions               | structure | **Audited 2026-11-21**, 17 tests, DEFECT FIXED: tape and compound per layer                |
+| 13  | Paving & External Works            | structure | **Audited 2026-11-21**, 26 tests, DEFECT FIXED: jointing sand was missing                  |
+| 14  | Formwork & Temporary Works         | structure | **Audited 2026-11-21**, 20 tests, 2 DEFECTS FIXED: half the standards, phantom frame       |
+| 15  | Demolition & Debris Takeoff        | structure | **Audited 2026-11-21**, 18 tests, COMPLETENESS FIXED: no debris mass                       |
+| 16  | Steel I-Beam Weight                | structure | **Audited 2026-11-21**, 13 tests, DEFECT FIXED: IPE 150 does not exist                     |
+| 17  | Soffit, Fascia & Gutter            | structure | **Audited 2026-11-21**, 16 tests, DEFECT FIXED: soffit corners counted twice               |
+| 18  | Overhead Water Tank Staging        | structure | **Audited 2026-11-21**, 23 tests, no arithmetic defect, wind method disclosed              |
+| 19  | Tall Building Structure            | structure | **Audited 2026-11-21**, 18 tests, no defect; first suite on a 1,935-line engine            |
+| 20  | Build-to-Roof Estimator            | structure | Queued (engine has tests, page chain untested)                                             |
+| 21  | Mathematical Plan Elevation        | structure | Queued                                                                                     |
+| 22  | Foundation Cost Estimate           | structure | Queued                                                                                     |
+| 23  | Plumbing                           | services  | **Audited 2026-11-22**, 36 tests, DEFECT FIXED: cold-only buildings were never completable |
+| 24  | Electrical Wiring                  | services  | Queued                                                                                     |
+| 25  | Conduit & Wiring Loops             | services  | Queued                                                                                     |
+| 26  | Solar PV Estimator                 | services  | Queued                                                                                     |
+| 27  | Backup Power / Generator           | services  | Queued                                                                                     |
+| 28  | Heat & Comfort                     | services  | Queued                                                                                     |
+| 29  | Autonomous Borehole & Water Supply | services  | Queued                                                                                     |
+| 30  | Septic & Soakaway Worksheet        | services  | Queued                                                                                     |
+| 31  | External Drainage Takeoff          | services  | Queued                                                                                     |
+| 32  | Live Material Price Index          | services  | Queued                                                                                     |
+| 33  | International Code Reference       | services  | Queued                                                                                     |
+| 34  | Climate Material Advisor           | services  | Queued                                                                                     |
 
 Queue order is by risk: engines with no tests at all come first, because an
 untested engine can be wrong in a way a tested one cannot.
@@ -74,6 +74,34 @@ states a factor of safety was swept. Two sites exist:
   expected value.
 
 No other engine states a factor of safety, so no further mismatch remains.
+
+---
+
+## Services audit 1: Plumbing (`plumbing-engine.ts`, ledger #23)
+
+First services calculator audited. 637-line engine, no test file before this.
+
+**Defect fixed.** The file header promises hot water is "included only when the
+user provides a hot water run", but `hot_run_m === null` pushed a `missing`
+line and named it in `missing[]`. Every cold-only building was therefore
+permanently `incomplete` and withheld its grand total, and the user was asked
+for a length that did not exist. Hot water is now genuinely optional: the
+category is omitted, nothing is added to `missing`, and one warning states the
+estimate assumes no hot water system.
+
+**Verified (13 new tests, plus the existing 23 updated):** WSFU ratings per
+fixture match IPC Table E103.3(2), including floor drains carrying zero supply
+demand; sums are additive; peak flow is monotonic; every header reported
+adequate keeps velocity at or under the 1.8 m/s ceiling of BS EN 806-3; a
+demand above the largest bore (73.2 mm) is flagged short rather than described
+as adequate; storage is 150 L per person per day with a two-person floor;
+waste applies before whole-metre rounding; blank runs stay unsized and named;
+prices are never invented.
+
+**Documented, not changed:** the peak-flow fit (0.25 WSFU^0.75 below 10, then
+0.4 WSFU^0.55) runs conservative against Hunter's curve, roughly +70% at 10
+WSFU and +29% at 100, so it oversizes the header rather than undersizing it.
+That is the safe direction and the behaviour is now locked by tests.
 
 ---
 
