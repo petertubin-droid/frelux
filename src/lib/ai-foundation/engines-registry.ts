@@ -1465,6 +1465,84 @@ registerEngine({
   },
 });
 
+// ── Paint: theoretical litres and the buckets a buyer pays for ──
+//
+// One adapter over two authoritative functions, because they are one answer.
+// paint-engine gives the theoretical litres for an area and coat count;
+// painting-engine's litresToBuckets converts those litres into packs. The
+// painting estimator reaches the same conversion through
+// calculatePaintingProject, so reporting litres without buckets would stop
+// half way through the sum a buyer actually sees.
+//
+// Coverage is a product property (10 to 17 m²/L per coat for common emulsions)
+// and pack size is a packaging property, so both are inputs with disclosed
+// defaults rather than fixed rules. 10 m²/L and a 20 L pack are the defaults
+// the plan vision finishing engine already ships.
+interface PaintInputLike {
+  areaM2?: number;
+  coats?: number;
+  coverageM2PerLiter?: number;
+  packSizeLitres?: number;
+}
+
+registerEngine({
+  id: "paint",
+  domain: "finishing",
+  title: "FRELUX Paint Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX paint engine",
+  async run(rawInput) {
+    const { calculateTheoreticalLitres } =
+      await import("@/lib/estimation/paint-engine");
+    const { litresToBuckets } =
+      await import("@/lib/estimation/painting-engine");
+    const supplied = (rawInput ?? {}) as PaintInputLike;
+
+    const areaM2 = supplied.areaM2 ?? 100;
+    const coats = supplied.coats ?? 2;
+    const coverageM2PerLiter = supplied.coverageM2PerLiter ?? 10;
+    const packSizeLitres = supplied.packSizeLitres ?? 20;
+
+    const litres = calculateTheoreticalLitres(
+      areaM2,
+      coats,
+      coverageM2PerLiter,
+    );
+    const exactBuckets = litresToBuckets(litres, packSizeLitres);
+    // Packs are sold whole, so the purchase figure is the ceiling. This is what
+    // the paint calculator and the painting estimator both show.
+    const bucketsToBuy = Math.ceil(exactBuckets);
+
+    return {
+      ok: litres > 0,
+      engine: "paint",
+      calculatedAt: new Date().toISOString(),
+      quantities: [
+        quantityLine("Theoretical paint", litres, "litres"),
+        quantityLine("Buckets to buy", bucketsToBuy, "buckets"),
+        quantityLine("Buckets (exact)", exactBuckets, "buckets"),
+        quantityLine("Paint area", areaM2, "m²"),
+      ],
+      costs: null,
+      raw: {
+        litres,
+        exactBuckets,
+        bucketsToBuy,
+        areaM2,
+        coats,
+        coverageM2PerLiter,
+        packSizeLitres,
+      },
+      ...(litres > 0
+        ? {}
+        : {
+            error:
+              "Coverage and area must both be positive, so no paint can be calculated.",
+          }),
+    };
+  },
+});
+
 export function listEngines(): EngineDescriptor[] {
   return [...REGISTRY.values()];
 }

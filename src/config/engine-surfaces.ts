@@ -166,6 +166,21 @@ export const ENGINE_SURFACES: EngineSurface[] = [
     note: "Cost differences between markets and regions.",
   },
   {
+    engineId: "paint",
+    status: "shared",
+    route: "/paint-calculator",
+    label: "Paint Calculator (litres and buckets)",
+    icon: Paintbrush,
+    evidence: {
+      module: "@/lib/estimation/paint-engine",
+      fn: "calculateTheoreticalLitres",
+      page: "src/pages/PaintCalculator.tsx",
+      calledBy:
+        "the paint calculator imports paint-engine; the bucket conversion comes from painting-engine's litresToBuckets, which PaintingEstimator reaches through calculatePaintingProject",
+    },
+    note: "Theoretical litres for an area and coat count, plus the whole buckets a buyer pays for.",
+  },
+  {
     engineId: "drywall",
     status: "shared",
     route: "/drywall-calculator",

@@ -79,9 +79,13 @@ with their own unit size rather than a default.
 | `wallfinishing/quantity-engine.ts`           | `calculateWallAreas`         | open                                                   |
 | `wallfinishing/cost-engine.ts`               | `calculateLayerCost`         | open                                                   |
 
-The paint pair is one job, not two: `paint-engine` gives theoretical litres and
-`painting-engine` converts litres to purchasable buckets. Adapt them together so
-the console reports both the litres and the buckets a buyer actually pays for.
+The paint pair was taken as one job, as planned: the `paint` adapter reports
+theoretical litres from `paint-engine`, then the exact packs and the whole packs
+to buy from `painting-engine`'s `litresToBuckets`. Coverage (10 m²/L) and pack
+size (20 L) are inputs with disclosed defaults, because both are product
+properties rather than rules. Six modules remain in this batch: plaster and
+render, exterior finish, flooring, mineral stone, and the wall finishing
+quantity and cost pair.
 
 ## Batch 6: Building services
 

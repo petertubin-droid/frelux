@@ -60,6 +60,7 @@ export const UNRESOLVED_ENGINE_IDS = [
   "temporary_works",
   "drywall",
   "insulation",
+  "paint",
 ] as const;
 
 export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
@@ -187,6 +188,12 @@ export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
     canonicalId: "sequence",
     confidence: "medium",
     note: "Construction sequence planning.",
+  },
+  {
+    aiEngineId: "paint",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "Painting already has two registry engines, painting_project and painting_wall_area, and both are themselves unresolved against the international vocabulary. A third row claiming a canonical id would repeat that guess rather than settle it.",
   },
   {
     aiEngineId: "drywall",
