@@ -166,15 +166,17 @@ describe("paving: paver count on nominal face plus joint", () => {
 describe("electrical: BS 7671 tables and limits", () => {
   it("carries the Table 4D5 capacities for clipped direct multicore", () => {
     const table = Object.fromEntries(COPPER_AMPACITY_A);
-    expect(table[1.5]).toBe(19.5);
-    expect(table[2.5]).toBe(27);
-    expect(table[4]).toBe(36);
-    expect(table[6]).toBe(46);
-    expect(table[10]).toBe(63);
-    expect(table[16]).toBe(85);
-    expect(table[25]).toBe(112);
-    expect(table[35]).toBe(138);
-    expect(table[50]).toBe(168);
+    // Non-armoured multicore, clipped direct (Table 4D5). The armoured figures
+    // this test used to assert belong to Table 4D2A and are now their own table.
+    expect(table[1.5]).toBe(17.5);
+    expect(table[2.5]).toBe(24);
+    expect(table[4]).toBe(32);
+    expect(table[6]).toBe(41);
+    expect(table[10]).toBe(57);
+    expect(table[16]).toBe(76);
+    expect(table[25]).toBe(101);
+    expect(table[35]).toBe(125);
+    expect(table[50]).toBe(151);
   });
 
   it("holds the 3% lighting and 5% power drop limits", () => {

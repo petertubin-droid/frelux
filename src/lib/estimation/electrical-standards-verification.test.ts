@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { COPPER_AMPACITY_A, COPPER_RESISTIVITY } from "./electrical-engine";
+import {
+  ARMOURED_AMPACITY_CLIPPED_DIRECT_A,
+  COPPER_AMPACITY_A,
+  COPPER_RESISTIVITY,
+} from "./electrical-engine";
 
 /**
  * The electrical engine carries two published sets of figures: the
@@ -10,8 +14,10 @@ import { COPPER_AMPACITY_A, COPPER_RESISTIVITY } from "./electrical-engine";
  */
 describe("electrical engine against BS 7671:2018 Appendix 4", () => {
   it("matches Table 4D2A for 70 C thermoplastic multicore clipped direct", () => {
-    // Table 4D2A, column 2: two loaded conductors, non-armoured multicore,
-    // clipped direct, 70 C thermoplastic. Amperes, un-derated.
+    // Table 4D2A, column 2: two loaded conductors, ARMOURED multicore, clipped
+    // direct, 70 C thermoplastic. Amperes, un-derated. The comment previously
+    // said non-armoured while carrying these armoured figures, which is the
+    // defect services audit 6 fixed.
     const published: Array<[number, number]> = [
       [1.5, 19.5],
       [2.5, 27],
@@ -25,13 +31,30 @@ describe("electrical engine against BS 7671:2018 Appendix 4", () => {
       [70, 213],
       [95, 258],
     ];
-    expect(COPPER_AMPACITY_A.map(([csa]) => csa)).toEqual(
-      published.map(([csa]) => csa),
-    );
+    const table = ARMOURED_AMPACITY_CLIPPED_DIRECT_A;
+    expect(table.map(([csa]) => csa)).toEqual(published.map(([csa]) => csa));
     for (const [csa, amps] of published) {
-      const row = COPPER_AMPACITY_A.find(([c]) => c === csa);
+      const row = table.find(([c]) => c === csa);
       expect(row?.[1], `${csa} mm2`).toBe(amps);
     }
+  });
+
+  it("carries the non-armoured Table 4D5 figures for clipped direct", () => {
+    // Two loaded conductors, non-armoured multicore, clipped direct.
+    const published: Array<[number, number]> = [
+      [1.5, 17.5],
+      [2.5, 24],
+      [4, 32],
+      [6, 41],
+      [10, 57],
+      [16, 76],
+      [25, 101],
+      [35, 125],
+      [50, 151],
+      [70, 192],
+      [95, 232],
+    ];
+    expect(COPPER_AMPACITY_A).toEqual(published);
   });
 
   it("derives voltage drop coefficients close to the tabulated mV/A/m", () => {

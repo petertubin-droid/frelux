@@ -5,8 +5,10 @@ import {
   type NorthAmericanSystem,
 } from "@/lib/estimation/nec-electrical-engine";
 import {
+  AMPACITY_BY_METHOD,
   COPPER_AMPACITY_A,
   minimumCableSize,
+  type InstallationMethod,
   selectBreaker,
   voltageDropPercent,
   type SupplySystem,
@@ -32,6 +34,7 @@ export default function CableSizingCheck({
   const [system, setSystem] = useState<SupplySystem>("single");
   const [powerFactor, setPowerFactor] = useState("1");
   const [lighting, setLighting] = useState(false);
+  const [method, setMethod] = useState<InstallationMethod>("C");
   const [existing, setExisting] = useState("4");
 
   const parsed = useMemo(() => {
@@ -76,8 +79,9 @@ export default function CableSizingCheck({
       lighting_dominant: lighting,
       system,
       power_factor: parsed.pf,
+      installation_method: method,
     });
-  }, [parsed, lighting, system]);
+  }, [parsed, lighting, system, method]);
 
   const field =
     "mt-1 w-full rounded-md border bg-background px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ring";
@@ -182,17 +186,35 @@ export default function CableSizingCheck({
           </span>
         </label>
         <label className="text-sm">
+          <span className="font-medium">How the cable is installed</span>
+          <select
+            className={field}
+            value={method}
+            onChange={(e) => setMethod(e.target.value as InstallationMethod)}
+          >
+            <option value="C">Clipped direct or in conduit on a wall</option>
+            <option value="B">In conduit on a wall</option>
+            <option value="A">In conduit inside an insulated wall</option>
+            <option value="E">Free air, on a tray</option>
+          </select>
+          <span className="text-xs text-muted-foreground">
+            The same cable carries less current the more it is enclosed.
+          </span>
+        </label>
+        <label className="text-sm">
           <span className="font-medium">Cable you planned to use</span>
           <select
             className={field}
             value={existing}
             onChange={(e) => setExisting(e.target.value)}
           >
-            {COPPER_AMPACITY_A.map(([csa, amps]) => (
-              <option key={csa} value={csa}>
-                {csa} mm² ({amps} A)
-              </option>
-            ))}
+            {(AMPACITY_BY_METHOD[method] ?? COPPER_AMPACITY_A).map(
+              ([csa, amps]) => (
+                <option key={csa} value={csa}>
+                  {csa} mm² ({amps} A)
+                </option>
+              ),
+            )}
           </select>
         </label>
       </div>

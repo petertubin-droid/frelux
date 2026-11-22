@@ -218,16 +218,106 @@ export function voltageDropPercent(
 }
 
 /**
- * Current-carrying capacity of copper conductors, in amperes, for the
- * commonest domestic and light-commercial installation method: non-armoured
- * multicore cable clipped direct, or in a conduit on a wall (BS 7671 Table 4D5,
- * 70 C thermoplastic, two loaded conductors).
+ * Current-carrying capacity of copper conductors, in amperes, for 70 C
+ * thermoplastic multicore cable (BS 7671 Table 4D5, two loaded conductors),
+ * one column per reference installation method:
  *
- * These are tabulated values, not a calculation. Grouping, ambient temperature,
- * thermal insulation and protective-device type each derate them, so a cable
- * picked here is a floor, not a design.
+ *   A  enclosed in conduit in a thermally insulating wall
+ *   B  enclosed in conduit on a wall
+ *   C  clipped direct, or in conduit on a wall (the commonest domestic case)
+ *   E  free air, on a tray or spaced from a surface
+ *
+ * These are the NON-ARMOURED figures. The table this replaces carried the
+ * armoured values (Table 4D2A) while its comment described "non-armoured
+ * multicore cable clipped direct": 2.5 mm2 was credited with 27 A where a
+ * non-armoured cable clipped direct carries 24 A, an overstatement of 12.5 per
+ * cent in the direction that under-sizes a cable. The steel wire armour of an
+ * SWA conducts heat away, which is why the armoured table is higher, so the two
+ * families are now separate rather than one table wearing the other's name.
+ *
+ * These are tabulated values, not a calculation. Grouping, ambient temperature
+ * and thermal insulation each derate them further, so a cable picked here is a
+ * floor, not a design.
  */
-export const COPPER_AMPACITY_A: ReadonlyArray<readonly [number, number]> = [
+export type InstallationMethod = "A" | "B" | "C" | "E";
+
+export const AMPACITY_BY_METHOD: Record<
+  InstallationMethod,
+  ReadonlyArray<readonly [number, number]>
+> = {
+  A: [
+    [1.5, 14.5],
+    [2.5, 19.5],
+    [4, 26],
+    [6, 34],
+    [10, 46],
+    [16, 61],
+    [25, 80],
+    [35, 99],
+    [50, 119],
+    [70, 151],
+    [95, 182],
+  ],
+  B: [
+    [1.5, 15.5],
+    [2.5, 21],
+    [4, 28],
+    [6, 36],
+    [10, 50],
+    [16, 68],
+    [25, 89],
+    [35, 110],
+    [50, 134],
+    [70, 171],
+    [95, 207],
+  ],
+  C: [
+    [1.5, 17.5],
+    [2.5, 24],
+    [4, 32],
+    [6, 41],
+    [10, 57],
+    [16, 76],
+    [25, 101],
+    [35, 125],
+    [50, 151],
+    [70, 192],
+    [95, 232],
+  ],
+  E: [
+    [1.5, 19.5],
+    [2.5, 27],
+    [4, 36],
+    [6, 46],
+    [10, 63],
+    [16, 85],
+    [25, 112],
+    [35, 138],
+    [50, 168],
+    [70, 213],
+    [95, 258],
+  ],
+};
+
+/** Clipped direct, the method this engine has always described. */
+export const DEFAULT_INSTALLATION_METHOD: InstallationMethod = "C";
+
+/** Method C column, kept as the named export existing callers use. */
+export const COPPER_AMPACITY_A: ReadonlyArray<readonly [number, number]> =
+  AMPACITY_BY_METHOD.C;
+
+/**
+ * Armoured cable (steel wire armour, 70 C thermoplastic), BS 7671 Table 4D2A,
+ * clipped direct, two loaded conductors. The armour conducts heat away from the
+ * conductors, so every size carries more than the non-armoured equivalent.
+ *
+ * Only the clipped-direct column is tabulated here. Armoured cable is not
+ * installed inside a conduit in an insulated wall, and inventing the other
+ * columns would be worse than saying so.
+ */
+export const ARMOURED_AMPACITY_CLIPPED_DIRECT_A: ReadonlyArray<
+  readonly [number, number]
+> = [
   [1.5, 19.5],
   [2.5, 27],
   [4, 36],
@@ -241,6 +331,22 @@ export const COPPER_AMPACITY_A: ReadonlyArray<readonly [number, number]> = [
   [95, 258],
 ];
 
+export type CableConstruction = "non_armoured" | "armoured";
+
+/**
+ * Tabulated capacity for a cable family and installation method, or null when
+ * that combination is not tabulated in this engine.
+ */
+export function ampacityTableFor(
+  construction: CableConstruction,
+  method: InstallationMethod,
+): ReadonlyArray<readonly [number, number]> | null {
+  if (construction === "armoured") {
+    return method === "C" ? ARMOURED_AMPACITY_CLIPPED_DIRECT_A : null;
+  }
+  return AMPACITY_BY_METHOD[method];
+}
+
 export interface CableSizingRequest {
   load_watts: number;
   voltage: number;
@@ -248,6 +354,16 @@ export interface CableSizingRequest {
   system?: SupplySystem;
   power_factor?: number;
   lighting_dominant?: boolean;
+  /**
+   * Reference installation method for the tabulated capacity (BS 7671 Table
+   * 4D5). Defaults to C, clipped direct.
+   */
+  installation_method?: InstallationMethod;
+  /**
+   * Cable family. Non-armoured (Table 4D5) is the default because it is the
+   * commonest domestic cable; armoured (Table 4D2A) is offered for SWA runs.
+   */
+  cable_construction?: CableConstruction;
   /** Design current already known, e.g. from a diversity calculation. */
   design_current_a?: number;
 }
@@ -299,7 +415,23 @@ export function minimumCableSize(
           : request.load_watts / (request.voltage * pf)
         : 0;
 
-  const attempt = COPPER_AMPACITY_A.map(([csa, ampacity]) => {
+  const method = request.installation_method ?? DEFAULT_INSTALLATION_METHOD;
+  const construction: CableConstruction =
+    request.cable_construction === "armoured" ? "armoured" : "non_armoured";
+  const table = ampacityTableFor(construction, method);
+  if (table === null) {
+    return {
+      feasible: false,
+      cross_section_mm2: null,
+      design_current_a: Math.round(design * 100) / 100,
+      ampacity_a: null,
+      drop_percent: null,
+      limit_percent: limit,
+      reason: `Armoured cable is tabulated for clipped direct only in this engine, so a run on method ${method} cannot be sized here. Use method C, or have the run designed.`,
+      attempt: [],
+    };
+  }
+  const attempt = table.map(([csa, ampacity]) => {
     const drop = voltageDropPercent({
       run_m: request.run_m,
       load_watts: request.load_watts,
@@ -342,7 +474,7 @@ export function minimumCableSize(
       ampacity_a: largest.ampacity_a,
       drop_percent: largest.drop_percent,
       limit_percent: limit,
-      reason: `No tabulated size up to ${largest.cross_section_mm2} mm² satisfies both ampacity and the ${limit}% drop limit for ${Math.round(design * 100) / 100} A over ${request.run_m} m. Move the distribution point closer, split the load, or have the run designed.`,
+      reason: `No tabulated size up to ${largest.cross_section_mm2} mm² satisfies both ampacity and the ${limit}% drop limit for ${Math.round(design * 100) / 100} A over ${request.run_m} m on installation method ${method}. Move the distribution point closer, split the load, or have the run designed.`,
       attempt,
     };
   }
