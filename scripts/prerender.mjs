@@ -263,10 +263,27 @@ const routes = [
     title:
       "FRELUX SMART CALC: Calculate Materials & Estimate Construction Costs",
     description:
-      "Know exactly what materials your construction project needs. Free construction calculators for paint, screeding, POP ceiling, tiles, and finishing. Estimate costs with real market prices.",
+      "Calculate construction materials, export tamper-proof QR-verified BOQs, and pay globally with local currencies or Bitcoin on FRELUXTOOLS.",
+    ogDescription:
+      "Precision construction calculators, multi-market templates, and Bitcoin-verified quotes for builders, contractors, and engineers worldwide.",
     priority: "1.0",
     changefreq: "weekly",
     structuredData: [
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "FRELUXTOOLS",
+        "url": "https://freluxtools.com",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "Global construction estimation platform offering localized material calculators, tamper-proof QR and Bitcoin blockchain-verified BOQs (FRELUX VERIFY), and borderless Bitcoin billing (FRELUX PAY).",
+        "featureList": [
+          "Multi-market construction material and cost calculators",
+          "FRELUX VERIFY: QR-coded and Bitcoin-timestamped tamper-proof BOQs",
+          "FRELUX PAY: Borderless Bitcoin subscription payments via BTCPay Server",
+          "40+ localized project templates across global markets"
+        ]
+      },
       {
         "@context": "https://schema.org",
         "@type": "WebSite",
@@ -346,6 +363,40 @@ const routes = [
             position: 9,
             name: "Master Bedroom POP Ceiling",
             url: `${SITE_URL}/templates/master-bedroom-pop-ceiling`,
+          },
+        ],
+      },
+    ],
+  },
+    {
+    path: "/verify",
+    title: "Verify Document: Cryptographic Proof & Bitcoin Timestamp",
+    description:
+      "Verify the cryptographic SHA-256 fingerprint and Bitcoin blockchain timestamp of any FRELUX Bill of Quantities or construction document.",
+    priority: "0.8",
+    changefreq: "weekly",
+    structuredData: [
+      {
+        "@context": "https://schema.org",
+        "@type": "WebPage",
+        name: "FRELUX VERIFY",
+        url: `${SITE_URL}/verify`,
+      },
+      {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        itemListElement: [
+          {
+            "@type": "ListItem",
+            position: 1,
+            name: "Home",
+            item: `${SITE_URL}`,
+          },
+          {
+            "@type": "ListItem",
+            position: 2,
+            name: "Verify",
+            item: `${SITE_URL}/verify`,
           },
         ],
       },
@@ -5495,7 +5546,7 @@ for (const route of routes) {
   // OG tags
   const ogReplacements = [
     ["og:title", route.title],
-    ["og:description", route.description],
+    ["og:description", route.ogDescription || route.description],
     ["og:url", canonicalUrl],
     ["og:image", ogImage],
   ];
@@ -5519,7 +5570,7 @@ for (const route of routes) {
   // Twitter
   const twReplacements = [
     ["twitter:title", route.title],
-    ["twitter:description", route.description],
+    ["twitter:description", route.ogDescription || route.description],
     ["twitter:image", ogImage],
   ];
   for (const [prop, val] of twReplacements) {

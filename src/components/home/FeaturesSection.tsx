@@ -91,6 +91,49 @@ export default function FeaturesSection() {
         })}
       </Container>
 
+      {/* Global Highlights: FRELUX VERIFY & FRELUX PAY */}
+      <Container className="relative mt-12 grid gap-6 sm:grid-cols-2">
+        <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/20 hover:bg-white/[0.06] hover:-translate-y-1">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/20 text-brand-purple-light ring-1 ring-white/10">
+              <ShieldCheck className="h-6 w-6" />
+            </span>
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-brand-purple-light">
+                FRELUX VERIFY
+              </span>
+              <h4 className="font-display text-lg font-bold text-primary-foreground">
+                Tamper-Proof Quotes
+              </h4>
+            </div>
+          </div>
+          <p className="mt-3 text-sm leading-relaxed text-primary-foreground/75">
+            Add a scannable QR code and Bitcoin blockchain timestamp to any
+            exported BOQ so clients worldwide can verify authenticity instantly.
+          </p>
+        </div>
+
+        <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/20 hover:bg-white/[0.06] hover:-translate-y-1">
+          <div className="flex items-center gap-3">
+            <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-brand-purple/20 text-brand-purple-light ring-1 ring-white/10">
+              <TrendingUp className="h-6 w-6" />
+            </span>
+            <div>
+              <span className="text-xs font-semibold uppercase tracking-wider text-brand-purple-light">
+                FRELUX PAY
+              </span>
+              <h4 className="font-display text-lg font-bold text-primary-foreground">
+                Borderless Global Billing
+              </h4>
+            </div>
+          </div>
+          <p className="mt-3 text-sm leading-relaxed text-primary-foreground/75">
+            Unlock Pro tools from anywhere in the world using Bitcoin (via
+            BTCPay Server) alongside standard global payment methods.
+          </p>
+        </div>
+      </Container>
+
       <Container className="relative mt-16 text-center">
         <Link
           to="/paint-calculator/"

@@ -13,10 +13,16 @@
 
 /** @type {Record<string, {title: string, description: string}>} */
 export const LISTING_COPY = {
+  "/verify": {
+    title: "Verify Document: Cryptographic Proof & Bitcoin Timestamp",
+    description:
+      "Verify the cryptographic SHA-256 fingerprint and Bitcoin blockchain timestamp of any FRELUX Bill of Quantities or construction document.",
+  },
+
   "/": {
     title: "FRELUX: Free Construction Calculators and Cost Estimates",
     description:
-      "Estimate materials and cost for concrete, blocks, roofing, tiles, paint and services, with quantities from your own measurements and prices from your market.",
+      "Calculate construction materials, export tamper-proof QR-verified BOQs, and pay globally with local currencies or Bitcoin on FRELUXTOOLS.",
   },
   "/about": {
     title: "About FRELUX: Construction Estimation Tools",

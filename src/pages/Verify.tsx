@@ -3,7 +3,8 @@
 // =========================================================
 
 import React, { useState, useRef } from "react";
-import { useSeo } from "@/lib/seo";
+import { useSeo, useFaqJsonLd } from "@/lib/seo";
+import { FaqSection } from "@/components/seo/SeoSections";
 import PageHeader from "@/components/ui/PageHeader";
 import {
   Card,
@@ -36,12 +37,44 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 
+const VERIFY_FAQS = [
+  {
+    question: "What is a FRELUX Verified Quote?",
+    answer:
+      "When enabled before exporting, FRELUX stamps a unique Verification ID and QR code onto your BOQ PDF and anchors its cryptographic SHA-256 fingerprint to the Bitcoin blockchain via OpenTimestamps. Any client, lender, or stakeholder can scan the QR code to confirm the quote hasn't been altered after issue.",
+  },
+  {
+    question:
+      "Are my private project details or client names published on the blockchain?",
+    answer:
+      "No. Only an anonymous cryptographic hash (digital fingerprint) of the document is anchored to the Bitcoin blockchain. Your project details, pricing, and client information remain private and are only viewable via your unique Verification ID.",
+  },
+  {
+    question: 'Why does my verified quote say "Awaiting Bitcoin Confirmation"?',
+    answer:
+      "Your quote is immediately verifiable via its FRELUX Verification ID the moment you export it. OpenTimestamps batches proofs into Bitcoin blocks asynchronously, which typically takes a few hours to reach full on-chain confirmation.",
+  },
+  {
+    question: "How does FRELUX PAY work for global subscriptions?",
+    answer:
+      "FRELUX PAY lets builders, contractors, and firms anywhere in the world pay for Pro plans and digital tools directly in Bitcoin via BTCPay Server—eliminating cross-border card declines, currency conversion hurdles, and third-party payment delays.",
+  },
+  {
+    question:
+      "How long does it take for my Pro features to activate after paying with Bitcoin?",
+    answer:
+      "Once your Bitcoin transaction receives the required network confirmation, your FRELUX Pro account activates automatically and your receipt appears in your dashboard transaction history.",
+  },
+];
+
 export default function Verify() {
   useSeo({
     title: "FRELUX VERIFY — Blockchain Document Integrity Portal",
     description:
       "Verify the authenticity, cryptographic SHA-256 fingerprint, and Bitcoin blockchain timestamp of any FRELUX construction document or Bill of Quantities.",
   });
+
+  useFaqJsonLd(VERIFY_FAQS);
 
   const [searchId, setSearchId] = useState("");
   const [dragOver, setDragOver] = useState(false);
@@ -272,7 +305,8 @@ export default function Verify() {
                   ) : (
                     <Clock className="h-6 w-6 text-blue-500" />
                   )
-                ) : result.fingerprint_matches === null && result.record_found ? (
+                ) : result.fingerprint_matches === null &&
+                  result.record_found ? (
                   <Clock className="h-6 w-6 text-muted-foreground" />
                 ) : (
                   <ShieldAlert className="h-6 w-6 text-destructive" />
@@ -285,7 +319,8 @@ export default function Verify() {
                         : result.result === "hash_match_proof_pending"
                           ? "Fingerprint Matched; Timestamp Proof Pending"
                           : "Fingerprint Matched; Bitcoin Confirmation Pending"
-                      : result.record_found && result.fingerprint_matches === null
+                      : result.record_found &&
+                          result.fingerprint_matches === null
                         ? "Verification Record Found; File Not Compared"
                         : result.record_found
                           ? "Fingerprint Does Not Match This Record"
@@ -294,10 +329,12 @@ export default function Verify() {
                   <div className="text-xs opacity-90">
                     {result.fingerprint_matches === true
                       ? "The SHA-256 fingerprint matches the registered record. Bitcoin anchoring is confirmed only when the proof status below says it is confirmed."
-                      : result.record_found && result.fingerprint_matches === null
+                      : result.record_found &&
+                          result.fingerprint_matches === null
                         ? "This verification ID identifies a FRELUX record. Upload the document to compare its fingerprint; finding the record alone does not verify a file."
                         : result.record_found
-                          ? result.message || "The supplied document fingerprint does not match the registered record."
+                          ? result.message ||
+                            "The supplied document fingerprint does not match the registered record."
                           : "The document fingerprint does not match any registered FRELUX record, or the document has been altered."}
                   </div>
                 </div>
@@ -309,7 +346,9 @@ export default function Verify() {
                     ? result.result === "verified_confirmed"
                       ? "default"
                       : "secondary"
-                    : result.fingerprint_matches === null && result.record_found ? "outline" : "destructive"
+                    : result.fingerprint_matches === null && result.record_found
+                      ? "outline"
+                      : "destructive"
                 }
                 className="text-xs font-mono uppercase"
               >
@@ -492,7 +531,9 @@ export default function Verify() {
                   <AlertTriangle className="h-5 w-5 shrink-0 mt-0.5" />
                   <div className="text-sm">
                     <p className="font-semibold mb-1">
-                      {result.record_found ? "Fingerprint Mismatch" : "Untrusted or Modified File"}
+                      {result.record_found
+                        ? "Fingerprint Mismatch"
+                        : "Untrusted or Modified File"}
                     </p>
                     <p className="text-xs opacity-90 leading-relaxed">
                       {result.message ||
@@ -510,6 +551,13 @@ export default function Verify() {
             )}
           </Card>
         )}
+
+        <div className="pt-8 border-t border-border/40">
+          <FaqSection
+            title="FRELUX VERIFY & PAY Questions"
+            faqs={VERIFY_FAQS}
+          />
+        </div>
       </div>
     </div>
   );

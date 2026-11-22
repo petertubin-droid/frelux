@@ -32,6 +32,24 @@ describe("FeaturesSection", () => {
     expect(screen.getByText("Built for real use")).toBeTruthy();
   });
 
+  it("renders global callouts for FRELUX VERIFY and FRELUX PAY", () => {
+    renderComponent();
+    expect(screen.getByText("FRELUX VERIFY")).toBeTruthy();
+    expect(screen.getByText("Tamper-Proof Quotes")).toBeTruthy();
+    expect(
+      screen.getByText(
+        /Add a scannable QR code and Bitcoin blockchain timestamp/,
+      ),
+    ).toBeTruthy();
+    expect(screen.getByText("FRELUX PAY")).toBeTruthy();
+    expect(screen.getByText("Borderless Global Billing")).toBeTruthy();
+    expect(
+      screen.getByText(
+        /Unlock Pro tools from anywhere in the world using Bitcoin/,
+      ),
+    ).toBeTruthy();
+  });
+
   it("renders feature descriptions", () => {
     renderComponent();
     expect(screen.getByText(/Enter your measurements/)).toBeTruthy();

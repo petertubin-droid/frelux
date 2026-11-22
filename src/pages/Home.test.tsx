@@ -28,4 +28,12 @@ describe("Home", () => {
     const { container } = await renderPage();
     expect(container.innerHTML).not.toBe("");
   });
+
+  it("renders FRELUX VERIFY and FRELUX PAY global FAQs", async () => {
+    const { container } = await renderPage();
+    expect(container.textContent).toContain("What is a FRELUX Verified Quote?");
+    expect(container.textContent).toContain(
+      "How does FRELUX PAY work for global subscriptions?",
+    );
+  });
 });

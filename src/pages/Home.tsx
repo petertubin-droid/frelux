@@ -55,8 +55,34 @@ const HOME_FAQS = [
     answer:
       "Guides are written and reviewed by the FRELUX Team, with practical construction detail and honest numbers, and no sponsored content. When prices or products change, guides are reviewed again. You can report an error from any article.",
   },
+  {
+    question: "What is a FRELUX Verified Quote?",
+    answer:
+      "When enabled before exporting, FRELUX stamps a unique Verification ID and QR code onto your BOQ PDF and anchors its cryptographic SHA-256 fingerprint to the Bitcoin blockchain via OpenTimestamps. Any client, lender, or stakeholder can scan the QR code to confirm the quote hasn't been altered after issue.",
+  },
+  {
+    question:
+      "Are my private project details or client names published on the blockchain?",
+    answer:
+      "No. Only an anonymous cryptographic hash (digital fingerprint) of the document is anchored to the Bitcoin blockchain. Your project details, pricing, and client information remain private and are only viewable via your unique Verification ID.",
+  },
+  {
+    question: 'Why does my verified quote say "Awaiting Bitcoin Confirmation"?',
+    answer:
+      "Your quote is immediately verifiable via its FRELUX Verification ID the moment you export it. OpenTimestamps batches proofs into Bitcoin blocks asynchronously, which typically takes a few hours to reach full on-chain confirmation.",
+  },
+  {
+    question: "How does FRELUX PAY work for global subscriptions?",
+    answer:
+      "FRELUX PAY lets builders, contractors, and firms anywhere in the world pay for Pro plans and digital tools directly in Bitcoin via BTCPay Server—eliminating cross-border card declines, currency conversion hurdles, and third-party payment delays.",
+  },
+  {
+    question:
+      "How long does it take for my Pro features to activate after paying with Bitcoin?",
+    answer:
+      "Once your Bitcoin transaction receives the required network confirmation, your FRELUX Pro account activates automatically and your receipt appears in your dashboard transaction history.",
+  },
 ];
-
 import { getPublicTemplates } from "@/lib/templates";
 import { Link } from "react-router-dom";
 import { ShoppingBag, Plus } from "lucide-react";
@@ -144,6 +170,22 @@ export default function Home() {
     () => [
       {
         "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        name: "FRELUXTOOLS",
+        url: "https://freluxtools.com",
+        applicationCategory: "BusinessApplication",
+        operatingSystem: "Web",
+        description:
+          "Global construction estimation platform offering localized material calculators, tamper-proof QR and Bitcoin blockchain-verified BOQs (FRELUX VERIFY), and borderless Bitcoin billing (FRELUX PAY).",
+        featureList: [
+          "Multi-market construction material and cost calculators",
+          "FRELUX VERIFY: QR-coded and Bitcoin-timestamped tamper-proof BOQs",
+          "FRELUX PAY: Borderless Bitcoin subscription payments via BTCPay Server",
+          "40+ localized project templates across global markets",
+        ],
+      },
+      {
+        "@context": "https://schema.org",
         "@type": "WebApplication",
         name: seoSettings.name ?? "FRELUX",
         applicationCategory: "HomeAndGardenApplication",
@@ -189,7 +231,7 @@ export default function Home() {
     title:
       "FRELUX: Construction Calculators, Cost Estimators & AI Building Tools",
     description:
-      "Know exactly what your build needs. Free construction calculators and cost estimators for every trade, save any calculation as a reusable template, and see verified pros, projects and stock on a worldwide 3D map, with market-specific data in multiple languages.",
+      "Calculate construction materials, export tamper-proof QR-verified BOQs, and pay globally with local currencies or Bitcoin on FRELUXTOOLS.",
     canonicalPath: "/",
     ogType: "website",
     keywords:
