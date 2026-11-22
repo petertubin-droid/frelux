@@ -46,7 +46,7 @@ been exercised; `staged` means written but not executed.
 | 24  | Electrical Wiring                  | services  | Queued                                                                                     |
 | 25  | Conduit & Wiring Loops             | services  | **Audited 2026-11-22**, 12 tests, no defect (already hardened)                             |
 | 26  | Solar PV Estimator                 | services  | Queued                                                                                     |
-| 27  | Backup Power / Generator           | services  | Queued                                                                                     |
+| 27  | Backup Power / Generator           | services  | **Audited 2026-11-22**, 16 tests, DEFECT FIXED: surge planning 1.5x -> 2.5x                |
 | 28  | Heat & Comfort                     | services  | Queued                                                                                     |
 | 29  | Autonomous Borehole & Water Supply | services  | **Audited 2026-11-22**, 15 tests, DEFECT FIXED: head breakdown now sums                    |
 | 31  | External Drainage Takeoff          | services  | Queued                                                                                     |
