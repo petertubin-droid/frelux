@@ -7,10 +7,15 @@
  * bearing pressure from the middle-third rule. Target factors of safety are
  * BS 8002: 2.0 overturning, 1.5 sliding.
  */
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
 import { describe, expect, it } from "vitest";
 import {
   MIN_FOS_OVERTURNING,
   MIN_FOS_SLIDING,
+  DEFAULT_RETAINING_WALL_RULES,
+  calculateRetainingWall,
   computeRetainingWallStability,
 } from "./retaining-wall-engine";
 
@@ -118,5 +123,21 @@ describe("bearing pressure and eccentricity", () => {
     expect(Number.isFinite(r.factor_of_safety_overturning)).toBe(true);
     expect(r.ka).toBeGreaterThan(0);
     expect(r.ka).toBeLessThan(1);
+  });
+});
+
+describe("no message quotes a threshold the check does not use", () => {
+  it("quotes the constants instead of a stale literal", () => {
+    // Guard against the defect this audit found: the pass test was moved to
+    // 2.00 but a warning string kept saying "required 1.50", so the screen
+    // contradicted the verdict. Scanning the source is the honest way to keep
+    // a duplicated threshold from creeping back in.
+    const src = readFileSync(
+      join(__dirname, "retaining-wall-engine.ts"),
+      "utf8",
+    );
+    expect(src).not.toContain("required 1.50");
+    expect(src).toContain("MIN_FOS_OVERTURNING.toFixed(2)");
+    expect(src).toContain("MIN_FOS_SLIDING.toFixed(2)");
   });
 });

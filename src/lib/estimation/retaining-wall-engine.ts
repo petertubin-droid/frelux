@@ -528,12 +528,12 @@ export function calculateRetainingWall(
   }
   if (!geo.stability.overturning_pass) {
     warnings.push(
-      `Overturning factor of safety (${geo.stability.factor_of_safety_overturning.toFixed(2)}) is below the required 1.50 minimum. The footing is at risk of overturning under active soil thrust: widen the footing base.`,
+      `Overturning factor of safety (${geo.stability.factor_of_safety_overturning.toFixed(2)}) is below the required ${MIN_FOS_OVERTURNING.toFixed(2)} minimum. The footing is at risk of overturning under active soil thrust: widen the footing base.`,
     );
   }
   if (!geo.stability.sliding_pass) {
     warnings.push(
-      `Sliding factor of safety (${geo.stability.factor_of_safety_sliding.toFixed(2)}) is below the required 1.50 minimum. Provide a concrete shear key beneath the footing or widen the base.`,
+      `Sliding factor of safety (${geo.stability.factor_of_safety_sliding.toFixed(2)}) is below the required ${MIN_FOS_SLIDING.toFixed(2)} minimum. Provide a concrete shear key beneath the footing or widen the base.`,
     );
   }
   if (!geo.stability.middle_third_pass) {
