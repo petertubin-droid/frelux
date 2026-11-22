@@ -2872,7 +2872,8 @@ function QuotationTab(props: QuotationTabProps) {
                       checked={verifyPdf}
                       onChange={(e) => onToggleVerifyPdf(e.target.checked)}
                       className="h-3.5 w-3.5 rounded border-border"
-                      aria-label="Include FRELUX VERIFY seal on quotation PDF"
+                      aria-label="Print the FRELUX VERIFY QR on this quotation PDF"
+                      title="Print the FRELUX VERIFY QR at the foot of this quotation PDF"
                     />
                     {tr("VERIFY")}
                   </label>

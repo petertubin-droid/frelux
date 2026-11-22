@@ -13,6 +13,7 @@ import {
 } from "@/lib/finance/boq-standard";
 import { documentStatusLabel } from "./compile";
 import type { BoqStudioDocument } from "./types";
+import { verifyPageUrl, verifySealCopy } from "@/lib/blockchain/verify-seal";
 
 function escapeHtml(value: string): string {
   return value
@@ -82,6 +83,7 @@ function surveyPrintHtml(studio: BoqStudioDocument): string {
 export function boqStudioPrintHtml(
   standard: StandardBoqDocument,
   studio: BoqStudioDocument,
+  options: { qrDataUrl?: string } = {},
 ): string {
   if (studio.mode === "market_survey") return surveyPrintHtml(studio);
   const base = exportBoqToPrintHtml(standard);
@@ -118,17 +120,72 @@ ${review}
   .studio-meta { border-top: 1px solid #e2e8f0; padding-top: 10px; }
 </style>`;
 
+  const seal = options.qrDataUrl ? verifySealHtml(options.qrDataUrl) : "";
   if (base.includes("</body>"))
-    return base.replace("</body>", `${block}</body>`);
-  return `${base}${block}`;
+    return base.replace("</body>", `${block}${seal}</body>`);
+  return `${base}${block}${seal}`;
+}
+
+/** The FRELUX VERIFY block, printed at the end of the document when enabled. */
+function verifySealHtml(qrDataUrl: string, documentLabel = "BOQ"): string {
+  const copy = verifySealCopy({ documentLabel });
+  const lines = copy.lines.map((line) => `<p>${escapeHtml(line)}</p>`).join("");
+  return `<section class="frelux-verify">
+  <div class="frelux-verify-copy">
+    <h3>${escapeHtml(copy.heading)}</h3>
+    ${lines}
+  </div>
+  <img src="${escapeHtml(qrDataUrl)}" alt="FRELUX VERIFY QR code" width="96" height="96" />
+</section>
+<style>
+  .frelux-verify {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin: 22px 0 0;
+    padding: 10px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  .frelux-verify-copy h3 {
+    margin: 0 0 4px;
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: #2563eb;
+  }
+  .frelux-verify-copy p { margin: 2px 0; font-size: 9px; line-height: 1.35; color: #475569; }
+  .frelux-verify img { flex: 0 0 auto; }
+</style>`;
 }
 
 /** Opens the printable document in a new tab, ready for the browser's print dialog. */
-export function openBoqPrint(
+export async function openBoqPrint(
   standard: StandardBoqDocument,
   studio: BoqStudioDocument,
-): void {
-  const html = boqStudioPrintHtml(standard, studio);
+  options: { verify?: boolean } = {},
+): Promise<void> {
+  let qrDataUrl = "";
+  if (options.verify === true) {
+    try {
+      const { default: QRCode } = await import("qrcode");
+      qrDataUrl = await QRCode.toDataURL(verifyPageUrl(), {
+        margin: 1,
+        width: 240,
+        errorCorrectionLevel: "M",
+      });
+    } catch {
+      // QR rendering is a convenience; the printed URL in the copy stays readable.
+    }
+  }
+  const html = boqStudioPrintHtml(
+    standard,
+    studio,
+    qrDataUrl ? { qrDataUrl } : undefined,
+  );
   const win = window.open("", "_blank", "noopener,noreferrer");
   if (!win) return;
   win.document.write(html);

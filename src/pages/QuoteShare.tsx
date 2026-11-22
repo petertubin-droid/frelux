@@ -83,7 +83,11 @@ export default function QuoteShare() {
     if (!snapshot) return;
     setBusy(true);
     try {
-      const pdf = await buildBoqPdf(snapshot.standard, snapshot.document);
+      // No VERIFY seal here: the seal is the exporter's toggle decision and
+      // this download registers nothing, so it must not claim one.
+      const pdf = await buildBoqPdf(snapshot.standard, snapshot.document, {
+        verify: false,
+      });
       await saveSealedPdf(pdf, quoteShareFilename(snapshot.document, "pdf"), {
         title: `${quoteShareHeading(snapshot.mode)} ${snapshot.document.reference}`,
         subject: `Revision ${snapshot.document.revision}`,
@@ -189,7 +193,7 @@ export default function QuoteShare() {
               </button>
               <button
                 type="button"
-                onClick={() => openBoqPrint(snapshot.standard, doc)}
+                onClick={() => void openBoqPrint(snapshot.standard, doc)}
                 className="h-9 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
               >
                 Print

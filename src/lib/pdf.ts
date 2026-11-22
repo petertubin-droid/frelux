@@ -9,7 +9,6 @@
  * identical to the original implementation.
  */
 // jsPDF is dynamically imported in each function to avoid bundling html2canvas (~200KB) until needed
-import QRCode from "qrcode";
 import type {
   DbProjectQuotation,
   DbProjectShoppingItem,
@@ -23,7 +22,10 @@ import {
 } from "@/lib/pdf-branding";
 import { drawFreluxMark, drawFreluxWatermark } from "@/lib/pdf-logo";
 import { saveSealedPdf } from "@/lib/pdf-seal";
-import { VERIFY_BLOCK_HEIGHT, drawVerifySeal } from "@/lib/blockchain/verify-seal";
+import {
+  drawVerifySeal,
+  verifySealBottomY,
+} from "@/lib/blockchain/verify-seal";
 
 const PDF_LOCALE_BY_SYMBOL: Record<string, string> = {
   "\u20A6": "en-NG", // Naira
@@ -304,25 +306,8 @@ export async function generateQuotationPDF(
   }
   y += 10;
 
-  // ─── QR CODE ───
-  try {
-    const qrData = JSON.stringify({
-      qn: quotation.quotation_number,
-      total: quotation.grand_total,
-      cur: quotation.currency,
-    });
-    const qrCanvas = await QRCode.toCanvas(qrData, { width: 150, margin: 1 });
-    const qrDataUrl = qrCanvas.toDataURL("image/png");
-    doc.addImage(qrDataUrl, "PNG", margin, y, 25, 25);
-    doc.setFontSize(7);
-    doc.setFont("helvetica", "normal");
-    doc.text("Scan to verify quotation", margin + 28, y + 10);
-  } catch {
-    // QR generation may fail, skip
-  }
-
   // ─── SIGNATURE AREA ───
-  y += 35;
+  y += 10;
   doc.setDrawColor(200, 200, 200);
   doc.line(margin, y, margin + 70, y);
   doc.line(pageWidth - margin - 70, y, pageWidth - margin, y);
@@ -333,9 +318,16 @@ export async function generateQuotationPDF(
   });
 
   // ─── FRELUX VERIFY (opt-in per export) ───
-  if (options.verify) {
+  // Printed only when the user toggled it on, anchored to the bottom of the
+  // last page above the footer — the document's own closing block.
+  if (options.verify === true) {
     const verifyWidth = pageWidth - margin * 2;
-    const verifyY = Math.min(y + 12, pageHeight - VERIFY_BLOCK_HEIGHT - 14);
+    let verifyY = verifySealBottomY({ pageHeight, margin, footerReserve: 10 });
+    if (y + 8 > verifyY) {
+      doc.addPage();
+      paintWatermark();
+      verifyY = verifySealBottomY({ pageHeight, margin, footerReserve: 10 });
+    }
     await drawVerifySeal(doc, margin, verifyY, verifyWidth, {
       documentLabel: "quotation",
     });

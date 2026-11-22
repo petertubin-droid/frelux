@@ -90,7 +90,8 @@ export default function BoqStudio() {
   // FRELUX VERIFY toggle: on by default, matching the existing export
   // behaviour; switching it off exports without the seal and without a
   // blockchain registration.
-  const [verifySeal, setVerifySeal] = useState(true);
+  // The seal is the user's decision at export time — off until they opt in.
+  const [verifySeal, setVerifySeal] = useState(false);
   const [busy, setBusy] = useState(false);
   const [shareBusy, setShareBusy] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
@@ -377,7 +378,9 @@ export default function BoqStudio() {
 
   const exportPrint = () => {
     if (!compiled || !guardExport()) return;
-    openBoqPrint(compiled.standard, compiled.document);
+    void openBoqPrint(compiled.standard, compiled.document, {
+      verify: verifySeal,
+    });
   };
 
   const shareQuotation = async () => {
@@ -1328,13 +1331,14 @@ export default function BoqStudio() {
                 checked={verifySeal}
                 onChange={(e) => setVerifySeal(e.target.checked)}
                 className="mt-0.5 h-4 w-4 rounded border-slate-300"
-                aria-label="Include FRELUX VERIFY seal"
+                aria-label="Print the FRELUX VERIFY QR on this export"
               />
               <span>
-                <strong className="text-slate-900">FRELUX VERIFY</strong> — print
-                the verification seal and register this export&apos;s
-                fingerprint on the Bitcoin-anchored record (OpenTimestamps).
-                Turn it off for an internal draft that should not be registered.
+                <strong className="text-slate-900">FRELUX VERIFY QR</strong> — add
+                a scannable QR at the foot of the document and register this
+                export&apos;s fingerprint on the Bitcoin-anchored record
+                (OpenTimestamps). Off by default: leave it off for an internal
+                draft, turn it on when the document goes to a client.
               </span>
             </label>
             <div className="flex flex-wrap gap-2">

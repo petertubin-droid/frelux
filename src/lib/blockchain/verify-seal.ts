@@ -63,6 +63,7 @@ export interface SealDrawTarget {
   setDrawColor: (r: number, g: number, b: number) => void;
   setLineWidth: (width: number) => void;
   rect: (x: number, y: number, w: number, h: number) => void;
+  line?: (x1: number, y1: number, x2: number, y2: number) => void;
   text: (text: string | string[], x: number, y: number) => void;
   splitTextToSize: (text: string, size: number) => string[];
   addImage: (
@@ -78,6 +79,22 @@ export interface SealDrawTarget {
 export const VERIFY_BLOCK_HEIGHT = 24;
 
 /**
+ * Top edge of the seal when it is anchored to the bottom of a page.
+ *
+ * The seal belongs at the end of the quote, above the footer, never floating
+ * mid-page after the last line of content. `footerReserve` is the distance the
+ * page's own footer occupies below the block.
+ */
+export function verifySealBottomY(options: {
+  pageHeight: number;
+  margin: number;
+  footerReserve?: number;
+}): number {
+  const { pageHeight, margin, footerReserve = 8 } = options;
+  return pageHeight - margin - (footerReserve + VERIFY_BLOCK_HEIGHT);
+}
+
+/**
  * Draw the seal block. Returns the height consumed so the caller can lay
  * out around it. Caller guarantees the space exists.
  */
@@ -90,8 +107,17 @@ export async function drawVerifySeal(
 ): Promise<number> {
   const copy = verifySealCopy(options);
   const pad = 2.5;
-  doc.setDrawColor(37, 99, 235);
-  doc.setLineWidth(0.3);
+
+  // A hairline rule separates the seal from the quote above it, so the block
+  // reads as a document footer rather than stray content.
+  if (typeof doc.line === "function") {
+    doc.setDrawColor(226, 232, 240);
+    doc.setLineWidth(0.2);
+    doc.line(x, y - 2.5, x + width, y - 2.5);
+  }
+
+  doc.setDrawColor(203, 213, 225);
+  doc.setLineWidth(0.2);
   doc.rect(x, y, width, VERIFY_BLOCK_HEIGHT);
 
   doc.setFont("helvetica", "bold");
