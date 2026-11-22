@@ -13,6 +13,7 @@
  * use, not reimplemented: one widget, one verdict.
  */
 import { verifyTurnstile } from "../../supabase/functions/_shared/turnstile";
+import { NATIVE_FUNCTIONS } from "./functions/registry";
 
 /**
  * Public, slow-changing GET reads that are safe to answer from the edge cache.
@@ -29,6 +30,12 @@ export const CACHEABLE_READS: Record<string, number> = {
 
 export interface ApiEnv {
   SUPABASE_URL?: string;
+  /** Service-role access for natively ported functions (PostgREST + Storage). */
+  SUPABASE_SERVICE_ROLE_KEY?: string;
+  /** Newer projects issue secret keys as a JSON map; tried before the JWT. */
+  SUPABASE_SECRET_KEYS?: string;
+  /** Presence-only checks used by the health probe. */
+  GEMINI_API_KEY?: string;
   /** Sent as `apikey` on relayed webhooks: the function is signature-guarded,
    *  but the platform still rejects a call that carries no project key. */
   SUPABASE_ANON_KEY?: string;
@@ -150,6 +157,13 @@ export async function handleGateway(
   if (!SLUG.test(name)) return json({ error: "Unknown function" }, 404, cors);
   if (!ALLOWED_METHODS.has(request.method))
     return json({ error: "Method not allowed" }, 405, cors);
+
+  // Natively ported functions answer here and never reach Supabase. The
+  // proxy below stays the default for everything not yet ported, so the two
+  // platforms can run side by side during the cutover.
+  const native = NATIVE_FUNCTIONS[name];
+  if (native) return native(request, env, url, cors);
+
   if (!env.SUPABASE_URL)
     return json({ error: "Gateway not configured" }, 503, cors);
 

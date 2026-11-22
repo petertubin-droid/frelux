@@ -71,3 +71,27 @@ GET with no Authorization header, which costs no Supabase invocation at all.
 A response carries `x-frelux-cache: hit` or `miss` so an edge hit is visible in
 devtools. Add a name only when its GET response is public and slow-changing;
 per-user responses must never join that map.
+
+## Edge function migration (Supabase → Worker)
+
+The Worker is also the migration target for the Supabase edge functions. The
+gateway `ANY /api/fn/:name` answers from `src/functions/registry.ts` first and
+only proxies to `${SUPABASE_URL}/functions/v1/:name` for names not in that
+registry, so both platforms run side by side during the cutover and a port can
+be rolled back by deleting one line.
+
+**Ported so far (wave 1, public reads):**
+- `health` — same contract as the Supabase function, `uptime_seconds` is the
+  isolate age.
+- `verify-copy-get` — PostgREST + Storage over plain fetch, no supabase-js in
+  the bundle; lazy purge of expired copies preserved.
+
+Secrets the ported functions read (set with `wrangler secret put`):
+`SUPABASE_SERVICE_ROLE_KEY` (or `SUPABASE_SECRET_KEYS` as the newer JSON map),
+`GEMINI_API_KEY`, `PAYSTACK_SECRET_KEY`.
+
+**Waves still to come:** remaining public reads, then provider webhooks one at
+a time (each provider URL must be repointed before its function moves), then
+the AI functions. Rate limiting for native functions lives in
+`src/functions/rate-limit.ts` and is Cache-API based: per-colo best effort,
+documented upgrade path is a Durable Object per key.

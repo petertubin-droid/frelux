@@ -169,6 +169,8 @@ describe("edge API", () => {
   });
 
   it("surfaces an unreachable upstream as a bad gateway", async () => {
+    // health now answers natively (see functions/registry), so the proxy path
+    // is exercised with a function that is still proxied.
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => {
@@ -176,10 +178,23 @@ describe("edge API", () => {
       }),
     );
     const response = await worker.fetch(
-      new Request(url("/api/fn/health")),
+      new Request(url("/api/fn/price-index-api")),
       makeEnv(),
     );
     expect(response.status).toBe(502);
+  });
+
+  it("serves a natively ported function without calling Supabase", async () => {
+    const fetchMock = vi.fn(async () => {
+      throw new Error("the proxy must not be used for native functions");
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const response = await worker.fetch(
+      new Request(url("/api/fn/health")),
+      makeEnv(),
+    );
+    expect(response.status).toBe(200);
+    expect(fetchMock).not.toHaveBeenCalled();
   });
 
   it("leaves the verdict to the function unless strict mode is on", async () => {
