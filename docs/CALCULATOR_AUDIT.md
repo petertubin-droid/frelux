@@ -48,7 +48,7 @@ been exercised; `staged` means written but not executed.
 | 26  | Solar PV Estimator                 | services  | Queued                                                                                     |
 | 27  | Backup Power / Generator           | services  | Queued                                                                                     |
 | 28  | Heat & Comfort                     | services  | Queued                                                                                     |
-| 29  | Autonomous Borehole & Water Supply | services  | Queued                                                                                     |
+| 29  | Autonomous Borehole & Water Supply | services  | **Audited 2026-11-22**, 15 tests, DEFECT FIXED: head breakdown now sums                    |
 | 31  | External Drainage Takeoff          | services  | Queued                                                                                     |
 | 32  | Live Material Price Index          | services  | Queued                                                                                     |
 | 33  | International Code Reference       | services  | Queued                                                                                     |
