@@ -121,3 +121,22 @@ describe("FRELUX VERIFY — Blockchain Document Verification", () => {
     );
   });
 });
+
+describe("FRELUX VERIFY — Tamper & Mismatch Detection", () => {
+  it("generates honest tampered/unregistered certificate when verification fails", () => {
+    const unverifiedResult: VerificationLookupResult = {
+      success: false,
+      verified: false,
+      result: "not_found",
+      error: "No registered document matches the provided hash.",
+    };
+
+    const certJson = generateVerificationCertificateJson(unverifiedResult);
+    const parsed = JSON.parse(certJson);
+
+    expect(parsed.verification_status).toBe("not_found");
+    expect(parsed.authenticity_statement).toContain(
+      "Document verification could not be confirmed",
+    );
+  });
+});

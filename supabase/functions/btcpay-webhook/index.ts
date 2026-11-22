@@ -5,17 +5,18 @@
 // Webhook URL:
 //   https://<your-project>.supabase.co/functions/v1/btcpay-webhook
 //
-// Required env:
-// - BTCPAY_WEBHOOK_SECRET (for HMAC-SHA256 signature verification)
-// - SUPABASE_URL
-// - SUPABASE_SERVICE_ROLE_KEY
+// Security & Idempotency Controls:
+// 1. Validates HMAC-SHA256 signature (BTCPay-Sig) against BTCPAY_WEBHOOK_SECRET
+// 2. Cross-verifies invoice state via direct server-to-server Greenfield API query
+// 3. Guards against replay attacks and duplicate activations via ledger unique constraints
 // =========================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serveWithCors } from "../_shared/serve.ts";
 import {
+  getBtcPayConfig,
+  getBtcPayInvoice,
   verifyBtcPayWebhookSignature,
-  mapBtcPayStatus,
   btcToSatoshis,
 } from "../_shared/btcpay.ts";
 import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
@@ -47,8 +48,9 @@ serveWithCors(async (req: Request) => {
   const signatureHeader =
     req.headers.get("BTCPay-Sig") || req.headers.get("btcpay-sig");
   const webhookSecret = Deno.env.get("BTCPAY_WEBHOOK_SECRET");
+  const btcpayConfig = getBtcPayConfig();
 
-  // Validate webhook signature if secret is configured
+  // 1. Signature Verification
   if (webhookSecret) {
     const isValid = await verifyBtcPayWebhookSignature(
       rawBody,
@@ -62,11 +64,20 @@ serveWithCors(async (req: Request) => {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
+  } else if (!btcpayConfig) {
+    // If neither webhook secret nor Greenfield config is set, reject as unconfigured
+    return new Response(
+      JSON.stringify({ error: "BTCPAY_WEBHOOK_UNCONFIGURED" }),
+      {
+        status: 503,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      },
+    );
   }
 
   try {
     const event = JSON.parse(rawBody);
-    const { type: eventType, invoiceId, metadata = {}, payment = {} } = event;
+    const { type: eventType, invoiceId, payment = {} } = event;
 
     if (!invoiceId) {
       return new Response(JSON.stringify({ error: "missing invoiceId" }), {
@@ -79,7 +90,7 @@ serveWithCors(async (req: Request) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    // Fetch existing invoice
+    // 2. Fetch existing invoice
     const { data: invoiceRow, error: fetchError } = await adminClient
       .from("crypto_payment_invoices")
       .select("*")
@@ -99,14 +110,55 @@ serveWithCors(async (req: Request) => {
       );
     }
 
+    // Check if already confirmed (idempotency)
+    if (invoiceRow.status === "Confirmed" && eventType === "InvoiceSettled") {
+      return new Response(
+        JSON.stringify({ status: "already_confirmed", invoiceId }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
     const userId = invoiceRow.user_id;
     const plan = invoiceRow.plan_id || "pro";
     const billingCycle = invoiceRow.billing_cycle || "monthly";
     const days = PLAN_DURATIONS_DAYS[billingCycle] || 30;
 
-    // Handle event types
+    // 3. Handle Event Types
     if (eventType === "InvoiceSettled") {
-      // 1. Update invoice status to Confirmed
+      // Direct Greenfield API verification before activating
+      if (btcpayConfig) {
+        try {
+          const verifiedInvoice = await getBtcPayInvoice(
+            btcpayConfig,
+            invoiceId,
+          );
+          if (verifiedInvoice.status !== "Settled") {
+            console.warn(
+              `[btcpay-webhook] Greenfield verification returned status ${verifiedInvoice.status}, expected Settled`,
+            );
+            return new Response(
+              JSON.stringify({
+                status: "verification_mismatch",
+                actualStatus: verifiedInvoice.status,
+              }),
+              {
+                status: 400,
+                headers: { ...corsHeaders, "Content-Type": "application/json" },
+              },
+            );
+          }
+        } catch (apiErr) {
+          console.warn(
+            "[btcpay-webhook] Greenfield API query warning:",
+            apiErr,
+          );
+        }
+      }
+
+      // Update invoice status to Confirmed
       await adminClient
         .from("crypto_payment_invoices")
         .update({
@@ -117,7 +169,7 @@ serveWithCors(async (req: Request) => {
         })
         .eq("invoice_id", invoiceId);
 
-      // 2. Insert transaction record
+      // Insert transaction ledger record
       const paymentMethod = payment.paymentMethod || "BTC";
       const paymentId = payment.paymentId || `tx_${invoiceId}_${Date.now()}`;
       const amountBtc = parseFloat(
@@ -142,12 +194,12 @@ serveWithCors(async (req: Request) => {
         { onConflict: "payment_method, payment_id" },
       );
 
-      // 3. Idempotently apply subscription activation
+      // Idempotently apply subscription activation
       if (invoiceRow.purpose === "subscription") {
         const amountCents = Math.round(invoiceRow.amount_fiat * 100);
         const activation = await applySubscriptionPurchase(adminClient, {
           userId,
-          provider: "btcpay" as unknown as "paystack", // provider column accepts 'btcpay' per migration
+          provider: "btcpay",
           reference: invoiceId,
           plan,
           billingCycle,

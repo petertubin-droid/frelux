@@ -4,11 +4,12 @@
 //
 // Supports:
 // - Multi-calendar pool submission (Alice, Bob, Pool A, Pool B)
-// - Cryptographic SHA-256 fingerprint submission
+// - Cryptographic SHA-256 fingerprint submission (32-byte binary digest)
 // - Binary OTS proof serialization & Base64 storage
 // - Calendar commitment parsing & Bitcoin block attestation extraction
+// - Zero demo fallbacks: fails honestly if calendar servers are unreachable
 // - Proof upgrading & status transition:
-//     "Timestamp Submitted" -> "Bitcoin Confirmation Pending" -> "Blockchain Verified"
+//     "Awaiting Timestamp" -> "Timestamp Submitted" -> "Bitcoin Confirmation Pending" -> "Blockchain Verified"
 // =========================================================
 
 export const DEFAULT_CALENDAR_POOLS = [
@@ -24,6 +25,7 @@ export interface OtsSubmissionResult {
   calendarsSubmitted: string[];
   proofBase64: string;
   initialStatus:
+    | "Awaiting Timestamp"
     | "Timestamp Submitted"
     | "Bitcoin Confirmation Pending"
     | "Blockchain Verified";
@@ -67,6 +69,31 @@ export function bytesToHex(bytes: Uint8Array): string {
     .join("");
 }
 
+/** Check connectivity to OpenTimestamps calendar servers */
+export async function pingCalendarPools(
+  calendarPools: string[] = DEFAULT_CALENDAR_POOLS,
+): Promise<Array<{ url: string; online: boolean; latencyMs?: number }>> {
+  const results = await Promise.all(
+    calendarPools.map(async (url) => {
+      const start = Date.now();
+      try {
+        const res = await fetch(`${url.replace(/\/+$/, "")}/`, {
+          method: "GET",
+          signal: AbortSignal.timeout(4000),
+        });
+        return {
+          url,
+          online: res.status < 500,
+          latencyMs: Date.now() - start,
+        };
+      } catch {
+        return { url, online: false };
+      }
+    }),
+  );
+  return results;
+}
+
 /** Submit 32-byte SHA-256 document hash to OpenTimestamps calendar pools */
 export async function submitHashToOpenTimestamps(
   documentHashHex: string,
@@ -92,6 +119,7 @@ export async function submitHashToOpenTimestamps(
           Accept: "application/vnd.opentimestamps.v1",
         },
         body: hashBytes,
+        signal: AbortSignal.timeout(5000),
       });
 
       if (response.ok) {
@@ -107,14 +135,15 @@ export async function submitHashToOpenTimestamps(
   }
 
   if (successfulCalendars.length === 0) {
-    // If external calendars are unreachable in current sandbox/offline, generate standard OTS envelope
-    const fallbackProof = buildInitialOtsEnvelope(hashBytes, calendarPools);
+    // If external calendars are unreachable, report honest status — do NOT synthesize fake proof
     return {
-      success: true,
+      success: false,
       documentHash: documentHashHex.toLowerCase(),
-      calendarsSubmitted: calendarPools,
-      proofBase64: btoa(String.fromCharCode(...fallbackProof)),
-      initialStatus: "Timestamp Submitted",
+      calendarsSubmitted: [],
+      proofBase64: "",
+      initialStatus: "Awaiting Timestamp",
+      error:
+        "OpenTimestamps calendar servers unreachable. Stored in queue awaiting timestamping.",
     };
   }
 
@@ -131,69 +160,6 @@ export async function submitHashToOpenTimestamps(
   };
 }
 
-/**
- * Standard OpenTimestamps file envelope structure:
- * Magic bytes (16 bytes) + Major version tag + SHA256 digest tag (0x08) + digest (32 bytes)
- */
-export function buildInitialOtsEnvelope(
-  hashBytes: Uint8Array,
-  calendars: string[],
-): Uint8Array {
-  // Magic bytes: \x00OpenTimestamps\x00\x00Proof\x00¿âèè
-  const magic = new Uint8Array([
-    0x00,
-    0x4f,
-    0x70,
-    0x65,
-    0x6e,
-    0x54,
-    0x69,
-    0x6d,
-    0x65,
-    0x73,
-    0x74,
-    0x61,
-    0x6d,
-    0x70,
-    0x73,
-    0x00,
-    0x00,
-    0x50,
-    0x72,
-    0x6f,
-    0x6f,
-    0x66,
-    0x00,
-    0xbf,
-    0x89,
-    0xe2,
-    0xe8,
-    0x84,
-    0xe8,
-    0x92,
-    0x94,
-    0x01, // major version 1
-    0x08, // tag for SHA256
-  ]);
-
-  const encoder = new TextEncoder();
-  const calendarPayloads: number[] = [];
-  for (const cal of calendars) {
-    const calBytes = encoder.encode(cal);
-    calendarPayloads.push(0x00, 0x83, 0xdf, 0xe8, 0x70, 0x48, 0x76, 0x80); // pending calendar attestation tag
-    calendarPayloads.push(calBytes.length);
-    calendarPayloads.push(...calBytes);
-  }
-
-  const out = new Uint8Array(
-    magic.length + hashBytes.length + calendarPayloads.length,
-  );
-  out.set(magic, 0);
-  out.set(hashBytes, magic.length);
-  out.set(new Uint8Array(calendarPayloads), magic.length + hashBytes.length);
-  return out;
-}
-
 /** Parse an OTS proof and check for Bitcoin block attestation */
 export function parseOtsProof(proofBase64: string): {
   isConfirmed: boolean;
@@ -201,6 +167,10 @@ export function parseOtsProof(proofBase64: string): {
   bitcoinBlockHash?: string;
   calendarUrls: string[];
 } {
+  if (!proofBase64) {
+    return { isConfirmed: false, calendarUrls: [] };
+  }
+
   try {
     const raw = atob(proofBase64);
     const bytes = new Uint8Array(raw.length);
@@ -257,11 +227,19 @@ export async function upgradeOtsProof(
 ): Promise<{
   upgradedProofBase64: string;
   status:
+    | "Awaiting Timestamp"
     | "Timestamp Submitted"
     | "Bitcoin Confirmation Pending"
     | "Blockchain Verified";
   bitcoinBlockHeight?: number;
 }> {
+  if (!proofBase64) {
+    return {
+      upgradedProofBase64: "",
+      status: "Awaiting Timestamp",
+    };
+  }
+
   const current = parseOtsProof(proofBase64);
   if (current.isConfirmed && current.bitcoinBlockHeight) {
     return {
@@ -287,6 +265,7 @@ export async function upgradeOtsProof(
             Accept: "application/vnd.opentimestamps.v1",
           },
           body: bytes,
+          signal: AbortSignal.timeout(5000),
         });
 
         if (res.ok) {

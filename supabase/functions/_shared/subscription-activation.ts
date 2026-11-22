@@ -35,7 +35,7 @@ export async function applySubscriptionPurchase(
   },
   args: {
     userId: string;
-    provider: "paystack" | "flutterwave";
+    provider: "paystack" | "flutterwave" | "btcpay";
     reference: string;
     plan: string;
     billingCycle: string;

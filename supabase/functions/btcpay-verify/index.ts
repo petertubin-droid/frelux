@@ -2,7 +2,7 @@
 // BTCPay Verify — Fallback & Polling Invoice Verification
 // FRELUX PAY
 //
-// 1. Checks current status of invoice on BTCPay Server
+// 1. Checks current status of invoice on BTCPay Server Greenfield API
 // 2. Activates subscription if Settled and not yet activated
 // 3. Returns live invoice status and confirmation state
 // =========================================================
@@ -13,7 +13,6 @@ import { getVerifiedUserId } from "../_shared/rate-limit.ts";
 import {
   getBtcPayConfig,
   getBtcPayInvoice,
-  getBtcPayPaymentMethods,
   mapBtcPayStatus,
 } from "../_shared/btcpay.ts";
 import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
@@ -85,13 +84,11 @@ serveWithCors(async (req: Request) => {
     }
 
     let currentStatus = invoiceRow.status;
-    let btcpayInvoice: unknown = null;
     const btcpayConfig = getBtcPayConfig();
 
     if (btcpayConfig && btcpayConfig.apiKey) {
       try {
         const liveInvoice = await getBtcPayInvoice(btcpayConfig, invoice_id);
-        btcpayInvoice = liveInvoice;
         const mapped = mapBtcPayStatus(
           liveInvoice.status,
           liveInvoice.additionalStatus,
@@ -104,6 +101,8 @@ serveWithCors(async (req: Request) => {
             .update({
               status: currentStatus,
               additional_status: liveInvoice.additionalStatus,
+              confirmed_at:
+                mapped === "Confirmed" ? new Date().toISOString() : null,
               updated_at: new Date().toISOString(),
             })
             .eq("invoice_id", invoice_id);
@@ -126,7 +125,7 @@ serveWithCors(async (req: Request) => {
 
       const activation = await applySubscriptionPurchase(adminClient, {
         userId,
-        provider: "btcpay" as unknown as "paystack",
+        provider: "btcpay",
         reference: invoice_id,
         plan,
         billingCycle,

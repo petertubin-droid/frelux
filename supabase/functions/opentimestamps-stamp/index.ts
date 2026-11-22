@@ -2,10 +2,10 @@
 // OpenTimestamps Stamp — Register and Timestamp Document on Bitcoin
 // FRELUX VERIFY
 //
-// 1. Receives SHA-256 fingerprint of finalized BOQ / Document
-// 2. Generates unique Verification ID (FRX-VER-2026-XXXXXX)
-// 3. Submits hash to OpenTimestamps calendar servers
-// 4. Stores initial binary OTS proof and metadata
+// 1. Authenticates user and validates 64-char SHA-256 fingerprint
+// 2. Generates cryptographically secure Verification ID (FRX-VER-2026-XXXXXX)
+// 3. Submits hash to decentralized OpenTimestamps calendar servers
+// 4. Stores initial binary OTS proof and metadata (Zero fake proofs)
 // =========================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -21,9 +21,11 @@ const corsHeaders = {
 
 function generateVerificationId(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const randomBytes = new Uint8Array(6);
+  crypto.getRandomValues(randomBytes);
   let random = "";
   for (let i = 0; i < 6; i++) {
-    random += chars.charAt(Math.floor(Math.random() * chars.length));
+    random += chars.charAt(randomBytes[i] % chars.length);
   }
   return `FRX-VER-2026-${random}`;
 }
@@ -122,6 +124,8 @@ serveWithCors(async (req: Request) => {
         metadata: {
           ...metadata,
           stamped_at: new Date().toISOString(),
+          calendar_status: submission.success ? "submitted" : "queued",
+          note: submission.error || null,
         },
       })
       .select()
@@ -131,22 +135,24 @@ serveWithCors(async (req: Request) => {
       throw new Error(`Failed to store document record: ${docError.message}`);
     }
 
-    // 4. Persist timestamp proof
-    const { error: proofError } = await adminClient
-      .from("blockchain_timestamp_proofs")
-      .insert({
-        document_id: insertedDoc.id,
-        document_hash: cleanHash,
-        ots_proof_base64: submission.proofBase64,
-        ots_calendar_urls: submission.calendarsSubmitted,
-        verification_status: "Submitted",
-      });
+    // 4. Persist timestamp proof if available
+    if (submission.proofBase64) {
+      const { error: proofError } = await adminClient
+        .from("blockchain_timestamp_proofs")
+        .insert({
+          document_id: insertedDoc.id,
+          document_hash: cleanHash,
+          ots_proof_base64: submission.proofBase64,
+          ots_calendar_urls: submission.calendarsSubmitted,
+          verification_status: "Submitted",
+        });
 
-    if (proofError) {
-      console.warn(
-        "[opentimestamps-stamp] proof store warning:",
-        proofError.message,
-      );
+      if (proofError) {
+        console.warn(
+          "[opentimestamps-stamp] proof store warning:",
+          proofError.message,
+        );
+      }
     }
 
     return new Response(
@@ -156,8 +162,11 @@ serveWithCors(async (req: Request) => {
         document_hash: cleanHash,
         status: submission.initialStatus,
         calendars_submitted: submission.calendarsSubmitted,
-        proof_base64: submission.proofBase64,
+        proof_base64: submission.proofBase64 || null,
         created_at: insertedDoc.created_at,
+        message: submission.success
+          ? "Document fingerprint submitted to OpenTimestamps calendar pools."
+          : "Document fingerprint registered. Calendar pool attestation queued.",
       }),
       {
         status: 200,

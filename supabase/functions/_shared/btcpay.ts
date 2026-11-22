@@ -9,6 +9,7 @@
 // - HMAC-SHA256 webhook signature verification
 // - Speed policy enforcement (e.g. MediumSpeed = 1 confirmation)
 // - Idempotent event status mapping
+// - Greenfield server health & store status checks
 // =========================================================
 
 export interface BtcPayConfig {
@@ -58,12 +59,10 @@ export interface BtcPayPaymentMethod {
   networkFee: string;
 }
 
-/** Read configuration from environment or integration_secrets */
+/** Read configuration strictly from environment variables — no mock/demo fallback */
 export function getBtcPayConfig(): BtcPayConfig | null {
   const serverUrl =
-    Deno.env.get("BTCPAY_SERVER_URL") ||
-    Deno.env.get("BTCPAY_URL") ||
-    "https://testnet.demo.btcpayserver.org";
+    Deno.env.get("BTCPAY_SERVER_URL") || Deno.env.get("BTCPAY_URL") || "";
   const storeId = Deno.env.get("BTCPAY_STORE_ID") || "";
   const apiKey = Deno.env.get("BTCPAY_API_KEY") || "";
   const webhookSecret = Deno.env.get("BTCPAY_WEBHOOK_SECRET") || "";
@@ -80,7 +79,7 @@ export function getBtcPayConfig(): BtcPayConfig | null {
   };
 }
 
-/** Verify BTCPay-Sig HMAC-SHA256 header */
+/** Verify BTCPay-Sig HMAC-SHA256 header with constant-time equality check */
 export async function verifyBtcPayWebhookSignature(
   rawBody: string,
   signatureHeader: string | null,
@@ -129,6 +128,37 @@ function constantTimeEqual(a: string, b: string): boolean {
     c |= a.charCodeAt(i) ^ b.charCodeAt(i);
   }
   return c === 0;
+}
+
+/** Check connectivity to BTCPay Server Greenfield store */
+export async function checkBtcPayHealth(config: BtcPayConfig): Promise<{
+  ok: boolean;
+  storeName?: string;
+  error?: string;
+}> {
+  try {
+    const url = `${config.serverUrl}/api/v1/stores/${encodeURIComponent(config.storeId)}`;
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        Authorization: `token ${config.apiKey}`,
+      },
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      return {
+        ok: false,
+        error: `Store check returned HTTP ${res.status}: ${errText}`,
+      };
+    }
+
+    const storeData = await res.json();
+    return { ok: true, storeName: storeData.name || config.storeId };
+  } catch (err: unknown) {
+    const msg = err instanceof Error ? err.message : String(err);
+    return { ok: false, error: msg };
+  }
 }
 
 /** Create dynamic Bitcoin payment invoice on BTCPay Server */

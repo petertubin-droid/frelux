@@ -3,15 +3,20 @@
 // FRELUX VERIFY
 //
 // 1. Matches SHA-256 fingerprint against canonical database records
-// 2. Checks/upgrades OpenTimestamps proof against calendar pools
-// 3. Verifies Bitcoin blockchain block attestation
-// 4. Returns honest, tamper-evident verification certificate
+// 2. Detects document tampering when verification_id and hash disagree
+// 3. Upgrades OpenTimestamps proof against calendar pools
+// 4. Verifies Bitcoin blockchain block attestation
+// 5. Returns honest, tamper-evident verification certificate
 // =========================================================
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serveWithCors } from "../_shared/serve.ts";
 import { getVerifiedUserId } from "../_shared/rate-limit.ts";
-import { upgradeOtsProof, parseOtsProof } from "../_shared/opentimestamps.ts";
+import {
+  upgradeOtsProof,
+  parseOtsProof,
+  submitHashToOpenTimestamps,
+} from "../_shared/opentimestamps.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Headers":
@@ -52,28 +57,71 @@ serveWithCors(async (req: Request) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
 
-    let query = adminClient
-      .from("blockchain_document_records")
-      .select("*, blockchain_timestamp_proofs(*)");
+    const cleanHash = document_hash
+      ? document_hash.trim().toLowerCase().replace(/^0x/, "")
+      : null;
+    const cleanId = verification_id
+      ? verification_id.trim().toUpperCase()
+      : null;
 
-    if (verification_id) {
-      query = query.eq("verification_id", verification_id.trim().toUpperCase());
-    } else if (document_hash) {
-      const cleanHash = document_hash.trim().toLowerCase().replace(/^0x/, "");
-      query = query.eq("document_hash", cleanHash);
+    let docRecord = null;
+
+    if (cleanId) {
+      const { data, error } = await adminClient
+        .from("blockchain_document_records")
+        .select("*, blockchain_timestamp_proofs(*)")
+        .eq("verification_id", cleanId)
+        .maybeSingle();
+
+      if (!error && data) {
+        docRecord = data;
+
+        // If client also supplied a file hash, verify it matches the record!
+        if (cleanHash && docRecord.document_hash !== cleanHash) {
+          await adminClient.from("blockchain_verification_logs").insert({
+            document_hash: cleanHash,
+            verification_id: cleanId,
+            verified_by_user_id: userId,
+            result: "tampered_mismatch",
+          });
+
+          return new Response(
+            JSON.stringify({
+              success: false,
+              verified: false,
+              result: "tampered_mismatch",
+              message:
+                "Tamper alert: The calculated cryptographic fingerprint of the uploaded file does not match the original registration for this Verification ID. The file has been modified or replaced.",
+              computed_hash: cleanHash,
+              expected_hash: docRecord.document_hash,
+            }),
+            {
+              status: 200,
+              headers: { ...corsHeaders, "Content-Type": "application/json" },
+            },
+          );
+        }
+      }
+    } else if (cleanHash) {
+      const { data, error } = await adminClient
+        .from("blockchain_document_records")
+        .select("*, blockchain_timestamp_proofs(*)")
+        .eq("document_hash", cleanHash)
+        .maybeSingle();
+
+      if (!error && data) {
+        docRecord = data;
+      }
     }
 
-    const { data: docRecord, error: queryError } = await query.maybeSingle();
-
     // If not found in records
-    if (queryError || !docRecord) {
-      if (document_hash) {
-        // Log tamper attempt / unrecorded document
+    if (!docRecord) {
+      if (cleanHash) {
         await adminClient.from("blockchain_verification_logs").insert({
-          document_hash: document_hash.toLowerCase(),
-          verification_id: verification_id || null,
+          document_hash: cleanHash,
+          verification_id: cleanId || null,
           verified_by_user_id: userId,
-          result: "tampered_mismatch",
+          result: "not_found",
         });
       }
 
@@ -83,7 +131,7 @@ serveWithCors(async (req: Request) => {
           verified: false,
           result: "not_found",
           message:
-            "No registered FRELUX document fingerprint was found matching this hash or ID. The document may have been altered or not stamped.",
+            "No registered FRELUX document fingerprint was found matching this hash or ID. The document may not have been stamped or was altered.",
         }),
         {
           status: 404,
@@ -99,6 +147,38 @@ serveWithCors(async (req: Request) => {
     let blockHeight = proofRow?.bitcoin_block_height;
     let blockHash = proofRow?.bitcoin_block_hash;
 
+    // If document was queued without initial proof, attempt calendar submission now
+    if (!proofBase64 && currentStatus === "Awaiting Timestamp") {
+      try {
+        const sub = await submitHashToOpenTimestamps(docRecord.document_hash);
+        if (sub.success && sub.proofBase64) {
+          proofBase64 = sub.proofBase64;
+          currentStatus = "Timestamp Submitted";
+
+          await adminClient.from("blockchain_timestamp_proofs").insert({
+            document_id: docRecord.id,
+            document_hash: docRecord.document_hash,
+            ots_proof_base64: proofBase64,
+            ots_calendar_urls: sub.calendarsSubmitted,
+            verification_status: "Submitted",
+          });
+
+          await adminClient
+            .from("blockchain_document_records")
+            .update({
+              status: "Timestamp Submitted",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("id", docRecord.id);
+        }
+      } catch (calErr) {
+        console.warn(
+          "[opentimestamps-verify] calendar submission retry:",
+          calErr,
+        );
+      }
+    }
+
     // Attempt proof upgrade against calendar servers
     if (proofBase64 && currentStatus !== "Blockchain Verified") {
       try {
@@ -111,18 +191,18 @@ serveWithCors(async (req: Request) => {
           blockHeight = upgradeResult.bitcoinBlockHeight;
           proofBase64 = upgradeResult.upgradedProofBase64;
 
-          // Update proof row
-          await adminClient
-            .from("blockchain_timestamp_proofs")
-            .update({
-              ots_proof_base64: proofBase64,
-              bitcoin_block_height: blockHeight,
-              verification_status: "Confirmed",
-              last_checked_at: new Date().toISOString(),
-            })
-            .eq("id", proofRow.id);
+          if (proofRow?.id) {
+            await adminClient
+              .from("blockchain_timestamp_proofs")
+              .update({
+                ots_proof_base64: proofBase64,
+                bitcoin_block_height: blockHeight,
+                verification_status: "Confirmed",
+                last_checked_at: new Date().toISOString(),
+              })
+              .eq("id", proofRow.id);
+          }
 
-          // Update document record status
           await adminClient
             .from("blockchain_document_records")
             .update({
@@ -153,7 +233,7 @@ serveWithCors(async (req: Request) => {
       result:
         currentStatus === "Blockchain Verified"
           ? "verified_confirmed"
-          : "hash_match_proof_pending",
+          : "verified_pending_block",
     });
 
     return new Response(
@@ -178,7 +258,7 @@ serveWithCors(async (req: Request) => {
           bitcoin_block_height: blockHeight || null,
           bitcoin_block_hash: blockHash || null,
           calendar_urls: proofRow?.ots_calendar_urls || [],
-          ots_proof_base64: proofBase64,
+          ots_proof_base64: proofBase64 || null,
           is_blockchain_confirmed: currentStatus === "Blockchain Verified",
         },
       }),

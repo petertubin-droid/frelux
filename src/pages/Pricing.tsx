@@ -1,3 +1,5 @@
+import BtcPayCheckoutModal from "@/components/payments/BtcPayCheckoutModal";
+import type { BtcPayInvoiceResult } from "@/lib/payments/btcpay";
 import { useState, useEffect, useMemo } from "react";
 import {
   Check,
@@ -178,6 +180,10 @@ export default function Pricing() {
   const [savedMarketChoice, setSavedMarketChoice] = useState<string | null>(
     null,
   );
+  const [activeBtcInvoice, setActiveBtcInvoice] =
+    useState<BtcPayInvoiceResult | null>(null);
+  const [selectedPlanForBtc, setSelectedPlanForBtc] =
+    useState<PricingPlan | null>(null);
   useEffect(() => {
     try {
       setSavedMarketChoice(localStorage.getItem(MARKET_STORAGE_KEY));
@@ -328,6 +334,35 @@ export default function Pricing() {
         type: "error",
       });
       navigate("/contact?subject=Subscription%20Inquiry");
+      return;
+    }
+
+    if (chosenGateway === "btcpay") {
+      setLoadingPlan(plan.id);
+      try {
+        const { initializeBtcPayCheckout } =
+          await import("@/lib/payments/btcpay");
+        const btcInvoice = await initializeBtcPayCheckout({
+          planId: plan.id,
+          billingCycle,
+          marketCode: market.marketCode,
+          originMarketCode: detectedMarket,
+          email: user.email,
+        });
+        setActiveBtcInvoice(btcInvoice);
+        setSelectedPlanForBtc(plan);
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        toast({
+          title: "FRELUX PAY (Bitcoin) Unavailable",
+          message: msg.includes("BTCPAY_NOT_CONFIGURED")
+            ? "FRELUX PAY (BTCPay Server) is not configured on this server environment. Please choose Paystack or Flutterwave in the meantime."
+            : msg,
+          type: "error",
+        });
+      } finally {
+        setLoadingPlan(null);
+      }
       return;
     }
 
@@ -778,6 +813,18 @@ export default function Pricing() {
             </Link>
           </div>
         )}
+        <BtcPayCheckoutModal
+          isOpen={Boolean(activeBtcInvoice)}
+          onClose={() => setActiveBtcInvoice(null)}
+          invoice={activeBtcInvoice}
+          planName={selectedPlanForBtc?.name || "Premium"}
+          billingCycle={billingCycle}
+          onSuccess={async () => {
+            setActiveBtcInvoice(null);
+            await refreshProfile();
+            navigate("/dashboard?payment=btcpay_success");
+          }}
+        />
       </div>
     </>
   );

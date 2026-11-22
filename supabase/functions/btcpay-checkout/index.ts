@@ -4,7 +4,7 @@
 //
 // 1. Authenticates caller session
 // 2. Resolves canonical server-side price (never trusts client amount)
-// 3. Creates invoice on BTCPay Server via Greenfield API
+// 3. Connects strictly to BTCPay Greenfield API (no demo/mock fallbacks)
 // 4. Retrieves live Bitcoin payment address, exchange rate, and due sats
 // 5. Records invoice in crypto_payment_invoices
 // =========================================================
@@ -32,6 +32,14 @@ const corsHeaders = {
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+// Approved token purchase tiers (USD)
+const TOKEN_PACK_PRICES: Record<string, number> = {
+  starter: 10.0,
+  builder: 25.0,
+  contractor: 50.0,
+  enterprise: 100.0,
 };
 
 serveWithCors(async (req: Request) => {
@@ -71,6 +79,7 @@ serveWithCors(async (req: Request) => {
       purpose = "subscription",
       plan_id = "pro",
       billing_cycle = "monthly",
+      token_pack = "starter",
       market_code = null,
       origin_market = null,
       email: clientEmail = "",
@@ -89,9 +98,10 @@ serveWithCors(async (req: Request) => {
         userRecord?.user?.email || `user-${userId.slice(0, 8)}@freluxtools.com`;
     }
 
-    // 3. Resolve canonical server-side price
+    // 3. Resolve canonical server-side price (never trust client amounts)
     let amountFiat = 29.0;
     let currencyFiat = "USD";
+    let itemDescription = `FRELUX ${plan_id.toUpperCase()} (${billing_cycle})`;
 
     if (purpose === "subscription") {
       const priceRows = await loadPlanPriceRows(adminClient);
@@ -104,84 +114,86 @@ serveWithCors(async (req: Request) => {
       );
       amountFiat = charge.amount;
       currencyFiat = charge.currency;
+      itemDescription = `FRELUX ${plan_id.toUpperCase()} (${billing_cycle})`;
     } else if (purpose === "token_purchase") {
-      amountFiat = Math.max(5.0, Number(body.amount_fiat) || 10.0);
+      amountFiat = TOKEN_PACK_PRICES[token_pack] || 10.0;
       currencyFiat = "USD";
+      itemDescription = `FRELUX AI Tokens (${token_pack.toUpperCase()} Pack)`;
     }
 
-    // 4. Initialize BTCPay Greenfield Client
+    // 4. Validate BTCPay Greenfield Configuration (Fail Closed — No Fake Invoices)
     const btcpayConfig = getBtcPayConfig();
+    if (!btcpayConfig || !btcpayConfig.apiKey || !btcpayConfig.storeId) {
+      return new Response(
+        JSON.stringify({
+          error: "BTCPAY_NOT_CONFIGURED",
+          message:
+            "FRELUX PAY (BTCPay Server) is not configured on this server environment. Please set BTCPAY_URL, BTCPAY_STORE_ID, and BTCPAY_API_KEY.",
+        }),
+        {
+          status: 503,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
     const orderId = `FRX-${purpose.slice(0, 3).toUpperCase()}-${Date.now()}-${userId.slice(0, 6)}`;
     const siteUrl = Deno.env.get("SITE_URL") || "https://freluxtools.com";
     const redirectUrl = `${siteUrl}/dashboard?payment=btcpay_success&orderId=${orderId}`;
 
-    let invoiceId: string;
-    let checkoutLink: string;
+    // 5. Create Dynamic Invoice on BTCPay Server
+    const invoice = await createBtcPayInvoice(btcpayConfig, {
+      amount: amountFiat,
+      currency: currencyFiat,
+      orderId,
+      itemDesc: itemDescription,
+      buyerEmail,
+      redirectUrl,
+      metadata: {
+        userId,
+        purpose,
+        plan: plan_id,
+        billingCycle: billing_cycle,
+      },
+    });
+
+    const invoiceId = invoice.id;
+    const checkoutLink = invoice.checkoutLink;
+    const expiresAt = new Date(invoice.expirationTime * 1000).toISOString();
+
     let btcAddress = "";
     let amountBtc = 0;
     let rateFiat = 0;
-    let expiresAt: string;
     let qrCodeData = "";
 
-    if (btcpayConfig && btcpayConfig.apiKey && btcpayConfig.storeId) {
-      // Live BTCPay Greenfield API call
-      const invoice = await createBtcPayInvoice(btcpayConfig, {
-        amount: amountFiat,
-        currency: currencyFiat,
-        orderId,
-        itemDesc: `FRELUX ${plan_id.toUpperCase()} (${billing_cycle})`,
-        buyerEmail,
-        redirectUrl,
-        metadata: {
-          userId,
-          purpose,
-          plan: plan_id,
-          billingCycle: billing_cycle,
-        },
-      });
-
-      invoiceId = invoice.id;
-      checkoutLink = invoice.checkoutLink;
-      expiresAt = new Date(invoice.expirationTime * 1000).toISOString();
-
-      // Query payment methods for destination address and rate
-      try {
-        const paymentMethods = await getBtcPayPaymentMethods(
-          btcpayConfig,
-          invoiceId,
-        );
-        const btcMethod = paymentMethods.find(
-          (p) => p.paymentMethod === "BTC" || p.cryptoCode === "BTC",
-        );
-        if (btcMethod) {
-          btcAddress = btcMethod.destination;
-          amountBtc = parseFloat(btcMethod.due || btcMethod.amount);
-          rateFiat = parseFloat(btcMethod.rate);
-          qrCodeData = btcMethod.paymentLink;
-        }
-      } catch {
-        // Payment methods will populate when invoice is opened
+    // 6. Query Payment Methods for Real BTC Address and Amount
+    try {
+      const paymentMethods = await getBtcPayPaymentMethods(
+        btcpayConfig,
+        invoiceId,
+      );
+      const btcMethod = paymentMethods.find(
+        (p) => p.paymentMethod === "BTC" || p.cryptoCode === "BTC",
+      );
+      if (btcMethod) {
+        btcAddress = btcMethod.destination;
+        amountBtc = parseFloat(btcMethod.due || btcMethod.amount);
+        rateFiat = parseFloat(btcMethod.rate);
+        qrCodeData =
+          btcMethod.paymentLink || `bitcoin:${btcAddress}?amount=${amountBtc}`;
       }
-    } else {
-      // Deterministic fallback invoice when BTCPay credentials are yet to be entered
-      invoiceId = `inv_${orderId.toLowerCase()}`;
-      checkoutLink = `${siteUrl}/pricing?btcpay_invoice=${invoiceId}`;
-      expiresAt = new Date(Date.now() + 30 * 60 * 1000).toISOString();
-      // Current reference Bitcoin rate ~ $95,000 USD/BTC
-      rateFiat = currencyFiat === "NGN" ? 145000000 : 95000;
-      amountBtc = Number((amountFiat / rateFiat).toFixed(8));
-      btcAddress = "bc1qfreluxtoolsconstructionpayments2026btc";
-      qrCodeData = `bitcoin:${btcAddress}?amount=${amountBtc}&label=FRELUX%20${plan_id}`;
+    } catch (pmError) {
+      console.warn("[btcpay-checkout] payment methods query:", pmError);
     }
 
     const amountSats = btcToSatoshis(amountBtc);
 
-    // 5. Persist invoice in database
+    // 7. Persist Invoice in Database
     const { error: insertError } = await adminClient
       .from("crypto_payment_invoices")
       .insert({
         invoice_id: invoiceId,
-        store_id: btcpayConfig?.storeId || "frelux-primary-store",
+        store_id: btcpayConfig.storeId,
         user_id: userId,
         purpose,
         plan_id,
@@ -207,8 +219,18 @@ serveWithCors(async (req: Request) => {
 
     if (insertError) {
       console.error(
-        "[btcpay-checkout] failed to store invoice:",
+        "[btcpay-checkout] failed to store invoice in database:",
         insertError.message,
+      );
+      return new Response(
+        JSON.stringify({
+          error: "DATABASE_ERROR",
+          message: "Failed to record payment invoice in database.",
+        }),
+        {
+          status: 500,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
       );
     }
 
