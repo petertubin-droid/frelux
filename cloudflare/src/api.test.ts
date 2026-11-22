@@ -169,8 +169,8 @@ describe("edge API", () => {
   });
 
   it("surfaces an unreachable upstream as a bad gateway", async () => {
-    // health now answers natively (see functions/registry), so the proxy path
-    // is exercised with a function that is still proxied.
+    // health and price-index-api now answer natively (see functions/registry),
+    // so the proxy path is exercised with a function that is still proxied.
     vi.stubGlobal(
       "fetch",
       vi.fn(async () => {
@@ -178,7 +178,7 @@ describe("edge API", () => {
       }),
     );
     const response = await worker.fetch(
-      new Request(url("/api/fn/price-index-api")),
+      new Request(url("/api/fn/verify-copy")),
       makeEnv(),
     );
     expect(response.status).toBe(502);

@@ -61,6 +61,7 @@ describe("native registry", () => {
   it("registers the wave-1 functions", () => {
     expect(Object.keys(NATIVE_FUNCTIONS).sort()).toEqual([
       "health",
+      "price-index-api",
       "verify-copy-get",
     ]);
   });

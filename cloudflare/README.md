@@ -80,11 +80,15 @@ only proxies to `${SUPABASE_URL}/functions/v1/:name` for names not in that
 registry, so both platforms run side by side during the cutover and a port can
 be rolled back by deleting one line.
 
-**Ported so far (wave 1, public reads):**
+**Ported so far (waves 1 and 2, public reads):**
 - `health` — same contract as the Supabase function, `uptime_seconds` is the
   isolate age.
 - `verify-copy-get` — PostgREST + Storage over plain fetch, no supabase-js in
   the bundle; lazy purge of expired copies preserved.
+- `price-index-api` — the live material price index. Statistics come from the
+  canonical `src/lib/price-index/stats.ts` (`computeStats`), so the Worker no
+  longer keeps a hand-synced copy of the sample gate. `market` is a query
+  parameter defaulting to NG, and currency is read from the rows.
 
 Secrets the ported functions read (set with `wrangler secret put`):
 `SUPABASE_SERVICE_ROLE_KEY` (or `SUPABASE_SECRET_KEYS` as the newer JSON map),

@@ -9,6 +9,7 @@
 import type { ApiEnv } from "../api";
 import { health } from "./health";
 import { verifyCopyGet } from "./verify-copy-get";
+import { priceIndexApi } from "./price-index-api";
 
 export type NativeHandler = (
   request: Request,
@@ -20,4 +21,5 @@ export type NativeHandler = (
 export const NATIVE_FUNCTIONS: Record<string, NativeHandler> = {
   health,
   "verify-copy-get": verifyCopyGet,
+  "price-index-api": priceIndexApi,
 };
