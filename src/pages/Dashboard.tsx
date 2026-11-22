@@ -9,6 +9,11 @@ import {
   TrendingUp,
   Gem,
   FolderOpen,
+  Bitcoin,
+  ShieldCheck,
+  FileCheck,
+  CheckCircle,
+  Clock as ClockIcon,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import EmptyState from "@/components/ui/EmptyState";
@@ -22,6 +27,16 @@ import {
 import { useAuth } from "@/lib/auth";
 import { useSeo } from "@/lib/seo";
 import { supabase } from "@/lib/supabase";
+import {
+  fetchUserCryptoInvoices,
+  type UserCryptoInvoiceRow,
+  formatBtc,
+  formatSats,
+} from "@/lib/payments/btcpay";
+import {
+  fetchUserVerifiedDocuments,
+  type DocumentVerificationRecord,
+} from "@/lib/blockchain/opentimestamps";
 import { useLanguage } from "@/lib/i18n";
 import type {
   DbUserProject,
@@ -113,6 +128,12 @@ export default function Dashboard() {
   const [projects, setProjects] = useState<DbUserProject[]>([]);
   const [favColors, setFavColors] = useState<DbPaintColor[]>([]);
   const [recentColors, setRecentColors] = useState<DbPaintColor[]>([]);
+  const [cryptoInvoices, setCryptoInvoices] = useState<UserCryptoInvoiceRow[]>(
+    [],
+  );
+  const [verifiedDocs, setVerifiedDocs] = useState<
+    DocumentVerificationRecord[]
+  >([]);
   const [contractorProjects, setContractorProjects] = useState<
     Pick<
       DbContractorProject,
@@ -136,18 +157,23 @@ export default function Dashboard() {
 
   async function loadAll() {
     setLoading(true);
-    const [projRes, favRes, recentRes, contractorRes] = await Promise.all([
-      fetchUserProjects(),
-      fetchFavoriteColors(),
-      fetchRecentlyViewedColors(8),
-      supabase
-        .from("contractor_projects")
-        .select(
-          "id, name, status, progress_percentage, total_project_cost, currency_symbol, updated_at",
-        )
-        .order("updated_at", { ascending: false })
-        .limit(6),
-    ]);
+    const [projRes, favRes, recentRes, contractorRes, cryptoRes, docRes] =
+      await Promise.all([
+        fetchUserProjects(),
+        fetchFavoriteColors(),
+        fetchRecentlyViewedColors(8),
+        supabase
+          .from("contractor_projects")
+          .select(
+            "id, name, status, progress_percentage, total_project_cost, currency_symbol, updated_at",
+          )
+          .order("updated_at", { ascending: false })
+          .limit(6),
+        fetchUserCryptoInvoices(user.id),
+        fetchUserVerifiedDocuments(user.id),
+      ]);
+    setCryptoInvoices(cryptoRes);
+    setVerifiedDocs(docRes);
     setProjects(projRes.data);
     setFavColors(favRes.data);
     setRecentColors(recentRes.data);
@@ -531,6 +557,162 @@ export default function Dashboard() {
                 )}
               </section>
             </div>
+
+            {/* FRELUX VERIFY — Blockchain Document Records */}
+            <section
+              className="animate-fade-in-up"
+              style={{ animationDelay: "0.15s" }}
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="h-5 w-5 text-emerald-500" />
+                  <h2 className="text-lg font-semibold text-foreground">
+                    {t("Blockchain Verified Documents")}
+                  </h2>
+                </div>
+                <Link
+                  to="/verify"
+                  className="text-xs font-semibold text-brand-purple hover:underline"
+                >
+                  {t("Open Verify Portal")} →
+                </Link>
+              </div>
+
+              {verifiedDocs.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-border bg-card/50 p-6 text-center text-sm text-muted-foreground">
+                  <FileCheck className="h-8 w-8 mx-auto mb-2 text-muted-foreground/60" />
+                  <p className="font-medium text-foreground">
+                    No blockchain-anchored documents yet
+                  </p>
+                  <p className="text-xs mt-1">
+                    Export a BOQ from BOQ Studio to automatically seal and
+                    anchor its SHA-256 fingerprint on the Bitcoin blockchain.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {verifiedDocs.slice(0, 6).map((doc) => (
+                    <div
+                      key={doc.id}
+                      className="rounded-xl border border-border bg-card p-4 flex flex-col justify-between hover:border-foreground/30 transition-colors"
+                    >
+                      <div>
+                        <div className="flex items-center justify-between gap-2 mb-1">
+                          <span className="text-[10px] font-mono font-semibold text-brand-purple">
+                            {doc.verification_id}
+                          </span>
+                          <span
+                            className={`text-[10px] px-1.5 py-0.5 rounded font-medium ${
+                              doc.status === "Blockchain Verified"
+                                ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                                : "bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                            }`}
+                          >
+                            {doc.status}
+                          </span>
+                        </div>
+                        <h4 className="font-medium text-foreground text-sm line-clamp-1">
+                          {doc.document_title}
+                        </h4>
+                        <p className="text-[10px] font-mono text-muted-foreground truncate mt-1">
+                          SHA: {doc.document_hash.slice(0, 16)}...
+                        </p>
+                      </div>
+                      <div className="mt-3 pt-2 border-t border-border flex items-center justify-between text-[11px] text-muted-foreground">
+                        <span>
+                          {new Date(doc.created_at).toLocaleDateString()}
+                        </span>
+                        <Link
+                          to={`/verify`}
+                          className="font-medium text-brand-purple hover:underline"
+                        >
+                          Verify →
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* FRELUX PAY — Bitcoin Payment Invoices */}
+            <section
+              className="animate-fade-in-up"
+              style={{ animationDelay: "0.18s" }}
+            >
+              <div className="mb-4 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Bitcoin className="h-5 w-5 text-amber-500" />
+                  <h2 className="text-lg font-semibold text-foreground">
+                    {t("Bitcoin Payments (FRELUX PAY)")}
+                  </h2>
+                </div>
+                <Link
+                  to="/pricing"
+                  className="text-xs font-semibold text-brand-purple hover:underline"
+                >
+                  {t("Pricing & Pay Options")} →
+                </Link>
+              </div>
+
+              {cryptoInvoices.length === 0 ? (
+                <div className="rounded-xl border border-dashed border-border bg-card/50 p-6 text-center text-sm text-muted-foreground">
+                  <Bitcoin className="h-8 w-8 mx-auto mb-2 text-amber-500/60" />
+                  <p className="font-medium text-foreground">
+                    No Bitcoin invoices yet
+                  </p>
+                  <p className="text-xs mt-1">
+                    You can subscribe to FRELUX Pro, Premium, or Enterprise
+                    tiers using Bitcoin on the Pricing page.
+                  </p>
+                </div>
+              ) : (
+                <div className="overflow-x-auto rounded-xl border border-border bg-card">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-muted/50 text-muted-foreground border-b border-border">
+                      <tr>
+                        <th className="py-2.5 px-3 font-medium">Invoice</th>
+                        <th className="py-2.5 px-3 font-medium">Plan</th>
+                        <th className="py-2.5 px-3 font-medium">BTC</th>
+                        <th className="py-2.5 px-3 font-medium">Status</th>
+                        <th className="py-2.5 px-3 font-medium">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border">
+                      {cryptoInvoices.slice(0, 5).map((inv) => (
+                        <tr key={inv.id}>
+                          <td className="py-2.5 px-3 font-mono font-medium">
+                            {inv.invoice_id}
+                          </td>
+                          <td className="py-2.5 px-3 capitalize font-medium">
+                            {inv.plan_id || inv.purpose}
+                          </td>
+                          <td className="py-2.5 px-3 font-mono text-amber-600 dark:text-amber-400">
+                            ₿ {formatBtc(inv.amount_btc)}
+                          </td>
+                          <td className="py-2.5 px-3">
+                            <span
+                              className={`px-2 py-0.5 rounded text-[10px] font-medium ${
+                                inv.status === "Confirmed"
+                                  ? "bg-emerald-500/10 text-emerald-600"
+                                  : inv.status === "Processing"
+                                    ? "bg-blue-500/10 text-blue-600"
+                                    : "bg-muted text-muted-foreground"
+                              }`}
+                            >
+                              {inv.status}
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-3 text-muted-foreground">
+                            {new Date(inv.created_at).toLocaleDateString()}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </section>
 
             {/* AI Suggestion */}
             <section

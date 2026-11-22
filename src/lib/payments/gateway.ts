@@ -35,9 +35,13 @@ import type { SubscriptionPlan } from "@/lib/subscription";
  * Running two working rails is better than three where one takes money it
  * cannot honour.
  */
-export type PaymentGateway = "paystack" | "flutterwave";
+export type PaymentGateway = "paystack" | "flutterwave" | "btcpay";
 
-export const PAYMENT_GATEWAYS: PaymentGateway[] = ["paystack", "flutterwave"];
+export const PAYMENT_GATEWAYS: PaymentGateway[] = [
+  "paystack",
+  "flutterwave",
+  "btcpay",
+];
 
 export interface GatewayRuntimeConfig {
   flutterwavePublicKey?: string;
@@ -73,6 +77,7 @@ export function resolveCheckoutGateway(
 ): ResolvedGateway {
   const wanted = parseGateway(setting);
   if (wanted === "paystack") return { gateway: "paystack" };
+  if (wanted === "btcpay") return { gateway: "btcpay" };
 
   const configured = isFlutterwaveConfigured(cfg);
   if (configured) return { gateway: wanted };
@@ -92,7 +97,7 @@ export function resolveCheckoutGateway(
 export function availableGateways(
   _cfg: GatewayRuntimeConfig,
 ): PaymentGateway[] {
-  return ["paystack", "flutterwave"];
+  return ["paystack", "flutterwave", "btcpay"];
 }
 
 /**
@@ -298,6 +303,24 @@ export async function startSubscriptionCheckout(
       };
     }
     return { error: result.error };
+  }
+
+  if (resolved.gateway === "btcpay") {
+    try {
+      const { initializeBtcPayCheckout } =
+        await import("@/lib/payments/btcpay");
+      const btcRes = await initializeBtcPayCheckout({
+        planId,
+        billingCycle,
+        marketCode,
+        originMarketCode,
+        email,
+      });
+      return { authorization_url: btcRes.checkout_url };
+    } catch (btcErr: unknown) {
+      const msg = btcErr instanceof Error ? btcErr.message : String(btcErr);
+      return { error: `FRELUX PAY (Bitcoin) checkout error: ${msg}` };
+    }
   }
 
   if (resolved.gateway === "flutterwave") {

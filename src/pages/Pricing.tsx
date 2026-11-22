@@ -198,7 +198,7 @@ export default function Pricing() {
   const gateways: PaymentGateway[] = gatewaysForMarket(
     market.marketCode,
     currentGatewayRuntimeConfig(),
-  ).filter((g) => g === "paystack" || g === "flutterwave");
+  ).filter((g) => g === "paystack" || g === "flutterwave" || g === "btcpay");
 
   useEffect(() => {
     let alive = true;
@@ -236,6 +236,44 @@ export default function Pricing() {
     // Flutterwave appends tx_ref to the redirect URL; verify server-side.
     const txRef = searchParams.get("tx_ref");
     const isFlutterwave = gw === "flutterwave" || !!txRef;
+    const btcInvoice = searchParams.get("btcpay_invoice");
+
+    if (btcInvoice) {
+      setVerifying(true);
+      import("@/lib/payments/btcpay").then(({ verifyBtcPayInvoice }) => {
+        verifyBtcPayInvoice(btcInvoice)
+          .then(async (res) => {
+            if (res.status === "Confirmed" || res.activated) {
+              setVerifyResult("success");
+              await refreshProfile();
+              toast({
+                title: "Bitcoin payment confirmed!",
+                message: "Your premium subscription has been activated.",
+                type: "success",
+              });
+            } else {
+              setVerifyResult("error");
+              toast({
+                title: "Bitcoin payment status: " + res.status,
+                message:
+                  "Your payment is currently being confirmed by the Bitcoin network.",
+                type: "info",
+              });
+            }
+            setVerifying(false);
+          })
+          .catch((err) => {
+            setVerifyResult("error");
+            toast({
+              title: "Verification failed",
+              message: err instanceof Error ? err.message : String(err),
+              type: "error",
+            });
+            setVerifying(false);
+          });
+      });
+      return;
+    }
     if (status === "verify" && (ref || txRef)) {
       setVerifying(true);
       const verifyPromise = isFlutterwave
@@ -413,7 +451,11 @@ export default function Pricing() {
                       : "text-muted-foreground hover:bg-muted",
                   )}
                 >
-                  {gw === "paystack" ? "Paystack" : "Flutterwave"}
+                  {gw === "paystack"
+                    ? "Paystack"
+                    : gw === "btcpay"
+                      ? "FRELUX PAY (Bitcoin)"
+                      : "Flutterwave"}
                   {defaultGateway === gw && " (default)"}
                 </button>
               ))}

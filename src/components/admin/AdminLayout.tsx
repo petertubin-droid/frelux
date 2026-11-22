@@ -72,6 +72,7 @@ import {
   X,
   Leaf,
   Wallet,
+  Bitcoin,
   Percent,
   Stethoscope,
   ChevronRight,
@@ -488,6 +489,7 @@ export const navModules: NavModule[] = [
     items: [
       { label: "Marketplace", to: "/admin/marketplace", icon: ShoppingBag },
       { label: "Money & disputes", to: "/admin/finance", icon: Wallet },
+      { label: "Blockchain & Bitcoin", to: "/admin/blockchain", icon: Bitcoin },
       {
         label: "Business ledger",
         to: "/admin/business-ledger",

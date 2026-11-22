@@ -140,6 +140,7 @@ const QuoteShare = lazy(() => import("@/pages/QuoteShare"));
 const Dashboard = lazy(() => import("@/pages/Dashboard"));
 const Profile = lazy(() => import("@/pages/Profile"));
 const Pricing = lazy(() => import("@/pages/Pricing"));
+const Verify = lazy(() => import("@/pages/Verify"));
 const Metrics = lazy(() => import("@/pages/Metrics"));
 const DataRequest = lazy(() => import("@/pages/legal/DataRequest"));
 const BrandStudio = lazy(() => import("@/pages/BrandStudio"));
@@ -468,6 +469,7 @@ const AdminImageEstimation = lazy(
 );
 const AdminMarketplace = lazy(() => import("@/pages/admin/AdminMarketplace"));
 const AdminFinance = lazy(() => import("@/pages/admin/AdminFinance"));
+const AdminBlockchain = lazy(() => import("@/pages/admin/AdminBlockchain"));
 const AdminBusinessLedger = lazy(
   () => import("@/pages/admin/AdminBusinessLedger"),
 );
@@ -1399,6 +1401,14 @@ export default function App() {
                           element={
                             <Suspense fallback={<PageLoader />}>
                               <Pricing />
+                            </Suspense>
+                          }
+                        />
+                        <Route
+                          path="/verify"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Verify />
                             </Suspense>
                           }
                         />
@@ -2761,6 +2771,10 @@ export default function App() {
                           element={<AdminMarketplace />}
                         />
                         <Route path="finance" element={<AdminFinance />} />
+                        <Route
+                          path="blockchain"
+                          element={<AdminBlockchain />}
+                        />
                         <Route
                           path="business-ledger"
                           element={<AdminBusinessLedger />}

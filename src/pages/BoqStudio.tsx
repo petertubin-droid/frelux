@@ -348,10 +348,15 @@ export default function BoqStudio() {
     const template = templates.find((t) => t.slug === doc.template_slug);
     setBusy(true);
     try {
-      await downloadBoqPdf(compiled.standard, compiled.document, {
+      const res = await downloadBoqPdf(compiled.standard, compiled.document, {
         showMaterialRate: template?.show_material_rate ?? true,
         showLabourRate: template?.show_labour_rate ?? true,
       });
+      if (res?.verificationId) {
+        toast.success(
+          `BOQ PDF exported & anchored to Bitcoin blockchain (ID: ${res.verificationId})`,
+        );
+      }
     } catch (error) {
       toast.error(getSafeError(error));
     } finally {

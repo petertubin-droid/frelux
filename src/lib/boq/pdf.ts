@@ -24,6 +24,7 @@ export interface BoqPdfOptions {
   /** Template driven: hide rate columns a market does not tender openly. */
   showMaterialRate?: boolean;
   showLabourRate?: boolean;
+  stampOnBlockchain?: boolean;
 }
 
 function money(amount: number, currency: string): string {
@@ -405,19 +406,25 @@ export async function downloadBoqPdf(
   standard: StandardBoqDocument,
   studio: BoqStudioDocument,
   options: BoqPdfOptions = {},
-): Promise<void> {
+): Promise<{ hash: string; verificationId?: string }> {
   const doc = await buildBoqPdf(standard, studio, options);
   const safe = (studio.reference || studio.title || "boq")
     .replace(/[^a-z0-9-_]+/gi, "-")
     .replace(/^-+|-+$/g, "");
   const modeSuffix = studio.mode === "market_survey" ? "-market-survey" : "";
-  await saveSealedPdf(
+  return await saveSealedPdf(
     doc,
     `${safe || "boq"}-R${studio.revision}${modeSuffix}.pdf`,
     {
       title: `BOQ ${studio.reference || studio.title}`,
       subject: `Revision ${studio.revision}`,
       reference: studio.reference,
+    },
+    {
+      stampOnBlockchain: options.stampOnBlockchain ?? true,
+      documentTitle: studio.title || `BOQ ${studio.reference || "Document"}`,
+      documentReference: studio.reference,
+      documentType: "boq",
     },
   );
 }

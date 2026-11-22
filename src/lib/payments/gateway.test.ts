@@ -26,9 +26,10 @@ const FULL: GatewayRuntimeConfig = { flutterwavePublicKey: "FLWPUBK_test_x" };
 
 describe("parseGateway", () => {
   it("accepts exactly the two gateways that can settle a charge", () => {
-    expect(PAYMENT_GATEWAYS).toEqual(["paystack", "flutterwave"]);
+    expect(PAYMENT_GATEWAYS).toEqual(["paystack", "flutterwave", "btcpay"]);
     expect(parseGateway("paystack")).toBe("paystack");
     expect(parseGateway("flutterwave")).toBe("flutterwave");
+    expect(parseGateway("btcpay")).toBe("btcpay");
   });
 
   it("no longer recognises stripe", () => {
@@ -84,8 +85,16 @@ describe("resolveCheckoutGateway", () => {
 
 describe("availableGateways", () => {
   it("offers both hosted gateways regardless of browser keys", () => {
-    expect(availableGateways(FULL)).toEqual(["paystack", "flutterwave"]);
-    expect(availableGateways(EMPTY)).toEqual(["paystack", "flutterwave"]);
+    expect(availableGateways(FULL)).toEqual([
+      "paystack",
+      "flutterwave",
+      "btcpay",
+    ]);
+    expect(availableGateways(EMPTY)).toEqual([
+      "paystack",
+      "flutterwave",
+      "btcpay",
+    ]);
   });
 
   it("never advertises a gateway that has no checkout path", () => {

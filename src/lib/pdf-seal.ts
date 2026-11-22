@@ -149,14 +149,76 @@ export function downloadSealedPdf(bytes: Uint8Array, filename: string): void {
  * Seal and download a jsPDF document. Every export path ends here instead of
  * calling `doc.save()`, so no route can produce an editable file.
  */
+export interface SealResult {
+  sealed: Uint8Array;
+  hash: string;
+  verificationId?: string;
+}
+
+export async function sealAndStampPdf(
+  raw: Uint8Array,
+  metadata: PdfSealMetadata = {},
+  options: {
+    stampOnBlockchain?: boolean;
+    documentTitle?: string;
+    documentReference?: string;
+    documentType?:
+      "boq" | "quotation" | "material_schedule" | "bank_estimate" | "cost_plan";
+  } = {},
+): Promise<SealResult> {
+  const sealed = await sealPdf(raw, metadata);
+  const { calculateBytesSha256, stampDocumentOnBlockchain } =
+    await import("@/lib/blockchain/opentimestamps");
+  const hash = await calculateBytesSha256(sealed);
+  let verificationId: string | undefined;
+
+  if (options.stampOnBlockchain) {
+    try {
+      const stampRes = await stampDocumentOnBlockchain({
+        documentHash: hash,
+        documentTitle:
+          options.documentTitle || metadata.title || "FRELUX Document",
+        documentReference: options.documentReference || metadata.reference,
+        documentType: options.documentType || "boq",
+        byteSize: sealed.byteLength,
+        metadata: {
+          sealed_timestamp: new Date().toISOString(),
+          subject: metadata.subject,
+        },
+      });
+      verificationId = stampRes.verification_id;
+    } catch (stampErr) {
+      console.warn(
+        "[pdf-seal] blockchain timestamping skipped/failed:",
+        stampErr,
+      );
+    }
+  }
+
+  return { sealed, hash, verificationId };
+}
+
+/**
+ * Seals the jsPDF document and triggers a browser download.
+ * Optionally computes SHA-256 and registers timestamp proof with OpenTimestamps.
+ */
 export async function saveSealedPdf(
   doc: { output: (type: "arraybuffer") => ArrayBuffer },
   filename: string,
   metadata: PdfSealMetadata = {},
-): Promise<void> {
-  const sealed = await sealPdf(
+  options?: {
+    stampOnBlockchain?: boolean;
+    documentTitle?: string;
+    documentReference?: string;
+    documentType?:
+      "boq" | "quotation" | "material_schedule" | "bank_estimate" | "cost_plan";
+  },
+): Promise<{ hash: string; verificationId?: string }> {
+  const { sealed, hash, verificationId } = await sealAndStampPdf(
     new Uint8Array(doc.output("arraybuffer")),
     metadata,
+    options,
   );
   downloadSealedPdf(sealed, filename);
+  return { hash, verificationId };
 }
