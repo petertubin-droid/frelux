@@ -128,7 +128,9 @@ describe("FRELUX VERIFY — Tamper & Mismatch Detection", () => {
       success: false,
       verified: false,
       result: "not_found",
-      error: "No registered document matches the provided hash.",
+      // VerificationLookupResult carries the reason on `message`; the
+      // certificate reads the status, not the wording, so this is context.
+      message: "No registered document matches the provided hash.",
     };
 
     const certJson = generateVerificationCertificateJson(unverifiedResult);
