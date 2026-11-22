@@ -46,14 +46,14 @@ The masonry adapter passes the market code and lets the engine resolve the unit
 profile, so a US CMU wall, a UK block wall and an Indian brick wall are all read
 with their own unit size rather than a default.
 
-## Batch 3: Roofing, timber and envelope
+## Batch 3: Roofing, timber and envelope (closed, 22 November 2026)
 
-| Module                               | Entry point               |
-| ------------------------------------ | ------------------------- |
-| `roof/geometry-engine.ts`            | roof geometry generation  |
-| `roof/roof-material-engine.ts`       | `createRoofMaterialSpec`  |
-| `estimation/waterproofing-engine.ts` | `parseWaterproofingRules` |
-| `estimation/soffit-gutter-engine.ts` | `parseSoffitGutterRules`  |
+| Module                               | Entry point              | State                                                                                                                                     |
+| ------------------------------------ | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `estimation/waterproofing-engine.ts` | `calculateWaterproofing` | done as `waterproofing`, surface `/waterproofing`                                                                                         |
+| `estimation/soffit-gutter-engine.ts` | `calculateSoffitGutter`  | done as `soffit_gutter`, surface `/rainwater-gutter-soffit-cost-estimator`                                                                |
+| `roof/geometry-engine.ts`            | roof geometry generation | declined: it returns a geometry object for the 3D roof view, not quantity lines, so it needs a viewer adapter rather than a trade adapter |
+| `roof/roof-material-engine.ts`       | `createRoofMaterialSpec` | declined: it builds a material specification record, the same shape problem as `createFenceDimension`                                     |
 
 ## Batch 4: Structural and temporary works
 

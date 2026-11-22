@@ -1102,6 +1102,135 @@ registerEngine({
   },
 });
 
+// ── Waterproofing: DPC, DPM and wet-area coatings ──
+//
+// A foundation and wet-area takeoff: how much membrane, coating, tape and
+// labour a build needs. Rules are the engine's shipped defaults; the price map
+// stays empty because this answers quantities, not cost.
+interface WaterproofingInputLike {
+  dpc_run_m?: number | null;
+  dpm_area_m2?: number | null;
+  wet_floor_area_m2?: number | null;
+  wet_wall_area_m2?: number | null;
+  wet_perimeter_m?: number | null;
+  terrace_area_m2?: number | null;
+}
+
+registerEngine({
+  id: "waterproofing",
+  domain: "building",
+  title: "FRELUX Waterproofing Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX waterproofing engine",
+  async run(rawInput) {
+    const { calculateWaterproofing, DEFAULT_WATERPROOFING_RULES } =
+      await import("@/lib/estimation/waterproofing-engine");
+    const supplied = (rawInput ?? {}) as WaterproofingInputLike;
+
+    // A typical domestic house: 60 m of DPC, 90 m² of DPM, one bathroom with
+    // 6 m² of floor and 18 m² of splash zone, 12 m of perimeter, no terrace.
+    const input = {
+      dpc_run_m: supplied.dpc_run_m ?? 60,
+      dpm_area_m2: supplied.dpm_area_m2 ?? 90,
+      wet_floor_area_m2: supplied.wet_floor_area_m2 ?? 6,
+      wet_wall_area_m2: supplied.wet_wall_area_m2 ?? 18,
+      wet_perimeter_m: supplied.wet_perimeter_m ?? 12,
+      terrace_area_m2: supplied.terrace_area_m2 ?? null,
+      labour: { mode: "none" },
+    } as never;
+
+    const result = calculateWaterproofing(
+      input,
+      DEFAULT_WATERPROOFING_RULES,
+      {},
+    );
+
+    const quantities: EngineQuantityLine[] = result.lines
+      .filter((line) => line.quantity !== null)
+      .map((line) =>
+        quantityLine(line.label, Number(line.quantity), line.unit),
+      );
+
+    return {
+      ok: result.ok,
+      engine: "waterproofing",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs: null,
+      raw: result,
+      ...(result.ok
+        ? {}
+        : {
+            error:
+              result.errors.join(" ") ||
+              "The waterproofing engine rejected the input.",
+          }),
+    };
+  },
+});
+
+// ── Soffit and gutter: fascia boards, gutter run and downpipes ──
+interface SoffitGutterInputLike {
+  mode?: "perimeter" | "footprint";
+  perimeter_m?: number | null;
+  building_length_m?: number | null;
+  building_width_m?: number | null;
+  overhang_m?: number;
+  material?: string;
+}
+
+registerEngine({
+  id: "soffit_gutter",
+  domain: "roofing",
+  title: "FRELUX Soffit and Gutter Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX soffit and gutter engine",
+  async run(rawInput) {
+    const { calculateSoffitGutter, DEFAULT_SOFFIT_GUTTER_RULES } =
+      await import("@/lib/estimation/soffit-gutter-engine");
+    const supplied = (rawInput ?? {}) as SoffitGutterInputLike;
+
+    // An 18 m by 12 m footprint with a 600 mm overhang, which is the shape the
+    // eaves calculator starts from.
+    const input = {
+      mode: supplied.mode ?? "footprint",
+      perimeter_m: supplied.perimeter_m ?? null,
+      building_length_m: supplied.building_length_m ?? 18,
+      building_width_m: supplied.building_width_m ?? 12,
+      overhang_m: supplied.overhang_m ?? 0.6,
+      material: supplied.material ?? "pvc",
+    } as never;
+
+    const result = calculateSoffitGutter(
+      input,
+      DEFAULT_SOFFIT_GUTTER_RULES,
+      {},
+    );
+
+    const quantities: EngineQuantityLine[] = result.lines
+      .filter((line) => line.quantity !== null)
+      .map((line) =>
+        quantityLine(line.label, Number(line.quantity), line.unit),
+      );
+
+    return {
+      ok: result.ok,
+      engine: "soffit_gutter",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs: null,
+      raw: result,
+      ...(result.ok
+        ? {}
+        : {
+            error:
+              result.errors.join(" ") ||
+              "The soffit and gutter engine rejected the input.",
+          }),
+    };
+  },
+});
+
 export function listEngines(): EngineDescriptor[] {
   return [...REGISTRY.values()];
 }

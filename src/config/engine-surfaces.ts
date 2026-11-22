@@ -166,6 +166,36 @@ export const ENGINE_SURFACES: EngineSurface[] = [
     note: "Cost differences between markets and regions.",
   },
   {
+    engineId: "waterproofing",
+    status: "live",
+    route: "/waterproofing",
+    label: "Waterproofing Estimator",
+    icon: Droplets,
+    evidence: {
+      module: "@/lib/estimation/waterproofing-engine",
+      fn: "calculateWaterproofing",
+      page: "src/pages/WaterproofingEstimator.tsx",
+      calledBy:
+        "the estimator calls the same function with the same default rules",
+    },
+    note: "DPC, DPM and wet-area coatings with corner tape, from the engine's own rules.",
+  },
+  {
+    engineId: "soffit_gutter",
+    status: "live",
+    route: "/rainwater-gutter-soffit-cost-estimator",
+    label: "Rainwater Gutter and Soffit Estimator",
+    icon: Home,
+    evidence: {
+      module: "@/lib/estimation/soffit-gutter-engine",
+      fn: "calculateSoffitGutter",
+      page: "src/pages/SoffitGutterEstimator.tsx",
+      calledBy:
+        "the estimator calls the same function with the same default rules",
+    },
+    note: "Gutter run, fascia and downpipes from a footprint or a measured perimeter.",
+  },
+  {
     engineId: "masonry",
     status: "shared",
     route: "/masonry-calculator",

@@ -54,6 +54,8 @@ export const UNRESOLVED_ENGINE_IDS = [
   "concrete_takeoff",
   "masonry",
   "concrete_volume",
+  "waterproofing",
+  "soffit_gutter",
 ] as const;
 
 export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
@@ -181,6 +183,18 @@ export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
     canonicalId: "sequence",
     confidence: "medium",
     note: "Construction sequence planning.",
+  },
+  {
+    aiEngineId: "waterproofing",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "The inventory treats damp-proofing as a membrane material inside substructure and wet areas, not as a combined DPC, DPM and coating engine, so no id matches this shape.",
+  },
+  {
+    aiEngineId: "soffit_gutter",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "Roof drainage appears only as a rainwater system in the international lists. This engine measures eaves and downpipes, which is narrower than that id claims.",
   },
   {
     aiEngineId: "masonry",

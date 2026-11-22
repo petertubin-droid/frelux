@@ -43,7 +43,10 @@ describe("AdminEngineMatrix reconciliation band", () => {
       )
       .map((m) => m.sources.aiEngineIds[0]);
     for (const id of aiOnly) {
-      expect(screen.getByText(new RegExp(id))).toBeInTheDocument();
+      // An id can legitimately appear twice: once in the unlinked summary and
+      // once in the matrix below it. The assertion is that the summary names
+      // it, so at least one match is the requirement, not exactly one.
+      expect(screen.getAllByText(new RegExp(id)).length).toBeGreaterThan(0);
     }
   });
 
