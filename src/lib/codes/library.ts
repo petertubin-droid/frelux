@@ -1370,6 +1370,20 @@ export const DOMAIN_ORDER: RequirementDomain[] = [
   "materials",
 ];
 
+/**
+ * Resolve a family by id, or fail loudly.
+ *
+ * The signature promises a family, so returning undefined for an unknown id
+ * would hand the caller a value its own types say cannot be undefined, and the
+ * crash would land later and further away from the cause. The message lists what
+ * does exist, because the usual reason for a bad id is a typo.
+ */
 export function getFamily(id: CodeFamilyId): CodeFamily {
-  return CODE_FAMILIES[id];
+  const family = CODE_FAMILIES[id];
+  if (!family) {
+    throw new Error(
+      `Unknown code family '${String(id)}'. Known families: ${Object.keys(CODE_FAMILIES).join(", ")}.`,
+    );
+  }
+  return family;
 }

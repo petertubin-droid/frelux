@@ -40,8 +40,8 @@ been exercised; `staged` means written but not executed.
 | 18  | Overhead Water Tank Staging        | structure | **Audited 2026-11-21**, 23 tests, no arithmetic defect, wind method disclosed                      |
 | 19  | Tall Building Structure            | structure | **Audited 2026-11-21**, 18 tests, no defect; first suite on a 1,935-line engine                    |
 | 20  | Build-to-Roof Estimator            | structure | **Audited 2026-11-22**, chain 10 tests, 2 disclosure defects fixed                                 |
-| 21  | Mathematical Plan Elevation        | structure | Queued                                                                                             |
-| 22  | Foundation Cost Estimate           | structure | Queued                                                                                             |
+| 21  | Mathematical Plan Elevation        | structure | **Audited 2026-11-22**, 8 tests, no defect (SI conversion verified)                                |
+| 22  | Foundation Cost Estimate           | structure | **Audited 2026-11-22**, 7 tests, no defect; unpriced/incomplete honesty verified                   |
 | 23  | Plumbing                           | services  | **Audited 2026-11-22**, 36 tests, DEFECT FIXED: cold-only buildings were never completable         |
 | 24  | Electrical Wiring                  | services  | **Audited 2026-11-22**, 21 tests, DEFECT FIXED: ampacity table was 4D2A armoured under a 4D5 claim |
 | 25  | Conduit & Wiring Loops             | services  | **Audited 2026-11-22**, 12 tests, no defect (already hardened)                                     |
@@ -51,7 +51,7 @@ been exercised; `staged` means written but not executed.
 | 29  | Autonomous Borehole & Water Supply | services  | **Audited 2026-11-22**, 15 tests, DEFECT FIXED: head breakdown now sums                            |
 | 31  | External Drainage Takeoff          | services  | **Audited 2026-11-22**, 11 tests, no defect; hydraulic capacity gap recorded                       |
 | 32  | Live Material Price Index          | services  | Queued                                                                                             |
-| 33  | International Code Reference       | services  | Queued                                                                                             |
+| 33  | International Code Reference       | services  | **Audited 2026-11-22**, 10 tests, DEFECT FIXED: getFamily returned undefined for an unknown id     |
 | 34  | Climate Material Advisor           | services  | Queued                                                                                             |
 | 35  | Septic & Soakaway Worksheet        | services  | **Audited 2026-11-22**, 11 tests, no defect (BS 6297 cross-check)                                  |
 
@@ -1003,6 +1003,61 @@ Manning solution, no velocity at full bore, no check that the gradient delivers
 0.7 m/s. The engine is a material takeoff and says so, but a user reading "110 mm
 at 1 in 80" may reasonably believe capacity was verified. Closing it needs pipe
 roughness per material and a design flow per run.
+
+## Audit 21: Mathematical Plan Elevation (`plan-scale.ts`)
+
+Suite: `src/lib/estimation/__tests__/plan-elevation-conformance.test.ts`, 8 tests.
+
+**No defect.** The four calibration units convert at their SI definitions
+(1 mm = 0.001 m, 1 ft = 0.3048 m, 1 in = 0.0254 m), a typed string reads the same
+as a number, and impossible lengths are refused rather than coerced. Pixels per
+metre divides the clicked span by the known length and refuses a null, zero,
+negative or non-finite side instead of returning Infinity. The round trip
+`scale x metres` returns the clicked span, and the same wall entered in
+millimetres and in metres yields the same scale. The engine stores metres and
+nothing else, so conversion happens once; the tests pin that shape.
+
+## Audit 22: Foundation Cost Estimate (money layer of `foundation-engine.ts`)
+
+Suite: `src/lib/estimation/__tests__/foundation-cost-conformance.test.ts`,
+7 tests. Audit 1 covered the mix and block arithmetic; this covers the money the
+page shows.
+
+**No defect.** Every sized and priced line is `quantity x unit_price` at 2 dp,
+and the priced subtotal is exactly the sum of the line totals. With no prices
+configured the priced subtotal is 0, `material_subtotal` is null rather than a
+partial sum that would read as a complete material cost, and `incomplete` is
+true. Quantities stay visible while prices are absent. `grand_total` is null
+unless the estimate is complete, and with labour mode "none" the grand total is
+the material subtotal, not a figure with labour quietly folded in.
+
+The suite also documents behaviour worth keeping: the engine refuses to guess
+blocks without a per-m2 rule or a published market module, and says so in
+`missing` instead of producing a number.
+
+## Audit 33: International Code Reference (`src/lib/codes/`)
+
+Suite: `src/lib/codes/__tests__/code-reference-conformance.test.ts`, 10 tests.
+
+**Defect fixed.** `getFamily(id)` was `return CODE_FAMILIES[id]` under a
+signature promising a `CodeFamily`. An unknown id returned `undefined`, so the
+type said the value could not be undefined and the crash landed later, further
+from the cause. It now throws with the offending id and the list of known
+families.
+
+Verified correct: every family's `defaultEditionId` exists in its own
+`editions`; every edition has a non-empty label and any stated year could be a
+real edition; every family declares at least one jurisdiction and every offered
+jurisdiction maps to a family that exists; `FAMILY_ORDER` covers every family
+exactly once; no family claims municipal approval; and the Eurocode family
+states that the project country's National Annex governs and that design values
+do not transfer between member states, which is the claim the reference set
+rests on.
+
+**Recorded, not patched:** the registry is a document list, so its accuracy
+depends on edition years and titles being checked against the publishers at each
+registry revision. The suite pins structure and self-consistency, not the
+currency of every document.
 
 ## Open questions carried forward
 
