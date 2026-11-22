@@ -39,7 +39,7 @@ been exercised; `staged` means written but not executed.
 | 17  | Soffit, Fascia & Gutter            | structure | **Audited 2026-11-21**, 16 tests, DEFECT FIXED: soffit corners counted twice                    |
 | 18  | Overhead Water Tank Staging        | structure | **Audited 2026-11-21**, 23 tests, no arithmetic defect, wind method disclosed                   |
 | 19  | Tall Building Structure            | structure | **Audited 2026-11-21**, 18 tests, no defect; first suite on a 1,935-line engine                 |
-| 20  | Build-to-Roof Estimator            | structure | Queued (engine has tests, page chain untested)                                                  |
+| 20  | Build-to-Roof Estimator            | structure | **Audited 2026-11-22**, chain 10 tests, 2 disclosure defects fixed                              |
 | 21  | Mathematical Plan Elevation        | structure | Queued                                                                                          |
 | 22  | Foundation Cost Estimate           | structure | Queued                                                                                          |
 | 23  | Plumbing                           | services  | **Audited 2026-11-22**, 36 tests, DEFECT FIXED: cold-only buildings were never completable      |
@@ -144,6 +144,46 @@ violate the same rule the engines follow, so the row stays unverified and the
 open task is a product-level verification, not a correction.
 
 ---
+
+## Audit 20: Build-to-Roof page chain (`build-to-roof-engine.ts` + page)
+
+The engine already had 90 tests, so this audit covered the seam the ledger
+flagged as untested: the unit toggle and the opening schedule as they reach the
+engine. Suite: `src/lib/estimation/__tests__/build-to-roof-chain.test.ts`.
+
+Expectations are physical rather than implementation-derived. One foot is
+exactly 0.3048 m, so the same building entered in feet must price to the same
+money; a millimetre opening schedule is already absolute, so the imperial pass
+must leave it alone.
+
+Verified correct, no defect:
+
+- Unit invariance. The same 12 x 9 m bungalow entered in feet and in metres
+  returns the same materials, labour and grand total, and the same net wall
+  area. The page toggle calls the engine's own `convertBuildToRoofUnits`, so the
+  converted field list and the engine's `UNIT_SCALAR_FIELDS` cannot drift apart.
+- A millimetre schedule is not rescaled when the form is in feet. 600 mm stays
+  600 mm; if the imperial pass had touched `openingGroups`, the deduction would
+  have been wrong by 3.28 squared.
+- The schedule is deducted in full, per category, and the deduction equals the
+  difference in net wall area between a bare wall and the same wall carrying the
+  schedule.
+
+Defect 1, silent clamp. A window entered as 9000 x 5000 mm was clamped by the
+shared model to 6000 x 4000 mm and the result said nothing at all. The takeoff
+used an opening the user had not typed, which is the same as reporting a wrong
+number without saying so. Fixed: the normaliser's warnings now reach the
+result's `limitations`, naming the clamp.
+
+Defect 2, contradictory disclosure. `missing_info` read the legacy `openings`
+list only, so a user who had entered a full schedule was still told "Door/window
+openings not specified, wall quantities include the full gross area with no
+deductions", printed beside a takeoff that had deducted them. Fixed: the claim
+is made only when neither shape supplies an opening.
+
+Both defects were found by probing a value outside the accepted range, not by
+the passing suite. That is the argument for auditing the disclosure path and not
+only the arithmetic.
 
 ## Engines with no test file at all (highest risk)
 

@@ -2916,11 +2916,11 @@ export function calculateBuildToRoof(
   // Same shared model as the wall deduction, so the typology assembly, the
   // wall quantities and the schedule shown to the user can never disagree about
   // how many openings there are or how big they are.
-  const openingScheduleTotals = openingTotals(
-    normaliseOpenings(input.openingGroups ?? input.openings ?? [], {
-      metres: !input.openingGroups,
-    }).groups,
+  const openingNormalisation = normaliseOpenings(
+    input.openingGroups ?? input.openings ?? [],
+    { metres: !input.openingGroups },
   );
+  const openingScheduleTotals = openingTotals(openingNormalisation.groups);
 
   const typologyAssembly: TypologyAssemblyResult = calculateTypologyAssembly({
     typology: resolvedTypology,
@@ -2957,6 +2957,10 @@ export function calculateBuildToRoof(
   ];
 
   const limitations: string[] = [
+    // A size the shared model had to clamp is stated plainly. The takeoff used
+    // a different opening from the one typed, and staying silent about that is
+    // the same as reporting the wrong number without saying so.
+    ...openingNormalisation.warnings,
     "This estimate stops at the Build-to-Roof stage. It does NOT include plastering, painting, screeding, tiling, POP/ceiling finishing, doors, windows, plumbing, electrical, or other finishing works.",
     "Doors and windows are used only as wall opening deductions. Their purchase and installation costs are NOT included.",
     "Structural member sizes (columns, beams, slabs, reinforcement) must be verified by a qualified structural engineer. This tool does NOT design or certify structural adequacy.",
@@ -2983,7 +2987,12 @@ export function calculateBuildToRoof(
       "Architectural drawing, no drawing uploaded. Dimensions are user-entered and should be verified against actual plans.",
     );
   }
-  if ((input.openings ?? []).length === 0) {
+  // Only claim there are no openings when there really are none. Reading the
+  // legacy list alone told a user who had entered a full schedule that nothing
+  // was deducted, directly contradicting the takeoff beside it.
+  const suppliedOpenings =
+    (input.openingGroups ?? []).length + (input.openings ?? []).length;
+  if (suppliedOpenings === 0) {
     missingInfo.push(
       "Door/window openings not specified, wall quantities include the full gross area with no deductions.",
     );
