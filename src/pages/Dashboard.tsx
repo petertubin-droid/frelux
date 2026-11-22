@@ -156,6 +156,13 @@ export default function Dashboard() {
   }, [user]);
 
   async function loadAll() {
+    // The effect guards the signed-out case, but this function is called from
+    // more than one place, so it has to guard the user itself before reading
+    // an id from it.
+    if (!user) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     const [projRes, favRes, recentRes, contractorRes, cryptoRes, docRes] =
       await Promise.all([
