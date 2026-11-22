@@ -192,7 +192,14 @@ export interface BoreholeSystemResult {
     drawdownMeters: number;
     dynamicWaterLevelMeters: number;
     pumpSettingDepthMeters: number;
+    /** Elevation from the wellhead up to the tank inlet, metres. */
     elevationHeadMeters: number;
+    /**
+     * The lift the pump actually works against: the pump setting depth plus the
+     * surface elevation. This is the term that enters total dynamic head, and
+     * without it the printed breakdown does not add up to the total.
+     */
+    staticLiftMeters: number;
     riserFrictionLossMeters: number;
     surfaceFrictionLossMeters: number;
     fittingsLossMeters: number;
@@ -1193,6 +1200,7 @@ export function calculateBoreholeWaterSystem(
       dynamicWaterLevelMeters: Number(dynamicWaterLevelM.toFixed(2)),
       pumpSettingDepthMeters: pumpSettingDepthM,
       elevationHeadMeters: surfaceElevation,
+      staticLiftMeters: Number(staticLift.toFixed(2)),
       riserFrictionLossMeters: Number(riserFriction.toFixed(2)),
       surfaceFrictionLossMeters: Number(surfaceFriction.toFixed(2)),
       fittingsLossMeters: Number(fittingsLoss.toFixed(2)),
