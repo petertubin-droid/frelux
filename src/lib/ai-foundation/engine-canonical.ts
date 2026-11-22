@@ -62,6 +62,7 @@ export const UNRESOLVED_ENGINE_IDS = [
   "insulation",
   "paint",
   "plaster_render",
+  "flooring",
 ] as const;
 
 export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
@@ -189,6 +190,12 @@ export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
     canonicalId: "sequence",
     confidence: "medium",
     note: "Construction sequence planning.",
+  },
+  {
+    aiEngineId: "flooring",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "The canonical vocabulary carries tile and screeding as floor finishes but nothing for board, vinyl or parquet flooring with its underlay and skirting, so this takeoff has no id to claim.",
   },
   {
     aiEngineId: "paint",

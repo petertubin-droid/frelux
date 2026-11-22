@@ -166,6 +166,21 @@ export const ENGINE_SURFACES: EngineSurface[] = [
     note: "Cost differences between markets and regions.",
   },
   {
+    engineId: "flooring",
+    status: "shared",
+    route: "/flooring-calculator",
+    label: "Flooring Calculator",
+    icon: Layers,
+    evidence: {
+      module: "@/lib/estimation/flooring-engine",
+      fn: "calculateFlooring",
+      page: "src/pages/FlooringEstimator.tsx",
+      calledBy:
+        "the flooring calculator calls the same engine with the rule table it loads",
+    },
+    note: "Packs or square metres of flooring, underlay, adhesive and skirting for a measured floor.",
+  },
+  {
     engineId: "paint",
     status: "shared",
     route: "/paint-calculator",

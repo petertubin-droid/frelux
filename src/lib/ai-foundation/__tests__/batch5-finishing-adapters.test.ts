@@ -5,6 +5,10 @@ import {
 } from "@/lib/ai-foundation/engines-registry";
 import { calculateDrywallTakeoff } from "@/lib/estimation/drywall-standalone-engine";
 import { calculateInsulationTakeoff } from "@/lib/estimation/insulation-standalone-engine";
+import {
+  calculateFlooring,
+  DEFAULT_FLOORING_RULES,
+} from "@/lib/estimation/flooring-engine";
 import { calculatePlasterRender } from "@/lib/estimation/plaster-render-engine";
 
 describe("batch 5 finishing adapters", () => {
@@ -12,6 +16,7 @@ describe("batch 5 finishing adapters", () => {
     const ids = listEngines().map((e) => e.id);
     expect(ids).toContain("drywall");
     expect(ids).toContain("insulation");
+    expect(ids).toContain("flooring");
     expect(ids).toContain("plaster_render");
   });
 
@@ -86,5 +91,33 @@ describe("batch 5 finishing adapters", () => {
       expect(found!.unit).toBe(line.unit);
     }
     expect(result.quantities.length).toBe(lines.length);
+  });
+
+  it("flooring matches the engine line for line", async () => {
+    const direct = calculateFlooring(
+      {
+        flooring_type: "laminate",
+        floor_area_m2: 100,
+        skirting_run_m: 40,
+        include_underlay: true,
+        include_adhesive: true,
+        labour: { mode: "none" },
+      },
+      DEFAULT_FLOORING_RULES,
+      {},
+    );
+    const result = await executeEngine("flooring", {});
+    expect(result.ok).toBe(true);
+    const expected = direct.lines.filter((line) => line.quantity !== null);
+    expect(result.quantities.length).toBe(expected.length);
+    expected.forEach((line, index) => {
+      const produced = result.quantities[index];
+      expect(produced.label).toBe(`${line.label} (${line.key})`);
+      expect(produced.quantity).toBeCloseTo(line.quantity as number, 3);
+      expect(produced.unit).toBe(line.unit);
+    });
+    // Quantities are authoritative; money is left null rather than invented
+    // from a price book the console does not hold.
+    expect(result.costs).toBeNull();
   });
 });

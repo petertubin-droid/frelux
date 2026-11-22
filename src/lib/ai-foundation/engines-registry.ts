@@ -1554,6 +1554,70 @@ interface PaintInputLike {
   packSizeLitres?: number;
 }
 
+interface FlooringInputLike {
+  flooring_type?: "laminate" | "vinyl" | "parquet";
+  floor_area_m2?: number;
+  skirting_run_m?: number;
+  include_underlay?: boolean;
+  include_adhesive?: boolean;
+}
+
+registerEngine({
+  id: "flooring",
+  domain: "finishing",
+  title: "FRELUX Flooring Takeoff Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX flooring engine",
+  async run(rawInput) {
+    const { calculateFlooring, DEFAULT_FLOORING_RULES } =
+      await import("@/lib/estimation/flooring-engine");
+    const supplied = (rawInput ?? {}) as FlooringInputLike;
+
+    // The calculator page's own starting point: 100 m2 of laminate with
+    // underlay and adhesive, 40 m of skirting, labour priced separately. The
+    // rule table is the engine's published default; the price book is empty,
+    // so quantities are authoritative and money stays null rather than guessed.
+    const input = {
+      flooring_type: supplied.flooring_type ?? "laminate",
+      floor_area_m2: supplied.floor_area_m2 ?? 100,
+      skirting_run_m: supplied.skirting_run_m ?? 40,
+      include_underlay: supplied.include_underlay ?? true,
+      include_adhesive: supplied.include_adhesive ?? true,
+      labour: { mode: "none" as const },
+    };
+
+    const result = calculateFlooring(input, DEFAULT_FLOORING_RULES, {});
+    if (!result.ok) {
+      return {
+        ok: false,
+        engine: "flooring",
+        calculatedAt: new Date().toISOString(),
+        quantities: [],
+        costs: null,
+        raw: result,
+        error: result.errors.join(" "),
+      };
+    }
+
+    return {
+      ok: true,
+      engine: "flooring",
+      calculatedAt: new Date().toISOString(),
+      quantities: result.lines
+        .filter((line) => line.quantity !== null)
+        .map((line) =>
+          quantityLine(
+            `${line.label} (${line.key})`,
+            line.quantity!,
+            line.unit,
+          ),
+        ),
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
 registerEngine({
   id: "paint",
   domain: "finishing",

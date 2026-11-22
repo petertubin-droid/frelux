@@ -74,7 +74,7 @@ with their own unit size rather than a default.
 | `estimation/painting-engine.ts`              | `litresToBuckets`            | open, next, pairs with paint-engine                            |
 | `estimation/plaster-render-engine.ts`        | `calculatePlasterRender`     | done as `plaster_render`, surface `/plaster-render-calculator` |
 | `estimation/exterior-finish-engine.ts`       | `sharedFinishLayers`         | open                                                           |
-| `estimation/flooring-engine.ts`              | `parseFlooringRules`         | open                                                           |
+| `estimation/flooring-engine.ts`              | `calculateFlooring`          | done as `flooring`, surface `/flooring-calculator`             |
 | `estimation/mineral-stone-engine.ts`         | `calculateMineralStone`      | open                                                           |
 | `wallfinishing/quantity-engine.ts`           | `calculateWallAreas`         | open                                                           |
 | `wallfinishing/cost-engine.ts`               | `calculateLayerCost`         | open                                                           |
