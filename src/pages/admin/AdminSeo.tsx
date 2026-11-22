@@ -667,7 +667,7 @@ export default function AdminSeo() {
                 <a
                   href="/sitemap.xml"
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 flex items-center justify-between text-xs"
                 >
                   <div className="flex items-center gap-2">
@@ -682,7 +682,7 @@ export default function AdminSeo() {
                 <a
                   href="/robots.txt"
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                   className="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 hover:bg-slate-100 flex items-center justify-between text-xs"
                 >
                   <div className="flex items-center gap-2">

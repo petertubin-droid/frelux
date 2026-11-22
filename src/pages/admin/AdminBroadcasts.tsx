@@ -1099,10 +1099,11 @@ export default function AdminBroadcasts() {
           </div>
 
           <div>
-            <label className="text-xs font-medium text-foreground">
+            <label htmlFor="broadcast-subject" className="text-xs font-medium text-foreground">
               Email Subject Line
             </label>
             <AdminInput
+              id="broadcast-subject"
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="e.g. Weekly Material Prices: Cement & Steel Price Shifts"
@@ -1110,10 +1111,11 @@ export default function AdminBroadcasts() {
           </div>
 
           <div>
-            <label className="text-xs font-medium text-foreground">
+            <label htmlFor="broadcast-preview" className="text-xs font-medium text-foreground">
               Inbox Preview Text (Preheader)
             </label>
             <AdminInput
+              id="broadcast-preview"
               value={previewText}
               onChange={(e) => setPreviewText(e.target.value)}
               placeholder="Short teaser shown in inbox before opening"
@@ -1121,10 +1123,11 @@ export default function AdminBroadcasts() {
           </div>
 
           <div>
-            <label className="text-xs font-medium text-foreground">
+            <label htmlFor="broadcast-body" className="text-xs font-medium text-foreground">
               Message Body
             </label>
             <textarea
+              id="broadcast-body"
               rows={6}
               value={contentText}
               onChange={(e) => setContentText(e.target.value)}
@@ -1175,20 +1178,22 @@ export default function AdminBroadcasts() {
           {/* CTA Link */}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
-              <label className="text-xs font-medium text-foreground">
+              <label htmlFor="broadcast-cta-label" className="text-xs font-medium text-foreground">
                 Call to Action Button Label
               </label>
               <AdminInput
+                id="broadcast-cta-label"
                 value={ctaLabel}
                 onChange={(e) => setCtaLabel(e.target.value)}
                 placeholder="e.g. Check Live Price Index"
               />
             </div>
             <div>
-              <label className="text-xs font-medium text-foreground">
+              <label htmlFor="broadcast-cta-url" className="text-xs font-medium text-foreground">
                 Call to Action URL
               </label>
               <AdminInput
+                id="broadcast-cta-url"
                 value={ctaUrl}
                 onChange={(e) => setCtaUrl(e.target.value)}
                 placeholder="https://freluxtools.com/..."
@@ -1352,7 +1357,7 @@ export default function AdminBroadcasts() {
                   <a
                     href={previewCampaign.cta_url}
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-1.5 rounded-md bg-brand-purple px-5 py-2.5 text-xs font-semibold text-white shadow hover:opacity-95"
                   >
                     {previewCampaign.cta_label}

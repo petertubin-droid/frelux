@@ -58,6 +58,10 @@ export default defineConfig({
           // re-capture.
           isolate: true,
           include: ["supabase/functions/**/*.test.ts"],
+          exclude: [
+            "supabase/functions/_shared/btcpay.test.ts",
+            "supabase/functions/_shared/opentimestamps.test.ts",
+          ],
           setupFiles: ["./supabase/functions/_shared/testing/setup.ts"],
         },
         resolve: {

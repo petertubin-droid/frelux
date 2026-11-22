@@ -373,6 +373,8 @@ export default function AdminBlockchain() {
           <div className="flex items-center gap-2 max-w-sm">
             <Search className="h-4 w-4 text-muted-foreground" />
             <input
+              id="blockchain-search"
+              aria-label="Search crypto invoices"
               type="text"
               placeholder="Search by invoice ID, address, or status..."
               value={searchTerm}

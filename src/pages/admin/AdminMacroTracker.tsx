@@ -605,7 +605,7 @@ export default function AdminMacroTracker() {
                             <a
                               href={ind.source_url}
                               target="_blank"
-                              rel="noreferrer"
+                              rel="noopener noreferrer"
                               className="text-indigo-600 dark:text-indigo-400 hover:underline flex items-center gap-0.5"
                             >
                               <span>link</span>

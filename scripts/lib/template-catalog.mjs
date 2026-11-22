@@ -686,52 +686,70 @@ export const TEMPLATE_CATALOG = [
     "slug": "icf-150mm-residential-wall",
     "name": "150 mm ICF Residential Wall",
     "type": "icf",
-    "description": "Standard 150 mm core ICF wall: 40 m perimeter, 3.0 m high, flat form, EPS faces, two windows and one door.",
-    "seoDescription": "Estimate ICF blocks, concrete, rebar and bracing for a 150 mm core residential wall.",
+    "description": "Metric ICF wall: 40 m x 3 m, 150 mm core, 1200 x 400 mm blocks, vertical bars at 400 mm.",
+    "seoDescription": "Take off blocks, ready-mix, rebar and bracing for a 150 mm ICF residential wall with this FRELUX template.",
     "inputs": {
       "wallLengthM": 40,
       "wallHeightM": 3,
       "coreThicknessMm": 150,
+      "blockFaceLengthMm": 1200,
+      "blockFaceHeightMm": 400,
       "foamType": "standard_eps",
       "formSystem": "flat",
-      "blockFaceLengthMm": 1219,
-      "blockFaceHeightMm": 406,
       "verticalRebarSpacingMm": 400,
-      "isBasement": false,
-      "wasteFactorPercent": 4
+      "wasteFactorPercent": 4,
+      "isBasement": false
     }
   },
   {
-    "slug": "icf-200mm-basement-wall",
-    "name": "200 mm ICF Basement Wall",
+    "slug": "icf-200mm-basement-wall-north-america",
+    "name": "200 mm ICF Basement Wall (North America)",
     "type": "icf",
-    "description": "200 mm core retaining basement wall: 30 m perimeter, 2.7 m high, below-grade waterproofing included.",
-    "seoDescription": "Estimate a 200 mm ICF basement wall with below-grade waterproofing and drainage.",
+    "description": "North American ICF basement: 40 m x 2.7 m, 200 mm core, 1219 x 406 mm blocks, waterproofed below grade.",
+    "seoDescription": "Take off a 200 mm ICF basement wall including below-grade waterproofing and drainage with this FRELUX template.",
     "inputs": {
-      "wallLengthM": 30,
+      "wallLengthM": 40,
       "wallHeightM": 2.7,
       "coreThicknessMm": 200,
-      "foamType": "graphite_neopor",
-      "formSystem": "flat",
       "blockFaceLengthMm": 1219,
       "blockFaceHeightMm": 406,
+      "foamType": "standard_eps",
+      "formSystem": "flat",
       "verticalRebarSpacingMm": 400,
-      "isBasement": true,
-      "wasteFactorPercent": 5
+      "wasteFactorPercent": 4,
+      "isBasement": true
+    }
+  },
+  {
+    "slug": "eifs-50mm-drainable-framing",
+    "name": "50 mm Drainable EIFS on Framing",
+    "type": "eifs",
+    "description": "Drainable EIFS over exterior sheathing: 40 m x 2.8 m, 50 mm EPS, 2 m impact zone.",
+    "seoDescription": "Take off boards, adhesive, mesh, base coat and finish for a 50 mm drainable EIFS facade with this FRELUX template.",
+    "inputs": {
+      "wallLengthM": 40,
+      "wallHeightM": 2.8,
+      "insulationThicknessMm": 50,
+      "substrateType": "exterior_sheathing",
+      "insulationType": "standard_eps",
+      "systemType": "drainable_eifs",
+      "finishTexture": "fine_sand",
+      "impactMeshHeightM": 2,
+      "wasteFactorPercent": 6
     }
   },
   {
     "slug": "eifs-100mm-masonry-etics",
     "name": "100 mm ETICS on Masonry",
     "type": "eifs",
-    "description": "External wall insulation on blockwork: 50 m facade, 3.0 m high, 100 mm EPS, medium swirl finish.",
-    "seoDescription": "Estimate insulation boards, adhesive, mesh, base coat and finish for 100 mm ETICS on masonry.",
+    "description": "ETICS over masonry: 50 m x 3 m, 100 mm EPS, medium swirl finish, 2 m impact zone.",
+    "seoDescription": "Take off a 100 mm external wall insulation system over masonry with this FRELUX template.",
     "inputs": {
       "wallLengthM": 50,
       "wallHeightM": 3,
+      "insulationThicknessMm": 100,
       "substrateType": "cmu_masonry",
       "insulationType": "standard_eps",
-      "insulationThicknessMm": 100,
       "systemType": "barrier_eifs",
       "finishTexture": "medium_swirl",
       "impactMeshHeightM": 2,
@@ -739,21 +757,167 @@ export const TEMPLATE_CATALOG = [
     }
   },
   {
-    "slug": "eifs-50mm-drainable-framing",
-    "name": "50 mm Drainable EIFS on Framing",
-    "type": "eifs",
-    "description": "Drainable EIFS over framed sheathing: 40 m facade, 2.8 m high, 50 mm EPS with drainage plane.",
-    "seoDescription": "Estimate a drainable EIFS assembly over framed sheathing with a 50 mm EPS board.",
+    "slug": "three-bedroom-bungalow-build-to-roof",
+    "name": "3-Bedroom Bungalow",
+    "type": "build_to_roof",
+    "description": "Single-storey 3-bedroom bungalow, 15 x 12 m, 9-inch blocks, long span aluminium roof, full door and window schedule.",
+    "seoDescription": "Estimate a 3-bedroom bungalow from foundation to roof with a full door and window schedule.",
     "inputs": {
-      "wallLengthM": 40,
-      "wallHeightM": 2.8,
-      "substrateType": "exterior_sheathing",
-      "insulationType": "standard_eps",
-      "insulationThicknessMm": 50,
-      "systemType": "drainable_eifs",
-      "finishTexture": "fine_sand",
-      "impactMeshHeightM": 2,
-      "wasteFactorPercent": 6
+      "building_type": "bungalow",
+      "number_of_floors": 1,
+      "building_length": 15,
+      "building_width": 12,
+      "floor_to_floor_height": 3,
+      "wall_thickness": 0.225,
+      "internal_wall_length": 22,
+      "block_size": "9inch",
+      "roofing_material": "long_span_aluminium",
+      "roof_type": "gable",
+      "roof_pitch_degrees": 30,
+      "openingGroups": [
+        {
+          "category": "window",
+          "label": "Living and bedrooms",
+          "widthMm": 1200,
+          "heightMm": 1200,
+          "count": 10
+        },
+        {
+          "category": "window",
+          "label": "Toilet and store",
+          "widthMm": 600,
+          "heightMm": 600,
+          "count": 2
+        },
+        {
+          "category": "internal_door",
+          "label": "Bedrooms",
+          "widthMm": 900,
+          "heightMm": 2100,
+          "count": 4
+        },
+        {
+          "category": "internal_door",
+          "label": "Bathroom",
+          "widthMm": 750,
+          "heightMm": 2100,
+          "count": 1
+        },
+        {
+          "category": "entrance_door",
+          "label": "Security door",
+          "widthMm": 1200,
+          "heightMm": 2100,
+          "count": 1
+        }
+      ]
+    }
+  },
+  {
+    "slug": "two-storey-duplex-build-to-roof",
+    "name": "2-Storey Duplex",
+    "type": "build_to_roof",
+    "description": "Two-storey duplex, 18 x 14 m, 9-inch blocks, long span aluminium roof, doors and windows split by size.",
+    "seoDescription": "Estimate a two-storey duplex from foundation to roof with a full door and window schedule.",
+    "inputs": {
+      "building_type": "duplex",
+      "number_of_floors": 2,
+      "building_length": 18,
+      "building_width": 14,
+      "floor_to_floor_height": 3,
+      "wall_thickness": 0.225,
+      "internal_wall_length": 34,
+      "block_size": "9inch",
+      "roofing_material": "long_span_aluminium",
+      "roof_type": "hip",
+      "roof_pitch_degrees": 25,
+      "openingGroups": [
+        {
+          "category": "window",
+          "label": "Living and bedrooms",
+          "widthMm": 1500,
+          "heightMm": 1200,
+          "count": 14
+        },
+        {
+          "category": "window",
+          "label": "Toilet and store",
+          "widthMm": 600,
+          "heightMm": 600,
+          "count": 4
+        },
+        {
+          "category": "internal_door",
+          "label": "Bedrooms",
+          "widthMm": 900,
+          "heightMm": 2100,
+          "count": 8
+        },
+        {
+          "category": "internal_door",
+          "label": "Bathrooms",
+          "widthMm": 750,
+          "heightMm": 2100,
+          "count": 4
+        },
+        {
+          "category": "entrance_door",
+          "label": "Security door",
+          "widthMm": 1500,
+          "heightMm": 2100,
+          "count": 1
+        }
+      ]
+    }
+  },
+  {
+    "slug": "us-single-family-build-to-roof",
+    "name": "US Single Family Home",
+    "type": "build_to_roof",
+    "description": "Two-storey North American home, 12.2 x 15.2 m, opening schedule in imperial-derived sizes: 30 x 80 in doors, 36 in entrance, 48 x 60 in windows.",
+    "seoDescription": "Estimate a US single family home from foundation to roof with an imperial-derived door and window schedule.",
+    "inputs": {
+      "building_type": "semi_detached",
+      "number_of_floors": 2,
+      "building_length": 15.2,
+      "building_width": 12.2,
+      "floor_to_floor_height": 2.7,
+      "wall_thickness": 0.2,
+      "internal_wall_length": 30,
+      "block_size": "6inch",
+      "roofing_material": "shingle",
+      "roof_type": "gable",
+      "roof_pitch_degrees": 35,
+      "openingGroups": [
+        {
+          "category": "window",
+          "label": "Bedrooms and living",
+          "widthMm": 1219,
+          "heightMm": 1524,
+          "count": 12
+        },
+        {
+          "category": "window",
+          "label": "Bathroom",
+          "widthMm": 610,
+          "heightMm": 610,
+          "count": 3
+        },
+        {
+          "category": "internal_door",
+          "label": "Interior doors (30 x 80 in)",
+          "widthMm": 762,
+          "heightMm": 2032,
+          "count": 9
+        },
+        {
+          "category": "entrance_door",
+          "label": "Front door (36 x 80 in)",
+          "widthMm": 914,
+          "heightMm": 2032,
+          "count": 2
+        }
+      ]
     }
   }
 ];

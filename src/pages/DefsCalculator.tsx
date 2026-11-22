@@ -1,3 +1,4 @@
+import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Info, Layers, RotateCcw } from "lucide-react";
 
@@ -460,6 +461,52 @@ export default function DefsCalculator() {
                   <p className="mt-1 text-lg font-semibold">{tile.value}</p>
                 </div>
               ))}
+            </div>
+
+            <div className="flex justify-end">
+              <ShareEstimateButton
+                showPdf
+                estimate={{
+                  kind: "Direct-Applied Exterior Finish (DEFS)",
+                  link: "/calculators/defs",
+                  summaryLines: [
+                    {
+                      label: "Net Facade Area",
+                      value: `${formatNumber(result.geometry.netWallAreaM2, 1)} m²`,
+                    },
+                    {
+                      label: "Substrate",
+                      value:
+                        SUBSTRATES.find((s) => s.value === substrate)?.label ??
+                        substrate,
+                    },
+                    {
+                      label: "Sheathing Boards",
+                      value: defs.boardsOmitted
+                        ? "Masonry: none"
+                        : `${defs.boardsCount}`,
+                    },
+                    {
+                      label: "Base Coat",
+                      value: `${formatNumber(layers.baseCoatKg, 0)} kg`,
+                    },
+                    {
+                      label: "Finish Coat",
+                      value: `${formatNumber(layers.finishCoatKg, 0)} kg`,
+                    },
+                  ],
+                  lineItems: result.boq.slice(0, 10).map((item) => ({
+                    description: tLabel(item.description),
+                    quantity: `${formatNumber(item.quantity, 1)} ${item.unit}`,
+                  })),
+                  totals: [
+                    {
+                      label: "Net wall area",
+                      value: `${formatNumber(result.geometry.netWallAreaM2, 2)} m²`,
+                    },
+                  ],
+                }}
+              />
             </div>
 
             <BoqPricingPanel
