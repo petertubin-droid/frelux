@@ -25,15 +25,18 @@ Rules for every batch:
    a cost without a rate is invented.
 4. Compare by label, not by index, and expect the engine's own rounding.
 
-## Batch 1: Concrete and substructure
+## Batch 1: Concrete and substructure (partly done, 22 November 2026)
 
-| Module                                  | Entry point                            |
-| --------------------------------------- | -------------------------------------- |
-| `estimation/reinforcement-engine.ts`    | `parseReinforcementRules`, BBS takeoff |
-| `estimation/advanced-takeoff-engine.ts` | `calculateConcreteTakeoff`             |
-| `globalization/takeoff-engines.ts`      | `calculateConcreteVolume`              |
-| `estimation/icf-engine.ts`              | `calculateIcfWall`                     |
-| `estimation/increte-engine.ts`          | `calculateIncrete`                     |
+| Module                                  | Entry point                | State                                                                                                                                                                                  |
+| --------------------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `estimation/advanced-takeoff-engine.ts` | `calculateConcreteTakeoff` | done as `concrete_takeoff`                                                                                                                                                             |
+| `estimation/icf-engine.ts`              | `calculateIcfWall`         | done as `icf_wall`                                                                                                                                                                     |
+| `estimation/reinforcement-engine.ts`    | `calculateReinforcement`   | dropped: `engines-structural.ts` already registers a `reinforcement` engine under that id. The registry refuses a second claimant, and renaming mine would report the same maths twice |
+| `globalization/takeoff-engines.ts`      | `calculateConcreteVolume`  | open                                                                                                                                                                                   |
+| `estimation/increte-engine.ts`          | `calculateIncrete`         | open, needs a product catalogue to mean anything                                                                                                                                       |
+
+Both shipped adapters have a parity test that calls the adapter and the engine
+directly and compares by label.
 
 ## Batch 2: Masonry and blockwork
 
