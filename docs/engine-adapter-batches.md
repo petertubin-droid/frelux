@@ -64,20 +64,24 @@ with their own unit size rather than a default.
 | `engineering/tall-building-engine.ts`             | wind and elevation checks        | declined: it performs design checks and returns pressure coefficients, not a quantity list, so there is nothing for a takeoff console to report                                    |
 | `engineering/mathematical-elevation-engine.ts`    | `calculateMathematicalElevation` | declined: it returns a nested per-level math report plus discrepancies against hand calculations, and no page calls it. Flattening that into quantities would lose the point of it |
 
-## Batch 5: Finishing trades
+## Batch 5: Finishing trades (in progress, 22 November 2026)
 
-| Module                                       | Entry point                  |
-| -------------------------------------------- | ---------------------------- |
-| `estimation/paint-engine.ts`                 | `calculateTheoreticalLitres` |
-| `estimation/painting-engine.ts`              | `litresToBuckets`            |
-| `estimation/plaster-render-engine.ts`        | render takeoff               |
-| `estimation/exterior-finish-engine.ts`       | `sharedFinishLayers`         |
-| `estimation/drywall-standalone-engine.ts`    | `calculateDrywallTakeoff`    |
-| `estimation/flooring-engine.ts`              | `parseFlooringRules`         |
-| `estimation/insulation-standalone-engine.ts` | `calculateInsulationTakeoff` |
-| `estimation/mineral-stone-engine.ts`         | `calculateMineralStone`      |
-| `wallfinishing/quantity-engine.ts`           | `calculateWallAreas`         |
-| `wallfinishing/cost-engine.ts`               | `calculateLayerCost`         |
+| Module                                       | Entry point                  | State                                                  |
+| -------------------------------------------- | ---------------------------- | ------------------------------------------------------ |
+| `estimation/drywall-standalone-engine.ts`    | `calculateDrywallTakeoff`    | done as `drywall`, surface `/drywall-calculator`       |
+| `estimation/insulation-standalone-engine.ts` | `calculateInsulationTakeoff` | done as `insulation`, surface `/insulation-calculator` |
+| `estimation/paint-engine.ts`                 | `calculateTheoreticalLitres` | open, next                                             |
+| `estimation/painting-engine.ts`              | `litresToBuckets`            | open, next, pairs with paint-engine                    |
+| `estimation/plaster-render-engine.ts`        | render takeoff               | open                                                   |
+| `estimation/exterior-finish-engine.ts`       | `sharedFinishLayers`         | open                                                   |
+| `estimation/flooring-engine.ts`              | `parseFlooringRules`         | open                                                   |
+| `estimation/mineral-stone-engine.ts`         | `calculateMineralStone`      | open                                                   |
+| `wallfinishing/quantity-engine.ts`           | `calculateWallAreas`         | open                                                   |
+| `wallfinishing/cost-engine.ts`               | `calculateLayerCost`         | open                                                   |
+
+The paint pair is one job, not two: `paint-engine` gives theoretical litres and
+`painting-engine` converts litres to purchasable buckets. Adapt them together so
+the console reports both the litres and the buckets a buyer actually pays for.
 
 ## Batch 6: Building services
 

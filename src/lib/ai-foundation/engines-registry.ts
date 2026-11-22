@@ -1351,6 +1351,120 @@ registerEngine({
   },
 });
 
+// ── Drywall: boards, studs, track, screws, tape and compound ──
+interface DrywallInputLike {
+  marketCode?: string;
+  wallLengthM?: number;
+  wallHeightM?: number;
+  wallCount?: number;
+  boardLayers?: number;
+  boardSides?: 1 | 2;
+  studSpacingMm?: number;
+  wastePercent?: number;
+  insulation?: boolean;
+}
+
+registerEngine({
+  id: "drywall",
+  domain: "finishing",
+  title: "FRELUX Drywall Takeoff Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX drywall engine",
+  async run(rawInput) {
+    const { calculateDrywallTakeoff } =
+      await import("@/lib/estimation/drywall-standalone-engine");
+    const supplied = (rawInput ?? {}) as DrywallInputLike;
+
+    // One 10 m by 3 m partition, single layer both sides, studs at 600 mm.
+    const input = {
+      marketCode: supplied.marketCode ?? "NG",
+      wallLengthM: supplied.wallLengthM ?? 10,
+      wallHeightM: supplied.wallHeightM ?? 3,
+      wallCount: supplied.wallCount ?? 1,
+      boardLayers: supplied.boardLayers ?? 1,
+      boardSides: supplied.boardSides ?? 2,
+      studSpacingMm: supplied.studSpacingMm ?? 600,
+      wastePercent: supplied.wastePercent ?? 10,
+      insulation: supplied.insulation ?? false,
+    } as never;
+
+    const result = calculateDrywallTakeoff(input);
+
+    return {
+      ok: true,
+      engine: "drywall",
+      calculatedAt: new Date().toISOString(),
+      quantities: [
+        quantityLine("Net wall area", result.netWallAreaM2, "m²"),
+        quantityLine("Board sheets", result.boardSheets, "sheets"),
+        quantityLine("Studs", result.studCount, "studs"),
+        quantityLine("Track", result.trackLinearMeters, "m"),
+        quantityLine("Track pieces", result.trackStockPieces, "pieces"),
+        quantityLine("Screws", result.drywallScrews, "screws"),
+        quantityLine("Joint tape", result.jointTapeLinearMeters, "m"),
+        quantityLine("Joint compound", result.jointCompoundKg, "kg"),
+      ],
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
+// ── Insulation: area, volume and packs for a wall or roof ──
+interface InsulationInputLike {
+  marketCode?: string;
+  areaM2?: number;
+  layers?: number;
+  thicknessMm?: number;
+  wastePercent?: number;
+  packCoverageM2?: number;
+  installationType?: "batt" | "board" | "roll" | "loose_fill";
+}
+
+registerEngine({
+  id: "insulation",
+  domain: "finishing",
+  title: "FRELUX Insulation Takeoff Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX insulation engine",
+  async run(rawInput) {
+    const { calculateInsulationTakeoff } =
+      await import("@/lib/estimation/insulation-standalone-engine");
+    const supplied = (rawInput ?? {}) as InsulationInputLike;
+
+    // 100 m² of ceiling, one layer at 100 mm, batts in 5 m² packs.
+    const input = {
+      marketCode: supplied.marketCode ?? "NG",
+      areaM2: supplied.areaM2 ?? 100,
+      layers: supplied.layers ?? 1,
+      thicknessMm: supplied.thicknessMm ?? 100,
+      wastePercent: supplied.wastePercent ?? 5,
+      packCoverageM2: supplied.packCoverageM2 ?? 5,
+      installationType: supplied.installationType ?? "batt",
+    } as never;
+
+    const result = calculateInsulationTakeoff(input);
+
+    const quantities: EngineQuantityLine[] = [
+      quantityLine("Net area", result.netAreaM2, "m²"),
+      quantityLine("Gross area", result.grossAreaM2, "m²"),
+      quantityLine("Installed volume", result.installedVolumeM3, "m³"),
+    ];
+    if (result.packsRequired !== null) {
+      quantities.push(quantityLine("Packs", result.packsRequired, "packs"));
+    }
+
+    return {
+      ok: true,
+      engine: "insulation",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
 export function listEngines(): EngineDescriptor[] {
   return [...REGISTRY.values()];
 }

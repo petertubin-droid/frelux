@@ -58,6 +58,8 @@ export const UNRESOLVED_ENGINE_IDS = [
   "soffit_gutter",
   "retaining_wall",
   "temporary_works",
+  "drywall",
+  "insulation",
 ] as const;
 
 export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
@@ -185,6 +187,18 @@ export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
     canonicalId: "sequence",
     confidence: "medium",
     note: "Construction sequence planning.",
+  },
+  {
+    aiEngineId: "drywall",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "Drywall is described as a partition system in the international lists, with plasterboard as its material. Neither id covers a board, stud and screw takeoff as one calculation.",
+  },
+  {
+    aiEngineId: "insulation",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "Insulation appears only as a material property inside roof, wall and floor systems. There is no standalone insulation id to map onto.",
   },
   {
     aiEngineId: "retaining_wall",
