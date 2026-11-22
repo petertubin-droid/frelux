@@ -76,13 +76,13 @@ describe("ProviderKeyCards", () => {
   it("labels exposure class and consumption state honestly", async () => {
     render(<ProviderKeyCards />);
     await waitFor(() => expect(listMock).toHaveBeenCalled());
-    // resend, web-push-private, open-exchange-rates
-    expect(screen.getAllByText("Server-side only").length).toBe(3);
-    // openweather, web-push-public
+    // resend, web-push-private, open-exchange-rates + the five payment slots
+    expect(screen.getAllByText("Server-side only").length).toBe(8);
+    // openweather, web-push-public, carto
     expect(screen.getAllByText("Client-safe key").length).toBe(3);
     expect(screen.getByText("Slot ready")).toBeTruthy();
-    // resend, openweather, web-push-public, web-push-private
-    expect(screen.getAllByText("Live").length).toBe(5);
+    // every provider except the slot-ready FX one
+    expect(screen.getAllByText("Live").length).toBe(10);
   });
 
   it("shows masked last4 and Disable for an active stored key, never the raw value", async () => {
@@ -131,7 +131,7 @@ describe("ProviderKeyCards", () => {
     });
     // Empty drafts disable every save button — no provider can fire a save.
     for (const b of btns) expect(b.hasAttribute("disabled")).toBe(true);
-    expect(screen.getAllByText("No key").length).toBe(6);
+    expect(screen.getAllByText("No key").length).toBe(11);
     expect(saveMock).not.toHaveBeenCalled();
   });
 

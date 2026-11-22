@@ -366,6 +366,10 @@ export default function ProjectDashboard() {
   const [shoppingList, setShoppingList] = useState<DbProjectShoppingItem[]>([]);
   const [timeline, setTimeline] = useState<DbProjectTimeline[]>([]);
   const [quotations, setQuotations] = useState<DbProjectQuotation[]>([]);
+  // FRELUX VERIFY toggle for quotation exports. Off by default: a quotation
+  // may be an internal draft, and registering a fingerprint is a deliberate
+  // act the user chooses per export.
+  const [verifyQuotationPdf, setVerifyQuotationPdf] = useState(false);
   const [attachments, setAttachments] = useState<DbProjectAttachment[]>([]);
   const [expenses, setExpenses] = useState<DbProjectExpense[]>([]);
   const [showExpenseForm, setShowExpenseForm] = useState(false);
@@ -916,7 +920,9 @@ export default function ProjectDashboard() {
       return;
     }
     try {
-      await generateQuotationPDF(project, quotation);
+      await generateQuotationPDF(project, quotation, undefined, {
+        verify: verifyQuotationPdf,
+      });
       setPdfUnlocked(false);
     } catch (err) {
       setError(getSafeError(err, "PDF generation failed."));
@@ -1350,6 +1356,8 @@ export default function ProjectDashboard() {
             onGenerate={handleGenerateQuotation}
             onDownloadPDF={handleDownloadQuotationPDF}
             onSend={handleSendQuotation}
+            verifyPdf={verifyQuotationPdf}
+            onToggleVerifyPdf={setVerifyQuotationPdf}
             currencySymbol={project.currency_symbol}
 
             currency={project.currency}
@@ -2669,6 +2677,9 @@ interface QuotationTabProps {
   onGenerate: () => void;
   onDownloadPDF: (quotation: DbProjectQuotation) => void;
   onSend: (quotationId: string) => void;
+  /** Include the FRELUX VERIFY seal (with QR) on quotation PDF exports. */
+  verifyPdf: boolean;
+  onToggleVerifyPdf: (value: boolean) => void;
   currencySymbol: string;
 
   /** ISO currency of the project — all money renders via this. */
@@ -2702,6 +2713,8 @@ function QuotationTab(props: QuotationTabProps) {
     actionLoading,
     onGenerate,
     onDownloadPDF,
+    verifyPdf,
+    onToggleVerifyPdf,
     onSend,
     currencySymbol,
   } = props;
@@ -2852,7 +2865,17 @@ function QuotationTab(props: QuotationTabProps) {
                     {quot.company_name && ` · ${quot.company_name}`}
                   </p>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex items-center gap-2">
+                  <label className="inline-flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <input
+                      type="checkbox"
+                      checked={verifyPdf}
+                      onChange={(e) => onToggleVerifyPdf(e.target.checked)}
+                      className="h-3.5 w-3.5 rounded border-border"
+                      aria-label="Include FRELUX VERIFY seal on quotation PDF"
+                    />
+                    {tr("VERIFY")}
+                  </label>
                   <Button
                     variant="ghost"
                     onClick={() => onDownloadPDF(quot)}

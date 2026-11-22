@@ -52,15 +52,31 @@ beforeEach(() => {
 });
 
 describe("registry", () => {
-  it("covers all six providers with honest consumption states", () => {
+  it("covers every provider, including the payment rails, with honest consumption states", () => {
     expect(PROVIDER_REGISTRY.map((p) => p.id)).toEqual([
       "resend",
       "openweather",
       "carto",
       "web-push-public",
       "web-push-private",
+      "btcpay-url",
+      "btcpay-store-id",
+      "btcpay-api-key",
+      "btcpay-webhook-secret",
+      "flutterwave-secret-key",
       "open-exchange-rates",
     ]);
+    // FRELUX PAY settings are server-side only: none may be client-exposed.
+    for (const id of [
+      "btcpay-url",
+      "btcpay-store-id",
+      "btcpay-api-key",
+      "btcpay-webhook-secret",
+      "flutterwave-secret-key",
+    ]) {
+      const provider = PROVIDER_REGISTRY.find((p) => p.id === id)!;
+      expect(provider.exposure).toBe("server");
+    }
     const resend = getProviderMeta("resend");
     expect(resend?.exposure).toBe("server");
     expect(resend?.consumption).toBe("live");

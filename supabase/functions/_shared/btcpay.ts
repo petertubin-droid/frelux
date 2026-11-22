@@ -59,13 +59,49 @@ export interface BtcPayPaymentMethod {
   networkFee: string;
 }
 
-/** Read configuration strictly from environment variables — no mock/demo fallback */
-export function getBtcPayConfig(): BtcPayConfig | null {
+/**
+ * Read one operator setting: environment variable first (existing deploys
+ * unchanged), then the key pasted in Admin -> Integration Center ->
+ * Provider Keys (integration_secrets). Server-side only.
+ */
+async function resolveSetting(
+  envNames: readonly string[],
+  providerId: string,
+): Promise<string> {
+  for (const name of envNames) {
+    const value = Deno.env.get(name);
+    if (value) return value;
+  }
+  const url = Deno.env.get("SUPABASE_URL");
+  const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+  if (!url || !serviceKey) return "";
+  try {
+    const res = await fetch(
+      `${url}/rest/v1/integration_secrets?select=key_value&provider_id=eq.${providerId}&status=eq.active`,
+      { headers: { apikey: serviceKey, Authorization: `Bearer ${serviceKey}` } },
+    );
+    if (!res.ok) return "";
+    const rows = await res.json();
+    return Array.isArray(rows) && rows[0]?.key_value ? rows[0].key_value : "";
+  } catch {
+    return "";
+  }
+}
+
+/**
+ * Read configuration from environment variables, falling back to the keys
+ * pasted in the admin Integration Center — no mock/demo fallback, ever.
+ */
+export async function getBtcPayConfig(): Promise<BtcPayConfig | null> {
   const serverUrl =
-    Deno.env.get("BTCPAY_SERVER_URL") || Deno.env.get("BTCPAY_URL") || "";
-  const storeId = Deno.env.get("BTCPAY_STORE_ID") || "";
-  const apiKey = Deno.env.get("BTCPAY_API_KEY") || "";
-  const webhookSecret = Deno.env.get("BTCPAY_WEBHOOK_SECRET") || "";
+    (await resolveSetting(["BTCPAY_SERVER_URL", "BTCPAY_URL"], "btcpay-url")) ||
+    "";
+  const storeId = await resolveSetting(["BTCPAY_STORE_ID"], "btcpay-store-id");
+  const apiKey = await resolveSetting(["BTCPAY_API_KEY"], "btcpay-api-key");
+  const webhookSecret = await resolveSetting(
+    ["BTCPAY_WEBHOOK_SECRET"],
+    "btcpay-webhook-secret",
+  );
 
   if (!serverUrl || !storeId || !apiKey) {
     return null;

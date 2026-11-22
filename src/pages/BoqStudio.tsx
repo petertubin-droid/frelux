@@ -87,6 +87,10 @@ export default function BoqStudio() {
   const [doc, setDoc] = useState<BoqStudioDocument | null>(null);
   const [documentId, setDocumentId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
+  // FRELUX VERIFY toggle: on by default, matching the existing export
+  // behaviour; switching it off exports without the seal and without a
+  // blockchain registration.
+  const [verifySeal, setVerifySeal] = useState(true);
   const [busy, setBusy] = useState(false);
   const [shareBusy, setShareBusy] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
@@ -351,6 +355,8 @@ export default function BoqStudio() {
       const res = await downloadBoqPdf(compiled.standard, compiled.document, {
         showMaterialRate: template?.show_material_rate ?? true,
         showLabourRate: template?.show_labour_rate ?? true,
+        verify: verifySeal,
+        stampOnBlockchain: verifySeal,
       });
       if (res?.verificationId) {
         toast.success(
@@ -1316,6 +1322,21 @@ export default function BoqStudio() {
             <h2 className="mb-3 text-sm font-semibold text-slate-900">
               Export
             </h2>
+            <label className="mb-3 flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 p-3 text-xs text-slate-700">
+              <input
+                type="checkbox"
+                checked={verifySeal}
+                onChange={(e) => setVerifySeal(e.target.checked)}
+                className="mt-0.5 h-4 w-4 rounded border-slate-300"
+                aria-label="Include FRELUX VERIFY seal"
+              />
+              <span>
+                <strong className="text-slate-900">FRELUX VERIFY</strong> — print
+                the verification seal and register this export&apos;s
+                fingerprint on the Bitcoin-anchored record (OpenTimestamps).
+                Turn it off for an internal draft that should not be registered.
+              </span>
+            </label>
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"

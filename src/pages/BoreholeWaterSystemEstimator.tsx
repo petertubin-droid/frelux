@@ -366,6 +366,34 @@ export default function BoreholeWaterSystemEstimator() {
         `${result.distribution.buriedPipeDiameterMm} mm`,
       ],
       ["", ""],
+      ["--- MECHANICAL & HYDRAULIC HEAD BREAKDOWN ---", ""],
+      ["Pump Setting Depth", `${result.pumping.pumpSettingDepthMeters} m`],
+      ["Dynamic Water Level", `${result.pumping.dynamicWaterLevelMeters} m`],
+      [
+        "Static Lift (pump setting + tank height)",
+        `${result.pumping.staticLiftMeters} m`,
+      ],
+      ["Riser Pipe Friction Loss", `${result.pumping.riserFrictionLossMeters} m`],
+      [
+        "Surface Pipe Friction Loss",
+        `${result.pumping.surfaceFrictionLossMeters} m`,
+      ],
+      ["Fittings Allowance", `${result.pumping.fittingsLossMeters} m`],
+      [
+        "Residual Pressure Head",
+        `${result.pumping.residualPressureHeadMeters} m`,
+      ],
+      [
+        "Total Dynamic Head (TDH)",
+        `${result.pumping.totalDynamicHeadMeters} m (${result.pumping.totalDynamicHeadFeet} ft)`,
+      ],
+      ["Hydraulic Power", `${result.pumping.hydraulicPowerKw} kW`],
+      [
+        "Motor Electrical Power",
+        `${result.pumping.motorElectricalPowerKw} kW (${result.pumping.motorHorsepowerHp} HP)`,
+      ],
+      ["Recommended Motor", `${result.pumping.recommendedMotorHp} HP`],
+      ["", ""],
       ["--- COMPLETE ITEMIZED BILL OF QUANTITIES ---", "", "", "", ""],
       ["Category", "Item", "Specification", "Quantity", "Unit", "Notes"],
       ...combinedBoq.map((item) => [
@@ -1486,9 +1514,11 @@ export default function BoreholeWaterSystemEstimator() {
                     </strong>{" "}
                     the size needed to push water from your well depth up to
                     your overhead tank, not just to lift it. It is the total
-                    dynamic head (static lift, drawdown, pipe friction and tank
-                    fill height) turned into the next stocked submersible motor
-                    rating.
+                    dynamic head (static lift, riser and surface pipe friction,
+                    fittings, and the 0.5 bar residual at the tank) turned into
+                    the next stocked submersible motor rating. Drawdown is
+                    already inside the pump setting depth, so it is not added
+                    again.
                   </p>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                     <div className="rounded border border-border p-2 bg-muted/20">
@@ -1509,10 +1539,42 @@ export default function BoreholeWaterSystemEstimator() {
                     </div>
                     <div className="rounded border border-border p-2 bg-muted/20">
                       <span className="text-xs text-muted-foreground">
+                        Static Lift (pump setting + tank height)
+                      </span>
+                      <div className="font-semibold font-mono text-sm">
+                        {result.pumping.staticLiftMeters} m
+                      </div>
+                    </div>
+                    <div className="rounded border border-border p-2 bg-muted/20">
+                      <span className="text-xs text-muted-foreground">
                         Riser Pipe Friction Loss
                       </span>
                       <div className="font-semibold font-mono text-sm">
                         {result.pumping.riserFrictionLossMeters} m
+                      </div>
+                    </div>
+                    <div className="rounded border border-border p-2 bg-muted/20">
+                      <span className="text-xs text-muted-foreground">
+                        Surface Pipe Friction Loss
+                      </span>
+                      <div className="font-semibold font-mono text-sm">
+                        {result.pumping.surfaceFrictionLossMeters} m
+                      </div>
+                    </div>
+                    <div className="rounded border border-border p-2 bg-muted/20">
+                      <span className="text-xs text-muted-foreground">
+                        Fittings Allowance
+                      </span>
+                      <div className="font-semibold font-mono text-sm">
+                        {result.pumping.fittingsLossMeters} m
+                      </div>
+                    </div>
+                    <div className="rounded border border-border p-2 bg-muted/20">
+                      <span className="text-xs text-muted-foreground">
+                        Residual Pressure Head (0.5 bar)
+                      </span>
+                      <div className="font-semibold font-mono text-sm">
+                        {result.pumping.residualPressureHeadMeters} m
                       </div>
                     </div>
                     <div className="rounded border border-border p-2 bg-muted/20">

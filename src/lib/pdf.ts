@@ -23,6 +23,7 @@ import {
 } from "@/lib/pdf-branding";
 import { drawFreluxMark, drawFreluxWatermark } from "@/lib/pdf-logo";
 import { saveSealedPdf } from "@/lib/pdf-seal";
+import { VERIFY_BLOCK_HEIGHT, drawVerifySeal } from "@/lib/blockchain/verify-seal";
 
 const PDF_LOCALE_BY_SYMBOL: Record<string, string> = {
   "\u20A6": "en-NG", // Naira
@@ -51,6 +52,7 @@ export async function generateQuotationPDF(
   project: DbContractorProject,
   quotation: DbProjectQuotation,
   branding?: ResolvedBranding,
+  options: { verify?: boolean } = {},
 ): Promise<void> {
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "mm", format: "a4" });
@@ -330,6 +332,15 @@ export async function generateQuotationPDF(
     align: "center",
   });
 
+  // ─── FRELUX VERIFY (opt-in per export) ───
+  if (options.verify) {
+    const verifyWidth = pageWidth - margin * 2;
+    const verifyY = Math.min(y + 12, pageHeight - VERIFY_BLOCK_HEIGHT - 14);
+    await drawVerifySeal(doc, margin, verifyY, verifyWidth, {
+      documentLabel: "quotation",
+    });
+  }
+
   // ─── FOOTER ───
   if (branding) {
     applyJspdfFooter(doc, branding, pageWidth, pageHeight, margin);
@@ -346,11 +357,21 @@ export async function generateQuotationPDF(
 
   // Sealed on the way out: the download is encrypted and its permissions deny
   // editing, so the file a client receives is the record, not a draft.
-  await saveSealedPdf(doc, `Quotation_${quotation.quotation_number}.pdf`, {
-    title: `Quotation ${quotation.quotation_number}`,
-    subject: project.name,
-    reference: quotation.quotation_number,
-  });
+  await saveSealedPdf(
+    doc,
+    `Quotation_${quotation.quotation_number}.pdf`,
+    {
+      title: `Quotation ${quotation.quotation_number}`,
+      subject: project.name,
+      reference: quotation.quotation_number,
+    },
+    {
+      stampOnBlockchain: options.verify === true,
+      documentTitle: `Quotation ${quotation.quotation_number}`,
+      documentReference: quotation.quotation_number,
+      documentType: "quotation",
+    },
+  );
 }
 
 // ============================================================

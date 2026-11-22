@@ -61,7 +61,7 @@ serveWithCors(async (req: Request) => {
       return json({ error: "PAYMENT_SERVICE_UNAVAILABLE" }, 503);
     }
     const admin = createClient(supabaseUrl, serviceRoleKey);
-    const config = getBtcPayConfig();
+    const config = await getBtcPayConfig();
     if (!config) return json({ error: "BTCPAY_NOT_CONFIGURED" }, 503);
 
     const siteUrlValue = Deno.env.get("SITE_URL");

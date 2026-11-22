@@ -13,6 +13,7 @@ import type { StandardBoqDocument } from "@/lib/finance/boq-standard";
 import { documentStatusLabel } from "./compile";
 import { saveSealedPdf } from "@/lib/pdf-seal";
 import { drawFreluxMark, drawFreluxWatermark } from "@/lib/pdf-logo";
+import { VERIFY_BLOCK_HEIGHT, drawVerifySeal } from "@/lib/blockchain/verify-seal";
 import type { BoqStudioDocument } from "./types";
 
 const BRAND = { r: 15, g: 23, b: 42 };
@@ -25,6 +26,8 @@ export interface BoqPdfOptions {
   showMaterialRate?: boolean;
   showLabourRate?: boolean;
   stampOnBlockchain?: boolean;
+  /** Print the FRELUX VERIFY seal on the document (default true). */
+  verify?: boolean;
 }
 
 function money(amount: number, currency: string): string {
@@ -396,6 +399,17 @@ export async function buildBoqPdf(
       ) as string[];
       doc.text(lines, margin, y);
     }
+  }
+
+  // FRELUX VERIFY seal (toggleable): points the reader at /verify, where the
+  // uploaded file's fingerprint is compared with the Bitcoin-anchored record.
+  if (options.verify ?? true) {
+    y += 8;
+    ensure(VERIFY_BLOCK_HEIGHT + 4);
+    await drawVerifySeal(doc, margin, y, contentWidth, {
+      documentLabel: "BOQ",
+    });
+    y += VERIFY_BLOCK_HEIGHT;
   }
 
   drawFooter();

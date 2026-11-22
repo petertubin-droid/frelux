@@ -48,7 +48,7 @@ serveWithCors(async (req: Request) => {
     if (!row) return json({ error: "INVOICE_NOT_FOUND" }, 404);
     if (row.user_id !== userId) return json({ error: "FORBIDDEN" }, 403);
 
-    const config = getBtcPayConfig();
+    const config = await getBtcPayConfig();
     if (!config || row.store_id !== config.storeId) return json({ error: "BTCPAY_NOT_CONFIGURED" }, 503);
     const orderId = typeof row.metadata?.order_id === "string" ? row.metadata.order_id : "";
     let live;

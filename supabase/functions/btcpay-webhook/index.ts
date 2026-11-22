@@ -28,8 +28,12 @@ serveWithCors(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers });
   if (req.method !== "POST") return json({ error: "METHOD_NOT_ALLOWED" }, 405);
 
-  const webhookSecret = Deno.env.get("BTCPAY_WEBHOOK_SECRET");
-  const config = getBtcPayConfig();
+  const config = await getBtcPayConfig();
+  // The webhook secret follows the same env-then-admin-key resolution, so a
+  // secret pasted in the Integration Center verifies signatures without a
+  // redeploy. Without it, signatures cannot be checked and we refuse.
+  const webhookSecret =
+    Deno.env.get("BTCPAY_WEBHOOK_SECRET") || config?.webhookSecret || "";
   if (!webhookSecret || !config) return json({ error: "BTCPAY_WEBHOOK_UNCONFIGURED" }, 503);
   const rawBody = await req.text();
   if (rawBody.length > 1_000_000) return json({ error: "PAYLOAD_TOO_LARGE" }, 413);

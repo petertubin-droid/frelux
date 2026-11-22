@@ -42,6 +42,7 @@ import {
 } from "../_shared/token-pricing.ts";
 import { minorToMajor } from "../_shared/currency-units.ts";
 import { serveWithCors } from "../_shared/serve.ts";
+import { resolveProviderSecret } from "../_shared/provider-secret.ts";
 import {
   checkRateLimit,
   getRateLimitKey,
@@ -95,7 +96,11 @@ serveWithCors(async (req: Request) => {
       return json({ error: "Missing required fields" }, 400);
     }
 
-    const secretKey = Deno.env.get("FLUTTERWAVE_SECRET_KEY");
+    // Env var first, then the key pasted in Admin -> Integration Center.
+    const secretKey = await resolveProviderSecret(
+      ["FLUTTERWAVE_SECRET_KEY"],
+      "flutterwave-secret-key",
+    );
     if (!secretKey) {
       return json({ error: "Payment provider not configured" }, 500);
     }

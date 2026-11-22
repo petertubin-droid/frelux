@@ -107,6 +107,71 @@ export const PROVIDER_REGISTRY: readonly ProviderMeta[] = [
     icon: "bell",
   },
   {
+    id: "btcpay-url",
+    label: "BTCPay Server URL (FRELUX PAY)",
+    description:
+      "Base URL of your BTCPay Server instance, e.g. https://btcpay.yourdomain.com. FRELUX PAY (Bitcoin and Lightning invoices) talks to the Greenfield API at this address. No trailing slash needed.",
+    exposure: "server",
+    consumption: "live",
+    consumptionNote:
+      "Server-side: btcpay-checkout, btcpay-verify and btcpay-webhook read this when BTCPAY_URL / BTCPAY_SERVER_URL is not set as an env var.",
+    envVar: "BTCPAY_URL",
+    docsUrl: "https://docs.btcpayserver.org/API/Greenfield/v1/",
+    icon: "exchange",
+  },
+  {
+    id: "btcpay-store-id",
+    label: "BTCPay Store ID (FRELUX PAY)",
+    description:
+      "The store identifier from BTCPay Server → Store settings → General. Invoices are created against this store, and verify checks that the invoice belongs to it.",
+    exposure: "server",
+    consumption: "live",
+    consumptionNote:
+      "Server-side: read by btcpay-checkout / btcpay-verify when BTCPAY_STORE_ID is not set as an env var.",
+    envVar: "BTCPAY_STORE_ID",
+    docsUrl: "https://docs.btcpayserver.org/API/Greenfield/v1/",
+    icon: "exchange",
+  },
+  {
+    id: "btcpay-api-key",
+    label: "BTCPay API Key (FRELUX PAY)",
+    description:
+      "A store-scoped Greenfield API key from BTCPay Server → Account → API Keys, with the invoice permissions (btcpay.store.cancreateinvoice, btcpay.store.canviewinvoices). This is the key FRELUX PAY needs to create and read Bitcoin invoices.",
+    exposure: "server",
+    consumption: "live",
+    consumptionNote:
+      "Server-side only: used by btcpay-checkout / btcpay-verify / btcpay-webhook when BTCPAY_API_KEY is not set as an env var. The key never reaches the browser.",
+    envVar: "BTCPAY_API_KEY",
+    docsUrl: "https://docs.btcpayserver.org/API/Greenfield/v1/#section/Authentication",
+    icon: "exchange",
+  },
+  {
+    id: "btcpay-webhook-secret",
+    label: "BTCPay Webhook Secret (FRELUX PAY)",
+    description:
+      "The secret you set on the BTCPay webhook pointing at /functions/v1/btcpay-webhook. FRELUX uses it to verify the BTCPay-Sig HMAC-SHA256 header, so a forged payment confirmation is refused.",
+    exposure: "server",
+    consumption: "live",
+    consumptionNote:
+      "Server-side: btcpay-webhook verifies every delivery against this secret (BTCPAY_WEBHOOK_SECRET env var takes precedence). Without it, webhooks are refused rather than trusted.",
+    envVar: "BTCPAY_WEBHOOK_SECRET",
+    docsUrl: "https://docs.btcpayserver.org/API/Greenfield/v1/#tag/Webhooks",
+    icon: "exchange",
+  },
+  {
+    id: "flutterwave-secret-key",
+    label: "Flutterwave Secret Key (card payments)",
+    description:
+      "Your Flutterwave secret key (Dashboard → Settings → API Keys, starting FLWSECK-). Server-side only: it creates hosted checkout links and verifies transactions. Use the test key first; live keys settle real money.",
+    exposure: "server",
+    consumption: "live",
+    consumptionNote:
+      "Server-side: flutterwave-checkout, flutterwave-verify and flutterwave-webhook read this when FLUTTERWAVE_SECRET_KEY is not set as an env var. The key never reaches the browser.",
+    envVar: "FLUTTERWAVE_SECRET_KEY",
+    docsUrl: "https://developer.flutterwave.com/docs/authentication",
+    icon: "exchange",
+  },
+  {
     id: "open-exchange-rates",
     label: "Open Exchange Rates",
     description:
