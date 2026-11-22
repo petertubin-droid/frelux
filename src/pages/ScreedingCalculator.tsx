@@ -162,9 +162,15 @@ export default function ScreedingCalculator({
   // Shared openings editor binding: the first wall measurement's door and
   // window counts. The measurement UI hides its own door/window fields for
   // this page (showOpenings={false}), so there is exactly one control.
-  const firstEntry = project.sections[0]?.groups[0];
+  const wallEntries = project.sections
+    .flatMap((section) => section.groups)
+    .filter((group) => group.entry.surfaceType === "wall");
+  // Only take over the openings UI when there is exactly ONE wall surface:
+  // with several rooms the measurement rows keep their own per-room door and
+  // window fields, which must not disappear.
+  const firstEntry = wallEntries.length === 1 ? wallEntries[0] : undefined;
   const screedingOpenings =
-    firstEntry && firstEntry.entry.surfaceType === "wall"
+    firstEntry
       ? {
           groupId: firstEntry.id,
           rows: [
@@ -328,7 +334,7 @@ export default function ScreedingCalculator({
               onAddMeasurement={addMeasurement}
               onUpdateMeasurement={updateMeasurement}
               onRemoveMeasurement={removeMeasurement}
-              showOpenings={false}
+              showOpenings={!screedingOpenings}
               marketCode={marketCode}
               onApplyPreset={(presetId) =>
                 applyBuildingPreset(marketCode, presetId, "screeding")
