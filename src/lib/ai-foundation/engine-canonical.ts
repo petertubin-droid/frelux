@@ -50,6 +50,8 @@ export const UNRESOLVED_ENGINE_IDS = [
   "plastering_wall",
   "steel_beam",
   "foundation_below_dpc",
+  "icf_wall",
+  "concrete_takeoff",
 ] as const;
 
 export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
@@ -177,6 +179,18 @@ export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
     canonicalId: "sequence",
     confidence: "medium",
     note: "Construction sequence planning.",
+  },
+  {
+    aiEngineId: "icf_wall",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "Insulated concrete forms are a wall system the international lists group under masonry or structure. Neither id describes a formwork cavity, so the mapping waits.",
+  },
+  {
+    aiEngineId: "concrete_takeoff",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "The inventory models concrete as a material inside systems rather than as a per-element takeoff, so there is no id to point at.",
   },
   {
     aiEngineId: "steel_beam",

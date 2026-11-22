@@ -826,6 +826,152 @@ registerEngine({
   },
 });
 
+// ── ICF walls: blocks, concrete and reinforcement for an insulated wall ──
+interface IcfInputLike {
+  wallLengthM?: number;
+  wallHeightM?: number;
+  coreThicknessMm?: number;
+  foamType?: string;
+}
+
+registerEngine({
+  id: "icf_wall",
+  domain: "structure",
+  title: "FRELUX ICF Wall Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX ICF wall engine",
+  async run(rawInput) {
+    const { calculateIcfWall } = await import("@/lib/estimation/icf-engine");
+    const supplied = (rawInput ?? {}) as IcfInputLike;
+
+    // A 20 m perimeter at 2.7 m with a 150 mm core: the calculator's own
+    // starting point for a domestic wall.
+    const input = {
+      wallLengthM: supplied.wallLengthM ?? 20,
+      wallHeightM: supplied.wallHeightM ?? 2.7,
+      coreThicknessMm: supplied.coreThicknessMm ?? 150,
+      foamType: supplied.foamType ?? "eps",
+    } as never;
+
+    const result = calculateIcfWall(input);
+
+    const quantities: EngineQuantityLine[] = [
+      quantityLine(
+        "ICF blocks (total)",
+        result.blocks.totalBlocksCount,
+        "blocks",
+      ),
+      quantityLine(
+        "ICF straight blocks",
+        result.blocks.straightBlocksCount,
+        "blocks",
+      ),
+      quantityLine(
+        "ICF 90 degree corners",
+        result.blocks.corner90BlocksCount,
+        "units",
+      ),
+      quantityLine("Net wall area", result.geometry.netWallAreaM2, "m²"),
+      quantityLine("Concrete in core", result.concrete.totalVolumeM3, "m³"),
+      quantityLine(
+        "Vertical reinforcement",
+        result.reinforcement.verticalTotalWeightKg,
+        "kg",
+      ),
+    ];
+
+    return {
+      ok: result.ok,
+      engine: "icf_wall",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs: null,
+      raw: result,
+      ...(result.ok
+        ? {}
+        : {
+            error:
+              result.errors.join(" ") || "The ICF engine rejected the input.",
+          }),
+    };
+  },
+});
+
+// ── Concrete takeoff: volume, cement, sand and aggregate for one element ──
+interface ConcreteTakeoffInputLike {
+  elementType?: string;
+  lengthM?: number;
+  widthM?: number;
+  depthM?: number;
+  cementParts?: number;
+  sandParts?: number;
+  aggregateParts?: number;
+  wastePercent?: number;
+  cementBagMassKg?: number;
+}
+
+registerEngine({
+  id: "concrete_takeoff",
+  domain: "structure",
+  title: "FRELUX Concrete Takeoff Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX concrete takeoff engine",
+  async run(rawInput) {
+    const { calculateConcreteTakeoff } =
+      await import("@/lib/estimation/advanced-takeoff-engine");
+    const supplied = (rawInput ?? {}) as ConcreteTakeoffInputLike;
+
+    // A 5 m by 4 m slab at 150 mm on a 1:2:4 mix with 5 percent waste.
+    const input = {
+      elementType: supplied.elementType ?? "slab",
+      lengthM: supplied.lengthM ?? 5,
+      widthM: supplied.widthM ?? 4,
+      depthM: supplied.depthM ?? 0.15,
+      cementParts: supplied.cementParts ?? 1,
+      sandParts: supplied.sandParts ?? 2,
+      aggregateParts: supplied.aggregateParts ?? 4,
+      wastePercent: supplied.wastePercent ?? 5,
+      cementBagMassKg: supplied.cementBagMassKg ?? 50,
+    } as never;
+
+    const outcome = calculateConcreteTakeoff(input);
+    if (!outcome.ok || !outcome.data) {
+      return {
+        ok: false,
+        engine: "concrete_takeoff",
+        calculatedAt: new Date().toISOString(),
+        quantities: [],
+        costs: null,
+        raw: outcome,
+        error:
+          outcome.errors.join(" ") ||
+          "The concrete takeoff engine rejected the input.",
+      };
+    }
+
+    const result = outcome.data;
+    const quantities: EngineQuantityLine[] = [
+      quantityLine("Concrete volume", result.concreteVolumeM3, "m³"),
+      quantityLine("Volume with waste", result.volumeWithWasteM3, "m³"),
+      quantityLine("Cement bags to buy", result.cementBagsToBuy, "bags"),
+      quantityLine("Sand", result.sandM3, "m³"),
+      quantityLine("Aggregate", result.aggregateM3, "m³"),
+    ];
+    if (result.rebarWeightKg !== null) {
+      quantities.push(quantityLine("Rebar", result.rebarWeightKg, "kg"));
+    }
+
+    return {
+      ok: true,
+      engine: "concrete_takeoff",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
 export function listEngines(): EngineDescriptor[] {
   return [...REGISTRY.values()];
 }
