@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ToolShell from "@/components/tools/ToolShell";
 import { resolveIcfPrices } from "@/lib/estimation/icf-eifs-market";
+import OpeningsEditor from "@/components/estimators/OpeningsEditor";
 import { BoqPricingPanel } from "@/components/tools/BoqPricingPanel";
 import { getActiveDisplayCurrency } from "@/lib/international/fx-display";
 import { useSeo, useFaqJsonLd, useBreadcrumbJsonLd } from "@/lib/seo";
@@ -917,128 +918,13 @@ export default function IcfWallEstimator() {
               </CardContent>
             </Card>
 
-            {/* Window & Door Openings Builder */}
-            <Card>
-              <CardHeader className="pb-3 flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle className="text-base">
-                    Window & Door Openings
-                  </CardTitle>
-                  <CardDescription className="text-xs">
-                    Subtracted from wall area; generates bucking & lintel header
-                    cages.
-                  </CardDescription>
-                </div>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  onClick={handleAddOpening}
-                  className="h-7 text-xs flex items-center gap-1"
-                >
-                  <Plus className="h-3.5 w-3.5" />
-                  Add Opening
-                </Button>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {openings.length === 0 ? (
-                  <p className="text-xs text-muted-foreground py-2 text-center">
-                    No openings added. Wall is calculated as solid perimeter.
-                  </p>
-                ) : (
-                  <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                    {openings.map((op) => (
-                      <div
-                        key={op.id}
-                        className="flex items-center gap-2 bg-muted/40 p-2 rounded-md border border-border/40 text-xs"
-                      >
-                        <Input
-                          value={op.label}
-                          onChange={(e) =>
-                            handleUpdateOpening(op.id, "label", e.target.value)
-                          }
-                          className="h-7 text-xs flex-1 min-w-[90px]"
-                          placeholder="Label"
-                        />
-                        <div className="flex items-center gap-1">
-                          <span className="text-[10px] text-muted-foreground">
-                            W:
-                          </span>
-                          <Input
-                            type="number"
-                            step="0.1"
-                            value={
-                              unitSystem === "imperial"
-                                ? (op.widthM / 0.3048).toFixed(1)
-                                : op.widthM
-                            }
-                            onChange={(e) => {
-                              const v = Number(e.target.value) || 0;
-                              handleUpdateOpening(
-                                op.id,
-                                "widthM",
-                                unitSystem === "imperial" ? v * 0.3048 : v,
-                              );
-                            }}
-                            className="h-7 w-14 text-xs"
-                          />
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="text-[10px] text-muted-foreground">
-                            H:
-                          </span>
-                          <Input
-                            type="number"
-                            step="0.1"
-                            value={
-                              unitSystem === "imperial"
-                                ? (op.heightM / 0.3048).toFixed(1)
-                                : op.heightM
-                            }
-                            onChange={(e) => {
-                              const v = Number(e.target.value) || 0;
-                              handleUpdateOpening(
-                                op.id,
-                                "heightM",
-                                unitSystem === "imperial" ? v * 0.3048 : v,
-                              );
-                            }}
-                            className="h-7 w-14 text-xs"
-                          />
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <span className="text-[10px] text-muted-foreground">
-                            Qty:
-                          </span>
-                          <Input
-                            type="number"
-                            min="1"
-                            value={op.count}
-                            onChange={(e) =>
-                              handleUpdateOpening(
-                                op.id,
-                                "count",
-                                Math.max(1, parseInt(e.target.value) || 1),
-                              )
-                            }
-                            className="h-7 w-12 text-xs"
-                          />
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleRemoveOpening(op.id)}
-                          className="h-7 w-7 text-destructive hover:bg-destructive/10"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+            <OpeningsEditor
+              openings={openings}
+              onChange={setOpenings}
+              unitSystem={unitSystem}
+              title="Window & Door Openings"
+              description="Subtracted from wall area; generates bucking & lintel header cages."
+            />
           </div>
 
           {/* Right Column: Interactive Schematic & Key Scorecards */}

@@ -1,3 +1,4 @@
+import OpeningsEditor from "@/components/estimators/OpeningsEditor";
 import React, { useEffect, useMemo, useState } from "react";
 import ToolShell from "@/components/tools/ToolShell";
 import { resolveEifsPrices } from "@/lib/estimation/icf-eifs-market";
@@ -851,141 +852,15 @@ export default function EifsWallEstimator() {
 
         {/* Card 3: Window & Door Openings with Reveal Deductions */}
         <Card className="shadow-xs border-border/80">
-          <CardHeader className="pb-3 flex flex-row items-center justify-between">
-            <div>
-              <div className="flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-primary" />
-                <CardTitle className="text-base font-semibold">
-                  Window & Door Openings (Deductions & Butterfly Patches)
-                </CardTitle>
-              </div>
-              <CardDescription className="text-xs">
-                Subtracts face area, calculates rough flashing, corner mesh
-                beads, and 45° anti-crack butterfly patches.
-              </CardDescription>
-            </div>
-            <Button
-              type="button"
-              size="sm"
-              variant="outline"
-              className="h-7 text-xs gap-1.5"
-              onClick={handleAddOpening}
-            >
-              <Plus className="h-3.5 w-3.5" />
-              Add Opening
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {openings.length === 0 ? (
-              <p className="text-xs text-muted-foreground italic py-2">
-                No openings added. Gross wall area equals net facade area.
-              </p>
-            ) : (
-              <div className="space-y-2">
-                {openings.map((op) => (
-                  <div
-                    key={op.id}
-                    className="grid grid-cols-1 gap-2 rounded-lg border border-border/60 bg-muted/20 p-2.5 sm:grid-cols-6 items-center"
-                  >
-                    <div className="sm:col-span-2 space-y-1">
-                      <Label className="text-[11px] text-muted-foreground">
-                        Label
-                      </Label>
-                      <Input
-                        type="text"
-                        value={op.label}
-                        onChange={(e) =>
-                          handleUpdateOpening(op.id, "label", e.target.value)
-                        }
-                        className="h-7 text-xs"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <Label className="text-[11px] text-muted-foreground">
-                        Width ({unitSystem === "metric" ? "m" : "ft"})
-                      </Label>
-                      <Input
-                        type="number"
-                        min="0.1"
-                        step="0.1"
-                        value={
-                          unitSystem === "imperial"
-                            ? Math.round((op.widthM / 0.3048) * 10) / 10
-                            : op.widthM
-                        }
-                        onChange={(e) => {
-                          const val = Number(e.target.value) || 0;
-                          handleUpdateOpening(
-                            op.id,
-                            "widthM",
-                            unitSystem === "imperial" ? val * 0.3048 : val,
-                          );
-                        }}
-                        className="h-7 text-xs"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <Label className="text-[11px] text-muted-foreground">
-                        Height ({unitSystem === "metric" ? "m" : "ft"})
-                      </Label>
-                      <Input
-                        type="number"
-                        min="0.1"
-                        step="0.1"
-                        value={
-                          unitSystem === "imperial"
-                            ? Math.round((op.heightM / 0.3048) * 10) / 10
-                            : op.heightM
-                        }
-                        onChange={(e) => {
-                          const val = Number(e.target.value) || 0;
-                          handleUpdateOpening(
-                            op.id,
-                            "heightM",
-                            unitSystem === "imperial" ? val * 0.3048 : val,
-                          );
-                        }}
-                        className="h-7 text-xs"
-                      />
-                    </div>
-
-                    <div className="space-y-1">
-                      <Label className="text-[11px] text-muted-foreground">
-                        Count
-                      </Label>
-                      <Input
-                        type="number"
-                        min="1"
-                        max="50"
-                        value={op.count}
-                        onChange={(e) =>
-                          handleUpdateOpening(
-                            op.id,
-                            "count",
-                            Math.max(1, parseInt(e.target.value, 10) || 1),
-                          )
-                        }
-                        className="h-7 text-xs"
-                      />
-                    </div>
-
-                    <div className="flex items-end justify-end">
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        className="h-7 w-7 p-0 text-muted-foreground hover:text-destructive"
-                        onClick={() => handleRemoveOpening(op.id)}
-                      >
-                        <Trash2 className="h-3.5 w-3.5" />
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
+          <CardContent className="pt-5">
+            <OpeningsEditor
+              variant="bare"
+              openings={openings}
+              onChange={setOpenings}
+              unitSystem={unitSystem}
+              title="Window & Door Openings (Deductions & Butterfly Patches)"
+              description="Subtracts face area, calculates rough flashing, corner mesh beads, and 45° anti-crack butterfly patches."
+            />
 
             <div className="flex flex-wrap items-center justify-between text-xs text-muted-foreground pt-2 border-t border-border/50">
               <span>

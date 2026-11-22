@@ -1,3 +1,4 @@
+import OpeningsEditor, { type OpeningRow } from "@/components/estimators/OpeningsEditor";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Info, Layers, RotateCcw } from "lucide-react";
@@ -103,9 +104,9 @@ export default function DefsCalculator() {
   const [substrate, setSubstrate] = useState<DefsSubstrate>("cement-board");
   const [wastage, setWastage] = useState("10");
   const [texture, setTexture] = useState<EifsFinishTexture>("medium_swirl");
-  const [openings, setOpenings] = useState<
-    Array<{ widthM: string; heightM: string; count: string }>
-  >([{ widthM: "1.2", heightM: "1.2", count: "2" }]);
+  const [openings, setOpenings] = useState<OpeningRow[]>([
+    { id: "opening-1", label: "Opening 1", widthM: 1.2, heightM: 1.2, count: 2 },
+  ]);
 
   const [priceResolution, setPriceResolution] = useState<Awaited<
     ReturnType<typeof resolveDefsPrices>
@@ -133,12 +134,12 @@ export default function DefsCalculator() {
         wallHeightM: Number(wallHeight) || 0,
         // Only used to size the wall; DEFS ignores the insulation fields.
         insulationThicknessMm: 50,
-        openings: openings.map((opening, index) => ({
-          id: `o${index}`,
-          label: "Opening",
-          widthM: Number(opening.widthM) || 0,
-          heightM: Number(opening.heightM) || 0,
-          count: Number(opening.count) || 1,
+        openings: openings.map((opening) => ({
+          id: opening.id,
+          label: opening.label,
+          widthM: opening.widthM,
+          heightM: opening.heightM,
+          count: opening.count,
         })),
         marketCode,
       },
@@ -165,7 +166,9 @@ export default function DefsCalculator() {
     setSubstrate("cement-board");
     setWastage("10");
     setTexture("medium_swirl");
-    setOpenings([{ widthM: "1.2", heightM: "1.2", count: "2" }]);
+    setOpenings([
+      { id: "opening-1", label: "Opening 1", widthM: 1.2, heightM: 1.2, count: 2 },
+    ]);
   }
 
   const defs = result.defs;
@@ -332,80 +335,22 @@ export default function DefsCalculator() {
               />
             </div>
 
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-xs">Openings deducted</Label>
-                <Button
-                  type="button"
-                  size="sm"
-                  variant="outline"
-                  className="h-7 text-xs"
-                  onClick={() =>
-                    setOpenings((current) => [
-                      ...current,
-                      { widthM: "1.0", heightM: "2.1", count: "1" },
-                    ])
-                  }
-                >
-                  Add opening
-                </Button>
-              </div>
-              {openings.map((opening, index) => (
-                <div key={index} className="grid grid-cols-3 gap-2">
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.05"
-                    aria-label={`Opening ${index + 1} width`}
-                    value={opening.widthM}
-                    onChange={(event) =>
-                      setOpenings((current) =>
-                        current.map((entry, i) =>
-                          i === index
-                            ? { ...entry, widthM: event.target.value }
-                            : entry,
-                        ),
-                      )
-                    }
-                    className="h-8 text-xs"
-                  />
-                  <Input
-                    type="number"
-                    min="0"
-                    step="0.05"
-                    aria-label={`Opening ${index + 1} height`}
-                    value={opening.heightM}
-                    onChange={(event) =>
-                      setOpenings((current) =>
-                        current.map((entry, i) =>
-                          i === index
-                            ? { ...entry, heightM: event.target.value }
-                            : entry,
-                        ),
-                      )
-                    }
-                    className="h-8 text-xs"
-                  />
-                  <Input
-                    type="number"
-                    min="1"
-                    step="1"
-                    aria-label={`Opening ${index + 1} count`}
-                    value={opening.count}
-                    onChange={(event) =>
-                      setOpenings((current) =>
-                        current.map((entry, i) =>
-                          i === index
-                            ? { ...entry, count: event.target.value }
-                            : entry,
-                        ),
-                      )
-                    }
-                    className="h-8 text-xs"
-                  />
-                </div>
-              ))}
-            </div>
+            <OpeningsEditor
+              variant="bare"
+              showLabels={false}
+              openings={openings}
+              onChange={setOpenings}
+              title="Openings deducted"
+              addLabel="Add opening"
+              emptyHint="No openings deducted; the wall is measured as solid."
+              createRow={() => ({
+                id: `opening-${Date.now()}`,
+                label: "Opening",
+                widthM: 1.0,
+                heightM: 2.1,
+                count: 1,
+              })}
+            />
           </div>
         </div>
 
