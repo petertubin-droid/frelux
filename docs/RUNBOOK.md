@@ -176,3 +176,47 @@ blocks `status='published'` on wall-finishing articles without recorded
 editorial approval, a verified topic and an accepted citation - never
 weaken it; run the recipe instead. The dynamic `/sitemap.xml` function
 picks the articles up automatically (status=published).
+
+## Webhook endpoints
+
+Payments and AI stay on Supabase by decision (2026-11-22), so the provider
+dashboards keep posting to the Supabase functions below. Nothing needs to
+change for the Cloudflare migration. If a payment function ever moves, repoint
+that provider in the same change, one provider at a time.
+
+Base URL: `https://nfgaaohweygwydoelxnf.supabase.co/functions/v1/`
+
+| Provider | URL | Signature check | Secret |
+| --- | --- | --- | --- |
+| Paystack (primary, dispatches escrow) | `/paystack-webhook` | `x-paystack-signature`, HMAC-SHA512 of the raw body | `PAYSTACK_SECRET_KEY` |
+| Paystack (escrow product only) | `/escrow-webhook` | same header, separate key | `PAYSTACK_ESCROW_SECRET` |
+| Flutterwave | `/flutterwave-webhook` | `verif-hash` header equals the configured hash | `FLW_SECRET_HASH` |
+| BTCPay Server | `/btcpay-webhook` | `btcpay-sig`, HMAC-SHA256 of the raw body | `BTCPAY_WEBHOOK_SECRET` |
+| Offerwall / rewarded ads | `/rewarded-postback` | signed postback parameters | `OFFERWALL_AD_SIGNING_SECRET` |
+
+### Where to set each one
+
+- **Paystack**: Dashboard > Settings > API Keys and Webhooks > Webhook URL.
+  Set it separately for test mode and live mode.
+- **Flutterwave**: Dashboard > Settings > Webhooks > URL plus Secret hash.
+  The secret hash must equal `FLW_SECRET_HASH` or every event is rejected.
+- **BTCPay**: Store > Settings > Webhooks > Create webhook. Choose the invoice
+  events, paste the URL, and set the same secret as `BTCPAY_WEBHOOK_SECRET`.
+- **Offerwall**: in the network's postback URL field, with its signing secret
+  matching `OFFERWALL_AD_SIGNING_SECRET`.
+
+### Verifying a webhook after a change
+
+1. Send a test event from the provider dashboard.
+2. Watch the function log (Supabase > Edge Functions > the function > Logs).
+3. Expect a 2xx and an idempotent effect: a repeat of the same event must not
+   double-credit or double-activate.
+
+### Optional edge relay
+
+The Worker exposes `POST /api/hook/:name` with signature checks at the edge
+(`HOOKS` in `cloudflare/src/api.ts`): `paystack` maps to `paystack-webhook` and
+`paystack-escrow` to `escrow-webhook`. Flutterwave is deliberately unmapped.
+To route a provider through it: add a `HOOKS` entry, deploy, set the matching
+secret on the Worker, then change the provider URL to
+`https://files.freluxtools.com/api/hook/<name>` and send a test event.
