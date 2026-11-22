@@ -10,6 +10,8 @@ import {
   solveLinearSystem,
   type Matrix3,
   type Point,
+  solveHomographyNormalized,
+  normalizePoints,
 } from "./homography";
 
 const square: Point[] = [
@@ -203,5 +205,107 @@ describe("applyHomography", () => {
     const horizon: Matrix3 = [1, 0, 0, 0, 1, 0, 1, 0, 0];
     expect(applyHomographyToPolygon(horizon, square)).toBeNull();
     expect(applyHomographyToPolygon(IDENTITY, square)).toEqual(square);
+  });
+});
+
+// ---- Normalized DLT additions (engine upgrade, 2026-11-22) ----
+
+describe("solveHomographyNormalized", () => {
+  it("recovers a known perspective matrix from its own point pairs", () => {
+    const H: Matrix3 = [1.2, 0.15, 30, -0.08, 0.95, -12, 0.0004, 0.0002, 1];
+    const source: Point[] = [
+      { x: 0, y: 0 },
+      { x: 400, y: 0 },
+      { x: 400, y: 300 },
+      { x: 0, y: 300 },
+    ];
+    const destination = source.map((p) => applyHomography(H, p)!);
+    const solved = solveHomographyNormalized(source, destination);
+    expect(solved).not.toBeNull();
+    for (let i = 0; i < 4; i += 1) {
+      const back = applyHomography(solved!, source[i])!;
+      expect(back.x).toBeCloseTo(destination[i].x, 6);
+      expect(back.y).toBeCloseTo(destination[i].y, 6);
+    }
+  });
+
+  it("stays accurate at photo-scale pixel coordinates", () => {
+    // 4000px-wide quad: unnormalized solving can drift here.
+    const source: Point[] = [
+      { x: 120, y: 210 },
+      { x: 3880, y: 150 },
+      { x: 3970, y: 2890 },
+      { x: 90, y: 2960 },
+    ];
+    const solved = solveHomographyNormalized(source, [
+      { x: 0, y: 0 },
+      { x: 1000, y: 0 },
+      { x: 1000, y: 700 },
+      { x: 0, y: 700 },
+    ]);
+    expect(solved).not.toBeNull();
+    // Interior point must land strictly inside the rectified rectangle.
+    const centre = applyHomography(solved!, { x: 2000, y: 1500 })!;
+    expect(centre.x).toBeGreaterThan(0);
+    expect(centre.x).toBeLessThan(1000);
+    expect(centre.y).toBeGreaterThan(0);
+    expect(centre.y).toBeLessThan(700);
+  });
+
+  it("refuses collinear quads and non-finite input like the plain solver", () => {
+    expect(
+      solveHomographyNormalized(
+        [
+          { x: 0, y: 0 },
+          { x: 1, y: 1 },
+          { x: 2, y: 2 },
+          { x: 3, y: 3 },
+        ],
+        [
+          { x: 0, y: 0 },
+          { x: 1, y: 0 },
+          { x: 1, y: 1 },
+          { x: 0, y: 1 },
+        ],
+      ),
+    ).toBeNull();
+    expect(
+      solveHomographyNormalized(
+        [
+          { x: 0, y: 0 },
+          { x: 1, y: 0 },
+          { x: 1, y: 1 },
+          { x: NaN, y: 1 },
+        ],
+        [
+          { x: 0, y: 0 },
+          { x: 1, y: 0 },
+          { x: 1, y: 1 },
+          { x: 0, y: 1 },
+        ],
+      ),
+    ).toBeNull();
+    // fewer than four points
+    expect(
+      solveHomographyNormalized([{ x: 0, y: 0 }], [{ x: 0, y: 0 }]),
+    ).toBeNull();
+  });
+});
+
+describe("normalizePoints", () => {
+  it("centres the centroid and scales the mean distance to sqrt(2)", () => {
+    const result = normalizePoints([
+      { x: 10, y: 20 },
+      { x: 30, y: 20 },
+      { x: 30, y: 40 },
+      { x: 10, y: 40 },
+    ])!;
+    const cx = result.points.reduce((s, p) => s + p.x, 0) / 4;
+    const cy = result.points.reduce((s, p) => s + p.y, 0) / 4;
+    expect(cx).toBeCloseTo(0, 9);
+    expect(cy).toBeCloseTo(0, 9);
+    const mean =
+      result.points.reduce((s, p) => s + Math.hypot(p.x, p.y), 0) / 4;
+    expect(mean).toBeCloseTo(Math.SQRT2, 9);
   });
 });

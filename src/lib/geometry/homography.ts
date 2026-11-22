@@ -174,10 +174,86 @@ export function rectifyingHomography(
   heightPx: number,
 ): Matrix3 | null {
   if (!(widthPx > 0) || !(heightPx > 0)) return null;
-  return solveHomography(quad, [
+  // Normalized DLT: phone photos reach 4000+ px, where the plain
+  // unnormalized solve loses precision. Same contract, better conditioning.
+  return solveHomographyNormalized(quad, [
     { x: 0, y: 0 },
     { x: widthPx, y: 0 },
     { x: widthPx, y: heightPx },
     { x: 0, y: heightPx },
   ]);
+}
+
+// =========================================================
+// Normalized DLT (Hartley normalization)
+// =========================================================
+
+/** Multiply two row-major 3x3 matrices. */
+export function multiply3(a: Matrix3, b: Matrix3): Matrix3 {
+  const out = new Array<number>(9).fill(0);
+  for (let r = 0; r < 3; r += 1) {
+    for (let c = 0; c < 3; c += 1) {
+      out[r * 3 + c] =
+        a[r * 3] * b[c] + a[r * 3 + 1] * b[3 + c] + a[r * 3 + 2] * b[6 + c];
+    }
+  }
+  return out as unknown as Matrix3;
+}
+
+/**
+ * Hartley normalization: translate the centroid to the origin and scale so
+ * the mean distance from it is sqrt(2). Returns the normalized points and
+ * the matrix that maps original -> normalized coordinates.
+ */
+export function normalizePoints(points: readonly Point[]): {
+  points: Point[];
+  transform: Matrix3;
+} | null {
+  if (points.length === 0 || !points.every(isFinitePoint)) return null;
+  const n = points.length;
+  const cx = points.reduce((sum, p) => sum + p.x, 0) / n;
+  const cy = points.reduce((sum, p) => sum + p.y, 0) / n;
+  const meanDistance =
+    points.reduce((sum, p) => sum + Math.hypot(p.x - cx, p.y - cy), 0) / n;
+  if (!Number.isFinite(meanDistance) || meanDistance < EPSILON) return null;
+  const scale = Math.SQRT2 / meanDistance;
+  const transform: Matrix3 = [
+    scale, 0, -scale * cx,
+    0, scale, -scale * cy,
+    0, 0, 1,
+  ];
+  return {
+    points: points.map((p) => ({
+      x: (p.x - cx) * scale,
+      y: (p.y - cy) * scale,
+    })),
+    transform,
+  };
+}
+
+/**
+ * Four-point homography solved in normalized coordinates and denormalized
+ * back (H = T_dest^-1 * H_norm * T_src). Phone photos routinely reach
+ * 4000+ px, where the unnormalized 8x8 system loses precision; this path
+ * keeps the same public contract (null on refusal) with better accuracy.
+ */
+export function solveHomographyNormalized(
+  source: readonly Point[],
+  destination: readonly Point[],
+): Matrix3 | null {
+  if (source.length !== 4 || destination.length !== 4) return null;
+  const src = normalizePoints(source);
+  const dst = normalizePoints(destination);
+  if (!src || !dst) return null;
+  const hNorm = solveHomography(src.points, dst.points);
+  if (!hNorm) return null;
+  const dstInv = invertHomography(dst.transform);
+  if (!dstInv) return null;
+  const result = multiply3(dstInv, multiply3(hNorm, src.transform));
+  if (!result.every((value) => Number.isFinite(value))) return null;
+  // Reject the same degeneracies the plain solver rejects: collinear quads
+  // collapse to a matrix that cannot map an interior point.
+  const det = determinant3(result);
+  if (!Number.isFinite(det) || Math.abs(det) < EPSILON) return null;
+  return result;
 }
