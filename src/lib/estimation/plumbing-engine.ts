@@ -373,6 +373,17 @@ export function calculatePlumbing(
   for (const spec of pipeSpecs) {
     const price = prices[spec.slug] ?? null;
     if (spec.run === 0) continue; // explicitly none
+    // Hot water is OPTIONAL, per the contract at the top of this file: a
+    // building without a hot water system must not be reported as an
+    // incomplete estimate, and must not be nagged for a measurement it does
+    // not have. It is announced once in the warnings instead, so a user who
+    // does have hot water knows the category exists.
+    if (spec.key === "pipe_hot" && spec.run === null) {
+      warnings.push(
+        "Hot water pipe is not included: this estimate assumes no hot water system. Enter a hot water run length if the building has one.",
+      );
+      continue;
+    }
     if (spec.run === null) {
       missing.push(
         `${spec.label}: enter your measured or estimated total run length${spec.note ? ` (${spec.note})` : ""}: the engine will not assume hidden pipe lengths.`,

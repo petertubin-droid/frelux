@@ -146,10 +146,14 @@ describe("pipe categories", () => {
 
   it("hot water appears only when the user provides a run length", () => {
     const without = calculatePlumbing(makeInput(), rules, FULL_PRICES);
+    // Contract as written: hot water is optional, so a building without it is
+    // not incomplete and is not asked for a length it does not have. The
+    // omission is announced in the warnings instead.
+    expect(without.lines.find((l) => l.key === "pipe_hot")).toBeUndefined();
+    expect(without.missing.some((m) => /Hot water pipe/.test(m))).toBe(false);
     expect(
-      without.lines.find((l) => l.key === "pipe_hot")?.quantity_source,
-    ).toBe("missing");
-    expect(without.missing.some((m) => /Hot water pipe/.test(m))).toBe(true);
+      without.warnings.some((w) => /Hot water pipe is not included/.test(w)),
+    ).toBe(true);
 
     const withHot = calculatePlumbing(
       makeInput({ hot_run_m: 20 }),
