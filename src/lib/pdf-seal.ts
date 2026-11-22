@@ -164,10 +164,12 @@ export async function sealAndStampPdf(
     documentReference?: string;
     documentType?:
       "boq" | "quotation" | "material_schedule" | "bank_estimate" | "cost_plan";
+    /** Token printed in the QR; the sealed bytes become the hosted copy. */
+    copyToken?: string;
   } = {},
 ): Promise<SealResult> {
   const sealed = await sealPdf(raw, metadata);
-  const { calculateBytesSha256, stampDocumentOnBlockchain } =
+  const { calculateBytesSha256, stampDocumentOnBlockchain, uploadHostedCopy } =
     await import("@/lib/blockchain/opentimestamps");
   const hash = await calculateBytesSha256(sealed);
   let verificationId: string | undefined;
@@ -185,8 +187,15 @@ export async function sealAndStampPdf(
           sealed_timestamp: new Date().toISOString(),
           subject: metadata.subject,
         },
+        shareToken: options.copyToken,
       });
       verificationId = stampRes.verification_id;
+
+      // The second original the QR opens. Storage is a convenience copy that
+      // expires; the fingerprint above is what proves the document.
+      if (options.copyToken) {
+        await uploadHostedCopy({ token: options.copyToken, bytes: sealed });
+      }
     } catch (stampErr) {
       console.warn(
         "[pdf-seal] blockchain timestamping skipped/failed:",
@@ -212,6 +221,7 @@ export async function saveSealedPdf(
     documentReference?: string;
     documentType?:
       "boq" | "quotation" | "material_schedule" | "bank_estimate" | "cost_plan";
+    copyToken?: string;
   },
 ): Promise<{ hash: string; verificationId?: string }> {
   const { sealed, hash, verificationId } = await sealAndStampPdf(

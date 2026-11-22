@@ -2,7 +2,8 @@
 // FRELUX VERIFY — Blockchain Document Verification Portal
 // =========================================================
 
-import React, { useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useSeo, useFaqJsonLd } from "@/lib/seo";
 import { FaqSection } from "@/components/seo/SeoSections";
 import PageHeader from "@/components/ui/PageHeader";
@@ -19,6 +20,8 @@ import {
   calculateFileSha256,
   verifyDocumentOnBlockchain,
   generateVerificationCertificateJson,
+  fetchHostedCopy,
+  type HostedCopyResult,
   type VerificationLookupResult,
 } from "@/lib/blockchain/opentimestamps";
 import {
@@ -85,6 +88,29 @@ export default function Verify() {
   const [copiedHash, setCopiedHash] = useState(false);
   const [copiedId, setCopiedId] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // A QR on a sealed export carries ?c=<token>: open the hosted copy of the
+  // document the client is holding, instead of asking them to upload it.
+  const [searchParams] = useSearchParams();
+  const copyToken = searchParams.get("c");
+  const [copy, setCopy] = useState<HostedCopyResult | null>(null);
+  const [copyLoading, setCopyLoading] = useState(false);
+
+  useEffect(() => {
+    if (!copyToken) return;
+    let active = true;
+    setCopyLoading(true);
+    fetchHostedCopy(copyToken)
+      .then((result) => {
+        if (active) setCopy(result);
+      })
+      .finally(() => {
+        if (active) setCopyLoading(false);
+      });
+    return () => {
+      active = false;
+    };
+  }, [copyToken]);
 
   const handleFileUpload = async (file: File) => {
     setFileName(file.name);
@@ -195,6 +221,96 @@ export default function Verify() {
       />
 
       <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        {/* Hosted copy opened from a document QR (?c=token) */}
+        {copyToken && (
+          <Card className="mb-6 border border-border shadow-sm">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-lg flex items-center gap-2">
+                <FileCheck className="h-5 w-5 text-brand-purple" />
+                Original document copy
+              </CardTitle>
+              <CardDescription>
+                {copyLoading
+                  ? "Opening the copy registered for this QR code…"
+                  : copy?.available
+                    ? "This is the document FRELUX exported and registered. Compare it with the copy you are holding."
+                    : copy?.reason === "expired"
+                      ? "The hosted copy was deleted after its retention period. The fingerprint is still anchored, so upload your file below to confirm it."
+                      : "No hosted copy is registered for this QR code. Upload your document below to verify it against the anchored fingerprint."}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {copy?.document && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                      Document
+                    </span>
+                    <p className="font-medium text-foreground mt-0.5">
+                      {copy.document.document_title}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                      Reference
+                    </span>
+                    <p className="font-medium text-foreground mt-0.5">
+                      {copy.document.document_reference || "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                      Verification ID
+                    </span>
+                    <p className="font-mono text-sm text-brand-purple mt-0.5">
+                      {copy.document.verification_id}
+                    </p>
+                  </div>
+                  <div>
+                    <span className="text-xs text-muted-foreground uppercase tracking-wider">
+                      Bitcoin proof
+                    </span>
+                    <p className="font-medium text-foreground mt-0.5">
+                      {copy.proof?.bitcoin_block_height
+                        ? `Block #${copy.proof.bitcoin_block_height}`
+                        : copy.proof?.status === "Confirmed"
+                          ? "Confirmed"
+                          : "Confirmation pending"}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {copy?.available && copy.url && (
+                <div className="flex flex-wrap items-center gap-3">
+                  <Button asChild size="sm">
+                    <a
+                      href={copy.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <Download className="h-4 w-4" /> Open the original PDF
+                    </a>
+                  </Button>
+                  <span className="text-xs text-muted-foreground">
+                    {copy.expires_at
+                      ? `Copy available until ${new Date(copy.expires_at).toLocaleString()}; the fingerprint stays anchored after that.`
+                      : "The link expires shortly; the fingerprint stays anchored."}
+                  </span>
+                </div>
+              )}
+
+              {copy?.reason === "expired" && copy.expired_at && (
+                <p className="text-xs text-muted-foreground">
+                  Copy deleted{" "}
+                  {new Date(copy.expired_at).toLocaleString()} — three days
+                  after export, as printed on the document.
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        )}
+
         {/* Input Methods Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {/* Method 1: Drop Document */}

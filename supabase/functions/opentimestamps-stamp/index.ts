@@ -74,6 +74,14 @@ serveWithCors(async (req: Request) => {
     const documentType = body.document_type ?? "boq";
     const byteSize = body.byte_size == null ? null : Number(body.byte_size);
     const metadata = body.metadata ?? {};
+    // Token printed in the document QR; the hosted copy is uploaded under it.
+    const shareToken = typeof body.share_token === "string" ? body.share_token.trim() : null;
+    if (shareToken !== null && !/^[a-z2-7]{16,32}$/.test(shareToken)) {
+      return new Response(JSON.stringify({ error: "invalid share token" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const allowedTypes = ["boq", "quotation", "material_schedule", "bank_estimate", "cost_plan"];
     if (!documentTitle || documentTitle.length > 160 ||
         documentReference === undefined || (documentReference && documentReference.length > 120) ||
@@ -126,6 +134,7 @@ serveWithCors(async (req: Request) => {
             user_id: userId,
             status: "Awaiting Timestamp",
             metadata,
+            share_token: shareToken,
           })
           .select("*")
           .single();
@@ -138,6 +147,14 @@ serveWithCors(async (req: Request) => {
         if (error?.code !== "23505") break;
       }
       if (!record) throw new Error(insertError?.message || "Failed to register document");
+    }
+
+    if (shareToken && !record.share_token) {
+      const { error: tokenError } = await adminClient
+        .from("blockchain_document_records")
+        .update({ share_token: shareToken, updated_at: new Date().toISOString() })
+        .eq("id", record.id);
+      if (!tokenError) record = { ...record, share_token: shareToken };
     }
 
     const existingProof = record.blockchain_timestamp_proofs?.[0];

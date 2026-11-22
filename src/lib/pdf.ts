@@ -23,6 +23,7 @@ import {
 import { drawFreluxMark, drawFreluxWatermark } from "@/lib/pdf-logo";
 import { saveSealedPdf } from "@/lib/pdf-seal";
 import {
+  createVerifyCopyToken,
   drawVerifySeal,
   verifySealBottomY,
 } from "@/lib/blockchain/verify-seal";
@@ -54,8 +55,13 @@ export async function generateQuotationPDF(
   project: DbContractorProject,
   quotation: DbProjectQuotation,
   branding?: ResolvedBranding,
-  options: { verify?: boolean } = {},
+  options: { verify?: boolean; copyToken?: string } = {},
 ): Promise<void> {
+  // Created before the document is drawn: the QR must carry the token.
+  const copyToken =
+    options.verify === true
+      ? options.copyToken ?? createVerifyCopyToken()
+      : undefined;
   const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const pageWidth = 210;
@@ -330,6 +336,7 @@ export async function generateQuotationPDF(
     }
     await drawVerifySeal(doc, margin, verifyY, verifyWidth, {
       documentLabel: "quotation",
+      copyToken,
     });
   }
 
@@ -359,6 +366,7 @@ export async function generateQuotationPDF(
     },
     {
       stampOnBlockchain: options.verify === true,
+      copyToken,
       documentTitle: `Quotation ${quotation.quotation_number}`,
       documentReference: quotation.quotation_number,
       documentType: "quotation",

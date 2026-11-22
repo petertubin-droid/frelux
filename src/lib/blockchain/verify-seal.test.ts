@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 
 import {
+  HOSTED_COPY_DAYS,
   VERIFY_BLOCK_HEIGHT,
+  createVerifyCopyToken,
   drawVerifySeal,
   verifyPageUrl,
   verifySealCopy,
@@ -29,6 +31,24 @@ describe("verifyPageUrl", () => {
   it("falls back to a public origin when no window exists", () => {
     expect(verifyPageUrl()).toMatch(/\/verify$/);
   });
+
+  it("carries the copy token so a scan opens the hosted copy", () => {
+    expect(verifyPageUrl("https://frelux.app", "abcdefghijklmnop")).toBe(
+      "https://frelux.app/verify?c=abcdefghijklmnop",
+    );
+  });
+});
+
+describe("createVerifyCopyToken", () => {
+  it("produces an unguessable token in the accepted alphabet", () => {
+    const token = createVerifyCopyToken();
+    expect(token).toMatch(/^[a-z2-7]{16,32}$/);
+  });
+
+  it("does not repeat tokens", () => {
+    const tokens = new Set(Array.from({ length: 50 }, () => createVerifyCopyToken()));
+    expect(tokens.size).toBe(50);
+  });
 });
 
 describe("verifySealCopy", () => {
@@ -48,6 +68,24 @@ describe("verifySealCopy", () => {
 
   it("labels the document type it is printed on", () => {
     expect(verifySealCopy({ documentLabel: "BOQ" }).lines[0]).toContain("This BOQ");
+  });
+
+  it("states the hosted copy, its retention, and that the proof survives", () => {
+    const copy = verifySealCopy({
+      origin: "https://frelux.app",
+      documentLabel: "BOQ",
+      copyToken: "abcdefghijklmnop",
+    });
+    const all = copy.lines.join(" ");
+    expect(all).toContain("https://frelux.app/verify?c=abcdefghijklmnop");
+    expect(all).toContain(`${HOSTED_COPY_DAYS} days`);
+    expect(all).toContain("deleted");
+    expect(all).toContain("remains verifiable");
+  });
+
+  it("promises no hosted copy when no token is printed", () => {
+    const all = verifySealCopy({ origin: "https://frelux.app" }).lines.join(" ");
+    expect(all).not.toContain("hosted copy");
   });
 });
 
@@ -72,5 +110,15 @@ describe("drawVerifySeal", () => {
     const [data, format] = doc.addImage.mock.calls[0];
     expect(String(data)).toMatch(/^data:image\/png;base64,/);
     expect(format).toBe("PNG");
+  });
+
+  it("prints the token URL when a copy token is supplied", async () => {
+    const doc = fakeDoc();
+    await drawVerifySeal(doc, 10, 20, 120, {
+      origin: "https://frelux.app",
+      copyToken: "abcdefghijklmnop",
+    });
+    const printed = doc.text.mock.calls.map((c) => String(c[0])).join(" ");
+    expect(printed).toContain("/verify?c=abcdefghijklmnop");
   });
 });

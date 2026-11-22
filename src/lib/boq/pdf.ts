@@ -15,6 +15,7 @@ import { saveSealedPdf } from "@/lib/pdf-seal";
 import { drawFreluxMark, drawFreluxWatermark } from "@/lib/pdf-logo";
 import {
   VERIFY_BLOCK_HEIGHT,
+  createVerifyCopyToken,
   drawVerifySeal,
   verifySealBottomY,
 } from "@/lib/blockchain/verify-seal";
@@ -35,6 +36,8 @@ export interface BoqPdfOptions {
    * and its registration only happen when the user turns the toggle on.
    */
   verify?: boolean;
+  /** Token printed in the QR; when set, the export also hosts a copy. */
+  copyToken?: string;
 }
 
 function money(amount: number, currency: string): string {
@@ -416,6 +419,7 @@ export async function buildBoqPdf(
     const sealY = verifySealBottomY({ pageHeight, margin, footerReserve: 10 });
     await drawVerifySeal(doc, margin, sealY, contentWidth, {
       documentLabel: "BOQ",
+      copyToken: options.copyToken,
     });
   }
 
@@ -428,7 +432,16 @@ export async function downloadBoqPdf(
   studio: BoqStudioDocument,
   options: BoqPdfOptions = {},
 ): Promise<{ hash: string; verificationId?: string }> {
-  const doc = await buildBoqPdf(standard, studio, options);
+  // A token exists only when the seal is printed: no QR, no hosted copy.
+  // It is created before the PDF is drawn because the QR must carry it.
+  const copyToken =
+    options.verify === true
+      ? options.copyToken ?? createVerifyCopyToken()
+      : undefined;
+  const doc = await buildBoqPdf(standard, studio, {
+    ...options,
+    copyToken,
+  });
   const safe = (studio.reference || studio.title || "boq")
     .replace(/[^a-z0-9-_]+/gi, "-")
     .replace(/^-+|-+$/g, "");
@@ -443,6 +456,7 @@ export async function downloadBoqPdf(
     },
     {
       stampOnBlockchain: options.stampOnBlockchain ?? options.verify === true,
+      copyToken,
       documentTitle: studio.title || `BOQ ${studio.reference || "Document"}`,
       documentReference: studio.reference,
       documentType: "boq",

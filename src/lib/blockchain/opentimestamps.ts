@@ -95,6 +95,8 @@ export async function stampDocumentOnBlockchain(params: {
     "boq" | "quotation" | "material_schedule" | "bank_estimate" | "cost_plan";
   byteSize?: number;
   metadata?: Record<string, unknown>;
+  /** Ties the record to the hosted copy the QR opens. */
+  shareToken?: string;
 }): Promise<{
   verification_id: string;
   document_hash: string;
@@ -112,6 +114,7 @@ export async function stampDocumentOnBlockchain(params: {
         document_type: params.documentType || "boq",
         byte_size: params.byteSize,
         metadata: params.metadata || {},
+        share_token: params.shareToken,
       },
     },
   );
@@ -122,6 +125,84 @@ export async function stampDocumentOnBlockchain(params: {
   }
 
   return data;
+}
+
+/**
+ * Upload the sealed document as the hosted copy the QR opens.
+ *
+ * The copy lives in FRELUX storage for HOSTED_COPY_DAYS and is then deleted;
+ * the fingerprint stays anchored on Bitcoin, so the document remains
+ * verifiable after the copy expires. Failure here never blocks the export —
+ * the fingerprint registration is the authoritative record.
+ */
+export async function uploadHostedCopy(params: {
+  token: string;
+  bytes: Uint8Array;
+}): Promise<{ expiresAt: string } | null> {
+  try {
+    const { data: sessionData } = await supabase.auth.getSession();
+    const accessToken = sessionData?.session?.access_token;
+    const baseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined;
+    const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
+    if (!accessToken || !baseUrl || !anonKey) return null;
+
+    const response = await fetch(
+      `${baseUrl.replace(/\/+$/, "")}/functions/v1/verify-copy?token=${encodeURIComponent(params.token)}`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          apikey: anonKey,
+          "Content-Type": "application/pdf",
+        },
+        body: params.bytes as unknown as BodyInit,
+      },
+    );
+    if (!response.ok) return null;
+    const body = (await response.json()) as { expires_at?: string };
+    return body.expires_at ? { expiresAt: body.expires_at } : null;
+  } catch {
+    return null;
+  }
+}
+
+export interface HostedCopyResult {
+  success: boolean;
+  available: boolean;
+  reason?: "expired" | "not_found";
+  url?: string;
+  url_expires_in_seconds?: number;
+  expires_at?: string | null;
+  expired_at?: string | null;
+  message?: string;
+  document?: {
+    verification_id: string;
+    document_title: string;
+    document_reference?: string | null;
+    document_type: string;
+    document_hash: string;
+    byte_size?: number | null;
+    status: string;
+    created_at: string;
+  };
+  proof?: {
+    bitcoin_block_height?: number | null;
+    bitcoin_block_hash?: string | null;
+    status?: string | null;
+  } | null;
+}
+
+/** Open the hosted copy a document QR points at (token from ?c=). */
+export async function fetchHostedCopy(token: string): Promise<HostedCopyResult | null> {
+  try {
+    const { data, error } = await supabase.functions.invoke("verify-copy-get", {
+      body: { token },
+    });
+    if (error) return null;
+    return data as HostedCopyResult;
+  } catch {
+    return null;
+  }
 }
 
 /** Verify document by hash or verification ID */
