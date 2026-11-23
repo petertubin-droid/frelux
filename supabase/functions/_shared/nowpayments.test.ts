@@ -140,3 +140,52 @@ Deno.test(
     assertEquals(invalidPayload, false);
   },
 );
+
+Deno.test(
+  "NOWPayments getNowPaymentsPayments queries endpoint with correct query params",
+  async () => {
+    let capturedUrl = "";
+    let capturedHeaders: Record<string, string> = {};
+
+    const originalFetch = globalThis.fetch;
+    try {
+      globalThis.fetch = (async (
+        input: RequestInfo | URL,
+        init?: RequestInit,
+      ) => {
+        capturedUrl = input.toString();
+        capturedHeaders = (init?.headers as Record<string, string>) || {};
+        return new Response(
+          JSON.stringify({
+            data: [
+              {
+                payment_id: 998877,
+                order_id: "FRX-test-order",
+                payment_status: "finished",
+                price_amount: 29.0,
+                price_currency: "usd",
+              },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }) as typeof fetch;
+
+      const { getNowPaymentsPayments } = await import("./nowpayments.ts");
+      const res = await getNowPaymentsPayments(
+        { apiKey: "test-api-key", apiUrl: "https://api.nowpayments.io/v1" },
+        { limit: 25, page: 2 },
+      );
+
+      assertEquals(res.data.length, 1);
+      assertEquals(res.data[0].payment_id, 998877);
+      assertEquals(
+        capturedUrl,
+        "https://api.nowpayments.io/v1/payment/?limit=25&page=2",
+      );
+      assertEquals(capturedHeaders["x-api-key"], "test-api-key");
+    } finally {
+      globalThis.fetch = originalFetch;
+    }
+  },
+);

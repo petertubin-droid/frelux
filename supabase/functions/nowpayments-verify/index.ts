@@ -9,10 +9,11 @@ import {
 import { rateLimitedResponse } from "../_shared/cors.ts";
 import {
   getNowPaymentsConfig,
-  getNowPaymentsInvoice,
   getNowPaymentsPayment,
+  getNowPaymentsPayments,
   mapNowPaymentsStatus,
   nowPaymentsInvoiceMatchesExpected,
+  type NowPaymentsPaymentResponse,
 } from "../_shared/nowpayments.ts";
 import { applySubscriptionPurchase } from "../_shared/subscription-activation.ts";
 
@@ -64,8 +65,26 @@ serveWithCors(async (req: Request) => {
       query = query.contains("metadata", { order_id: orderId });
     }
 
-    const { data: row, error: dbError } = await query.maybeSingle();
+    let { data: row, error: dbError } = await query.maybeSingle();
     if (dbError) return json({ error: "PAYMENT_RECORD_UNAVAILABLE" }, 503);
+
+    // Fallback if containment lookup failed on orderId
+    if (!row && orderId) {
+      const { data: userInvoices } = await admin
+        .from("crypto_payment_invoices")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(20);
+      row =
+        userInvoices?.find(
+          (r) =>
+            typeof r.metadata === "object" &&
+            r.metadata !== null &&
+            r.metadata.order_id === orderId,
+        ) ?? null;
+    }
+
     if (!row) return json({ error: "INVOICE_NOT_FOUND" }, 404);
     if (row.user_id !== userId) return json({ error: "FORBIDDEN" }, 403);
 
@@ -86,54 +105,139 @@ serveWithCors(async (req: Request) => {
     const config = await getNowPaymentsConfig();
     if (!config) return json({ error: "NOWPAYMENTS_NOT_CONFIGURED" }, 503);
 
-    let liveStatus = "waiting";
-    let livePriceAmount = row.amount_fiat;
-    let livePriceCurrency = row.currency_fiat;
-    let liveOrderId = row.metadata?.order_id || "";
-
-    try {
-      // First try fetching invoice details
-      const inv = await getNowPaymentsInvoice(config, row.invoice_id);
-      if (inv) {
-        livePriceAmount = inv.price_amount;
-        livePriceCurrency = inv.price_currency;
-        liveOrderId = inv.order_id || liveOrderId;
-      }
-    } catch {
-      // Fallback: try fetching by payment ID if stored
-    }
-
     const expectedOrderId =
       typeof row.metadata?.order_id === "string" ? row.metadata.order_id : "";
-    if (
-      !nowPaymentsInvoiceMatchesExpected(
-        {
-          order_id: liveOrderId,
-          price_amount: livePriceAmount,
-          price_currency: livePriceCurrency,
-        },
-        {
-          amountFiat: Number(row.amount_fiat),
-          currencyFiat: row.currency_fiat,
-          orderId: expectedOrderId,
-        },
-      )
-    ) {
-      return json({ error: "PROVIDER_INVOICE_MISMATCH" }, 409);
+
+    let liveStatus: string | null = null;
+    let livePriceAmount: number | string = row.amount_fiat;
+    let livePriceCurrency: string = row.currency_fiat;
+    let liveOrderId = expectedOrderId;
+    let matchedPayment: NowPaymentsPaymentResponse | null = null;
+
+    // 1. Check for recorded payment transaction with payment_id
+    let knownPaymentId: string | number | null =
+      row.metadata?.payment_id || null;
+    if (!knownPaymentId) {
+      const { data: tx } = await admin
+        .from("crypto_payment_transactions")
+        .select("payment_id")
+        .eq("invoice_id", row.invoice_id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (tx?.payment_id) {
+        knownPaymentId = tx.payment_id;
+      }
     }
 
-    const status = mapNowPaymentsStatus(liveStatus);
+    // 2. If payment_id is known, query status by payment ID
+    if (knownPaymentId) {
+      try {
+        const p = await getNowPaymentsPayment(config, knownPaymentId);
+        if (p && p.payment_status) {
+          matchedPayment = p;
+          liveStatus = p.payment_status;
+          livePriceAmount = p.price_amount;
+          livePriceCurrency = p.price_currency;
+          liveOrderId = p.order_id || liveOrderId;
+        }
+      } catch (err) {
+        console.warn(
+          "[nowpayments-verify] payment status lookup by payment_id failed:",
+          err instanceof Error ? err.message : err,
+        );
+      }
+    }
+
+    // 3. If no matched payment yet, search recent payments list by order_id or invoice_id
+    if (!matchedPayment) {
+      try {
+        const { data: paymentsList } = await getNowPaymentsPayments(config, {
+          limit: 30,
+        });
+        const expectedOrder = String(expectedOrderId || "").trim();
+        const invIdStr = String(row.invoice_id || "").trim();
+
+        const match = paymentsList.find((p) => {
+          const pOrder = String(p.order_id || "").trim();
+          const pInvoice = String(p.invoice_id || "").trim();
+          if (expectedOrder && pOrder === expectedOrder) return true;
+          if (invIdStr && pInvoice === invIdStr) return true;
+          return false;
+        });
+
+        if (match && match.payment_status) {
+          matchedPayment = match;
+          liveStatus = match.payment_status;
+          livePriceAmount = match.price_amount;
+          livePriceCurrency = match.price_currency;
+          liveOrderId = match.order_id || liveOrderId;
+        }
+      } catch (err) {
+        console.warn(
+          "[nowpayments-verify] payments list search failed:",
+          err instanceof Error ? err.message : err,
+        );
+      }
+    }
+
+    // Determine target status: preserve persisted status unless provider returns a valid update
+    let status = row.status;
+    if (matchedPayment && liveStatus) {
+      if (
+        !nowPaymentsInvoiceMatchesExpected(
+          {
+            order_id: liveOrderId,
+            price_amount: livePriceAmount,
+            price_currency: livePriceCurrency,
+          },
+          {
+            amountFiat: Number(row.amount_fiat),
+            currencyFiat: row.currency_fiat,
+            orderId: expectedOrderId,
+          },
+        )
+      ) {
+        return json({ error: "PROVIDER_INVOICE_MISMATCH" }, 409);
+      }
+
+      const mappedStatus = mapNowPaymentsStatus(liveStatus);
+      // NEVER regress an active Processing state back to Pending
+      if (row.status === "Processing" && mappedStatus === "Pending") {
+        status = "Processing";
+      } else {
+        status = mappedStatus;
+      }
+    }
+
     const now = new Date().toISOString();
-    const { error: updateError } = await admin
-      .from("crypto_payment_invoices")
-      .update({
+    // Only update DB if status changed or newly confirmed
+    if (
+      status !== row.status ||
+      (status === "Confirmed" && !row.confirmed_at)
+    ) {
+      const updateData: Record<string, unknown> = {
         status,
-        confirmed_at: status === "Confirmed" ? row.confirmed_at || now : null,
         updated_at: now,
-      })
-      .eq("invoice_id", row.invoice_id);
-    if (updateError)
-      return json({ error: "PAYMENT_STATUS_PERSIST_FAILED" }, 503);
+      };
+      if (status === "Confirmed") {
+        updateData.confirmed_at = row.confirmed_at || now;
+      }
+      if (matchedPayment?.pay_address) {
+        updateData.btc_address = String(matchedPayment.pay_address);
+      }
+      if (matchedPayment?.pay_currency) {
+        updateData.payment_method = String(
+          matchedPayment.pay_currency,
+        ).toUpperCase();
+      }
+      const { error: updateError } = await admin
+        .from("crypto_payment_invoices")
+        .update(updateData)
+        .eq("invoice_id", row.invoice_id);
+      if (updateError)
+        return json({ error: "PAYMENT_STATUS_PERSIST_FAILED" }, 503);
+    }
 
     let fulfilled = false;
     if (status === "Confirmed" && row.purpose === "subscription") {

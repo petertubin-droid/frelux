@@ -15,6 +15,7 @@ import {
 import {
   resolveSubscriptionPrice,
   loadPlanPriceRows,
+  resolveLegacyCharge,
 } from "../_shared/subscription-pricing.ts";
 
 const corsHeaders = {
@@ -93,12 +94,62 @@ serveWithCors(async (req: Request) => {
         return { data: data as unknown[] | null, error };
       });
       if (!priceRows) return json({ error: "PRICE_CATALOG_UNAVAILABLE" }, 503);
-      const price = resolveSubscriptionPrice(
+      let price = resolveSubscriptionPrice(
         priceRows,
         plan,
         billingCycle,
         currency,
       );
+
+      // Fallback: resolve from subscription_local_prices or convert from active market rates
+      if (!price || price.priceMinor <= 0) {
+        const { data: localRows } = await admin
+          .from("subscription_local_prices")
+          .select("price_minor, fx_rate, currency")
+          .eq("plan", plan)
+          .eq("billing_cycle", billingCycle)
+          .eq("active", true)
+          .order("updated_at", { ascending: false });
+
+        if (localRows && localRows.length > 0) {
+          for (const lr of localRows) {
+            const fx = Number(lr.fx_rate);
+            const minor = Number(lr.price_minor);
+            if (
+              Number.isFinite(fx) &&
+              fx > 0 &&
+              Number.isFinite(minor) &&
+              minor > 0
+            ) {
+              const usdCents = Math.round(minor / fx);
+              if (usdCents > 0) {
+                price = { priceMinor: usdCents, currency: "USD" };
+                break;
+              }
+            }
+          }
+        }
+      }
+
+      if (!price || price.priceMinor <= 0) {
+        const legacy = resolveLegacyCharge(priceRows, plan, billingCycle);
+        if (legacy && legacy.priceMinor > 0) {
+          const { data: fxRow } = await admin
+            .from("fx_rates")
+            .select("rate")
+            .eq("base_currency", "USD")
+            .eq("quote_currency", "NGN")
+            .order("fetched_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          const rate = Number(fxRow?.rate) || 1550;
+          const usdCents = Math.round(legacy.priceMinor / rate);
+          if (usdCents > 0) {
+            price = { priceMinor: usdCents, currency: "USD" };
+          }
+        }
+      }
+
       if (!price || price.priceMinor <= 0) {
         return json({ error: "PLAN_NOT_AVAILABLE_IN_USD" }, 400);
       }
@@ -132,7 +183,48 @@ serveWithCors(async (req: Request) => {
         !Number.isSafeInteger(amountMinor) ||
         amountMinor <= 0
       ) {
-        return json({ error: "TOKEN_PURCHASE_NOT_AVAILABLE_IN_USD" }, 400);
+        // Fallback: check alternative active currency token purchase price and convert via fx_rates
+        const { data: altPrices } = await admin
+          .from("token_purchase_prices")
+          .select("price_minor, currency_code, is_active")
+          .eq("is_active", true)
+          .limit(5);
+
+        let converted = false;
+        if (altPrices && altPrices.length > 0) {
+          for (const alt of altPrices) {
+            const code = String(alt.currency_code || "").toUpperCase();
+            const altMinor = Number(alt.price_minor);
+            if (code && altMinor > 0) {
+              const { data: fxRow } = await admin
+                .from("fx_rates")
+                .select("rate")
+                .eq("base_currency", "USD")
+                .eq("quote_currency", code)
+                .order("fetched_at", { ascending: false })
+                .limit(1)
+                .maybeSingle();
+              const rate =
+                Number(fxRow?.rate) || (code === "NGN" ? 1550 : null);
+              if (rate && rate > 0) {
+                amountMinor = Math.round(altMinor / rate);
+                converted = true;
+                break;
+              }
+            }
+          }
+        }
+
+        if (
+          !converted ||
+          !configRow?.is_enabled ||
+          !Number.isSafeInteger(tokenAmount) ||
+          tokenAmount <= 0 ||
+          !Number.isSafeInteger(amountMinor) ||
+          amountMinor <= 0
+        ) {
+          return json({ error: "TOKEN_PURCHASE_NOT_AVAILABLE_IN_USD" }, 400);
+        }
       }
       itemDescription = `FRELUX AI Credits (${tokenAmount} tokens)`;
     }

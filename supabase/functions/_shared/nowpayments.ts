@@ -298,7 +298,40 @@ export async function getNowPaymentsPayment(
   return (await res.json()) as NowPaymentsPaymentResponse;
 }
 
-/** Query invoice details by invoice ID */
+/** Query list of payments from NOWPayments API */
+export async function getNowPaymentsPayments(
+  config: NowPaymentsConfig,
+  params?: { limit?: number; page?: number },
+): Promise<{ data: NowPaymentsPaymentResponse[] }> {
+  const base = config.apiUrl || "https://api.nowpayments.io/v1";
+  const url = new URL(`${base}/payment/`);
+  if (params?.limit) url.searchParams.set("limit", String(params.limit));
+  if (params?.page) url.searchParams.set("page", String(params.page));
+
+  const res = await fetch(url.toString(), {
+    method: "GET",
+    headers: {
+      "x-api-key": config.apiKey,
+    },
+  });
+
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(
+      `NOWPayments payments list fetch failed (${res.status}): ${errText}`,
+    );
+  }
+
+  const json = await res.json();
+  const list = Array.isArray(json?.data)
+    ? json.data
+    : Array.isArray(json)
+      ? json
+      : [];
+  return { data: list as NowPaymentsPaymentResponse[] };
+}
+
+/** Query invoice details by invoice ID (Note: NOWPayments hosted invoice API returns 404 for GET /invoice/{id}; use getNowPaymentsPayment or getNowPaymentsPayments) */
 export async function getNowPaymentsInvoice(
   config: NowPaymentsConfig,
   invoiceId: string | number,

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
+import { useToast } from "@/components/ui/Toast";
 import {
   Clock,
   Bookmark,
@@ -120,7 +121,9 @@ export default function Dashboard() {
     noIndex: true,
   });
 
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
+  const { toast } = useToast();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [loading, setLoading] = useState(true);
   const [projects, setProjects] = useState<DbUserProject[]>([]);
   const [favColors, setFavColors] = useState<DbPaintColor[]>([]);
@@ -143,6 +146,69 @@ export default function Dashboard() {
       | "updated_at"
     >[]
   >([]);
+
+  useEffect(() => {
+    const payment = searchParams.get("payment");
+    const orderId = searchParams.get("orderId");
+    const invoiceId =
+      searchParams.get("invoice_id") || searchParams.get("nowpayments_invoice");
+    const identifier =
+      payment === "nowpayments_success" ? orderId || invoiceId : invoiceId;
+
+    if (!identifier) return;
+
+    let active = true;
+    import("@/lib/payments/nowpayments")
+      .then(({ verifyNowPaymentsInvoice }) => {
+        verifyNowPaymentsInvoice(identifier)
+          .then(async (res) => {
+            if (!active) return;
+            if (res.status === "Confirmed" || res.activated) {
+              await refreshProfile();
+              if (user?.id) {
+                fetchUserCryptoInvoices(user.id).then(setCryptoInvoices);
+              }
+              toast({
+                title: "Crypto payment confirmed!",
+                message: "Your payment has been verified and applied.",
+                type: "success",
+              });
+            } else {
+              toast({
+                title: `Crypto payment status: ${res.status}`,
+                message:
+                  "Your transaction is currently being processed by the blockchain network.",
+                type: "info",
+              });
+            }
+            setSearchParams(
+              (prev) => {
+                const next = new URLSearchParams(prev);
+                next.delete("payment");
+                next.delete("orderId");
+                next.delete("invoice_id");
+                next.delete("nowpayments_invoice");
+                return next;
+              },
+              { replace: true },
+            );
+          })
+          .catch((err) => {
+            if (!active) return;
+            toast({
+              title: "Verification issue",
+              message:
+                err instanceof Error ? err.message : "Could not verify payment",
+              type: "error",
+            });
+          });
+      })
+      .catch(() => {});
+
+    return () => {
+      active = false;
+    };
+  }, [searchParams, user?.id, refreshProfile, toast, setSearchParams]);
 
   useEffect(() => {
     if (!user) {

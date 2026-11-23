@@ -3,6 +3,15 @@ import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
+vi.mock("@/lib/payments/nowpayments", () => ({
+  verifyNowPaymentsInvoice: vi.fn().mockResolvedValue({
+    success: true,
+    status: "Confirmed",
+    activated: true,
+    fulfilled: true,
+  }),
+}));
+
 vi.mock("@/lib/auth", () => ({
   useAuth: vi.fn(() => ({ user: null, loading: false })),
 }));
@@ -54,10 +63,10 @@ beforeEach(() => {
   vi.clearAllMocks();
 });
 
-async function renderPage() {
+async function renderPage(initialEntries = ["/dashboard"]) {
   const Comp = (await import("@/pages/Dashboard")).default;
   return render(
-    <MemoryRouter>
+    <MemoryRouter initialEntries={initialEntries}>
       <ToastProvider>
         <Comp />
       </ToastProvider>
@@ -69,6 +78,29 @@ describe("Dashboard", () => {
   it("renders without crashing", async () => {
     const { container } = await renderPage();
     expect(container.innerHTML).not.toBe("");
+  });
+
+  it("verifies payment when returning with nowpayments_success query param", async () => {
+    const { verifyNowPaymentsInvoice } =
+      await import("@/lib/payments/nowpayments");
+    const { useAuth } = await import("@/lib/auth");
+    const refreshProfile = vi.fn().mockResolvedValue(undefined);
+    vi.mocked(useAuth).mockReturnValue({
+      user: { id: "u1", email: "u@example.com" },
+      loading: false,
+      refreshProfile,
+    } as never);
+
+    await renderPage([
+      "/dashboard?payment=nowpayments_success&orderId=FRX-order-test-999",
+    ]);
+
+    const { waitFor } = await import("@testing-library/react");
+    await waitFor(() => {
+      expect(verifyNowPaymentsInvoice).toHaveBeenCalledWith(
+        "FRX-order-test-999",
+      );
+    });
   });
 
   it("shows the Project Workspace overview for a signed-in user", async () => {
