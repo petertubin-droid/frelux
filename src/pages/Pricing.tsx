@@ -201,6 +201,10 @@ export default function Pricing() {
   // Paystack only settles NGN/GHS/ZAR/KES, so a non-African market is given
   // Flutterwave (which accepts international cards) instead of a gateway that
   // cannot complete the charge.
+  // FRELUX PAY (Bitcoin) is shown but not selectable until a BTCPay store is
+  // configured: checkout and verification both call the store API, which needs
+  // the admin-configured store URL and key. The code path stays intact.
+  const comingSoonGateways: PaymentGateway[] = ["btcpay"];
   const gateways: PaymentGateway[] = gatewaysForMarket(
     market.marketCode,
     currentGatewayRuntimeConfig(),
@@ -211,7 +215,12 @@ export default function Pricing() {
     fetchConfiguredGateway().then((gw) => {
       if (!alive) return;
       setDefaultGateway(gw);
-      setChosenGateway((prev) => prev ?? gateways[0]);
+      setChosenGateway(
+        (prev) =>
+          prev ??
+          gateways.find((g) => !comingSoonGateways.includes(g)) ??
+          gateways[0],
+      );
     });
     return () => {
       alive = false;
@@ -472,13 +481,22 @@ export default function Pricing() {
               data-testid="gateway-selector"
               className="inline-flex rounded-xl border border-border bg-card p-1 dark:border-border"
             >
-              {gateways.map((gw) => (
+              {gateways.map((gw) => {
+                const comingSoon = comingSoonGateways.includes(gw);
+                return (
                 <button
                   key={gw}
                   type="button"
                   role="radio"
                   aria-checked={chosenGateway === gw}
-                  onClick={() => setChosenGateway(gw)}
+                  aria-disabled={comingSoon || undefined}
+                  disabled={comingSoon}
+                  title={
+                    comingSoon ? t("Coming soon") : undefined
+                  }
+                  onClick={() => {
+                    if (!comingSoon) setChosenGateway(gw);
+                  }}
                   className={classNames(
                     "rounded-lg px-4 py-2 text-sm font-medium capitalize transition-colors",
                     chosenGateway === gw
@@ -491,9 +509,11 @@ export default function Pricing() {
                     : gw === "btcpay"
                       ? "FRELUX PAY (Bitcoin)"
                       : "Flutterwave"}
-                  {defaultGateway === gw && " (default)"}
+                  {defaultGateway === gw && !comingSoon && " (default)"}
+                  {comingSoon && ` (${t("Coming soon")})`}
                 </button>
-              ))}
+                );
+              })}
             </div>
           </div>
         )}

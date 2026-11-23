@@ -115,6 +115,23 @@ describe("Pricing", () => {
   });
 });
 
+describe("Pricing, BTCPay availability", () => {
+  it("shows FRELUX PAY as coming soon and refuses selection", async () => {
+    const { getByTestId } = await renderPage();
+    const group = getByTestId("gateway-selector");
+    const btc = Array.from(group.querySelectorAll("button")).find((b) =>
+      /FRELUX PAY \(Bitcoin\)/.test(b.textContent ?? ""),
+    ) as HTMLButtonElement | undefined;
+    expect(btc).toBeTruthy();
+    expect(btc!.disabled).toBe(true);
+    expect(btc!.getAttribute("aria-disabled")).toBe("true");
+    expect(btc!.textContent).toMatch(/coming soon/i);
+    // Clicking it must not make it the chosen gateway.
+    btc!.click();
+    expect(btc!.getAttribute("aria-checked")).toBe("false");
+  });
+});
+
 describe("Pricing, USD plans and billing toggle", () => {
   it("shows monthly dollar prices by default", async () => {
     const { getByTestId } = await renderPage();
