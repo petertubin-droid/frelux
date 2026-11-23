@@ -221,6 +221,7 @@ const AdminTravelApprovals = lazy(
 const AdminLogin = lazy(() => import("@/pages/admin/AdminLogin"));
 const AdminLayout = lazy(() => import("@/components/admin/AdminLayout"));
 const RequireAdmin = lazy(() => import("@/components/admin/RequireAdmin"));
+const RequireSession = lazy(() => import("@/components/auth/RequireSession"));
 
 const AdminOverview = lazy(() => import("@/pages/admin/AdminOverview"));
 const AdminAIAssistant = lazy(() => import("@/pages/admin/AdminAIAssistant"));
@@ -2975,31 +2976,59 @@ export default function App() {
                         />
                         <Route
                           path="/properties"
-                          element={<PropertiesDashboard />}
+                          element={
+                            <RequireSession>
+                              <PropertiesDashboard />
+                            </RequireSession>
+                          }
                         />
                         <Route
                           path="/gallery/new"
-                          element={<GalleryUpload />}
+                          element={
+                            <RequireSession>
+                              <GalleryUpload />
+                            </RequireSession>
+                          }
                         />
                         <Route
                           path="/project-workspace"
-                          element={<ProjectWorkspace />}
+                          element={
+                            <RequireSession>
+                              <ProjectWorkspace />
+                            </RequireSession>
+                          }
                         />
                         <Route
                           path="/project-workspace/:id"
-                          element={<ProjectDetail />}
+                          element={
+                            <RequireSession>
+                              <ProjectDetail />
+                            </RequireSession>
+                          }
                         />
                         <Route
                           path="/project-workspace/:id/client-estimate/new"
-                          element={<ClientEstimateEditor />}
+                          element={
+                            <RequireSession>
+                              <ClientEstimateEditor />
+                            </RequireSession>
+                          }
                         />
                         <Route
                           path="/project-workspace/:id/client-estimate/:estimateId/edit"
-                          element={<ClientEstimateEditor />}
+                          element={
+                            <RequireSession>
+                              <ClientEstimateEditor />
+                            </RequireSession>
+                          }
                         />
                         <Route
                           path="/workspace-settings"
-                          element={<WorkspaceSettings />}
+                          element={
+                            <RequireSession>
+                              <WorkspaceSettings />
+                            </RequireSession>
+                          }
                         />
                       </Route>
                       <Route
