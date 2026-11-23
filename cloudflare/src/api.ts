@@ -70,8 +70,10 @@ const SLUG = /^[a-z0-9][a-z0-9-]{1,60}$/;
  * WEBHOOK_SECRET is set, so nothing can be relayed by accident.
  */
 export const HOOKS: Record<string, string> = {
-  // `paystack-webhook` is the primary Live Mode endpoint: it dispatches escrow
-  // itself. The escrow-only endpoint stays reachable under its own name.
+  // `paystack-webhook` is the ONLY endpoint to register: Paystack gives one
+  // webhook slot per integration and mode, and this function dispatches escrow
+  // itself. `escrow-webhook` is reachable under its own name but is only for a
+  // separate escrow Paystack integration, never a second URL on this one.
   paystack: "paystack-webhook",
   "paystack-escrow": "escrow-webhook",
   // Flutterwave deliberately stays on its Supabase function: its dashboard

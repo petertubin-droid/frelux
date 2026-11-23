@@ -62,6 +62,7 @@ describe("native registry", () => {
     expect(Object.keys(NATIVE_FUNCTIONS).sort()).toEqual([
       "health",
       "price-index-api",
+      "turnstile-verify",
       "verify-copy-get",
     ]);
   });

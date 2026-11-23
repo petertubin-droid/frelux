@@ -188,8 +188,8 @@ Base URL: `https://nfgaaohweygwydoelxnf.supabase.co/functions/v1/`
 
 | Provider | URL | Signature check | Secret |
 | --- | --- | --- | --- |
-| Paystack (primary, dispatches escrow) | `/paystack-webhook` | `x-paystack-signature`, HMAC-SHA512 of the raw body | `PAYSTACK_SECRET_KEY` |
-| Paystack (escrow product only) | `/escrow-webhook` | same header, separate key | `PAYSTACK_ESCROW_SECRET` |
+| Paystack (register this one, dispatches escrow) | `/paystack-webhook` | `x-paystack-signature`, HMAC-SHA512 of the raw body | `PAYSTACK_SECRET_KEY` |
+| Paystack escrow, only if it has its own integration | `/escrow-webhook` | same header, separate key | `PAYSTACK_ESCROW_SECRET` |
 | Flutterwave | `/flutterwave-webhook` | `verif-hash` header equals the configured hash | `FLW_SECRET_HASH` |
 | BTCPay Server | `/btcpay-webhook` | `btcpay-sig`, HMAC-SHA256 of the raw body | `BTCPAY_WEBHOOK_SECRET` |
 | Offerwall / rewarded ads | `/rewarded-postback` | signed postback parameters | `OFFERWALL_AD_SIGNING_SECRET` |
@@ -197,7 +197,11 @@ Base URL: `https://nfgaaohweygwydoelxnf.supabase.co/functions/v1/`
 ### Where to set each one
 
 - **Paystack**: Dashboard > Settings > API Keys and Webhooks > Webhook URL.
-  Set it separately for test mode and live mode.
+  Set it separately for test mode and live mode. There is ONE slot per
+  integration and mode, so register `/paystack-webhook` only: it dispatches
+  escrow itself. Never try to register `/escrow-webhook` as a second URL on
+  the same integration; it exists for a separate escrow integration, if one is
+  ever opened.
 - **Flutterwave**: Dashboard > Settings > Webhooks > URL plus Secret hash.
   The secret hash must equal `FLW_SECRET_HASH` or every event is rejected.
 - **BTCPay**: Store > Settings > Webhooks > Create webhook. Choose the invoice
