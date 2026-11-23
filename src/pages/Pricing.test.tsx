@@ -185,3 +185,34 @@ describe("Pricing, USD plans and billing toggle", () => {
     expect(container.textContent).not.toContain("₦");
   });
 });
+
+describe("Pricing, Crypto and BTCPay options", () => {
+  it("marks BTCPay as Coming Soon and disabled in payment gateway selector", async () => {
+    const { getByRole } = await renderPage();
+    const btcpayBtn = getByRole("radio", { name: /bitcoin.*coming soon/i });
+    expect(btcpayBtn).toBeInTheDocument();
+    expect(btcpayBtn).toBeDisabled();
+  });
+
+  it("displays canonical crypto prices (USD) when Crypto gateway is selected even in local market", async () => {
+    marketState.code = "NG";
+    originState.code = "NG";
+    localRowsState.push(...NG_ROWS);
+    const { getByTestId, getByRole } = await renderPage();
+
+    // In local market, initially shows NGN prices
+    await vi.waitFor(() => {
+      expect(getByTestId("plan-price-pro").textContent).toContain("5,000");
+    });
+
+    // Switch to crypto gateway
+    const cryptoBtn = getByRole("radio", { name: /crypto/i });
+    fireEvent.click(cryptoBtn);
+
+    // Should now display canonical crypto pricing in USD (.99)
+    await vi.waitFor(() => {
+      expect(getByTestId("plan-price-pro").textContent).toBe(".99");
+      expect(getByTestId("plan-price-pro").getAttribute("data-currency")).toBe("USD");
+    });
+  });
+});

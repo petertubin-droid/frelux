@@ -265,7 +265,7 @@ const routes = [
     description:
       "Calculate construction materials, export tamper-proof QR-verified BOQs, and pay globally with local currencies or Bitcoin on FRELUXTOOLS.",
     ogDescription:
-      "Precision construction calculators, multi-market templates, and Bitcoin-verified quotes for builders, contractors, and engineers worldwide.",
+      "Precision construction calculators, multi-market templates, and Blockchain - verified quotes for builders, contractors, and engineers worldwide.",
     priority: "1.0",
     changefreq: "weekly",
     structuredData: [

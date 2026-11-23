@@ -387,7 +387,7 @@ export default function AdminSettings() {
                 </option>
 
                 <option value="btcpay">
-                  {t("FRELUX PAY - Bitcoin (BTCPay)")}
+                  {t("FRELUX PAY - Bitcoin (BTCPay) - Coming Soon")}
                 </option>
               </AdminSelect>
             </AdminField>

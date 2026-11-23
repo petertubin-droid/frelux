@@ -212,12 +212,17 @@ export default function Pricing() {
       g === "btcpay",
   );
 
+  const isCryptoGateway =
+    chosenGateway === "nowpayments" || chosenGateway === "btcpay";
+  const effectivePriceMarketCode = isCryptoGateway ? null : priceMarketCode;
+
   useEffect(() => {
     let alive = true;
     fetchConfiguredGateway().then((gw) => {
       if (!alive) return;
       setDefaultGateway(gw);
-      setChosenGateway((prev) => prev ?? gateways[0]);
+      const fallback = gateways.find((g) => g !== "btcpay") ?? gateways[0];
+      setChosenGateway((prev) => prev ?? (gw === "btcpay" ? fallback : gw));
     });
     return () => {
       alive = false;
@@ -420,31 +425,12 @@ export default function Pricing() {
     }
 
     if (chosenGateway === "btcpay") {
-      setLoadingPlan(plan.id);
-      try {
-        const { initializeBtcPayCheckout } =
-          await import("@/lib/payments/btcpay");
-        const btcInvoice = await initializeBtcPayCheckout({
-          planId: plan.id,
-          billingCycle,
-          marketCode: market.marketCode,
-          originMarketCode: detectedMarket,
-          email: user.email,
-        });
-        setActiveBtcInvoice(btcInvoice);
-        setSelectedPlanForBtc(plan);
-      } catch (err: unknown) {
-        const msg = err instanceof Error ? err.message : String(err);
-        toast({
-          title: "FRELUX PAY (Bitcoin) Unavailable",
-          message: msg.includes("BTCPAY_NOT_CONFIGURED")
-            ? "FRELUX PAY (BTCPay Server) is not configured on this server environment. Please choose Paystack or Flutterwave in the meantime."
-            : msg,
-          type: "error",
-        });
-      } finally {
-        setLoadingPlan(null);
-      }
+      toast({
+        title: "Coming Soon",
+        message:
+          "BTCPay is not fully implemented yet and will be available soon. Please choose another payment method.",
+        type: "info",
+      });
       return;
     }
 
@@ -560,30 +546,48 @@ export default function Pricing() {
               data-testid="gateway-selector"
               className="inline-flex rounded-full border border-border/70 bg-card/80 p-1 shadow-sm backdrop-blur dark:border-white/10"
             >
-              {gateways.map((gw) => (
-                <button
-                  key={gw}
-                  type="button"
-                  role="radio"
-                  aria-checked={chosenGateway === gw}
-                  onClick={() => setChosenGateway(gw)}
-                  className={classNames(
-                    "rounded-full px-4 py-2 text-sm font-medium capitalize transition-all duration-200",
-                    chosenGateway === gw
-                      ? "bg-brand-purple text-white"
-                      : "text-muted-foreground hover:bg-muted",
-                  )}
-                >
-                  {gw === "paystack"
-                    ? "Paystack"
-                    : gw === "nowpayments"
-                      ? "FRELUX PAY (Crypto / Multi-Currency)"
-                      : gw === "btcpay"
-                        ? "FRELUX PAY (Bitcoin)"
-                        : "Flutterwave"}
-                  {defaultGateway === gw && " (default)"}
-                </button>
-              ))}
+              {gateways.map((gw) => {
+                const isBtcPay = gw === "btcpay";
+                return (
+                  <button
+                    key={gw}
+                    type="button"
+                    role="radio"
+                    aria-checked={chosenGateway === gw}
+                    disabled={isBtcPay}
+                    onClick={() => {
+                      if (isBtcPay) {
+                        toast({
+                          title: t("Coming Soon"),
+                          message: t(
+                            "BTCPay is not fully implemented yet and will be available soon.",
+                          ),
+                          type: "info",
+                        });
+                        return;
+                      }
+                      setChosenGateway(gw);
+                    }}
+                    className={classNames(
+                      "rounded-full px-4 py-2 text-sm font-medium capitalize transition-all duration-200",
+                      chosenGateway === gw
+                        ? "bg-brand-purple text-white"
+                        : isBtcPay
+                          ? "cursor-not-allowed opacity-60 text-muted-foreground"
+                          : "text-muted-foreground hover:bg-muted",
+                    )}
+                  >
+                    {gw === "paystack"
+                      ? "Paystack"
+                      : gw === "nowpayments"
+                        ? "FRELUX PAY (Crypto / Multi-Currency)"
+                        : gw === "btcpay"
+                          ? "FRELUX PAY (Bitcoin - Coming Soon)"
+                          : "Flutterwave"}
+                    {defaultGateway === gw && " (default)"}
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
@@ -676,7 +680,7 @@ export default function Pricing() {
             const shown = displayedPrice(
               plan,
               billingCycle,
-              priceMarketCode,
+              effectivePriceMarketCode,
               localPrices,
             );
             const isCurrentPlan = isPaid && paidStatus?.plan === plan.id;
@@ -830,10 +834,11 @@ export default function Pricing() {
           })}
         </div>
 
-        {localPrices.some(
-          (r) =>
-            r.market_code.toUpperCase() === market.marketCode.toUpperCase(),
-        ) &&
+        {!isCryptoGateway &&
+          localPrices.some(
+            (r) =>
+              r.market_code.toUpperCase() === market.marketCode.toUpperCase(),
+          ) &&
           marketCurrencyCode(market.marketCode) !== SUBSCRIPTION_CURRENCY && (
             <p
               className="mx-auto mt-6 max-w-xl text-center text-xs text-muted-foreground"
@@ -843,12 +848,20 @@ export default function Pricing() {
               {t("Your card is charged that amount at checkout.")}
             </p>
           )}
+        {isCryptoGateway && (
+          <p
+            className="mx-auto mt-6 max-w-xl text-center text-xs text-muted-foreground"
+            data-testid="crypto-pricing-note"
+          >
+            {t("Prices shown in USD. Crypto payments settle at canonical rates via NOWPayments.")}
+          </p>
+        )}
 
         {/* Trust badges */}
         <div className="mt-12 flex flex-wrap items-center justify-center gap-6 text-sm text-muted-foreground">
           <span className="flex items-center gap-2">
             <ShieldCheck aria-hidden="true" className="h-4 w-4" />{" "}
-            {t("Secure payment via Paystack or Flutterwave")}
+            {t("Secure payment via Paystack, Flutterwave, or Crypto")}
           </span>
           <span className="flex items-center gap-2">
             <Zap aria-hidden="true" className="h-4 w-4" />{" "}
