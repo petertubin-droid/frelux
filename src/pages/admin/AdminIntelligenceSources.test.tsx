@@ -12,7 +12,10 @@ import * as intelClient from "@/lib/learning/web-intelligence/intel-client";
 import type { IntelligenceSource } from "@/lib/learning/web-intelligence/types";
 
 vi.mock("@/lib/auth", () => ({
-  useAuth: vi.fn(() => ({ user: { email: "admin@frelux.com" }, loading: false })),
+  useAuth: vi.fn(() => ({
+    user: { email: "admin@frelux.com" },
+    loading: false,
+  })),
 }));
 
 vi.mock("@/lib/learning/web-intelligence/intel-client", () => ({
@@ -42,7 +45,14 @@ const mockSources: IntelligenceSource[] = [
     is_knowledge_source: false,
     learning_eligible: true,
     allowed_paths: ["/prices", "/products"],
+    region: null,
+    language: "en",
+    purpose: null,
+    notes: null,
     created_date: "2026-10-01T00:00:00Z",
+    updated_date: "2026-10-01T00:00:00Z",
+    last_crawl: null,
+    next_crawl: null,
   },
   {
     id: "src-2",
@@ -59,7 +69,14 @@ const mockSources: IntelligenceSource[] = [
     is_knowledge_source: false,
     learning_eligible: true,
     allowed_paths: ["/"],
+    region: null,
+    language: "en",
+    purpose: null,
+    notes: null,
     created_date: "2026-10-02T00:00:00Z",
+    updated_date: "2026-10-01T00:00:00Z",
+    last_crawl: null,
+    next_crawl: null,
   },
 ];
 
@@ -140,10 +157,9 @@ describe("AdminIntelligenceSources", () => {
     fireEvent.change(screen.getByLabelText(/https:\/\/example.com/i), {
       target: { value: "https://buacement.com" },
     });
-    fireEvent.change(
-      screen.getByPlaceholderText(/Allowed paths/i),
-      { target: { value: "/pricing\n/dealers" } },
-    );
+    fireEvent.change(screen.getByPlaceholderText(/Allowed paths/i), {
+      target: { value: "/pricing\n/dealers" },
+    });
 
     fireEvent.click(screen.getByRole("button", { name: /Register source/i }));
 
@@ -158,7 +174,9 @@ describe("AdminIntelligenceSources", () => {
     });
 
     expect(
-      await screen.findByText(/Source registered\. It must be explicitly enabled/i),
+      await screen.findByText(
+        /Source registered\. It must be explicitly enabled/i,
+      ),
     ).toBeInTheDocument();
   });
 
@@ -193,11 +211,9 @@ describe("AdminIntelligenceSources", () => {
   it("toggles source enable and disable status", async () => {
     vi.mocked(intelClient.disableSource).mockResolvedValueOnce({
       ok: true,
-      message: "Source disabled",
     });
     vi.mocked(intelClient.enableSource).mockResolvedValueOnce({
       ok: true,
-      message: "Source enabled",
     });
 
     render(
@@ -228,7 +244,9 @@ describe("AdminIntelligenceSources", () => {
   it("triggers test on a source", async () => {
     vi.mocked(intelClient.testSource).mockResolvedValueOnce({
       ok: true,
-      message: "Crawl probe passed: 200 OK, robots.txt allows /prices",
+      result: {
+        message: "Crawl probe passed: 200 OK, robots.txt allows /prices",
+      },
     });
 
     render(
@@ -277,7 +295,6 @@ describe("AdminIntelligenceSources", () => {
   it("removes a source", async () => {
     vi.mocked(intelClient.removeSource).mockResolvedValueOnce({
       ok: true,
-      message: "Source removed",
     });
 
     render(
@@ -304,6 +321,7 @@ describe("AdminIntelligenceSources", () => {
           url: "https://buildingmaterials.ng/cement",
           snippet: "50kg Dangote cement retailing at N10,500 in Alaba market.",
           provider: "exa",
+          retrieved_at: "2026-11-23T09:00:00Z",
         },
       ],
     });

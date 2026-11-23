@@ -11,15 +11,19 @@ const mockAdminRow: CaseStudyAdminRow = {
     title: "Modern Duplex Exterior Screeding",
     description: "Complete stucco and screeding project in Lekki Phase 1",
     project_category: "painting",
+    paint_type_used: null,
+    paint_quality_used: null,
+    colour_used: null,
+    completion_date: null,
+    is_public: true,
     status: "approved",
     is_featured: false,
-    client_name: "Engr. Ade",
     location: "Lagos, Nigeria",
     created_at: "2026-10-15T00:00:00Z",
-    created_by: "user-1",
-    moderated_by: "admin-1",
-    moderated_at: "2026-10-16T00:00:00Z",
-    rejection_reason: null,
+    user_id: "user-1",
+    admin_notes: null,
+    reviewed_by: "admin-1",
+    reviewed_at: "2026-10-16T00:00:00Z",
     updated_at: "2026-10-16T00:00:00Z",
   },
   caseStudy: {
@@ -84,9 +88,15 @@ describe("AdminCaseStudies", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     window.confirm = vi.fn().mockReturnValue(true);
-    vi.mocked(caseStudiesLib.fetchAdminCaseStudyRows).mockResolvedValue([mockAdminRow]);
-    vi.mocked(caseStudiesLib.upsertCaseStudy).mockResolvedValue(mockAdminRow.caseStudy!);
-    vi.mocked(caseStudiesLib.setCaseStudyPublished).mockResolvedValue(mockAdminRow.caseStudy!);
+    vi.mocked(caseStudiesLib.fetchAdminCaseStudyRows).mockResolvedValue([
+      mockAdminRow,
+    ]);
+    vi.mocked(caseStudiesLib.upsertCaseStudy).mockResolvedValue(
+      mockAdminRow.caseStudy!,
+    );
+    vi.mocked(caseStudiesLib.setCaseStudyPublished).mockResolvedValue(
+      undefined,
+    );
     vi.mocked(caseStudiesLib.deleteCaseStudy).mockResolvedValue();
   });
 
@@ -98,10 +108,16 @@ describe("AdminCaseStudies", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(/Case Studies/i);
-      expect(screen.getByText("Modern Duplex Exterior Screeding")).toBeInTheDocument();
+      expect(screen.getByRole("heading", { level: 1 })).toHaveTextContent(
+        /Case Studies/i,
+      );
+      expect(
+        screen.getByText("Modern Duplex Exterior Screeding"),
+      ).toBeInTheDocument();
       expect(screen.getByText("Published")).toBeInTheDocument();
-      expect(screen.getByRole("button", { name: /Unpublish/i })).toBeInTheDocument();
+      expect(
+        screen.getByRole("button", { name: /Unpublish/i }),
+      ).toBeInTheDocument();
     });
   });
 
@@ -117,7 +133,10 @@ describe("AdminCaseStudies", () => {
     fireEvent.click(unpublishBtn);
 
     await waitFor(() => {
-      expect(caseStudiesLib.setCaseStudyPublished).toHaveBeenCalledWith("cs-1", false);
+      expect(caseStudiesLib.setCaseStudyPublished).toHaveBeenCalledWith(
+        "cs-1",
+        false,
+      );
     });
   });
 
@@ -152,7 +171,9 @@ describe("AdminCaseStudies", () => {
     fireEvent.click(editBtn);
 
     await waitFor(() => {
-      expect(screen.getByDisplayValue("Zero water ingress after heavy rains")).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue("Zero water ingress after heavy rains"),
+      ).toBeInTheDocument();
     });
 
     const headlineInput = screen.getByLabelText("Headline");
@@ -168,7 +189,8 @@ describe("AdminCaseStudies", () => {
         expect.objectContaining({
           gallery_entry_id: "entry-1",
           headline: "Updated Duplex Screeding & Painting Showcase",
-          summary: "Transformed cracked external plaster into weatherproof finish.",
+          summary:
+            "Transformed cracked external plaster into weatherproof finish.",
           budget: 850000,
           currency: "NGN",
         }),

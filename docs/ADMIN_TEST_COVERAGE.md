@@ -36,6 +36,30 @@ it("module exports something", async () => {
 
 That test passes if the page renders a blank div.
 
+### Correction (23 November 2026): the first pass undercounted
+
+Re-running the classification above over the same commit (`c50b6ffd`) finds
+**82** smoke-only suites, not 43. The inventory below lists the 43 the first
+pass caught; these 39 were missed and are smoke-only by the same definition
+(no interaction, no mock-call assertion, no negative assertion):
+
+`AdminAiMonetization`, `AdminAnalytics`, `AdminColors`, `AdminContactMessages`,
+`AdminErrors`, `AdminEstimationAudit`, `AdminEstimationConfig`,
+`AdminEstimationPricing`, `AdminEstimationProduction`, `AdminGallery`,
+`AdminImageEstimation`, `AdminLabourSettings`, `AdminLearn`, `AdminLegal`,
+`AdminLogin`, `AdminMarketIntelligence`, `AdminMarketplace`,
+`AdminMaterialCatalog`, `AdminMedia`, `AdminOverview`, `AdminPaintComparison`,
+`AdminPaintEngineTest`, `AdminPaintTypes`, `AdminPdfBranding`, `AdminPriceScan`,
+`AdminPriceUpdater`, `AdminPricing`, `AdminProConnect`, `AdminProjectStages`,
+`AdminQuotationSettings`, `AdminRewardedAccess`, `AdminRewards`,
+`AdminSeoLocation`, `AdminSettings`, `AdminTemplates`, `AdminTileMaterials`,
+`AdminTimelineTemplates`, `AdminTypography`, `AdminTyroleneConfig`.
+
+So the corrected arithmetic is 82 smoke-only at audit time, 30 upgraded since,
+and **52 remaining**: the 13 inventoried suites below plus these 39. Every
+number in the tranche records stands; only the starting total and the
+remaining total were wrong.
+
 ## The inventory
 
 Tier 1 is money and destructive actions, where a wrong argument costs a user or
@@ -120,8 +144,9 @@ Defects found by writing these:
    with a test asserting the accessible name.
 2. **`AdminEstimationEstimates` crashes on a record without `labour_status`.**
    The row calls `est.labour_status.replace(...)` with no guard, so one row
-   missing that column takes the whole page down rather than that row. Recorded
-   here; the fix belongs with the page, not the test.
+   missing that column takes the whole page down rather than that row. _Fixed
+   with this tranche_: a missing column now reads "not stated" rather than
+   asserting a labour basis, and a test renders a record without the column.
 
 ### Tranche 1 closed (23 November 2026)
 
@@ -260,6 +285,10 @@ Defects and accessibility improvements found and fixed during this tranche:
 4. **`AdminWallFinishingLibrary` icon-only citation review buttons**: citation accept button rendered only `<Check className="h-4 w-4" />` with no text or accessible name. Added explicit `aria-label={`Accept citation: ${s.title}`}` and `aria-label={`Reject citation: ${s.title}`}`.
 
 Remaining: Tier 3 content and system suites audited; behavioral suites now cover 28 core admin surfaces across pricing, materials, operations, intelligence, and system monitoring.
+Remaining: 41 smoke-only suites, not 13. Two from the inventory above
+(`AdminCountVision`, `AdminFieldSync`) plus the 39 the first pass missed (see
+the correction). The arithmetic: 82 smoke-only at audit time, 41 upgraded
+across the tranches, 41 left.
 
 ## Limits of this audit
 
@@ -268,3 +297,28 @@ helpers, mock-call assertions, and negative assertions. A file with none of the
 three is treated as smoke-only. It can miss a file that asserts through a helper,
 and it cannot judge whether an assertion is the right one. Reading each file is
 the only way to settle that, which is what the tranches do.
+
+## What a green suite did not prove
+
+The upgraded suites pass, and until this audit nobody had run the repository's
+type gate over them: `npm run typecheck` was failing on 27 errors across twelve
+admin test files, six of them written by the 10-suite tranche. The causes were
+all in the tests, not the pages:
+
+- mocks resolved `{ data, error }` for functions whose real contract is
+  `{ error }` only (`create`/`update`/`delete` on solar prices, solar panels,
+  thermal factors, reuse factors and credit profiles), so a suite would have
+  kept passing after the page started reading a field that never arrives;
+- fixtures omitted required columns (`slug`, `measurement_system`,
+  `recently_changed`, the intelligence source's crawl dates) or carried columns
+  the type does not have, which is how `client_name` survived in a gallery
+  fixture that the page never reads;
+- literal types widened to `string` (`price_kind`, `verification_status`), and a
+  partial `useAuth` stub that only compiled because it was cast.
+
+`AdminIntelligenceSources` also read `res.message` from clients that never
+return one. The page now shows the server's own message when the response
+carries one and otherwise states what it just did ("Source disabled"), and its
+test mocks what the client actually returns.
+
+All 117 admin suites and `npm run typecheck` are green as of this commit.

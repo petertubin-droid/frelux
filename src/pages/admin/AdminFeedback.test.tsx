@@ -31,21 +31,25 @@ const mockUpdate = vi.fn(() => ({ eq: mockUpdateEq }));
 vi.mock("@/lib/supabase", () => {
   return {
     supabase: {
-      from: vi.fn((_table: string) => {
+      from: vi.fn((table: string) => {
         if (table === "feedback_suggestions") {
           return {
             select: vi.fn().mockImplementation((_cols, opts) => {
               if (opts?.head) {
                 return {
                   eq: vi.fn().mockResolvedValue({ count: 1, error: null }),
-                  then: (fn: any) => Promise.resolve(fn({ count: 1, error: null })),
+                  then: (fn: any) =>
+                    Promise.resolve(fn({ count: 1, error: null })),
                 };
               }
               return {
                 order: vi.fn().mockReturnValue({
                   range: vi.fn().mockReturnValue({
-                    eq: vi.fn().mockResolvedValue({ data: mockFeedbacks, error: null }),
-                    then: (fn: any) => Promise.resolve(fn({ data: mockFeedbacks, error: null })),
+                    eq: vi
+                      .fn()
+                      .mockResolvedValue({ data: mockFeedbacks, error: null }),
+                    then: (fn: any) =>
+                      Promise.resolve(fn({ data: mockFeedbacks, error: null })),
                   }),
                 }),
               };
@@ -79,8 +83,12 @@ describe("AdminFeedback", () => {
       expect(
         screen.getByText("Please add a stone dust calculation for paving."),
       ).toBeInTheDocument();
-      expect(screen.getByText("Contact: contractor@example.com")).toBeInTheDocument();
-      expect(screen.getByText("from https://frelux.com/tools/paving")).toBeInTheDocument();
+      expect(
+        screen.getByText("Contact: contractor@example.com"),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByText("from https://frelux.com/tools/paving"),
+      ).toBeInTheDocument();
     });
   });
 
@@ -118,25 +126,30 @@ describe("AdminFeedback", () => {
   });
 
   it("displays empty state when no feedback matches", async () => {
-    vi.mocked(supabase.from).mockImplementationOnce((_table: string) => ({
-      select: vi.fn().mockImplementation((_cols, opts) => {
-        if (opts?.head) {
-          return {
-            eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
-            then: (fn: any) => Promise.resolve(fn({ count: 0, error: null })),
-          };
-        }
-        return {
-          order: vi.fn().mockReturnValue({
-            range: vi.fn().mockReturnValue({
-              eq: vi.fn().mockResolvedValue({ data: [], error: null }),
-              then: (fn: any) => Promise.resolve(fn({ data: [], error: null })),
-            }),
+    vi.mocked(supabase.from).mockImplementationOnce(
+      (_table: string) =>
+        ({
+          select: vi.fn().mockImplementation((_cols, opts) => {
+            if (opts?.head) {
+              return {
+                eq: vi.fn().mockResolvedValue({ count: 0, error: null }),
+                then: (fn: any) =>
+                  Promise.resolve(fn({ count: 0, error: null })),
+              };
+            }
+            return {
+              order: vi.fn().mockReturnValue({
+                range: vi.fn().mockReturnValue({
+                  eq: vi.fn().mockResolvedValue({ data: [], error: null }),
+                  then: (fn: any) =>
+                    Promise.resolve(fn({ data: [], error: null })),
+                }),
+              }),
+            };
           }),
-        };
-      }),
-      update: mockUpdate,
-    } as any));
+          update: mockUpdate,
+        }) as any,
+    );
 
     render(
       <MemoryRouter>
@@ -146,7 +159,9 @@ describe("AdminFeedback", () => {
 
     await waitFor(() => {
       expect(screen.getByText("Nothing here")).toBeInTheDocument();
-      expect(screen.getByText("No feedback in this view yet.")).toBeInTheDocument();
+      expect(
+        screen.getByText("No feedback in this view yet."),
+      ).toBeInTheDocument();
     });
   });
 });

@@ -70,7 +70,8 @@ const mockStats = {
   needs_review_terms: 30,
   languages: 4,
   categories: 12,
-  avg_confidence: "0.92",
+  avg_confidence: 0.92,
+  recently_changed: [],
 };
 
 beforeEach(() => {
@@ -170,7 +171,9 @@ describe("AdminConstructionDictionary", () => {
 
     await waitFor(() => {
       expect(dictionaryClient.getTermHistory).toHaveBeenCalledWith("term-1");
-      expect(screen.getByText(/Initial machine translation/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Initial machine translation/i),
+      ).toBeInTheDocument();
     });
   });
 
@@ -186,7 +189,9 @@ describe("AdminConstructionDictionary", () => {
     );
 
     await waitFor(() => {
-      expect(screen.getByText("Failed to reach dictionary database")).toBeInTheDocument();
+      expect(
+        screen.getByText("Failed to reach dictionary database"),
+      ).toBeInTheDocument();
     });
   });
 });

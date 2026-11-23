@@ -50,11 +50,9 @@ describe("AdminSolarPrices", () => {
       error: null,
     });
     vi.mocked(estimationQueries.createSolarComponentPrice).mockResolvedValue({
-      data: { id: "new-scp" } as any,
       error: null,
     });
     vi.mocked(estimationQueries.updateSolarComponentPrice).mockResolvedValue({
-      data: {} as any,
       error: null,
     });
     vi.mocked(estimationQueries.deleteSolarComponentPrice).mockResolvedValue({

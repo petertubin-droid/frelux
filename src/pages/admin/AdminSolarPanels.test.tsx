@@ -52,11 +52,9 @@ describe("AdminSolarPanels", () => {
       error: null,
     });
     vi.mocked(estimationQueries.createSolarPanelModel).mockResolvedValue({
-      data: { id: "new-sp" } as any,
       error: null,
     });
     vi.mocked(estimationQueries.updateSolarPanelModel).mockResolvedValue({
-      data: {} as any,
       error: null,
     });
     vi.mocked(estimationQueries.deleteSolarPanelModel).mockResolvedValue({

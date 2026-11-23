@@ -20,10 +20,13 @@ vi.mock("@/lib/boq/queries", () => ({
 const mockTemplates = [
   {
     id: "tpl-1",
+    slug: "residential-ng",
     name: "Residential Building (Nigeria Standard)",
+    description: "Default residential BOQ template",
     standard: "Commercial",
     market_code: "NG",
     currency: "NGN",
+    measurement_system: "metric" as const,
     rounding_decimals: 2,
     default_preliminaries_pct: 5,
     default_overhead_profit_pct: 10,
@@ -72,11 +75,17 @@ describe("AdminBoqTemplates", () => {
       </MemoryRouter>,
     );
 
-    expect(screen.getByRole("heading", { name: /BOQ templates/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /BOQ templates/i }),
+    ).toBeInTheDocument();
 
     await waitFor(() => {
-      expect(screen.getByDisplayValue(/Residential Building \(Nigeria Standard\)/i)).toBeInTheDocument();
-      expect(screen.getByDisplayValue(/Substructure & Foundations/i)).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue(/Residential Building \(Nigeria Standard\)/i),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue(/Substructure & Foundations/i),
+      ).toBeInTheDocument();
     });
   });
 
@@ -87,8 +96,12 @@ describe("AdminBoqTemplates", () => {
       </MemoryRouter>,
     );
 
-    const nameInput = await screen.findByDisplayValue(/Residential Building \(Nigeria Standard\)/i);
-    fireEvent.change(nameInput, { target: { value: "Commercial Tower Template" } });
+    const nameInput = await screen.findByDisplayValue(
+      /Residential Building \(Nigeria Standard\)/i,
+    );
+    fireEvent.change(nameInput, {
+      target: { value: "Commercial Tower Template" },
+    });
 
     const saveBtn = screen.getByRole("button", { name: /Save template/i });
     fireEvent.click(saveBtn);
@@ -112,8 +125,12 @@ describe("AdminBoqTemplates", () => {
       </MemoryRouter>,
     );
 
-    const titleInput = await screen.findByDisplayValue(/Substructure & Foundations/i);
-    fireEvent.change(titleInput, { target: { value: "Earthworks & Basements" } });
+    const titleInput = await screen.findByDisplayValue(
+      /Substructure & Foundations/i,
+    );
+    fireEvent.change(titleInput, {
+      target: { value: "Earthworks & Basements" },
+    });
 
     const saveSectionBtn = screen.getByRole("button", { name: /^Save$/i });
     fireEvent.click(saveSectionBtn);

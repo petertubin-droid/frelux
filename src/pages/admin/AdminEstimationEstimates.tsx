@@ -362,7 +362,10 @@ export default function AdminEstimationEstimates() {
                       <span
                         className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium capitalize ${getLabourBadge(est.labour_status)}`}
                       >
-                        Labour: {est.labour_status.replace(/_/g, " ")}
+                        Labour:{" "}
+                        {est.labour_status
+                          ? est.labour_status.replace(/_/g, " ")
+                          : "not stated"}
                       </span>
                     </div>
 

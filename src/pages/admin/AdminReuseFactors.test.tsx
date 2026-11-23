@@ -56,11 +56,9 @@ describe("AdminReuseFactors", () => {
       error: null,
     });
     vi.mocked(estimationQueries.createMaterialReuseFactor).mockResolvedValue({
-      data: { id: "new-rf" } as any,
       error: null,
     });
     vi.mocked(estimationQueries.updateMaterialReuseFactor).mockResolvedValue({
-      data: {} as any,
       error: null,
     });
     vi.mocked(estimationQueries.deleteMaterialReuseFactor).mockResolvedValue({

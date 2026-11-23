@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AdminPriceIndex from "@/pages/admin/AdminPriceIndex";
-import { supabase } from "@/lib/supabase";
 import * as priceQueries from "@/lib/price-index/queries";
 
 const mockListings = [
@@ -13,15 +12,17 @@ const mockListings = [
     category: "masonry",
     sale_unit: "50kg bag",
     price: 8500,
-    price_ngn: 8500,
+    price_id: "price-1",
+    market: "NG",
     currency: "NGN",
     city_slug: "lagos",
-    is_published: true,
+    source_url: null,
+    verified_at: "2026-11-20T00:00:00Z",
     supplier_name: "Dangote Direct",
-    price_kind: "retail",
+    price_kind: "retail" as const,
     supporting_submissions: 4,
     effective_date: "2026-11-20",
-    verification_status: "verified",
+    verification_status: "verified" as const,
     price_source: "Invoice sample",
   },
   {
@@ -31,15 +32,17 @@ const mockListings = [
     category: "masonry",
     sale_unit: "50kg bag",
     price: 9000,
-    price_ngn: 9000,
+    price_id: "price-2",
+    market: "NG",
     currency: "NGN",
     city_slug: "abuja",
-    is_published: true,
+    source_url: null,
+    verified_at: "2026-11-21T00:00:00Z",
     supplier_name: "Abuja Builders Depot",
-    price_kind: "retail",
+    price_kind: "retail" as const,
     supporting_submissions: 2,
     effective_date: "2026-11-21",
-    verification_status: "verified",
+    verification_status: "verified" as const,
     price_source: "Market visit",
   },
 ];
@@ -130,8 +133,10 @@ describe("AdminPriceIndex", () => {
     vi.clearAllMocks();
     mockInvoke.mockResolvedValue({ data: { ok: true }, error: null });
     vi.mocked(priceQueries.fetchListings).mockResolvedValue({
-      listings: mockListings as any,
+      listings: mockListings,
       error: null,
+      cached: false,
+      cache_age_ms: 0,
     });
     vi.mocked(priceQueries.fetchPendingSubmissions).mockResolvedValue({
       rows: mockSubmissions as any,
@@ -325,11 +330,35 @@ describe("AdminPriceIndex", () => {
       </MemoryRouter>,
     );
 
-    await screen.findByText("Lekki Hardware");
-    const exportBtn = screen.getByRole("button", { name: /Export CSV/i });
-    fireEvent.click(exportBtn);
+    // Capture the blob the page hands to the browser, so the test proves the
+    // file's contents rather than only that a download was triggered.
+    const blobs: Blob[] = [];
+    const origCreateObjectURL = URL.createObjectURL;
+    URL.createObjectURL = vi.fn((blob: Blob) => {
+      blobs.push(blob);
+      return "blob:price-index";
+    }) as typeof URL.createObjectURL;
 
-    expect(clickSpy).toHaveBeenCalled();
+    try {
+      await screen.findByText("Lekki Hardware");
+      const exportBtn = screen.getByRole("button", { name: /Export CSV/i });
+      fireEvent.click(exportBtn);
+
+      expect(clickSpy).toHaveBeenCalled();
+      expect(blobs).toHaveLength(1);
+      const csv = await blobs[0].text();
+      expect(csv.split("\n")[0]).toBe(
+        "material,category,city,price_ngn,sale_unit,price_kind,supplier,source,effective_date,verification,supporting_submissions",
+      );
+      // One line per listing, with its own city, price and supplier.
+      expect(csv).toContain('"Portland Cement (50kg)"');
+      expect(csv).toContain('"lagos"');
+      expect(csv).toContain('"Dangote Direct"');
+      expect(csv).toContain('"Abuja Builders Depot"');
+      expect(csv.split("\n")).toHaveLength(3);
+    } finally {
+      URL.createObjectURL = origCreateObjectURL;
+    }
   });
 
   it("renders load error message when queries fail", async () => {

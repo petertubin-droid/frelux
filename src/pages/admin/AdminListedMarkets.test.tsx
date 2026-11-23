@@ -150,28 +150,52 @@ vi.mock("@/lib/supabase", () => ({
   },
 }));
 
+/** A complete auth context: the hook returns every field, so a partial stub lies. */
+function authStub(overrides: Record<string, unknown>) {
+  return {
+    user: null,
+    profile: null,
+    paidStatus: null,
+    isPaid: false,
+    isAdmin: false,
+    loading: false,
+    configured: true,
+    signIn: vi.fn(),
+    signUp: vi.fn(),
+    signInWithGoogle: vi.fn(),
+    signInWithOtp: vi.fn(),
+    signOut: vi.fn(),
+    resetPassword: vi.fn(),
+    refreshProfile: vi.fn(),
+    refreshPaidStatus: vi.fn(),
+    ...overrides,
+  } as unknown as ReturnType<typeof useAuth>;
+}
+
 describe("AdminListedMarkets", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockUpdateEq.mockResolvedValue({ error: null });
     mockInsert.mockResolvedValue({ error: null });
     mockInvoke.mockResolvedValue({ data: mockProviders, error: null });
-    vi.mocked(useAuth).mockReturnValue({
-      user: { id: "admin-1", email: "admin@frelux.test" } as any,
-      isAdmin: true,
-      loading: false,
-    });
+    vi.mocked(useAuth).mockReturnValue(
+      authStub({
+        user: { id: "admin-1", email: "admin@frelux.test" },
+        isAdmin: true,
+      }),
+    );
     vi.mocked(supabase.from).mockImplementation(
       (table: string) => makeChain(table) as any,
     );
   });
 
   it("denies access to non-administrators", async () => {
-    vi.mocked(useAuth).mockReturnValue({
-      user: { id: "regular-user", email: "user@frelux.test" } as any,
-      isAdmin: false,
-      loading: false,
-    });
+    vi.mocked(useAuth).mockReturnValue(
+      authStub({
+        user: { id: "regular-user", email: "user@frelux.test" },
+        isAdmin: false,
+      }),
+    );
 
     render(
       <MemoryRouter>

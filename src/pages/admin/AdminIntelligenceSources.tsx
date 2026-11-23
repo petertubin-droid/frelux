@@ -119,11 +119,11 @@ export default function AdminIntelligenceSources() {
     async (
       fn: () => Promise<{
         ok: boolean;
-        message?: string;
         error?: string;
         result?: Record<string, unknown>;
       }>,
       key: string,
+      done = "Done",
     ) => {
       setBusy(key);
       setError(null);
@@ -133,7 +133,11 @@ export default function AdminIntelligenceSources() {
       if (!res.ok) setError(res.error ?? "Action failed");
       else
         setNotice(
-          res.message ?? JSON.stringify(res.result ?? "Done").slice(0, 300),
+          typeof res.result?.message === "string"
+            ? res.result.message
+            : res.result
+              ? JSON.stringify(res.result).slice(0, 300)
+              : done,
         );
       await load();
     },
@@ -380,7 +384,11 @@ export default function AdminIntelligenceSources() {
                   <div className="flex flex-wrap gap-1">
                     <AdminButton
                       onClick={() =>
-                        run(() => testSource(s.id), `test-${s.id}`)
+                        run(
+                          () => testSource(s.id),
+                          `test-${s.id}`,
+                          "Crawl test finished",
+                        )
                       }
                       disabled={busy === `test-${s.id}`}
                     >
@@ -399,7 +407,11 @@ export default function AdminIntelligenceSources() {
                     {s.enabled ? (
                       <AdminButton
                         onClick={() =>
-                          run(() => disableSource(s.id), `dis-${s.id}`)
+                          run(
+                            () => disableSource(s.id),
+                            `dis-${s.id}`,
+                            "Source disabled",
+                          )
                         }
                       >
                         <PowerOff className="h-4 w-4" /> Disable
@@ -407,7 +419,11 @@ export default function AdminIntelligenceSources() {
                     ) : (
                       <AdminButton
                         onClick={() =>
-                          run(() => enableSource(s.id), `en-${s.id}`)
+                          run(
+                            () => enableSource(s.id),
+                            `en-${s.id}`,
+                            "Source enabled",
+                          )
                         }
                       >
                         <Power className="h-4 w-4" /> Enable

@@ -50,11 +50,9 @@ describe("AdminThermalFactors", () => {
       error: null,
     });
     vi.mocked(estimationQueries.createThermalFinishFactor).mockResolvedValue({
-      data: { id: "new-tf" } as any,
       error: null,
     });
     vi.mocked(estimationQueries.updateThermalFinishFactor).mockResolvedValue({
-      data: {} as any,
       error: null,
     });
     vi.mocked(estimationQueries.deleteThermalFinishFactor).mockResolvedValue({

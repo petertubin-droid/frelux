@@ -5,6 +5,7 @@
  * exact create/update payloads, deletion confirmation, and error reporting.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import type { PostgrestError } from "@supabase/supabase-js";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AdminCreditProfiles from "@/pages/admin/AdminCreditProfiles";
@@ -49,11 +50,9 @@ beforeEach(() => {
     error: null,
   });
   vi.mocked(estimationQueries.createContractorCreditProfile).mockResolvedValue({
-    data: null as any,
     error: null,
   });
   vi.mocked(estimationQueries.updateContractorCreditProfile).mockResolvedValue({
-    data: null as any,
     error: null,
   });
   vi.mocked(estimationQueries.deleteContractorCreditProfile).mockResolvedValue({
@@ -71,7 +70,9 @@ describe("AdminCreditProfiles", () => {
 
     expect(screen.getByText("Contractor Credit Profiles")).toBeInTheDocument();
     await waitFor(() => {
-      expect(screen.getByText("Apex Build Engineering Ltd")).toBeInTheDocument();
+      expect(
+        screen.getByText("Apex Build Engineering Ltd"),
+      ).toBeInTheDocument();
       expect(screen.getByText("RC-1294821")).toBeInTheDocument();
       expect(screen.getByText("audit-2026-q3-apex.pdf")).toBeInTheDocument();
     });
@@ -113,7 +114,9 @@ describe("AdminCreditProfiles", () => {
         screen.getByText("On-time jobs cannot exceed verified jobs."),
       ).toBeInTheDocument();
     });
-    expect(estimationQueries.createContractorCreditProfile).not.toHaveBeenCalled();
+    expect(
+      estimationQueries.createContractorCreditProfile,
+    ).not.toHaveBeenCalled();
   });
 
   it("creates a contractor credit profile with correctly converted types", async () => {
@@ -154,7 +157,9 @@ describe("AdminCreditProfiles", () => {
     fireEvent.click(screen.getByRole("button", { name: /Create profile/i }));
 
     await waitFor(() => {
-      expect(estimationQueries.createContractorCreditProfile).toHaveBeenCalledWith(
+      expect(
+        estimationQueries.createContractorCreditProfile,
+      ).toHaveBeenCalledWith(
         expect.objectContaining({
           contractor_name: "Solid Foundations Co",
           registration_number: "RC-998877",
@@ -187,7 +192,9 @@ describe("AdminCreditProfiles", () => {
     fireEvent.click(screen.getByRole("button", { name: /Save changes/i }));
 
     await waitFor(() => {
-      expect(estimationQueries.updateContractorCreditProfile).toHaveBeenCalledWith(
+      expect(
+        estimationQueries.updateContractorCreditProfile,
+      ).toHaveBeenCalledWith(
         "prof-1",
         expect.objectContaining({
           contractor_name: "Apex Build Engineering International Ltd",
@@ -212,14 +219,26 @@ describe("AdminCreditProfiles", () => {
       "Delete the profile 'Apex Build Engineering Ltd'? This cannot be undone.",
     );
     await waitFor(() => {
-      expect(estimationQueries.deleteContractorCreditProfile).toHaveBeenCalledWith("prof-1");
+      expect(
+        estimationQueries.deleteContractorCreditProfile,
+      ).toHaveBeenCalledWith("prof-1");
     });
   });
 
   it("displays an error message when loading profiles fails", async () => {
-    vi.mocked(estimationQueries.fetchContractorCreditProfiles).mockResolvedValueOnce({
+    vi.mocked(
+      estimationQueries.fetchContractorCreditProfiles,
+    ).mockResolvedValueOnce({
       data: [],
-      error: new Error("Server database failure"),
+      // A rejected PostgREST read hands back its own error shape, not Error.
+      error: {
+        name: "PostgrestError",
+        message: "Server database failure",
+        details: "",
+        hint: "",
+        code: "500",
+        toJSON: () => ({ message: "Server database failure" }),
+      } as PostgrestError,
     });
 
     render(

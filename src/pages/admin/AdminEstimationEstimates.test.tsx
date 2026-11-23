@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AdminEstimationEstimates from "@/pages/admin/AdminEstimationEstimates";
-import { supabase } from "@/lib/supabase";
 
 vi.mock("@/lib/i18n", () => ({
   useLanguage: () => ({ t: (key: string) => key }),
@@ -20,6 +19,9 @@ const estimate = {
   // The row renders this without a guard, so a record missing it throws.
   labour_status: "not_included",
 };
+
+/** Rows the mock returns; a test may add a record with a missing column. */
+let estimateRows: Array<typeof estimate> = [estimate];
 
 const items = [
   {
@@ -60,7 +62,7 @@ vi.mock("@/lib/supabase", () => ({
         const payload =
           table === "estimation_estimate_items"
             ? { data: items, error: null }
-            : { data: [estimate], error: null, count: 1 };
+            : { data: estimateRows, error: null, count: estimateRows.length };
         return Promise.resolve(payload).then(resolve);
       };
       return chain;
@@ -79,6 +81,7 @@ function renderPage() {
 beforeEach(() => {
   vi.clearAllMocks();
   fromCalls.length = 0;
+  estimateRows = [estimate];
 });
 
 describe("AdminEstimationEstimates", () => {
@@ -86,6 +89,22 @@ describe("AdminEstimationEstimates", () => {
     renderPage();
     expect(await screen.findByText("FRL-2026-0042")).toBeInTheDocument();
     expect(screen.getByText("Three bedroom repaint")).toBeInTheDocument();
+  });
+
+  it("renders a record with no labour status instead of crashing", async () => {
+    // The row printed this column with no guard, so one record missing it took
+    // the whole page down rather than that cell.
+    estimateRows = [
+      {
+        ...estimate,
+        id: "est-2",
+        estimate_ref: "FRL-2026-0043",
+        labour_status: undefined as never,
+      },
+    ];
+    renderPage();
+    expect(await screen.findByText("FRL-2026-0043")).toBeInTheDocument();
+    expect(screen.getByText(/not stated/)).toBeInTheDocument();
   });
 
   it("filters by calculator on the server, not in the browser", async () => {

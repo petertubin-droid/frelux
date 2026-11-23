@@ -79,7 +79,9 @@ describe("AdminEngineStudio", () => {
     );
 
     expect(screen.getByText(/Engine Studio/i)).toBeInTheDocument();
-    expect(screen.getByText(/Perimeter Fence Block Engine/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/Perimeter Fence Block Engine/i),
+    ).toBeInTheDocument();
     expect(screen.getByText(/1 registered engines/i)).toBeInTheDocument();
 
     await waitFor(() => {
@@ -91,11 +93,14 @@ describe("AdminEngineStudio", () => {
   it("coerces numeric form inputs and executes the selected engine", async () => {
     vi.mocked(executeEngine).mockResolvedValueOnce({
       ok: true,
+      engine: "blockwork",
+      calculatedAt: "2026-11-23T09:00:00Z",
+      raw: {},
       quantities: [
         { label: "Vibrated Blocks (9 inch)", quantity: 1450, unit: "pcs" },
         { label: "Portland Cement (50kg)", quantity: 32, unit: "bags" },
       ],
-      costs: { currency: "NGN", total: 1850000 },
+      costs: { currency: "NGN", total: 1850000, regionalDataAvailable: true },
     });
 
     render(
@@ -119,7 +124,9 @@ describe("AdminEngineStudio", () => {
       });
     });
 
-    expect(await screen.findByText(/Vibrated Blocks \(9 inch\)/i)).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Vibrated Blocks \(9 inch\)/i),
+    ).toBeInTheDocument();
     expect(screen.getByText(/1450 pcs/i)).toBeInTheDocument();
     expect(screen.getByText(/32 bags/i)).toBeInTheDocument();
     expect(screen.getByText(/NGN 1850000/i)).toBeInTheDocument();
@@ -150,8 +157,11 @@ describe("AdminEngineStudio", () => {
   it("switches to JSON mode and executes with raw JSON payload", async () => {
     vi.mocked(executeEngine).mockResolvedValueOnce({
       ok: true,
+      engine: "blockwork",
+      calculatedAt: "2026-11-23T09:00:00Z",
+      raw: {},
       quantities: [],
-      costs: { currency: "USD", total: 500 },
+      costs: { currency: "USD", total: 500, regionalDataAvailable: false },
     });
 
     render(
@@ -168,7 +178,9 @@ describe("AdminEngineStudio", () => {
       target: { value: '{"marketCode": "GH", "custom_param": 100}' },
     });
 
-    const runBtn = screen.getByRole("button", { name: /Run with JSON payload/i });
+    const runBtn = screen.getByRole("button", {
+      name: /Run with JSON payload/i,
+    });
     fireEvent.click(runBtn);
 
     await waitFor(() => {
@@ -195,10 +207,14 @@ describe("AdminEngineStudio", () => {
       target: { value: "{ invalid-json: true " },
     });
 
-    fireEvent.click(screen.getByRole("button", { name: /Run with JSON payload/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /Run with JSON payload/i }),
+    );
 
     await waitFor(() => {
-      expect(screen.getByText(/Invalid JSON input payload/i)).toBeInTheDocument();
+      expect(
+        screen.getByText(/Invalid JSON input payload/i),
+      ).toBeInTheDocument();
     });
     expect(executeEngine).not.toHaveBeenCalled();
   });
