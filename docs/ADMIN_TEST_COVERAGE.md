@@ -158,8 +158,16 @@ Defect found: every row's edit and save buttons were labelled "Edit setting" and
 way to tell which setting was about to change. They now name their key, and the
 tests assert the specific name.
 
-Remaining in tranche 2: `AdminAiSettings`, `AdminEngineStudio`,
-`AdminIntelligenceSources`. Then tranche 3, the 34 content CRUD pages.
+`AdminAiSettings` also had a placeholder test. It now has six, pinning the save
+payload: the update carries exactly the eighteen AI and estimation columns and
+nothing else, so a column owned by another admin screen (site name, AdSense
+client, welcome email) cannot be overwritten by a save from this page. The
+update targets the row it loaded rather than the first row in the table, the
+loaded values survive the round trip, a rejected save reports the database error
+instead of claiming success, and a read failure is shown rather than swallowed.
+
+Remaining in tranche 2: `AdminEngineStudio`, `AdminIntelligenceSources`. Then
+tranche 3, the 34 content CRUD pages. That is 36 smoke-only suites left.
 
 ## Limits of this audit
 
