@@ -322,7 +322,7 @@ function UnitsTab() {
                     </div>
                     <div className="flex shrink-0 items-center gap-3">
                       <Toggle
-                        srLabel="{`Active: ${item.name}`}"
+                        srLabel={`Active: ${item.name}`}
                         checked={item.is_active}
                         onChange={() => toggleActive(item)}
                       />
@@ -337,6 +337,7 @@ function UnitsTab() {
                       </AdminButton>
                       <AdminButton
                         variant="danger"
+                        aria-label={`Delete unit ${item.name}`}
                         onClick={() => remove(item)}
                       >
                         <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
@@ -692,7 +693,7 @@ function PackSizesTab() {
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   <Toggle
-                    srLabel="{`Active: ${item.name}`}"
+                    srLabel={`Active: ${item.name}`}
                     checked={item.is_active}
                     onChange={() => toggleActive(item)}
                   />
@@ -705,7 +706,11 @@ function PackSizesTab() {
                   >
                     <Pencil className="h-3.5 w-3.5" /> {tx("Edit")}
                   </AdminButton>
-                  <AdminButton variant="danger" onClick={() => remove(item)}>
+                  <AdminButton
+                    variant="danger"
+                    aria-label={`Delete pack size ${item.name}`}
+                    onClick={() => remove(item)}
+                  >
                     <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                   </AdminButton>
                 </div>
@@ -1170,7 +1175,7 @@ function CalcRulesTab() {
 
               <div className="flex shrink-0 items-center gap-3 pt-1">
                 <Toggle
-                  srLabel="{`Active: ${rule.name}`}"
+                  srLabel={`Active: ${rule.name}`}
                   checked={rule.is_active}
                   onChange={() => toggleActive(rule)}
                 />
@@ -1183,7 +1188,11 @@ function CalcRulesTab() {
                 >
                   <Pencil className="h-3.5 w-3.5" /> {tx("Edit")}
                 </AdminButton>
-                <AdminButton variant="danger" onClick={() => remove(rule)}>
+                <AdminButton
+                  variant="danger"
+                  aria-label={`Delete rule ${rule.name}`}
+                  onClick={() => remove(rule)}
+                >
                   <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                 </AdminButton>
               </div>
@@ -1501,7 +1510,7 @@ function CalcVersionsTab() {
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <Toggle
-                  srLabel="{`Active: ${ver.name}`}"
+                  srLabel={`Active: ${ver.name}`}
                   checked={ver.is_active}
                   onChange={() => toggleActive(ver)}
                 />
@@ -1514,7 +1523,11 @@ function CalcVersionsTab() {
                 >
                   <Pencil className="h-3.5 w-3.5" /> {tx("Edit")}
                 </AdminButton>
-                <AdminButton variant="danger" onClick={() => remove(ver)}>
+                <AdminButton
+                  variant="danger"
+                  aria-label={`Delete version ${ver.name}`}
+                  onClick={() => remove(ver)}
+                >
                   <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                 </AdminButton>
               </div>

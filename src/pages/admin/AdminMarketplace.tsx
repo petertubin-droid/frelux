@@ -430,7 +430,7 @@ function ProductsTab() {
               className="flex items-center gap-3 rounded-lg border border-border p-3 dark:border-white/10"
             >
               <div className="h-12 w-12 shrink-0 overflow-hidden rounded-lg bg-muted dark:bg-white/5">
-                {p.images.length > 0 && (
+                {(p.images?.length ?? 0) > 0 && (
                   <img
                     src={p.images[0]}
                     alt=""

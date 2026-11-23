@@ -1,135 +1,180 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { ToastProvider } from "@/components/ui/Toast";
+import AdminPdfBranding from "./AdminPdfBranding";
 
-vi.mock("@/lib/auth", () => ({
-  useAuth: vi.fn(() => ({ user: null, loading: false })),
-}));
-vi.mock("@/lib/credits", () => ({
-  getCreditWallet: vi.fn().mockResolvedValue(null),
-  getCreditTransactions: vi.fn().mockResolvedValue([]),
-  getActivityStreak: vi.fn().mockResolvedValue(null),
-  recordActivity: vi.fn().mockResolvedValue(true),
-  REWARD_EVENTS: {},
-  adminGetAllWallets: vi.fn().mockResolvedValue([]),
-  adminGetAllTransactions: vi.fn().mockResolvedValue([]),
-  adminGetAllFeatureCosts: vi.fn().mockResolvedValue([]),
-  adminGetAllAdCreditEvents: vi.fn().mockResolvedValue([]),
-  adminGetAllAiFeatureUsage: vi.fn().mockResolvedValue([]),
-  adminGetRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  adminAdjustCredits: vi.fn().mockResolvedValue({ error: null }),
-  adminAdjustCreditsV2: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateFeatureCost: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateAdConfig: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateReward: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateSettings: vi.fn().mockResolvedValue({ error: null }),
-  adminSeedRewards: vi.fn().mockResolvedValue({ error: null }),
-  getRewardCatalogue: vi.fn().mockResolvedValue([]),
-  getRewardSettings: vi.fn().mockResolvedValue(null),
-  getRewardRedemptions: vi.fn().mockResolvedValue([]),
-  getCurrentWeeklyMission: vi.fn().mockResolvedValue(null),
-  getMissionProgress: vi.fn().mockResolvedValue(null),
-  getRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  getRewardedAdHistory: vi.fn().mockResolvedValue([]),
-  getUnusedRewardGrantCount: vi.fn().mockResolvedValue(0),
-  awardCredits: vi.fn().mockResolvedValue({ error: null }),
-  redeemReward: vi.fn().mockResolvedValue({ error: null }),
-  spendAiCredits: vi.fn().mockResolvedValue({ error: null }),
-  unlockFeatureViaAd: vi.fn().mockResolvedValue({ error: null }),
-  verifyRewardedAd: vi.fn().mockResolvedValue({ error: null }),
-  getAiFeatureCost: vi.fn().mockResolvedValue(null),
-  getAiFeatureCosts: vi.fn().mockResolvedValue([]),
-  getAiFeatureUsageToday: vi.fn().mockResolvedValue(0),
-  generateReferenceId: vi.fn().mockReturnValue("ref-123"),
-  getDailyRefId: vi.fn().mockReturnValue("daily-ref-123"),
-  AI_CREDIT_COST: 10,
-  CREDITS_PER_AD: 5,
-  MAX_ADS_PER_DAY: 10,
-}));
-vi.mock("@/lib/supabase", () => {
-  // Build a chainable query object that returns { data: [], error: null } for any chain
-  const chainable = {
-    data: [],
-    error: null,
-    then: undefined, // prevent thenable detection
+const {
+  mockTemplates,
+  mockConfig,
+  updateLimitMock,
+  createTemplateMock,
+  deleteTemplateMock,
+  updateTemplateMock,
+} = vi.hoisted(() => {
+  const mockConfig = {
+    pdf_default_brand_name: "FRELUX PRO",
+    pdf_default_tagline: "Precision BOQ & Estimation",
+    pdf_default_contact_email: "support@frelux.com",
+    pdf_default_contact_phone: "+234 800 000 0000",
+    pdf_default_primary_color: "#7C3AED",
+    pdf_default_secondary_color: "#0B1120",
+    pdf_watermark_enabled: true,
+    pdf_watermark_opacity: 0.08,
+    pdf_watermark_scale: 0.6,
+    pdf_watermark_position: "center",
+    pdf_watermark_diagonal: false,
+    brand_studio_enabled: true,
+    ai_logo_daily_limit: 5,
   };
-  const methods = [
-    "select",
-    "eq",
-    "neq",
-    "gt",
-    "gte",
-    "lt",
-    "lte",
-    "like",
-    "ilike",
-    "in",
-    "is",
-    "not",
-    "or",
-    "and",
-    "order",
-    "range",
-    "limit",
-    "single",
-    "maybeSingle",
-    "insert",
-    "update",
-    "delete",
-    "upsert",
-    "count",
-    "head",
+
+  const mockTemplates = [
+    {
+      id: "tpl-1",
+      name: "Modern Executive",
+      description: "Clean minimalist layout for client presentation",
+      is_active: true,
+      is_default: true,
+      is_premium: false,
+      rewarded_unlock_enabled: false,
+    },
   ];
-  for (const m of methods) {
-    (chainable as unknown as Record<string, unknown>)[m] = vi.fn(
-      () => chainable,
-    );
-  }
-  const supabase = {
-    from: vi.fn(() => chainable),
-    channel: vi.fn(() => ({ on: vi.fn(() => ({ subscribe: vi.fn() })) })),
-    removeChannel: vi.fn(),
-    auth: {
-      getSession: vi
-        .fn()
-        .mockResolvedValue({ data: { session: null }, error: null }),
-      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
-      signInWithPassword: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      signOut: vi.fn().mockResolvedValue({ error: null }),
-    },
-    storage: {
-      from: vi.fn(() => ({
-        list: vi.fn().mockResolvedValue({ data: [], error: null }),
-        upload: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        remove: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        getPublicUrl: vi.fn(() => ({
-          data: { publicUrl: "https://example.com/test.png" },
-        })),
-      })),
-    },
+
+  return {
+    mockConfig,
+    mockTemplates,
+    updateLimitMock: vi.fn().mockResolvedValue({ success: true }),
+    createTemplateMock: vi.fn().mockResolvedValue({ error: null }),
+    deleteTemplateMock: vi.fn().mockResolvedValue({ error: null }),
+    updateTemplateMock: vi.fn().mockResolvedValue({ error: null }),
   };
-  return { supabase, isSupabaseConfigured: true };
 });
+
+vi.mock("@/lib/document-studio", () => ({
+  fetchStudioPlanLimits: vi.fn().mockResolvedValue([
+    {
+      plan: "free",
+      monthly_exports: 3,
+      visual_builder: false,
+      custom_branding: false,
+      watermark_removal: false,
+    },
+    {
+      plan: "pro",
+      monthly_exports: 25,
+      visual_builder: true,
+      custom_branding: true,
+      watermark_removal: true,
+    },
+  ]),
+  updateStudioPlanLimit: updateLimitMock,
+  fetchStudioAuditLogs: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock("@/lib/brand-studio", () => ({
+  fetchPdfTemplates: vi.fn().mockResolvedValue(mockTemplates),
+  createPdfTemplate: createTemplateMock,
+  updatePdfTemplate: updateTemplateMock,
+  deletePdfTemplate: deleteTemplateMock,
+  fetchPdfBrandingConfig: vi.fn().mockResolvedValue(mockConfig),
+  invalidateBrandingConfigCache: vi.fn(),
+}));
+
+const updateSiteSettingsMock = vi.fn().mockReturnValue({
+  neq: vi.fn().mockResolvedValue({ error: null }),
+});
+
+vi.mock("@/lib/supabase", () => ({
+  isSupabaseConfigured: true,
+  supabase: {
+    from: vi.fn((table: string) => {
+      if (table === "site_settings") {
+        return {
+          update: updateSiteSettingsMock,
+        };
+      }
+      return {
+        select: vi.fn().mockReturnValue({
+          order: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      };
+    }),
+  },
+}));
 
 beforeEach(() => {
   vi.clearAllMocks();
+  window.confirm = vi.fn().mockReturnValue(true);
 });
 
-async function renderPage() {
-  const Comp = (await import("@/pages/admin/AdminPdfBranding")).default;
+function renderPage() {
   return render(
     <MemoryRouter>
-      <ToastProvider>
-        <Comp />
-      </ToastProvider>
+      <AdminPdfBranding />
     </MemoryRouter>,
   );
 }
 
 describe("AdminPdfBranding", () => {
-  it("renders without crashing", async () => {
-    const { container } = await renderPage();
-    expect(container.innerHTML).not.toBe("");
+  it("renders page header and sections", async () => {
+    renderPage();
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: /PDF Branding & Templates/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Brand Studio Feature")).toBeInTheDocument();
+    expect(screen.getByText("FRELUX Default PDF Branding")).toBeInTheDocument();
+  });
+
+  it("loads and displays branding form values", async () => {
+    renderPage();
+
+    expect(await screen.findByDisplayValue("FRELUX PRO")).toBeInTheDocument();
+    expect(
+      screen.getByDisplayValue("Precision BOQ & Estimation"),
+    ).toBeInTheDocument();
+    expect(screen.getByDisplayValue("support@frelux.com")).toBeInTheDocument();
+  });
+
+  it("saves branding configuration updates", async () => {
+    renderPage();
+
+    const brandInput = await screen.findByDisplayValue("FRELUX PRO");
+    fireEvent.change(brandInput, { target: { value: "FRELUX ENTERPRISE" } });
+
+    const saveBtn = screen.getByRole("button", { name: /Save Configuration/i });
+    fireEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(updateSiteSettingsMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          pdf_default_brand_name: "FRELUX ENTERPRISE",
+        }),
+      );
+    });
+  });
+
+  it("displays existing PDF templates", async () => {
+    renderPage();
+
+    expect(await screen.findByText("Modern Executive")).toBeInTheDocument();
+    expect(
+      screen.getByText("Clean minimalist layout for client presentation"),
+    ).toBeInTheDocument();
+  });
+
+  it("deletes template after confirmation", async () => {
+    renderPage();
+
+    await screen.findByText("Modern Executive");
+    const deleteBtn = screen.getByRole("button", { name: /Delete/i });
+    fireEvent.click(deleteBtn);
+
+    await waitFor(() => {
+      expect(window.confirm).toHaveBeenCalledWith("Delete this template?");
+      expect(deleteTemplateMock).toHaveBeenCalledWith("tpl-1");
+    });
   });
 });

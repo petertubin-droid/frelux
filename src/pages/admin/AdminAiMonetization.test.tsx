@@ -1,135 +1,150 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { ToastProvider } from "@/components/ui/Toast";
+import AdminAiMonetization from "./AdminAiMonetization";
+import { supabase } from "@/lib/supabase";
 
-vi.mock("@/lib/auth", () => ({
-  useAuth: vi.fn(() => ({ user: null, loading: false })),
-}));
-vi.mock("@/lib/credits", () => ({
-  getCreditWallet: vi.fn().mockResolvedValue(null),
-  getCreditTransactions: vi.fn().mockResolvedValue([]),
-  getActivityStreak: vi.fn().mockResolvedValue(null),
-  recordActivity: vi.fn().mockResolvedValue(true),
-  REWARD_EVENTS: {},
-  adminGetAllWallets: vi.fn().mockResolvedValue([]),
-  adminGetAllTransactions: vi.fn().mockResolvedValue([]),
-  adminGetAllFeatureCosts: vi.fn().mockResolvedValue([]),
-  adminGetAllAdCreditEvents: vi.fn().mockResolvedValue([]),
-  adminGetAllAiFeatureUsage: vi.fn().mockResolvedValue([]),
-  adminGetRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  adminAdjustCredits: vi.fn().mockResolvedValue({ error: null }),
-  adminAdjustCreditsV2: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateFeatureCost: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateAdConfig: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateReward: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateSettings: vi.fn().mockResolvedValue({ error: null }),
-  adminSeedRewards: vi.fn().mockResolvedValue({ error: null }),
-  getRewardCatalogue: vi.fn().mockResolvedValue([]),
-  getRewardSettings: vi.fn().mockResolvedValue(null),
-  getRewardRedemptions: vi.fn().mockResolvedValue([]),
-  getCurrentWeeklyMission: vi.fn().mockResolvedValue(null),
-  getMissionProgress: vi.fn().mockResolvedValue(null),
-  getRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  getRewardedAdHistory: vi.fn().mockResolvedValue([]),
-  getUnusedRewardGrantCount: vi.fn().mockResolvedValue(0),
-  awardCredits: vi.fn().mockResolvedValue({ error: null }),
-  redeemReward: vi.fn().mockResolvedValue({ error: null }),
-  spendAiCredits: vi.fn().mockResolvedValue({ error: null }),
-  unlockFeatureViaAd: vi.fn().mockResolvedValue({ error: null }),
-  verifyRewardedAd: vi.fn().mockResolvedValue({ error: null }),
-  getAiFeatureCost: vi.fn().mockResolvedValue(null),
-  getAiFeatureCosts: vi.fn().mockResolvedValue([]),
-  getAiFeatureUsageToday: vi.fn().mockResolvedValue(0),
-  generateReferenceId: vi.fn().mockReturnValue("ref-123"),
-  getDailyRefId: vi.fn().mockReturnValue("daily-ref-123"),
-  AI_CREDIT_COST: 10,
-  CREDITS_PER_AD: 5,
-  MAX_ADS_PER_DAY: 10,
-}));
-vi.mock("@/lib/supabase", () => {
-  // Build a chainable query object that returns { data: [], error: null } for any chain
-  const chainable = {
-    data: [],
-    error: null,
-    then: undefined, // prevent thenable detection
-  };
-  const methods = [
-    "select",
-    "eq",
-    "neq",
-    "gt",
-    "gte",
-    "lt",
-    "lte",
-    "like",
-    "ilike",
-    "in",
-    "is",
-    "not",
-    "or",
-    "and",
-    "order",
-    "range",
-    "limit",
-    "single",
-    "maybeSingle",
-    "insert",
-    "update",
-    "delete",
-    "upsert",
-    "count",
-    "head",
-  ];
-  for (const m of methods) {
-    (chainable as unknown as Record<string, unknown>)[m] = vi.fn(
-      () => chainable,
-    );
-  }
-  const supabase = {
-    from: vi.fn(() => chainable),
-    channel: vi.fn(() => ({ on: vi.fn(() => ({ subscribe: vi.fn() })) })),
-    removeChannel: vi.fn(),
-    auth: {
-      getSession: vi
-        .fn()
-        .mockResolvedValue({ data: { session: null }, error: null }),
-      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
-      signInWithPassword: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      signOut: vi.fn().mockResolvedValue({ error: null }),
-    },
-    storage: {
-      from: vi.fn(() => ({
-        list: vi.fn().mockResolvedValue({ data: [], error: null }),
-        upload: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        remove: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        getPublicUrl: vi.fn(() => ({
-          data: { publicUrl: "https://example.com/test.png" },
-        })),
+const mockSiteSettings = {
+  id: "site-settings-1",
+  ai_enabled: true,
+  ai_access_mode: "free_rewarded",
+  ai_daily_free_uses: 5,
+  ai_rewarded_enabled: true,
+  ai_rewarded_uses_per_reward: 3,
+  ai_rewarded_daily_cap: 10,
+  ai_paid_price_cents: 500,
+  ai_paid_currency: "USD",
+  ai_monthly_subscription_enabled: false,
+  ai_monthly_subscription_price_cents: 2900,
+  payment_provider_configured: false,
+  updated_at: "2026-11-20T00:00:00Z",
+};
+
+let queryResult = { data: mockSiteSettings, error: null };
+const updateEqMock = vi.fn().mockReturnValue(Promise.resolve({ error: null }));
+
+vi.mock("@/lib/supabase", () => ({
+  supabase: {
+    from: vi.fn(() => ({
+      select: vi.fn().mockReturnValue({
+        limit: vi.fn().mockReturnValue({
+          maybeSingle: vi
+            .fn()
+            .mockImplementation(() => Promise.resolve(queryResult)),
+        }),
+      }),
+      update: vi.fn().mockImplementation((payload) => ({
+        eq: updateEqMock.mockImplementation(() =>
+          Promise.resolve({ error: null }),
+        ),
       })),
-    },
-  };
-  return { supabase };
-});
+    })),
+  },
+}));
 
 beforeEach(() => {
   vi.clearAllMocks();
+  queryResult = { data: { ...mockSiteSettings }, error: null };
 });
 
-async function renderPage() {
-  const Comp = (await import("@/pages/admin/AdminAiMonetization")).default;
+function renderPage() {
   return render(
     <MemoryRouter>
-      <ToastProvider>
-        <Comp />
-      </ToastProvider>
+      <AdminAiMonetization />
     </MemoryRouter>,
   );
 }
 
 describe("AdminAiMonetization", () => {
-  it("renders without crashing", async () => {
-    const { container } = await renderPage();
-    expect(container.innerHTML).not.toBe("");
+  it("loads and displays AI monetization configuration", async () => {
+    renderPage();
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: /AI Monetization/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/Daily free AI uses/i)).toHaveValue(5);
+    expect(screen.getByLabelText("Rewarded users")).toBeInTheDocument();
+  });
+
+  it("updates free daily uses and sends update payload on save", async () => {
+    renderPage();
+
+    await screen.findByRole("heading", { level: 1, name: /AI Monetization/i });
+    const freeUsesInput = screen.getByLabelText(/Daily free AI uses/i);
+    fireEvent.change(freeUsesInput, { target: { value: "8" } });
+
+    const saveBtn = screen.getByRole("button", { name: /save changes/i });
+    fireEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(supabase.from).toHaveBeenCalledWith("site_settings");
+      expect(updateEqMock).toHaveBeenCalled();
+    });
+  });
+
+  it("refuses to save Paid mode when payment provider is not configured", async () => {
+    queryResult = {
+      data: { ...mockSiteSettings, payment_provider_configured: false },
+      error: null,
+    };
+    renderPage();
+
+    await screen.findByRole("heading", { level: 1, name: /AI Monetization/i });
+    const paidBtn = screen.getByRole("button", { name: /^Paid/i });
+    fireEvent.click(paidBtn);
+
+    // Save button should be disabled because canSave() checks this
+    const saveBtn = screen.getByRole("button", { name: /save changes/i });
+    expect(saveBtn).toBeDisabled();
+  });
+
+  it("allows Paid mode if payment provider is configured", async () => {
+    queryResult = {
+      data: { ...mockSiteSettings, payment_provider_configured: true },
+      error: null,
+    };
+    renderPage();
+
+    await screen.findByRole("heading", { level: 1, name: /AI Monetization/i });
+    const paidBtn = screen.getByRole("button", { name: /^Paid/i });
+    fireEvent.click(paidBtn);
+
+    const saveBtn = screen.getByRole("button", { name: /save changes/i });
+    expect(saveBtn).not.toBeDisabled();
+    fireEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(updateEqMock).toHaveBeenCalled();
+    });
+  });
+
+  it("displays honest error banner when database fetch fails", async () => {
+    queryResult = {
+      data: null,
+      error: { message: "Permission denied for site_settings" } as any,
+    };
+    renderPage();
+
+    expect(
+      await screen.findByText("Permission denied for site_settings"),
+    ).toBeInTheDocument();
+  });
+
+  it("displays error message if save update fails", async () => {
+    updateEqMock.mockResolvedValueOnce({
+      error: { message: "Failed to update monetization settings" },
+    });
+    renderPage();
+
+    await screen.findByRole("heading", { level: 1, name: /AI Monetization/i });
+    const saveBtn = screen.getByRole("button", { name: /save changes/i });
+    fireEvent.click(saveBtn);
+
+    expect(
+      await screen.findByText("Failed to update monetization settings"),
+    ).toBeInTheDocument();
   });
 });

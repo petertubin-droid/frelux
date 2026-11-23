@@ -383,19 +383,19 @@ export default function AdminAnalytics() {
             />
             <StatTile
               label={t("Visitors")}
-              value={report?.totals.visitors ?? 0}
+              value={report?.totals?.visitors ?? 0}
               hint={t("Unique browsers in this period")}
               icon={Users}
             />
             <StatTile
               label={t("Page views")}
-              value={report?.totals.page_views ?? 0}
+              value={report?.totals?.page_views ?? 0}
               hint={t("Pages loaded in this period")}
               icon={Eye}
             />
             <StatTile
               label={t("Sessions")}
-              value={report?.totals.sessions ?? 0}
+              value={report?.totals?.sessions ?? 0}
               hint={t("Visits with 30 minute activity windows")}
               icon={Activity}
             />

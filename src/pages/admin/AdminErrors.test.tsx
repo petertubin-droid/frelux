@@ -1,135 +1,164 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { ToastProvider } from "@/components/ui/Toast";
+import AdminErrors from "./AdminErrors";
+import { supabase } from "@/lib/supabase";
 
-vi.mock("@/lib/auth", () => ({
-  useAuth: vi.fn(() => ({ user: null, loading: false })),
-}));
-vi.mock("@/lib/credits", () => ({
-  getCreditWallet: vi.fn().mockResolvedValue(null),
-  getCreditTransactions: vi.fn().mockResolvedValue([]),
-  getActivityStreak: vi.fn().mockResolvedValue(null),
-  recordActivity: vi.fn().mockResolvedValue(true),
-  REWARD_EVENTS: {},
-  adminGetAllWallets: vi.fn().mockResolvedValue([]),
-  adminGetAllTransactions: vi.fn().mockResolvedValue([]),
-  adminGetAllFeatureCosts: vi.fn().mockResolvedValue([]),
-  adminGetAllAdCreditEvents: vi.fn().mockResolvedValue([]),
-  adminGetAllAiFeatureUsage: vi.fn().mockResolvedValue([]),
-  adminGetRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  adminAdjustCredits: vi.fn().mockResolvedValue({ error: null }),
-  adminAdjustCreditsV2: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateFeatureCost: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateAdConfig: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateReward: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateSettings: vi.fn().mockResolvedValue({ error: null }),
-  adminSeedRewards: vi.fn().mockResolvedValue({ error: null }),
-  getRewardCatalogue: vi.fn().mockResolvedValue([]),
-  getRewardSettings: vi.fn().mockResolvedValue(null),
-  getRewardRedemptions: vi.fn().mockResolvedValue([]),
-  getCurrentWeeklyMission: vi.fn().mockResolvedValue(null),
-  getMissionProgress: vi.fn().mockResolvedValue(null),
-  getRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  getRewardedAdHistory: vi.fn().mockResolvedValue([]),
-  getUnusedRewardGrantCount: vi.fn().mockResolvedValue(0),
-  awardCredits: vi.fn().mockResolvedValue({ error: null }),
-  redeemReward: vi.fn().mockResolvedValue({ error: null }),
-  spendAiCredits: vi.fn().mockResolvedValue({ error: null }),
-  unlockFeatureViaAd: vi.fn().mockResolvedValue({ error: null }),
-  verifyRewardedAd: vi.fn().mockResolvedValue({ error: null }),
-  getAiFeatureCost: vi.fn().mockResolvedValue(null),
-  getAiFeatureCosts: vi.fn().mockResolvedValue([]),
-  getAiFeatureUsageToday: vi.fn().mockResolvedValue(0),
-  generateReferenceId: vi.fn().mockReturnValue("ref-123"),
-  getDailyRefId: vi.fn().mockReturnValue("daily-ref-123"),
-  AI_CREDIT_COST: 10,
-  CREDITS_PER_AD: 5,
-  MAX_ADS_PER_DAY: 10,
-}));
-vi.mock("@/lib/supabase", () => {
-  // Build a chainable query object that returns { data: [], error: null } for any chain
-  const chainable = {
-    data: [],
-    error: null,
-    then: undefined, // prevent thenable detection
+const mockErrors = [
+  {
+    id: "err-1",
+    severity: "critical",
+    boundary_name: "CalculatorBoundary",
+    error_message: "Cannot read properties of undefined (reading 'calculate')",
+    error_stack: "Error: at RoomCalculator.tsx:42:15",
+    component_stack: "in Calculator (at Room.tsx:10)",
+    url: "https://freluxtools.com/paint-calculator",
+    user_agent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
+    is_resolved: false,
+    resolved_at: null,
+    created_at: "2026-11-20T14:00:00Z",
+  },
+  {
+    id: "err-2",
+    severity: "warning",
+    boundary_name: "ApiBoundary",
+    error_message: "Network timeout fetching live market rates",
+    error_stack: "NetworkError: Request timed out",
+    component_stack: null,
+    url: "https://freluxtools.com/admin/pricing",
+    user_agent: "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)",
+    is_resolved: true,
+    resolved_at: "2026-11-20T15:00:00Z",
+    created_at: "2026-11-20T12:00:00Z",
+  },
+];
+
+let queryList = [...mockErrors];
+const updateEqMock = vi.fn().mockResolvedValue({ error: null });
+const updateInMock = vi.fn().mockResolvedValue({ error: null });
+
+function createChainableQuery(data: any, count?: number) {
+  const obj: any = {
+    order: vi.fn().mockImplementation(() => obj),
+    range: vi.fn().mockImplementation(() => obj),
+    eq: vi.fn().mockImplementation(() => obj),
+    gte: vi.fn().mockImplementation(() => obj),
+    in: vi.fn().mockImplementation(() => obj),
+    then: (resolve: any) =>
+      resolve({ data, count: count ?? data?.length ?? 0, error: null }),
   };
-  const methods = [
-    "select",
-    "eq",
-    "neq",
-    "gt",
-    "gte",
-    "lt",
-    "lte",
-    "like",
-    "ilike",
-    "in",
-    "is",
-    "not",
-    "or",
-    "and",
-    "order",
-    "range",
-    "limit",
-    "single",
-    "maybeSingle",
-    "insert",
-    "update",
-    "delete",
-    "upsert",
-    "count",
-    "head",
-  ];
-  for (const m of methods) {
-    (chainable as unknown as Record<string, unknown>)[m] = vi.fn(
-      () => chainable,
-    );
-  }
-  const supabase = {
-    from: vi.fn(() => chainable),
-    channel: vi.fn(() => ({ on: vi.fn(() => ({ subscribe: vi.fn() })) })),
-    removeChannel: vi.fn(),
-    auth: {
-      getSession: vi
-        .fn()
-        .mockResolvedValue({ data: { session: null }, error: null }),
-      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
-      signInWithPassword: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      signOut: vi.fn().mockResolvedValue({ error: null }),
-    },
-    storage: {
-      from: vi.fn(() => ({
-        list: vi.fn().mockResolvedValue({ data: [], error: null }),
-        upload: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        remove: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        getPublicUrl: vi.fn(() => ({
-          data: { publicUrl: "https://example.com/test.png" },
-        })),
+  return obj;
+}
+
+vi.mock("@/lib/supabase", () => ({
+  supabase: {
+    from: vi.fn(() => ({
+      select: vi.fn().mockImplementation((cols: string, opts?: any) => {
+        if (opts?.head) {
+          return createChainableQuery(null, queryList.length);
+        }
+        return createChainableQuery(queryList);
+      }),
+      update: vi.fn().mockImplementation((payload: any) => ({
+        eq: updateEqMock,
+        in: updateInMock,
       })),
-    },
-  };
-  return { supabase };
-});
+    })),
+  },
+}));
 
 beforeEach(() => {
   vi.clearAllMocks();
+  queryList = [...mockErrors];
 });
 
-async function renderPage() {
-  const Comp = (await import("@/pages/admin/AdminErrors")).default;
+function renderPage() {
   return render(
     <MemoryRouter>
-      <ToastProvider>
-        <Comp />
-      </ToastProvider>
+      <AdminErrors />
     </MemoryRouter>,
   );
 }
 
 describe("AdminErrors", () => {
-  it("renders without crashing", async () => {
-    const { container } = await renderPage();
-    expect(container.innerHTML).not.toBe("");
+  it("renders Error Monitor header and statistics", async () => {
+    renderPage();
+
+    expect(
+      await screen.findByRole("heading", { level: 1, name: /Error Monitor/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Total Errors")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        "Cannot read properties of undefined (reading 'calculate')",
+      ),
+    ).toBeInTheDocument();
+  });
+
+  it("filters errors when severity tab is clicked", async () => {
+    renderPage();
+
+    await screen.findByRole("heading", { level: 1, name: /Error Monitor/i });
+    const criticalTab = screen.getByRole("button", { name: "critical" });
+    fireEvent.click(criticalTab);
+
+    await waitFor(() => {
+      expect(supabase.from).toHaveBeenCalledWith("error_logs");
+    });
+  });
+
+  it("opens modal with stack trace details when Details is clicked", async () => {
+    renderPage();
+
+    await screen.findByText(
+      "Cannot read properties of undefined (reading 'calculate')",
+    );
+    const detailButtons = screen.getAllByRole("button", { name: /Details/i });
+    fireEvent.click(detailButtons[0]);
+
+    expect(
+      await screen.findByRole("heading", { name: /Error Details/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Error: at RoomCalculator.tsx:42:15"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText("CalculatorBoundary").length,
+    ).toBeGreaterThanOrEqual(1);
+  });
+
+  it("resolves a single error when Resolve is clicked", async () => {
+    renderPage();
+
+    await screen.findByText(
+      "Cannot read properties of undefined (reading 'calculate')",
+    );
+    const resolveBtn = screen.getByRole("button", { name: /^Resolve$/i });
+    fireEvent.click(resolveBtn);
+
+    await waitFor(() => {
+      expect(updateEqMock).toHaveBeenCalledWith("id", "err-1");
+    });
+  });
+
+  it("resolves all unresolved errors when Resolve All is clicked", async () => {
+    renderPage();
+
+    await screen.findByText(
+      "Cannot read properties of undefined (reading 'calculate')",
+    );
+    const resolveAllBtn = screen.getByRole("button", { name: /Resolve all/i });
+    fireEvent.click(resolveAllBtn);
+
+    await waitFor(() => {
+      expect(updateInMock).toHaveBeenCalledWith("id", ["err-1"]);
+    });
+  });
+
+  it("renders empty state when no errors exist", async () => {
+    queryList = [];
+    renderPage();
+
+    expect(await screen.findByText("No errors found 🎉")).toBeInTheDocument();
   });
 });

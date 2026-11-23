@@ -200,13 +200,14 @@ function ProductsTab() {
                 </div>
                 <div className="mt-2 flex shrink-0 items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                   <Toggle
-                    srLabel="{`Active: ${item.name}`}"
+                    srLabel={`Active: ${item.name}`}
                     checked={item.is_active}
                     onChange={() => toggleActive(item)}
                   />
                   <div className="flex items-center gap-0.5">
                     <AdminButton
                       variant="secondary"
+                      aria-label={`Edit ${item.name}`}
                       onClick={() => {
                         setEditing(item);
                         setShowForm(true);
@@ -214,7 +215,11 @@ function ProductsTab() {
                     >
                       <Pencil className="h-3.5 w-3.5" />
                     </AdminButton>
-                    <AdminButton variant="danger" onClick={() => remove(item)}>
+                    <AdminButton
+                      variant="danger"
+                      aria-label={`Delete ${item.name}`}
+                      onClick={() => remove(item)}
+                    >
                       <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                     </AdminButton>
                   </div>
@@ -496,13 +501,14 @@ function MaterialsTab() {
               </div>
               <div className="mt-2 flex shrink-0 items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                 <Toggle
-                  srLabel="{`Active: ${item.name}`}"
+                  srLabel={`Active: ${item.name}`}
                   checked={item.is_active}
                   onChange={() => toggleActive(item)}
                 />
                 <div className="flex items-center gap-0.5">
                   <AdminButton
                     variant="secondary"
+                    aria-label={`Edit ${item.name}`}
                     onClick={() => {
                       setEditing(item);
                       setShowForm(true);
@@ -510,7 +516,11 @@ function MaterialsTab() {
                   >
                     <Pencil className="h-3.5 w-3.5" />
                   </AdminButton>
-                  <AdminButton variant="danger" onClick={() => remove(item)}>
+                  <AdminButton
+                    variant="danger"
+                    aria-label={`Delete ${item.name}`}
+                    onClick={() => remove(item)}
+                  >
                     <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                   </AdminButton>
                 </div>

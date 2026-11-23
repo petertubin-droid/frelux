@@ -425,6 +425,7 @@ function PaintColorsTab() {
                       </div>
                       <div className="flex items-center gap-0.5">
                         <AdminButton
+                          aria-label={`Edit ${item.name}`}
                           variant="secondary"
                           onClick={() => {
                             setEditing(item);
@@ -434,6 +435,7 @@ function PaintColorsTab() {
                           <Pencil className="h-3.5 w-3.5" />
                         </AdminButton>
                         <AdminButton
+                          aria-label={`Delete ${item.name}`}
                           variant="danger"
                           onClick={() => remove(item)}
                         >

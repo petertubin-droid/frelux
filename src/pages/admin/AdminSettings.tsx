@@ -33,7 +33,8 @@ import {
 
 export default function AdminSettings() {
   const { t } = useLanguage();
-  const { bottomNavEnabled, liveChatEnabled, updateWidgetSettings } = useWidgetSettings();
+  const { bottomNavEnabled, liveChatEnabled, updateWidgetSettings } =
+    useWidgetSettings();
   const [settings, setSettings] = useState<DbSiteSettings | null>(null);
   const [bannerSaving, setBannerSaving] = useState(false);
   const [bannerSupported, setBannerSupported] = useState(true);
@@ -728,7 +729,7 @@ export default function AdminSettings() {
                       (o) =>
                         o.value === (loader ?? DEFAULT_LOADER_CONFIG).style,
                     ) || LOADER_STYLE_OPTIONS[0]
-                  ).description
+                  )?.description ?? ""
                 }
               >
                 <AdminSelect
@@ -886,7 +887,8 @@ export default function AdminSettings() {
             </h2>
             <p className="mt-1 text-xs text-muted-foreground">
               Control the visibility of the mobile bottom navigation bar and
-              floating live chat assistant widget across the public site. Both default to toggled off.
+              floating live chat assistant widget across the public site. Both
+              default to toggled off.
             </p>
           </div>
 
@@ -897,8 +899,8 @@ export default function AdminSettings() {
                   Mobile Bottom Navigation Bar
                 </span>
                 <p className="text-xs text-muted-foreground">
-                  Display sticky bottom navigation bar on mobile viewports.
-                  When disabled, mobile navigation is accessed via the top header
+                  Display sticky bottom navigation bar on mobile viewports. When
+                  disabled, mobile navigation is accessed via the top header
                   menu.
                 </p>
               </div>

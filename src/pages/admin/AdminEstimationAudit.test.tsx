@@ -1,135 +1,149 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { ToastProvider } from "@/components/ui/Toast";
+import AdminEstimationAudit from "./AdminEstimationAudit";
+import { supabase } from "@/lib/supabase";
 
-vi.mock("@/lib/auth", () => ({
-  useAuth: vi.fn(() => ({ user: null, loading: false })),
-}));
-vi.mock("@/lib/credits", () => ({
-  getCreditWallet: vi.fn().mockResolvedValue(null),
-  getCreditTransactions: vi.fn().mockResolvedValue([]),
-  getActivityStreak: vi.fn().mockResolvedValue(null),
-  recordActivity: vi.fn().mockResolvedValue(true),
-  REWARD_EVENTS: {},
-  adminGetAllWallets: vi.fn().mockResolvedValue([]),
-  adminGetAllTransactions: vi.fn().mockResolvedValue([]),
-  adminGetAllFeatureCosts: vi.fn().mockResolvedValue([]),
-  adminGetAllAdCreditEvents: vi.fn().mockResolvedValue([]),
-  adminGetAllAiFeatureUsage: vi.fn().mockResolvedValue([]),
-  adminGetRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  adminAdjustCredits: vi.fn().mockResolvedValue({ error: null }),
-  adminAdjustCreditsV2: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateFeatureCost: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateAdConfig: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateReward: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateSettings: vi.fn().mockResolvedValue({ error: null }),
-  adminSeedRewards: vi.fn().mockResolvedValue({ error: null }),
-  getRewardCatalogue: vi.fn().mockResolvedValue([]),
-  getRewardSettings: vi.fn().mockResolvedValue(null),
-  getRewardRedemptions: vi.fn().mockResolvedValue([]),
-  getCurrentWeeklyMission: vi.fn().mockResolvedValue(null),
-  getMissionProgress: vi.fn().mockResolvedValue(null),
-  getRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  getRewardedAdHistory: vi.fn().mockResolvedValue([]),
-  getUnusedRewardGrantCount: vi.fn().mockResolvedValue(0),
-  awardCredits: vi.fn().mockResolvedValue({ error: null }),
-  redeemReward: vi.fn().mockResolvedValue({ error: null }),
-  spendAiCredits: vi.fn().mockResolvedValue({ error: null }),
-  unlockFeatureViaAd: vi.fn().mockResolvedValue({ error: null }),
-  verifyRewardedAd: vi.fn().mockResolvedValue({ error: null }),
-  getAiFeatureCost: vi.fn().mockResolvedValue(null),
-  getAiFeatureCosts: vi.fn().mockResolvedValue([]),
-  getAiFeatureUsageToday: vi.fn().mockResolvedValue(0),
-  generateReferenceId: vi.fn().mockReturnValue("ref-123"),
-  getDailyRefId: vi.fn().mockReturnValue("daily-ref-123"),
-  AI_CREDIT_COST: 10,
-  CREDITS_PER_AD: 5,
-  MAX_ADS_PER_DAY: 10,
-}));
-vi.mock("@/lib/supabase", () => {
-  // Build a chainable query object that returns { data: [], error: null } for any chain
-  const chainable = {
-    data: [],
-    error: null,
-    then: undefined, // prevent thenable detection
+const mockAuditLogs = [
+  {
+    id: "audit-1",
+    entity_type: "calc_rule",
+    entity_id: "rule-paint-coverage",
+    action: "update",
+    user_id: "user-admin-1",
+    user_email: "admin@freluxtools.com",
+    old_value: { coverage_rate: 10.5 },
+    new_value: { coverage_rate: 12.0 },
+    ip_address: "192.168.1.1",
+    created_at: "2026-11-20T11:00:00Z",
+  },
+  {
+    id: "audit-2",
+    entity_type: "price",
+    entity_id: "price-screed-cement",
+    action: "create",
+    user_id: "user-admin-2",
+    user_email: "estimator@freluxtools.com",
+    old_value: null,
+    new_value: { price: 5500, currency: "NGN" },
+    ip_address: "192.168.1.2",
+    created_at: "2026-11-19T09:30:00Z",
+  },
+];
+
+let queryList = [...mockAuditLogs];
+let queryError: any = null;
+
+function createAuditQuery(data: any) {
+  const obj: any = {
+    order: vi.fn().mockImplementation(() => obj),
+    range: vi.fn().mockImplementation(() => obj),
+    eq: vi.fn().mockImplementation((col: string, val: string) => {
+      const filtered = queryList.filter((item: any) => item[col] === val);
+      return createAuditQuery(filtered);
+    }),
+    then: (resolve: any) =>
+      resolve({ data: queryError ? null : data, error: queryError }),
   };
-  const methods = [
-    "select",
-    "eq",
-    "neq",
-    "gt",
-    "gte",
-    "lt",
-    "lte",
-    "like",
-    "ilike",
-    "in",
-    "is",
-    "not",
-    "or",
-    "and",
-    "order",
-    "range",
-    "limit",
-    "single",
-    "maybeSingle",
-    "insert",
-    "update",
-    "delete",
-    "upsert",
-    "count",
-    "head",
-  ];
-  for (const m of methods) {
-    (chainable as unknown as Record<string, unknown>)[m] = vi.fn(
-      () => chainable,
-    );
-  }
-  const supabase = {
-    from: vi.fn(() => chainable),
-    channel: vi.fn(() => ({ on: vi.fn(() => ({ subscribe: vi.fn() })) })),
-    removeChannel: vi.fn(),
-    auth: {
-      getSession: vi
-        .fn()
-        .mockResolvedValue({ data: { session: null }, error: null }),
-      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
-      signInWithPassword: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      signOut: vi.fn().mockResolvedValue({ error: null }),
-    },
-    storage: {
-      from: vi.fn(() => ({
-        list: vi.fn().mockResolvedValue({ data: [], error: null }),
-        upload: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        remove: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        getPublicUrl: vi.fn(() => ({
-          data: { publicUrl: "https://example.com/test.png" },
-        })),
-      })),
-    },
-  };
-  return { supabase };
-});
+  return obj;
+}
+
+vi.mock("@/lib/supabase", () => ({
+  supabase: {
+    from: vi.fn(() => ({
+      select: vi.fn().mockImplementation(() => createAuditQuery(queryList)),
+    })),
+  },
+}));
 
 beforeEach(() => {
   vi.clearAllMocks();
+  queryList = [...mockAuditLogs];
+  queryError = null;
 });
 
-async function renderPage() {
-  const Comp = (await import("@/pages/admin/AdminEstimationAudit")).default;
+function renderPage() {
   return render(
     <MemoryRouter>
-      <ToastProvider>
-        <Comp />
-      </ToastProvider>
+      <AdminEstimationAudit />
     </MemoryRouter>,
   );
 }
 
 describe("AdminEstimationAudit", () => {
-  it("renders without crashing", async () => {
-    const { container } = await renderPage();
-    expect(container.innerHTML).not.toBe("");
+  it("renders audit trail header and audit log entries", async () => {
+    renderPage();
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: /Estimation Audit Trail/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("calc_rule").length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/ID: rule-paint-coverage/)).toBeInTheDocument();
+    expect(screen.getByText(/ID: price-screed-cement/)).toBeInTheDocument();
+  });
+
+  it("filters audit logs by entity type when selection changes", async () => {
+    renderPage();
+
+    await screen.findByRole("heading", {
+      level: 1,
+      name: /Estimation Audit Trail/i,
+    });
+    const select = screen.getByLabelText("Filter audit by entity type");
+    fireEvent.change(select, { target: { value: "calc_rule" } });
+
+    await waitFor(() => {
+      expect(supabase.from).toHaveBeenCalledWith("estimation_audit_log");
+    });
+  });
+
+  it("expands an entry to show change details when clicked", async () => {
+    renderPage();
+
+    await screen.findByText(/ID: rule-paint-coverage/);
+    const card = screen
+      .getByText(/ID: rule-paint-coverage/)
+      .closest('[role="button"]')!;
+    fireEvent.click(card);
+
+    expect(await screen.findByText("Old Value")).toBeInTheDocument();
+    expect(screen.getByText("New Value")).toBeInTheDocument();
+    expect(screen.getAllByText(/coverage_rate/).length).toBe(2);
+  });
+
+  it("refetches audit logs when Refresh is clicked", async () => {
+    renderPage();
+
+    await screen.findByRole("heading", {
+      level: 1,
+      name: /Estimation Audit Trail/i,
+    });
+    const refreshBtn = screen.getByRole("button", { name: /Refresh/i });
+    fireEvent.click(refreshBtn);
+
+    await waitFor(() => {
+      expect(supabase.from).toHaveBeenCalledWith("estimation_audit_log");
+    });
+  });
+
+  it("displays error message if fetching audit log fails", async () => {
+    queryError = { message: "Permission denied on estimation_audit_log" };
+    renderPage();
+
+    expect(
+      await screen.findByText("Permission denied on estimation_audit_log"),
+    ).toBeInTheDocument();
+  });
+
+  it("renders empty state when no audit records are found", async () => {
+    queryList = [];
+    renderPage();
+
+    expect(
+      await screen.findByText("No audit entries found"),
+    ).toBeInTheDocument();
   });
 });

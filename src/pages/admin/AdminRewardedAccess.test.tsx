@@ -1,135 +1,221 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { ToastProvider } from "@/components/ui/Toast";
+import AdminRewardedAccess from "./AdminRewardedAccess";
 
-vi.mock("@/lib/auth", () => ({
-  useAuth: vi.fn(() => ({ user: null, loading: false })),
+const { mockFeatures, mockProviders, mockToolConfigs, updateEqMock, state } =
+  vi.hoisted(() => {
+    const mockFeatures = [
+      {
+        id: "feat-1",
+        feature_key: "export_pdf",
+        feature_name: "PDF Export",
+        description: "Unlock full PDF export capability",
+        is_enabled: true,
+        unlock_duration_minutes: 60,
+        daily_usage_limit: 5,
+        cooldown_minutes: 10,
+        reward_points: 100,
+      },
+    ];
+
+    const mockProviders = [
+      {
+        id: "prov-1",
+        name: "Google AdMob",
+        is_active: true,
+        priority: 1,
+        ad_types: ["rewarded"],
+      },
+    ];
+
+    const mockToolConfigs = [
+      {
+        id: "tool-1",
+        tool_key: "paint_estimator",
+        tool_label: "Paint Estimator",
+        description: "Access premium paint calculation presets",
+        is_enabled: true,
+        unlock_duration_hours: 24,
+        daily_unlock_limit: 3,
+        cooldown_hours: 1,
+      },
+    ];
+
+    const state = {
+      fetchError: null as any,
+      featuresList: [...mockFeatures],
+    };
+
+    return {
+      mockFeatures,
+      mockProviders,
+      mockToolConfigs,
+      updateEqMock: vi.fn().mockResolvedValue({ error: null }),
+      state,
+    };
+  });
+
+vi.mock("@/lib/supabase", () => ({
+  supabase: {
+    from: vi.fn((table: string) => {
+      if (table === "rewarded_feature_config") {
+        return {
+          select: vi.fn().mockReturnValue({
+            order: vi.fn().mockResolvedValue({
+              data: state.fetchError ? null : state.featuresList,
+              error: state.fetchError,
+            }),
+          }),
+          update: vi.fn().mockImplementation(() => ({
+            eq: updateEqMock,
+          })),
+        };
+      }
+      if (table === "ad_providers") {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              order: vi.fn().mockResolvedValue({
+                data: mockProviders,
+                error: null,
+              }),
+            }),
+          }),
+        };
+      }
+      if (
+        table === "rewarded_tool_config" ||
+        table === "rewarded_tool_configs"
+      ) {
+        return {
+          select: vi.fn().mockReturnValue({
+            order: vi.fn().mockResolvedValue({
+              data: mockToolConfigs,
+              error: null,
+            }),
+          }),
+          update: vi.fn().mockImplementation(() => ({
+            eq: updateEqMock,
+          })),
+        };
+      }
+      return {
+        select: vi.fn().mockReturnValue({
+          order: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      };
+    }),
+  },
 }));
-vi.mock("@/lib/credits", () => ({
-  getCreditWallet: vi.fn().mockResolvedValue(null),
-  getCreditTransactions: vi.fn().mockResolvedValue([]),
-  getActivityStreak: vi.fn().mockResolvedValue(null),
-  recordActivity: vi.fn().mockResolvedValue(true),
-  REWARD_EVENTS: {},
-  adminGetAllWallets: vi.fn().mockResolvedValue([]),
-  adminGetAllTransactions: vi.fn().mockResolvedValue([]),
-  adminGetAllFeatureCosts: vi.fn().mockResolvedValue([]),
-  adminGetAllAdCreditEvents: vi.fn().mockResolvedValue([]),
-  adminGetAllAiFeatureUsage: vi.fn().mockResolvedValue([]),
-  adminGetRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  adminAdjustCredits: vi.fn().mockResolvedValue({ error: null }),
-  adminAdjustCreditsV2: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateFeatureCost: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateAdConfig: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateReward: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateSettings: vi.fn().mockResolvedValue({ error: null }),
-  adminSeedRewards: vi.fn().mockResolvedValue({ error: null }),
-  getRewardCatalogue: vi.fn().mockResolvedValue([]),
-  getRewardSettings: vi.fn().mockResolvedValue(null),
-  getRewardRedemptions: vi.fn().mockResolvedValue([]),
-  getCurrentWeeklyMission: vi.fn().mockResolvedValue(null),
-  getMissionProgress: vi.fn().mockResolvedValue(null),
-  getRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  getRewardedAdHistory: vi.fn().mockResolvedValue([]),
-  getUnusedRewardGrantCount: vi.fn().mockResolvedValue(0),
-  awardCredits: vi.fn().mockResolvedValue({ error: null }),
-  redeemReward: vi.fn().mockResolvedValue({ error: null }),
-  spendAiCredits: vi.fn().mockResolvedValue({ error: null }),
-  unlockFeatureViaAd: vi.fn().mockResolvedValue({ error: null }),
-  verifyRewardedAd: vi.fn().mockResolvedValue({ error: null }),
-  getAiFeatureCost: vi.fn().mockResolvedValue(null),
-  getAiFeatureCosts: vi.fn().mockResolvedValue([]),
-  getAiFeatureUsageToday: vi.fn().mockResolvedValue(0),
-  generateReferenceId: vi.fn().mockReturnValue("ref-123"),
-  getDailyRefId: vi.fn().mockReturnValue("daily-ref-123"),
-  AI_CREDIT_COST: 10,
-  CREDITS_PER_AD: 5,
-  MAX_ADS_PER_DAY: 10,
-}));
-vi.mock("@/lib/supabase", () => {
-  // Build a chainable query object that returns { data: [], error: null } for any chain
-  const chainable = {
+
+vi.mock("@/lib/queries", () => ({
+  fetchAllRewardedToolConfigs: vi.fn().mockResolvedValue({
+    data: mockToolConfigs,
+    error: null,
+  }),
+  fetchRewardedUnlockStats: vi.fn().mockResolvedValue({
     data: [],
     error: null,
-    then: undefined, // prevent thenable detection
-  };
-  const methods = [
-    "select",
-    "eq",
-    "neq",
-    "gt",
-    "gte",
-    "lt",
-    "lte",
-    "like",
-    "ilike",
-    "in",
-    "is",
-    "not",
-    "or",
-    "and",
-    "order",
-    "range",
-    "limit",
-    "single",
-    "maybeSingle",
-    "insert",
-    "update",
-    "delete",
-    "upsert",
-    "count",
-    "head",
-  ];
-  for (const m of methods) {
-    (chainable as unknown as Record<string, unknown>)[m] = vi.fn(
-      () => chainable,
-    );
-  }
-  const supabase = {
-    from: vi.fn(() => chainable),
-    channel: vi.fn(() => ({ on: vi.fn(() => ({ subscribe: vi.fn() })) })),
-    removeChannel: vi.fn(),
-    auth: {
-      getSession: vi
-        .fn()
-        .mockResolvedValue({ data: { session: null }, error: null }),
-      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
-      signInWithPassword: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      signOut: vi.fn().mockResolvedValue({ error: null }),
-    },
-    storage: {
-      from: vi.fn(() => ({
-        list: vi.fn().mockResolvedValue({ data: [], error: null }),
-        upload: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        remove: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        getPublicUrl: vi.fn(() => ({
-          data: { publicUrl: "https://example.com/test.png" },
-        })),
-      })),
-    },
-  };
-  return { supabase };
-});
+  }),
+  fetchRewardedAdEventStats: vi.fn().mockResolvedValue({
+    data: [],
+    error: null,
+  }),
+}));
 
 beforeEach(() => {
   vi.clearAllMocks();
+  state.featuresList = [...mockFeatures];
+  state.fetchError = null;
 });
 
-async function renderPage() {
-  const Comp = (await import("@/pages/admin/AdminRewardedAccess")).default;
+function renderPage() {
   return render(
     <MemoryRouter>
-      <ToastProvider>
-        <Comp />
-      </ToastProvider>
+      <AdminRewardedAccess />
     </MemoryRouter>,
   );
 }
 
 describe("AdminRewardedAccess", () => {
-  it("renders without crashing", async () => {
-    const { container } = await renderPage();
-    expect(container.innerHTML).not.toBe("");
+  it("renders page header and Feature Config tab by default", async () => {
+    renderPage();
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: /Rewarded Ads Manager/i,
+      }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Feature Config/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Tool Config/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /Analytics/i }),
+    ).toBeInTheDocument();
+    expect(await screen.findByText("PDF Export")).toBeInTheDocument();
+    expect(screen.getByText("export_pdf")).toBeInTheDocument();
+  });
+
+  it("toggles feature configuration enabled status", async () => {
+    renderPage();
+
+    await screen.findByText("PDF Export");
+    const toggle = screen.getByLabelText("Enabled: PDF Export");
+    fireEvent.click(toggle);
+
+    await waitFor(() => {
+      expect(updateEqMock).toHaveBeenCalledWith("id", "feat-1");
+    });
+  });
+
+  it("switches to Tool Config tab and displays tool cards", async () => {
+    renderPage();
+
+    await screen.findByText("PDF Export");
+    const toolTabBtn = screen.getByRole("button", { name: /Tool Config/i });
+    fireEvent.click(toolTabBtn);
+
+    expect(await screen.findByText("Paint Estimator")).toBeInTheDocument();
+    expect(screen.getByText("paint_estimator")).toBeInTheDocument();
+  });
+
+  it("toggles tool config enabled status", async () => {
+    renderPage();
+
+    await screen.findByText("PDF Export");
+    const toolTabBtn = screen.getByRole("button", { name: /Tool Config/i });
+    fireEvent.click(toolTabBtn);
+
+    await screen.findByText("Paint Estimator");
+    const toggle = screen.getByLabelText("Enabled: Paint Estimator");
+    fireEvent.click(toggle);
+
+    await waitFor(() => {
+      expect(updateEqMock).toHaveBeenCalledWith("id", "tool-1");
+    });
+  });
+
+  it("switches to Analytics tab and displays stats view", async () => {
+    renderPage();
+
+    await screen.findByText("PDF Export");
+    const analyticsTabBtn = screen.getByRole("button", { name: /Analytics/i });
+    fireEvent.click(analyticsTabBtn);
+
+    expect(await screen.findByText("Total Unlocks")).toBeInTheDocument();
+  });
+
+  it("displays error message when loading features fails", async () => {
+    state.fetchError = { message: "Could not load rewarded features" };
+    renderPage();
+
+    expect(
+      await screen.findByText("Could not load rewarded features"),
+    ).toBeInTheDocument();
   });
 });

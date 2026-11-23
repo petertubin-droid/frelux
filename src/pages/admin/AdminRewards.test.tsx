@@ -1,67 +1,238 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { ToastProvider } from "@/components/ui/Toast";
+import AdminRewards from "./AdminRewards";
 
-vi.mock("@/lib/auth", () => ({ useAuth: vi.fn(() => ({ user: null, loading: false })) }));
-vi.mock("@/lib/credits", () => ({
-  getCreditWallet: vi.fn().mockResolvedValue(null),
-  getCreditTransactions: vi.fn().mockResolvedValue([]),
-  getActivityStreak: vi.fn().mockResolvedValue(null),
-  recordActivity: vi.fn().mockResolvedValue(true),
-  REWARD_EVENTS: {},
-  adminGetAllWallets: vi.fn().mockResolvedValue([]),
-  adminGetAllTransactions: vi.fn().mockResolvedValue([]),
-  adminGetAllFeatureCosts: vi.fn().mockResolvedValue([]),
-  adminGetAllAdCreditEvents: vi.fn().mockResolvedValue([]),
-  adminGetAllAiFeatureUsage: vi.fn().mockResolvedValue([]),
-  adminGetRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  adminAdjustCredits: vi.fn().mockResolvedValue({ error: null }),
-  adminAdjustCreditsV2: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateFeatureCost: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateAdConfig: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateReward: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateSettings: vi.fn().mockResolvedValue({ error: null }),
-  adminSeedRewards: vi.fn().mockResolvedValue({ error: null }),
-  getRewardCatalogue: vi.fn().mockResolvedValue([]),
-  getRewardSettings: vi.fn().mockResolvedValue(null),
-  getRewardRedemptions: vi.fn().mockResolvedValue([]),
-  getCurrentWeeklyMission: vi.fn().mockResolvedValue(null),
-  getMissionProgress: vi.fn().mockResolvedValue(null),
-  getRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  getRewardedAdHistory: vi.fn().mockResolvedValue([]),
-  getUnusedRewardGrantCount: vi.fn().mockResolvedValue(0),
-  awardCredits: vi.fn().mockResolvedValue({ error: null }),
-  redeemReward: vi.fn().mockResolvedValue({ error: null }),
-  spendAiCredits: vi.fn().mockResolvedValue({ error: null }),
-  unlockFeatureViaAd: vi.fn().mockResolvedValue({ error: null }),
-  verifyRewardedAd: vi.fn().mockResolvedValue({ error: null }),
-  getAiFeatureCost: vi.fn().mockResolvedValue(null),
-  getAiFeatureCosts: vi.fn().mockResolvedValue([]),
-  getAiFeatureUsageToday: vi.fn().mockResolvedValue(0),
-  generateReferenceId: vi.fn().mockReturnValue("ref-123"),
-  getDailyRefId: vi.fn().mockReturnValue("daily-ref-123"),
-  AI_CREDIT_COST: 10,
-  CREDITS_PER_AD: 5,
-  MAX_ADS_PER_DAY: 10,
+const {
+  mockWallets,
+  mockTransactions,
+  mockRewards,
+  mockSettings,
+  adminAdjustCreditsMock,
+  adminUpdateRewardMock,
+  adminUpdateSettingsMock,
+  adminSeedRewardsMock,
+} = vi.hoisted(() => {
+  const mockWallets = [
+    {
+      user_id: "user-12345678-abcd",
+      balance: 450,
+      total_earned: 600,
+      total_spent: 150,
+      updated_at: new Date().toISOString(),
+    },
+  ];
+
+  const mockTransactions = [
+    {
+      id: "tx-1",
+      user_id: "user-12345678-abcd",
+      amount: 50,
+      type: "reward_claim",
+      reason: "Completed weekly mission",
+      reference_id: "mission-1",
+      created_at: new Date().toISOString(),
+    },
+  ];
+
+  const mockRewards = [
+    {
+      id: "rwd-1",
+      key: "discount_10",
+      name: "10% Platform Discount",
+      description: "Get 10% off your next subscription",
+      credit_cost: 200,
+      is_enabled: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    },
+  ];
+
+  const mockSettings = {
+    rewards_enabled: true,
+    weekly_mission_credits: 50,
+    streak_7_day_credits: 100,
+    streak_grace_days: 1,
+  };
+
+  return {
+    mockWallets,
+    mockTransactions,
+    mockRewards,
+    mockSettings,
+    adminAdjustCreditsMock: vi
+      .fn()
+      .mockResolvedValue({ success: true, newBalance: 500 }),
+    adminUpdateRewardMock: vi.fn().mockResolvedValue(true),
+    adminUpdateSettingsMock: vi.fn().mockResolvedValue(true),
+    adminSeedRewardsMock: vi
+      .fn()
+      .mockResolvedValue({ success: true, message: "4 rewards created" }),
+  };
+});
+
+vi.mock("@/lib/auth", () => ({
+  useAuth: vi.fn().mockReturnValue({
+    user: { id: "admin-user-id" },
+  }),
 }));
 
-beforeEach(() => { vi.clearAllMocks(); });
+vi.mock("@/components/ui/Toast", () => ({
+  useToast: vi.fn().mockReturnValue({
+    toast: vi.fn(),
+  }),
+}));
 
-async function renderPage() {
-  const Comp = (await import("@/pages/admin/AdminRewards")).default;
+vi.mock("@/lib/credits", () => ({
+  adminGetAllWallets: vi.fn().mockResolvedValue(mockWallets),
+  adminGetAllTransactions: vi.fn().mockResolvedValue(mockTransactions),
+  getRewardCatalogue: vi.fn().mockResolvedValue(mockRewards),
+  getRewardSettings: vi.fn().mockResolvedValue(mockSettings),
+  adminUpdateReward: adminUpdateRewardMock,
+  adminUpdateSettings: adminUpdateSettingsMock,
+  adminAdjustCredits: adminAdjustCreditsMock,
+  adminSeedRewards: adminSeedRewardsMock,
+}));
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+function renderPage() {
   return render(
     <MemoryRouter>
-      <ToastProvider>
-        <Comp />
-      </ToastProvider>
+      <AdminRewards />
     </MemoryRouter>,
   );
 }
 
 describe("AdminRewards", () => {
-  it("renders without crashing", async () => {
-    const { container } = await renderPage();
-    expect(container.innerHTML).not.toBe("");
+  it("renders page header and Overview stats by default", async () => {
+    renderPage();
+
+    expect(
+      await screen.findByRole("heading", {
+        level: 1,
+        name: /FRELUX Credits & Rewards/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /Overview/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /Reward Catalogue/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("tab", { name: /Settings/i })).toBeInTheDocument();
+    expect(
+      screen.getByRole("tab", { name: /Suspicious Activity/i }),
+    ).toBeInTheDocument();
+
+    expect(
+      await screen.findByText("Total Credits in Circulation"),
+    ).toBeInTheDocument();
+    expect(screen.getAllByText("450").length).toBeGreaterThan(0);
+    expect(screen.getByText("Completed weekly mission")).toBeInTheDocument();
+  });
+
+  it("submits manual credit adjustment", async () => {
+    renderPage();
+
+    await screen.findByText("Adjust User Credits");
+
+    const userField = screen.getByLabelText("User ID");
+    const amountField = screen.getByLabelText("Amount");
+    const reasonField = screen.getByLabelText("Reason");
+
+    fireEvent.change(userField, { target: { value: "user-target-id" } });
+    fireEvent.change(amountField, { target: { value: "50" } });
+    fireEvent.change(reasonField, {
+      target: { value: "Customer support compensation" },
+    });
+
+    const adjustBtn = screen.getByRole("button", { name: "Adjust" });
+    fireEvent.click(adjustBtn);
+
+    await waitFor(() => {
+      expect(adminAdjustCreditsMock).toHaveBeenCalledWith(
+        "admin-user-id",
+        "user-target-id",
+        50,
+        "Customer support compensation",
+      );
+    });
+  });
+
+  it("switches to Reward Catalogue tab and allows editing a reward", async () => {
+    renderPage();
+
+    await screen.findByText("Total Credits in Circulation");
+    const tabBtn = screen.getByRole("tab", { name: /Reward Catalogue/i });
+    fireEvent.click(tabBtn);
+
+    expect(
+      await screen.findByDisplayValue("10% Platform Discount"),
+    ).toBeInTheDocument();
+    const nameInput = screen.getByDisplayValue("10% Platform Discount");
+    fireEvent.change(nameInput, { target: { value: "15% Platform Discount" } });
+
+    const saveBtn = screen.getByRole("button", { name: /Save/i });
+    fireEvent.click(saveBtn);
+
+    await waitFor(() => {
+      expect(adminUpdateRewardMock).toHaveBeenCalledWith(
+        "rwd-1",
+        expect.objectContaining({ name: "15% Platform Discount" }),
+      );
+    });
+  });
+
+  it("triggers Seed 4 Core Rewards action", async () => {
+    renderPage();
+
+    await screen.findByText("Total Credits in Circulation");
+    const tabBtn = screen.getByRole("tab", { name: /Reward Catalogue/i });
+    fireEvent.click(tabBtn);
+
+    const seedBtn = await screen.findByRole("button", {
+      name: /Seed 4 Core Rewards/i,
+    });
+    fireEvent.click(seedBtn);
+
+    await waitFor(() => {
+      expect(adminSeedRewardsMock).toHaveBeenCalled();
+    });
+  });
+
+  it("switches to Settings tab and updates reward settings", async () => {
+    renderPage();
+
+    await screen.findByText("Total Credits in Circulation");
+    const settingsTab = screen.getByRole("tab", { name: /Settings/i });
+    fireEvent.click(settingsTab);
+
+    expect(await screen.findByText("Rewards Enabled")).toBeInTheDocument();
+    const saveSettingsBtn = screen.getByRole("button", {
+      name: /Save Settings/i,
+    });
+    fireEvent.click(saveSettingsBtn);
+
+    await waitFor(() => {
+      expect(adminUpdateSettingsMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          rewards_enabled: true,
+          weekly_mission_credits: 50,
+        }),
+      );
+    });
+  });
+
+  it("switches to Suspicious Activity tab", async () => {
+    renderPage();
+
+    await screen.findByText("Total Credits in Circulation");
+    const suspTab = screen.getByRole("tab", { name: /Suspicious Activity/i });
+    fireEvent.click(suspTab);
+
+    expect(
+      await screen.findByText(/Flagged Transactions/i),
+    ).toBeInTheDocument();
   });
 });

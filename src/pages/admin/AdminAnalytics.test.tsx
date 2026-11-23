@@ -1,152 +1,149 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { ToastProvider } from "@/components/ui/Toast";
+import AdminAnalytics from "./AdminAnalytics";
 
-vi.mock("@/lib/auth", () => ({
-  useAuth: vi.fn(() => ({ user: null, loading: false })),
-}));
-vi.mock("@/lib/credits", () => ({
-  getCreditWallet: vi.fn().mockResolvedValue(null),
-  getCreditTransactions: vi.fn().mockResolvedValue([]),
-  getActivityStreak: vi.fn().mockResolvedValue(null),
-  recordActivity: vi.fn().mockResolvedValue(true),
-  REWARD_EVENTS: {},
-  adminGetAllWallets: vi.fn().mockResolvedValue([]),
-  adminGetAllTransactions: vi.fn().mockResolvedValue([]),
-  adminGetAllFeatureCosts: vi.fn().mockResolvedValue([]),
-  adminGetAllAdCreditEvents: vi.fn().mockResolvedValue([]),
-  adminGetAllAiFeatureUsage: vi.fn().mockResolvedValue([]),
-  adminGetRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  adminAdjustCredits: vi.fn().mockResolvedValue({ error: null }),
-  adminAdjustCreditsV2: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateFeatureCost: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateAdConfig: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateReward: vi.fn().mockResolvedValue({ error: null }),
-  adminUpdateSettings: vi.fn().mockResolvedValue({ error: null }),
-  adminSeedRewards: vi.fn().mockResolvedValue({ error: null }),
-  getRewardCatalogue: vi.fn().mockResolvedValue([]),
-  getRewardSettings: vi.fn().mockResolvedValue(null),
-  getRewardRedemptions: vi.fn().mockResolvedValue([]),
-  getCurrentWeeklyMission: vi.fn().mockResolvedValue(null),
-  getMissionProgress: vi.fn().mockResolvedValue(null),
-  getRewardedAdConfig: vi.fn().mockResolvedValue(null),
-  getRewardedAdHistory: vi.fn().mockResolvedValue([]),
-  getUnusedRewardGrantCount: vi.fn().mockResolvedValue(0),
-  awardCredits: vi.fn().mockResolvedValue({ error: null }),
-  redeemReward: vi.fn().mockResolvedValue({ error: null }),
-  spendAiCredits: vi.fn().mockResolvedValue({ error: null }),
-  unlockFeatureViaAd: vi.fn().mockResolvedValue({ error: null }),
-  verifyRewardedAd: vi.fn().mockResolvedValue({ error: null }),
-  getAiFeatureCost: vi.fn().mockResolvedValue(null),
-  getAiFeatureCosts: vi.fn().mockResolvedValue([]),
-  getAiFeatureUsageToday: vi.fn().mockResolvedValue(0),
-  generateReferenceId: vi.fn().mockReturnValue("ref-123"),
-  getDailyRefId: vi.fn().mockReturnValue("daily-ref-123"),
-  AI_CREDIT_COST: 10,
-  CREDITS_PER_AD: 5,
-  MAX_ADS_PER_DAY: 10,
-}));
-vi.mock("@/lib/supabase", () => {
-  // Build a chainable query object that returns { data: [], error: null } for any chain
-  const chainable = {
-    data: [],
-    error: null,
-    then: undefined, // prevent thenable detection
+const { mockTrafficReport, mockEvents } = vi.hoisted(() => {
+  const mockTrafficReport = {
+    days: 7,
+    generated_at: new Date().toISOString(),
+    totals: {
+      visitors: 1250,
+      page_views: 4800,
+      sessions: 1600,
+      avg_session_seconds: 145,
+      bounce_rate: 0.32,
+    },
+    active_now: 14,
+    daily: [
+      { date: "2026-03-25", visitors: 180, page_views: 650 },
+      { date: "2026-03-26", visitors: 210, page_views: 720 },
+    ],
+    pages: [
+      { path: "/paint-calculator", views: 1200 },
+      { path: "/cost-estimator", views: 850 },
+    ],
+    sources: [
+      { source: "google", visits: 900 },
+      { source: "direct", visits: 350 },
+    ],
+    devices: [
+      { device: "mobile", visitors: 800 },
+      { device: "desktop", visitors: 450 },
+    ],
   };
-  const methods = [
-    "select",
-    "eq",
-    "neq",
-    "gt",
-    "gte",
-    "lt",
-    "lte",
-    "like",
-    "ilike",
-    "in",
-    "is",
-    "not",
-    "or",
-    "and",
-    "order",
-    "range",
-    "limit",
-    "single",
-    "maybeSingle",
-    "insert",
-    "update",
-    "delete",
-    "upsert",
-    "count",
-    "head",
+
+  const mockEvents = [
+    {
+      id: "ev-1",
+      event: "calculator_completed",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: "ev-2",
+      event: "ai_recommendation_generated",
+      created_at: new Date().toISOString(),
+    },
   ];
-  for (const m of methods) {
-    (chainable as unknown as Record<string, unknown>)[m] = vi.fn(
-      () => chainable,
-    );
-  }
-  const supabase = {
-    from: vi.fn(() => chainable),
-    rpc: vi.fn().mockResolvedValue({ data: null, error: null }),
-    channel: vi.fn(() => ({ on: vi.fn(() => ({ subscribe: vi.fn() })) })),
-    removeChannel: vi.fn(),
-    auth: {
-      getSession: vi
-        .fn()
-        .mockResolvedValue({ data: { session: null }, error: null }),
-      getUser: vi.fn().mockResolvedValue({ data: { user: null }, error: null }),
-      signInWithPassword: vi.fn().mockResolvedValue({ data: {}, error: null }),
-      signOut: vi.fn().mockResolvedValue({ error: null }),
-    },
-    storage: {
-      from: vi.fn(() => ({
-        list: vi.fn().mockResolvedValue({ data: [], error: null }),
-        upload: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        remove: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        getPublicUrl: vi.fn(() => ({
-          data: { publicUrl: "https://example.com/test.png" },
-        })),
-      })),
-    },
-  };
-  return { supabase };
+
+  return { mockTrafficReport, mockEvents };
 });
+
+vi.mock("@/lib/traffic-report", () => ({
+  fetchTrafficReport: vi.fn().mockResolvedValue({
+    report: mockTrafficReport,
+    error: null,
+  }),
+  fetchGa4Configuration: vi.fn().mockResolvedValue({
+    measurementId: null,
+    connected: false,
+    source: "none",
+  }),
+  fetchGa4Summary: vi.fn().mockResolvedValue(null),
+  fetchGa4Status: vi.fn().mockResolvedValue({ status: "not_configured" }),
+}));
+
+vi.mock("@/lib/supabase", () => ({
+  supabase: {
+    from: vi.fn((table: string) => {
+      if (table === "analytics_events") {
+        return {
+          select: vi.fn().mockReturnValue({
+            order: vi.fn().mockReturnValue({
+              limit: vi.fn().mockResolvedValue({
+                data: mockEvents,
+                error: null,
+              }),
+            }),
+          }),
+        };
+      }
+      return {
+        select: vi.fn().mockReturnValue({
+          order: vi.fn().mockResolvedValue({ data: [], error: null }),
+        }),
+      };
+    }),
+  },
+}));
 
 beforeEach(() => {
   vi.clearAllMocks();
 });
 
-async function renderPage() {
-  const Comp = (await import("@/pages/admin/AdminAnalytics")).default;
+function renderPage() {
   return render(
     <MemoryRouter>
-      <ToastProvider>
-        <Comp />
-      </ToastProvider>
+      <AdminAnalytics />
     </MemoryRouter>,
   );
 }
 
 describe("AdminAnalytics", () => {
-  it("renders without crashing", async () => {
-    const { container } = await renderPage();
-    expect(container.innerHTML).not.toBe("");
-  });
+  it("renders page header and period selector buttons", async () => {
+    renderPage();
 
-  it("shows the traffic section and never invents numbers", async () => {
-    await renderPage();
-    expect(await screen.findByText("Active now")).toBeTruthy();
-    expect(screen.getByText("Page views")).toBeTruthy();
-    expect(screen.getByText("Visitors")).toBeTruthy();
-    // No report data from the mocked database means zeros, not sample traffic.
-    expect(screen.getAllByText("0").length).toBeGreaterThan(0);
-  });
-
-  it("tells the admin honestly when GA4 is not configured", async () => {
-    await renderPage();
     expect(
-      await screen.findByText("No GA4 measurement ID is configured yet."),
-    ).toBeTruthy();
+      await screen.findByRole("heading", { level: 1, name: /Analytics/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "7 days" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "28 days" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "90 days" })).toBeInTheDocument();
+  });
+
+  it("displays key traffic stat metrics", async () => {
+    renderPage();
+
+    expect(await screen.findByText("1,250")).toBeInTheDocument(); // unique visitors
+    expect(screen.getByText("4,800")).toBeInTheDocument(); // page views
+    expect(screen.getByText("14")).toBeInTheDocument(); // live now
+  });
+
+  it("displays top pages and traffic sources breakdowns", async () => {
+    renderPage();
+
+    expect(await screen.findByText("/paint-calculator")).toBeInTheDocument();
+    expect(screen.getByText("/cost-estimator")).toBeInTheDocument();
+    expect(screen.getByText("google")).toBeInTheDocument();
+    expect(screen.getByText("direct")).toBeInTheDocument();
+  });
+
+  it("allows switching time periods", async () => {
+    renderPage();
+
+    const btn28 = await screen.findByRole("button", { name: "28 days" });
+    fireEvent.click(btn28);
+
+    await waitFor(() => {
+      expect(btn28).toHaveAttribute("aria-pressed", "true");
+    });
+  });
+
+  it("renders feature category groups", async () => {
+    renderPage();
+
+    expect(await screen.findByText("Calculator")).toBeInTheDocument();
+    expect(screen.getByText("Cost Estimator")).toBeInTheDocument();
+    expect(screen.getByText("AI Assistant")).toBeInTheDocument();
   });
 });

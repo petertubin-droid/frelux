@@ -219,7 +219,7 @@ function SettingsTab() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Toggle
-                    srLabel="{`Enabled: ${setting.name}`}"
+                    srLabel={`Enabled: ${ESTIMATOR_LABELS[setting.estimator_key] ?? setting.estimator_key} ${setting.market}`}
                     checked={setting.is_enabled}
                     onChange={(v) =>
                       updateSetting(setting.id, { is_enabled: v })
@@ -465,7 +465,7 @@ function CategoriesTab() {
             </div>
             <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
               <Toggle
-                srLabel="{`Active: ${cat.name}`}"
+                srLabel={`Active: ${cat.category_name}`}
                 checked={cat.is_active}
                 onChange={() => toggleActive(cat)}
               />

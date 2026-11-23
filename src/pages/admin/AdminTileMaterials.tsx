@@ -322,7 +322,7 @@ export default function AdminTileMaterials() {
                 </div>
                 <div className="mt-2 flex items-center justify-between border-t border-border/50 pt-2 dark:border-white/5">
                   <Toggle
-                    srLabel="{`Active: ${s.name}`}"
+                    srLabel={`Active: ${s.name}`}
                     checked={s.is_active}
                     onChange={() => handleToggleSizeActive(s)}
                   />
@@ -417,7 +417,7 @@ export default function AdminTileMaterials() {
                         </div>
                         <div className="flex items-center gap-2">
                           <Toggle
-                            srLabel="{`Active: ${m.name}`}"
+                            srLabel={`Active: ${m.name}`}
                             checked={m.is_active}
                             onChange={() => handleToggleMatActive(m)}
                           />

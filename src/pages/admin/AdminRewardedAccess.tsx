@@ -194,7 +194,7 @@ function FeatureConfigTab() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Toggle
-                    srLabel="{`Enabled: ${feat.name}`}"
+                    srLabel={`Enabled: ${feat.feature_name}`}
                     checked={feat.is_enabled}
                     onChange={(v) => updateFeature(feat.id, { is_enabled: v })}
                   />
@@ -464,7 +464,7 @@ function ToolConfigTab() {
               </div>
               <div className="flex items-center gap-2">
                 <Toggle
-                  srLabel="{`Enabled: ${cfg.name}`}"
+                  srLabel={`Enabled: ${cfg.tool_label}`}
                   checked={cfg.is_enabled}
                   onChange={(v) => updateConfig(cfg.id, { is_enabled: v })}
                 />

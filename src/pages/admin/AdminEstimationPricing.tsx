@@ -386,7 +386,7 @@ export default function AdminEstimationPricing() {
                   </div>
                   <div className="flex items-center gap-0.5">
                     <Toggle
-                      srLabel="{`Active: ${item.name}`}"
+                      srLabel={`Active: ${refInfo ? refInfo.name : item.ref_id}`}
                       checked={item.is_active}
                       onChange={() => toggleActive(item)}
                     />

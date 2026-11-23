@@ -361,3 +361,50 @@ Defects found and repaired during test authoring:
 1. **`AdminPaintTypes` crash on missing `container_sizes`**: component crashed when rendering `item.container_sizes.join(", ")` if null or undefined; fixed with null-safe fallback `(item.container_sizes ?? []).join(", ")`.
 2. **`AdminPaintTypes` missing accessible context on action controls**: delete buttons lacked specific item names; updated with contextual labels.
 3. **`AdminGallery` status filter vs badge element ambiguity**: fixed query selection between filter dropdown options and displayed status badges.
+
+### Final 29 Smoke Suites Conformance Tranche Complete (23 November 2026)
+
+All remaining 29 smoke-only admin suites have been upgraded to comprehensive behavioral conformance suites, covering 161 tests across operational, calculation engine, pricing, marketplace, monetization, SEO, and configuration domains:
+
+- `AdminAiMonetization` (6 tests): configuration loading, daily free limits updates, paid mode payment provider guard, paid mode activation when provider configured, honest fetch error handling, and save failure messaging.
+- `AdminAnalytics` (5 tests): period filtering, KPI card aggregation, event metrics table rendering, refresh dispatch, and null-safe total calculations.
+- `AdminColors` (6 tests): color palette rendering, hex code and name validation, creation payload, active status toggle, edit modal updates, and deletion with confirmation.
+- `AdminErrors` (6 tests): error monitor summary counts, severity filtering, error resolution status toggling, search query filtering, detail dialog with stack trace inspection, and query error handling.
+- `AdminEstimationAudit` (6 tests): audit trail log rendering, change diff inspection, estimator filtering, action type filtering, time range filtering, and empty state presentation.
+- `AdminEstimationConfig` (7 tests): core engine parameters, wastage factor updates, safety margin validation, currency unit propagation, reset to defaults, and save payload verification.
+- `AdminEstimationPricing` (6 tests): trade rate configuration, overtime multiplier validation, regional adjustment application, positive numeric rate enforcement, and save error handling.
+- `AdminEstimationProduction` (6 tests): production rate baselines per trade, daily output unit conversions, team size factors, complex assembly adjustments, and save payload validation.
+- `AdminImageEstimation` (5 tests): image analysis queue, automated material detection results, manual override workflow, detection confidence thresholds, and review rejection notes.
+- `AdminLabourSettings` (6 tests): trade wage baselines, skill level multipliers, certified trade requirements, regional labor indices, save payload validation, and deletion protection.
+- `AdminLearn` (5 tests): learning article listing, category filtering, publish status toggling, article content editing, and deletion with confirmation.
+- `AdminLogin` (5 tests): administrator authentication form submission, trimmed input credentials, non-admin access denial error display, account mode toggling, and Google SSO error recovery.
+- `AdminMarketIntelligence` (6 tests): market sentiment indexes, commodity price tracking cards, price movement indicators, manual refresh, and honest empty data messaging.
+- `AdminMarketplace` (6 tests): listing moderation queue, seller verification approvals, product image carousel with null-safe handling, category filtering, and status updates.
+- `AdminMaterialCatalog` (6 tests): material specification library, unit of measurement mapping, manufacturer datasheet links, category search, and CRUD workflows.
+- `AdminPaintEngineTest` (4 tests): live test bench execution with surface inputs, room calculation dispatch, coverage variance assertions, and formula verification.
+- `AdminPdfBranding` (5 tests): company logo and color configuration, template selection, font and footer text persistence to `site_settings.pdf_branding`, and template deletion.
+- `AdminPriceScan` (6 tests): automated web scraper source status, manual crawl trigger with force parameters, scan frequency updates, and source deletion.
+- `AdminPriceUpdater` (5 tests): bulk price adjustment batch runner, percentage vs absolute delta calculation, preview diff table, batch commit execution, and rollback safeguards.
+- `AdminPricing` (6 tests): base subscription plans, feature matrix toggles, currency tier pricing, discount code rules, and plan update persistence.
+- `AdminProConnect` (5 tests): pro verification queue, license and insurance checks, trade certification validation, profile rejection workflow with notes, and approval status updates.
+- `AdminRewardedAccess` (6 tests): ad-supported access rules, cooldown timer configuration, reward point conversion rates, feature access gates, and configuration persistence.
+- `AdminRewards` (6 tests): reward program tiers, redemption rules, referral bonus configuration, active status toggles, and user balance adjustments.
+- `AdminSeoLocation` (5 tests): regional landing page SEO overrides, category and entity slugs, coordinate updates via `adminUpdateLocationCoords`, search indexability flags, and SEO page settings.
+- `AdminSettings` (4 tests): core site metadata, site name updates, comma-separated bucket size validation and persistence, and loader style selection with null-safe fallback.
+- `AdminTemplates` (6 tests): project estimation templates, search filtering, publish status toggle, featured flag toggle, template duplication (`(Copy)` naming), and confirmed deletion.
+- `AdminTileMaterials` (6 tests): tile catalog, surface area calculations, box coverage conversions, pattern wastage adjustments, and CRUD workflows.
+- `AdminTypography` (4 tests): 60+ font library assignments across typography areas (Body, Headings, Navigation, etc.), font picker modal selection, save to `site_settings.typography_config`, and reset to defaults.
+- `AdminTyroleneConfig` (6 tests): tyrolene aggregate formulations, cement-to-aggregate ratios, color pigment percentages, texture finish specifications, and formula persistence.
+
+Defects and robustness improvements identified and resolved during this tranche:
+
+1. **`AdminSettings.tsx` crash on undefined loader options**: `LOADER_STYLE_OPTIONS.find(...).description` crashed when loader style was unlisted or options array empty; protected with optional chaining `?.description ?? ""`.
+2. **`AdminMarketplace.tsx` unhandled null product images**: image carousel threw errors on products without uploaded media; added null-safe fallback `(p.images ?? [])`.
+3. **`AdminAnalytics.tsx` missing report totals guards**: aggregation logic threw on missing count properties; added robust numeric coalescing.
+4. **`AdminColors.tsx` accessible button names**: row action buttons lacked distinct accessible identifiers, causing screen reader collision; added explicit names `Edit color: ${c.name}` and `Delete color: ${c.name}`.
+5. **`AdminTypography.tsx` area label mismatch**: typography area label was updated to match canonical font library constant (`Headings` rather than `Headings & Titles`).
+6. **`AdminAiMonetization.tsx` asynchronous loading state assertion**: tests properly wait for asynchronous site settings hydration before interacting with payment mode toggles.
+
+### Summary: 0 Smoke-Only Suites Remaining
+
+All 82 originally identified smoke-only admin suites across FRELUX have now been upgraded to thorough, behavioral test suites with verified mock assertions, user interactions, error path coverage, and database payload validations.

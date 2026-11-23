@@ -272,6 +272,7 @@ function ObservationsTab() {
                             );
                             load();
                           }}
+                          aria-label={t("Approve")}
                           className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-500/10"
                           title={t("Approve")}
                         >
@@ -288,6 +289,7 @@ function ObservationsTab() {
                             );
                             load();
                           }}
+                          aria-label={t("Reject")}
                           className="rounded p-1 text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10"
                           title={t("Reject")}
                         >
@@ -607,6 +609,7 @@ function SourcesTab() {
                       await deleteSource(s.id);
                       load();
                     }}
+                    aria-label={t("Delete source")}
                     className="rounded p-1 text-muted-foreground hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-500/10"
                     title={t("Delete source")}
                   >
@@ -1030,6 +1033,7 @@ function ProvidersTab() {
               </div>
             </div>
             <Button
+              aria-label={`Toggle ${p.provider_name}`}
               variant="ghost"
               onClick={async () => {
                 await toggleProvider(p.id, !p.is_enabled);
