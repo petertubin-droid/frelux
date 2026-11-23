@@ -255,7 +255,7 @@ export default function AdminCashFlowTemplates() {
                     <td className="p-3 font-mono">{sum}%</td>
                     <td className="p-3">
                       <Toggle
-                        srLabel="{`Default: ${t.name}`}"
+                        srLabel={`Default: ${t.name}`}
                         checked={t.is_default}
                         onChange={() =>
                           updateCashFlowTemplate(t.id, {
@@ -266,7 +266,7 @@ export default function AdminCashFlowTemplates() {
                     </td>
                     <td className="p-3">
                       <Toggle
-                        srLabel="{`Active: ${t.name}`}"
+                        srLabel={`Active: ${t.name}`}
                         checked={t.is_active}
                         onChange={() =>
                           updateCashFlowTemplate(t.id, {

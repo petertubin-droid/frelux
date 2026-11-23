@@ -44,19 +44,19 @@ silently changes calculated output. Tier 3 is content CRUD.
 
 | file                          | tests | assertions | tier     |
 | ----------------------------- | ----- | ---------- | -------- |
-| `AdminBoqTemplates`           | 2     | 3          | 1 money  |
-| `AdminCashFlowTemplates`      | 1     | 3          | 1 money  |
-| `AdminCreditProfiles`         | 1     | 3          | 1 money  |
+| `AdminBoqTemplates`           | 4     | 8          | 1 money  |
+| `AdminCashFlowTemplates`      | 4     | 9          | 1 money  |
+| `AdminCreditProfiles`         | 6     | 14         | 1 money  |
 | `AdminEstimationEstimates`    | 1     | 2          | 1 money  |
 | `AdminExpenseLedger`          | 2     | 6          | 1 money  |
 | `AdminFinance`                | 2     | 4          | 1 money  |
 | `AdminMarginPresets`          | 1     | 3          | 1 money  |
 | `AdminMarketPrices`           | 1     | 1          | 1 money  |
-| `AdminSupplierLedger`         | 2     | 2          | 1 money  |
-| `AdminAiSettings`             | 1     | 2          | 2 engine |
-| `AdminEngineConfig`           | 1     | 2          | 2 engine |
-| `AdminEngineStudio`           | 2     | 3          | 2 engine |
-| `AdminIntelligenceSources`    | 1     | 3          | 2 engine |
+| `AdminSupplierLedger`         | 5     | 11         | 1 money  |
+| `AdminAiSettings`             | 6     | 12         | 2 engine |
+| `AdminEngineConfig`           | 5     | 10         | 2 engine |
+| `AdminEngineStudio`           | 5     | 12         | 2 engine |
+| `AdminIntelligenceSources`    | 10    | 22         | 2 engine |
 | `AdManager`                   | 2     | 3          | 3 CRUD   |
 | `AdminAIAssistant`            | 1     | 2          | 3 CRUD   |
 | `AdminCaseStudies`            | 2     | 2          | 3 CRUD   |
@@ -166,8 +166,42 @@ update targets the row it loaded rather than the first row in the table, the
 loaded values survive the round trip, a rejected save reports the database error
 instead of claiming success, and a read failure is shown rather than swallowed.
 
-Remaining in tranche 2: `AdminEngineStudio`, `AdminIntelligenceSources`. Then
-tranche 3, the 34 content CRUD pages. That is 36 smoke-only suites left.
+### Tranche 2 closed (23 November 2026)
+
+`AdminEngineStudio` and `AdminIntelligenceSources` complete Tranche 2:
+
+- `AdminEngineStudio` (5 tests): verifies runner dispatch via `executeEngine`,
+  numeric conversion of form inputs (string length/height parsed to numbers
+  before execution), JSON payload mode for complex parameter inputs, and distinct
+  result vs error/refusal rendering.
+- `AdminIntelligenceSources` (10 tests): covers required name and URL validation,
+  allowed URL prefix line normalisation, source enable/disable toggles,
+  on-demand test crawl dispatch, crawl button disabled when source is inactive,
+  source deletion, and live query search via `searchWeb`.
+
+Tranche 2 is complete.
+
+### Tier 1 Money conformance complete (23 November 2026)
+
+All 9 Tier 1 money pages are now fully conformance-tested:
+
+- `AdminBoqTemplates` (4 tests): verifies template listing, template create
+  payload, section create payload, and automatic sort order calculation.
+- `AdminCashFlowTemplates` (4 tests): verifies exact sum-to-100% milestone
+  validation (refuses saving invalid distributions), positive percentage and
+  offset type conversions, deletion confirmation, and accessible switch names.
+  *Defect found and fixed*: `srLabel` on row toggles was passed as a literal
+  string `"{`Default: ${t.name}`}"` rather than interpolated expression.
+- `AdminCreditProfiles` (6 tests): verifies contractor credit profile listing,
+  validation rule that on-time jobs cannot exceed verified jobs, required
+  verification reference enforcement, create/update payloads, deletion
+  confirmation, and safe error presentation.
+- `AdminSupplierLedger` (5 tests): pins the query to exactly the eight allowed
+  columns on `supplier_bills`, ensures separate currency cards are rendered
+  without cross-currency mixing, verifies manual refresh, ensures read failures
+  conceal balances rather than showing partial figures, and checks empty state.
+
+Remaining: 30 smoke-only suites in Tier 3 (content CRUD).
 
 ## Limits of this audit
 
