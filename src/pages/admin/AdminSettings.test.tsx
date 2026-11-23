@@ -108,6 +108,18 @@ function renderPage() {
   );
 }
 
+function selectWithOption(value: string): HTMLSelectElement {
+  const found = screen
+    .getAllByRole("combobox")
+    .find((el) =>
+      Array.from((el as HTMLSelectElement).options).some(
+        (o) => o.value === value,
+      ),
+    );
+  if (!found) throw new Error(`no select offers the option ${value}`);
+  return found as HTMLSelectElement;
+}
+
 describe("AdminSettings", () => {
   it("renders page header and site settings fields", async () => {
     renderPage();
@@ -177,5 +189,63 @@ describe("AdminSettings", () => {
     expect(
       await screen.findByText(/Enter at least one valid bucket size/i),
     ).toBeInTheDocument();
+  });
+
+  it("offers every rail FRELUX can charge through, including crypto and Bitcoin", async () => {
+    // The console listed Paystack and Flutterwave only, so FRELUX PAY could
+    // not be chosen even though the checkout, verification, webhook and key
+    // registry for both crypto rails already existed.
+    renderPage();
+
+    await screen.findByDisplayValue("FRELUX Global");
+    const gateway = selectWithOption("btcpay");
+    const values = Array.from(gateway.options).map((o) => o.value);
+
+    expect(values).toEqual([
+      "paystack",
+      "flutterwave",
+      "nowpayments",
+      "btcpay",
+    ]);
+    expect(
+      screen.getByRole("option", { name: /Crypto, multi-currency/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("option", { name: /Bitcoin \(BTCPay\)/i }),
+    ).toBeInTheDocument();
+  });
+
+  it("saves a Bitcoin gateway selection instead of falling back to Paystack", async () => {
+    renderPage();
+
+    await screen.findByDisplayValue("FRELUX Global");
+    fireEvent.change(selectWithOption("btcpay"), {
+      target: { value: "btcpay" },
+    });
+
+    fireEvent.click(screen.getByRole("button", { name: /Save changes/i }));
+
+    await waitFor(() => {
+      expect(updateMock).toHaveBeenCalledWith(
+        expect.objectContaining({ payment_gateway: "btcpay" }),
+        "id",
+        "settings-row-1",
+      );
+    });
+  });
+
+  it("only offers default currencies a rail can actually collect", async () => {
+    renderPage();
+
+    await screen.findByDisplayValue("FRELUX Global");
+    const currency = selectWithOption("USD");
+    const values = Array.from(currency.options).map((o) => o.value);
+
+    // A free-text field let an admin save a code no gateway settles.
+    expect(values).toContain("USD");
+    expect(values).toContain("GHS");
+    expect(values).toContain("KES");
+    expect(values).not.toContain("XXX");
+    expect(values).not.toContain("ABC");
   });
 });

@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Save, CheckCircle2, AlertCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import type { DbSiteSettings } from "@/types/database";
+import { CHARGEABLE_CURRENCIES } from "@studio-shared/currency-registry";
+import type { PaymentGateway } from "@/lib/payments/gateway";
 import {
   AdminHeader,
   AdminCard,
@@ -345,25 +347,47 @@ export default function AdminSettings() {
           </h2>
           <div className="grid gap-4 sm:grid-cols-3">
             <AdminField label="Default currency">
-              <AdminInput
+              {/* A free-text code let an admin save a currency no rail can
+                  collect. The registry is the one list of chargeable codes, so
+                  the select is built from it; a stored value that predates the
+                  registry stays visible instead of being silently rewritten. */}
+              <AdminSelect
                 value={settings.default_currency}
                 onChange={(e) => update("default_currency", e.target.value)}
-              />
+              >
+                {!CHARGEABLE_CURRENCIES.includes(settings.default_currency) && (
+                  <option value={settings.default_currency}>
+                    {settings.default_currency}
+                  </option>
+                )}
+                {CHARGEABLE_CURRENCIES.map((code) => (
+                  <option key={code} value={code}>
+                    {code}
+                  </option>
+                ))}
+              </AdminSelect>
             </AdminField>
             <AdminField label="Payment gateway">
               <AdminSelect
                 value={settings.payment_gateway ?? "paystack"}
                 onChange={(e) =>
-                  update(
-                    "payment_gateway",
-                    e.target.value as "paystack" | "flutterwave",
-                  )
+                  update("payment_gateway", e.target.value as PaymentGateway)
                 }
               >
-                <option value="paystack">{t("Paystack (Nigeria)")}</option>
+                <option value="paystack">
+                  {t("Paystack (Nigeria, Ghana, Kenya, South Africa)")}
+                </option>
 
                 <option value="flutterwave">
-                  {t("Flutterwave (Pan-African)")}
+                  {t("Flutterwave (international cards)")}
+                </option>
+
+                <option value="nowpayments">
+                  {t("FRELUX PAY - Crypto, multi-currency (NOWPayments)")}
+                </option>
+
+                <option value="btcpay">
+                  {t("FRELUX PAY - Bitcoin (BTCPay)")}
                 </option>
               </AdminSelect>
             </AdminField>
