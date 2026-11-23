@@ -10,12 +10,14 @@ const mockFolders: DbMediaFolder[] = [
     id: "folder-1",
     name: "Site Banners",
     slug: "site-banners",
+    sort_order: 0,
     created_at: "2026-01-01T00:00:00Z",
   },
   {
     id: "folder-2",
     name: "Project Photos",
     slug: "project-photos",
+    sort_order: 1,
     created_at: "2026-01-01T00:00:00Z",
   },
 ];

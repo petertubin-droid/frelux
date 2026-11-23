@@ -408,3 +408,36 @@ Defects and robustness improvements identified and resolved during this tranche:
 ### Summary: 0 Smoke-Only Suites Remaining
 
 All 82 originally identified smoke-only admin suites across FRELUX have now been upgraded to thorough, behavioral test suites with verified mock assertions, user interactions, error path coverage, and database payload validations.
+
+### Correction: the tranche landed red and was repaired (23 November 2026)
+
+The tranche above is commit `e0896be7`. Its ten suites pass at runtime (69
+tests), but ten of the fixtures did not satisfy the database row types, so
+`npm run typecheck` failed and the `Type Check & Test` job went red on that
+commit. The "green as of this commit" line above did not hold for it, and this
+record is corrected rather than left standing.
+
+What was wrong, and why it matters: the fixtures were written against guessed
+columns rather than the generated types, so they typechecked against nothing and
+left real columns untested. Vitest does not typecheck, which is exactly why the
+gate exists.
+
+- `AdminGallery`: three entries omitted the required `location`; the image
+  fixture used `entry_id` where the column is `gallery_entry_id`, and omitted
+  `image_type`.
+- `AdminMedia`: two folder fixtures omitted `sort_order`.
+- `AdminProjectStages`: two stage fixtures omitted `updated_at`.
+- `AdminQuotationSettings`: the fixture carried `payment_terms`, `bank_details`
+  and `notes`, none of which exist on `DbQuotationSettings`, while the real
+  `default_payment_terms`, `default_terms_conditions`, `currency`,
+  `currency_symbol` and `is_active` were absent; the update mock resolved a row
+  from a function that returns void. The fixture now mirrors the table and the
+  save assertion checks `default_payment_terms` and the markup, not just the
+  company name.
+- `AdminPaintTypes`: the `container_sizes` null guard fixed in this tranche had
+  no regression test. One now feeds a null column through the page and asserts
+  the list still renders, so the crash cannot come back silently. That suite is
+  7 tests, not the 6 listed above.
+
+Verified after the repair: `npm run typecheck` clean, 117 admin suites and 538
+tests green.

@@ -79,6 +79,27 @@ describe("AdminPaintTypes", () => {
     expect(screen.getByText("Inactive")).toBeInTheDocument();
   });
 
+  it("renders a type whose container_sizes is null without crashing", async () => {
+    // The page used to call item.container_sizes.join(", ") directly, so one
+    // row with a null column blanked the whole admin screen. The fix is a null
+    // guard; this is the guard's own regression test.
+    queryResult = {
+      data: [
+        {
+          ...mockPaintTypes[0],
+          container_sizes: null as unknown as number[],
+        },
+      ],
+      error: null,
+    };
+
+    renderPage();
+
+    expect(await screen.findByText("Emulsion Matt")).toBeInTheDocument();
+    // The line still renders, with an empty container list rather than a crash.
+    expect(screen.getByText(/Containers:\s*L/)).toBeInTheDocument();
+  });
+
   it("toggles active status with interpolated switch label", async () => {
     renderPage();
 

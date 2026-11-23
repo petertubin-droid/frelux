@@ -5,6 +5,9 @@ import AdminQuotationSettings from "./AdminQuotationSettings";
 import * as contractor from "@/lib/contractor";
 import type { DbQuotationSettings } from "@/types/database";
 
+// The fixture mirrors DbQuotationSettings exactly. It previously carried
+// payment_terms, bank_details and notes, which the table does not have, so the
+// suite typechecked against nothing and left the real columns untested.
 const mockSettings: DbQuotationSettings = {
   id: "quote-settings-1",
   company_name: "FRELUX ConTech Ltd",
@@ -12,13 +15,16 @@ const mockSettings: DbQuotationSettings = {
   company_email: "billing@freluxtools.com",
   company_logo_url: "https://example.com/logo.png",
   company_address: "12 Marina Boulevard, Lagos Island",
+  default_terms_conditions: "All quotes valid subject to site inspection.",
+  default_payment_terms:
+    "50% upfront deposit, 30% stage completion, 20% handover.",
+  default_validity_days: 30,
   default_markup_percentage: 15,
   default_profit_percentage: 20,
   default_tax_percentage: 7.5,
-  default_validity_days: 30,
-  payment_terms: "50% upfront deposit, 30% stage completion, 20% handover.",
-  bank_details: "First Bank Nigeria, Account: 0123456789",
-  notes: "All quotes valid subject to site inspection.",
+  currency: "NGN",
+  currency_symbol: "\u20a6",
+  is_active: true,
   created_at: "2026-01-01T00:00:00Z",
   updated_at: "2026-01-01T00:00:00Z",
 };
@@ -31,7 +37,8 @@ vi.mock("@/lib/contractor", () => ({
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(contractor.fetchQuotationSettings).mockResolvedValue(mockSettings);
-  vi.mocked(contractor.updateQuotationSettings).mockResolvedValue(mockSettings);
+  // updateQuotationSettings returns void, not the saved row.
+  vi.mocked(contractor.updateQuotationSettings).mockResolvedValue(undefined);
 });
 
 function renderPage() {
@@ -77,6 +84,9 @@ describe("AdminQuotationSettings", () => {
         "quote-settings-1",
         expect.objectContaining({
           company_name: "FRELUX Global Engineering",
+          default_payment_terms:
+            "50% upfront deposit, 30% stage completion, 20% handover.",
+          default_markup_percentage: 15,
         }),
       );
     });
