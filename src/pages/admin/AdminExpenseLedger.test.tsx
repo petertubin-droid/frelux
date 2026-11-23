@@ -6,17 +6,22 @@
  * all rather than a partial one when the read fails.
  */
 import { describe, expect, it, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 
 const state = vi.hoisted(() => ({
   data: [] as Record<string, unknown>[],
   error: null as null | { message: string },
 }));
 
+const selectSpy = vi.hoisted(() => vi.fn());
+
 vi.mock("@/lib/supabase", () => ({
   supabase: {
     from: () => ({
-      select: () => Promise.resolve({ data: state.data, error: state.error }),
+      select: (columns?: string) => {
+        selectSpy(columns);
+        return Promise.resolve({ data: state.data, error: state.error });
+      },
     }),
   },
 }));
@@ -99,6 +104,39 @@ describe("AdminExpenseLedger empty state", () => {
     render(<AdminExpenseLedger />);
     await waitFor(() =>
       expect(screen.getByText("No expenses recorded")).toBeTruthy(),
+    );
+  });
+
+  it("asks for only the seven columns the ledger needs", async () => {
+    render(<AdminExpenseLedger />);
+    await waitFor(() => expect(selectSpy).toHaveBeenCalled());
+
+    const columns = String(selectSpy.mock.calls[0][0] ?? "");
+    // select("*") would ship every expense field, including notes a supplier
+    // or a project owner wrote, into an admin screen that only shows totals.
+    expect(columns).not.toBe("*");
+    for (const column of [
+      "id",
+      "project_id",
+      "category",
+      "name",
+      "amount",
+      "currency",
+      "spent_at",
+    ]) {
+      expect(columns).toContain(column);
+    }
+  });
+
+  it("re-reads the ledger when refresh is pressed", async () => {
+    render(<AdminExpenseLedger />);
+    await waitFor(() => expect(screen.getByText("NGN")).toBeTruthy());
+    const before = selectSpy.mock.calls.length;
+
+    fireEvent.click(screen.getByRole("button", { name: /Refresh/i }));
+
+    await waitFor(() =>
+      expect(selectSpy.mock.calls.length).toBeGreaterThan(before),
     );
   });
 });

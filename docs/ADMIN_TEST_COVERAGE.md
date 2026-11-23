@@ -123,8 +123,23 @@ Defects found by writing these:
    missing that column takes the whole page down rather than that row. Recorded
    here; the fix belongs with the page, not the test.
 
-Remaining in tranche 1: `AdminFinance`, `AdminExpenseLedger` (already at 6
-assertions, needs payload checks), and the three engine pages in tranche 2.
+### Tranche 1 closed (23 November 2026)
+
+`AdminFinance` now has 7 tests, up from 2. The dispute paths are the point: a
+refund invokes `escrow-release` with the contract id and records
+`refund_amount_minor` in minor units (250,000 NGN is 25,000,000, not 250,000),
+the write is guarded by `status = 'open'` so two admins cannot both refund, an
+order that was never escrowed is refused without calling the function at all,
+dismissing returns the order to `client_review`, a missing summary function is
+named as such rather than shown as a generic failure, and a dispute load failure
+leaves the money totals standing.
+
+`AdminExpenseLedger` gained two tests: the select asks for exactly seven columns
+rather than `select("*")`, which would ship free-text notes into a screen that
+only shows totals, and Refresh re-reads the ledger.
+
+Tranche 1 is complete. Remaining overall: tranche 2 engine pages, starting with
+`AdminEngineConfig`.
 
 ## Limits of this audit
 
