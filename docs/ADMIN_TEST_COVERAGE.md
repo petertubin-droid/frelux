@@ -102,6 +102,30 @@ with the test that proves it.
   a placeholder and it writes engine settings that change calculated output.
 - **Tranche 3** (content CRUD): the remainder, cheapest last.
 
+## Tranche 1 progress (23 November 2026)
+
+Three of the five money pages now assert behaviour instead of rendering.
+
+| file                       | before                             | after                                                                                                                                                                                                                                                                                                                                                          |
+| -------------------------- | ---------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AdminMarginPresets`       | 1 test, "module exports something" | 9 tests: exact create payload (trimmed name, numeric margin, null description, numeric sort order), zero margin refused without a database call, margin-on-price at 100 refused, edit updates the opened row id rather than creating, delete only after the confirmation is accepted, load error surfaced, rejected save surfaced instead of a success message |
+| `AdminMarketPrices`        | 1 test, 1 assertion                | 6 tests: quotation written with the market's own currency (NGN for NG, not a hardcoded default), supplier name and location kept when given and null when blank, zero price refused without an insert, rejected insert surfaced, scan invoked with `{trigger: "admin", force: true, market}`, scan failure reported                                            |
+| `AdminEstimationEstimates` | 1 test, "module exports something" | 5 tests: rows listed, calculator filter applied in the query, status filter applied alongside it, line items fetched for the opened estimate with the right `estimate_id`, and not refetched when the row is reopened                                                                                                                                          |
+
+Defects found by writing these:
+
+1. **`AdminMarginPresets` row toggles had unusable accessible names.** Both passed
+   `srLabel="{`Default: ${p.name}`}"` as a literal string, so a screen reader
+   announced backticks and `${}` instead of the preset name. Now interpolated,
+   with a test asserting the accessible name.
+2. **`AdminEstimationEstimates` crashes on a record without `labour_status`.**
+   The row calls `est.labour_status.replace(...)` with no guard, so one row
+   missing that column takes the whole page down rather than that row. Recorded
+   here; the fix belongs with the page, not the test.
+
+Remaining in tranche 1: `AdminFinance`, `AdminExpenseLedger` (already at 6
+assertions, needs payload checks), and the three engine pages in tranche 2.
+
 ## Limits of this audit
 
 The smoke-only classification is a heuristic over the test source: interaction

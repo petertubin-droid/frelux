@@ -215,7 +215,7 @@ export default function AdminMarginPresets() {
                   <td className="p-3 font-mono">{p.margin_percent}%</td>
                   <td className="p-3">
                     <Toggle
-                      srLabel="{`Default: ${p.name}`}"
+                      srLabel={`Default: ${p.name}`}
                       checked={p.is_default}
                       onChange={() =>
                         updateMarginPreset(p.id, {
@@ -226,7 +226,7 @@ export default function AdminMarginPresets() {
                   </td>
                   <td className="p-3">
                     <Toggle
-                      srLabel="{`Active: ${p.name}`}"
+                      srLabel={`Active: ${p.name}`}
                       checked={p.is_active}
                       onChange={() =>
                         updateMarginPreset(p.id, {
