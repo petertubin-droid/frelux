@@ -340,3 +340,24 @@ carries one and otherwise states what it just did ("Source disabled"), and its
 test mocks what the client actually returns.
 
 All 117 admin suites and `npm run typecheck` are green as of this commit.
+
+### Smoke-to-behavior upgrade tranche (23 November 2026)
+
+Upgraded 10 admin suites from smoke-only to full behavioral verification:
+
+- `AdminContactMessages` (7 tests): covers inquiry listing and filtering, status transitions (`unread` -> `replied` -> `archived`), admin notes persistence, and error handling.
+- `AdminGallery` (10 tests): covers pending submission moderation, approval/rejection notes, featuring/unfeaturing projects, and deletion with confirmation.
+- `AdminLegal` (5 tests): verifies policy page fetching, publishing toggle persistence, content editing and draft validation, and error banner display.
+- `AdminMedia` (9 tests): covers asset grid display, folder and filename search filtering, alt text metadata updates, and upload/deletion flows.
+- `AdminOverview` (5 tests): tests database live probe and ARCHIE AI operational state detection, system counts, and honest query failure reporting.
+- `AdminPaintComparison` (7 tests): tests paint formulation comparisons, cost-per-sqm delta calculations, required-field validation, and upsert/delete operations.
+- `AdminPaintTypes` (6 tests): covers paint product listings, container volume rendering, active status toggling, and CRUD operations.
+- `AdminProjectStages` (7 tests): covers workflow templates, phase ordering, stage key conflict constraints, and deletion confirmation.
+- `AdminQuotationSettings` (6 tests): covers default pricing margins, contractor branding configuration, save validation, and error states.
+- `AdminTimelineTemplates` (7 tests): covers construction trade templates, multi-phase sequence dependencies, phase duration edits, and CRUD workflows.
+
+Defects found and repaired during test authoring:
+
+1. **`AdminPaintTypes` crash on missing `container_sizes`**: component crashed when rendering `item.container_sizes.join(", ")` if null or undefined; fixed with null-safe fallback `(item.container_sizes ?? []).join(", ")`.
+2. **`AdminPaintTypes` missing accessible context on action controls**: delete buttons lacked specific item names; updated with contextual labels.
+3. **`AdminGallery` status filter vs badge element ambiguity**: fixed query selection between filter dropdown options and displayed status badges.

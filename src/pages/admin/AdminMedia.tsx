@@ -236,6 +236,7 @@ export default function AdminMedia() {
                         <AdminButton
                           type="button"
                           onClick={() => saveAlt(item)}
+                          aria-label={`Save alt text for ${item.file_name}`}
                         >
                           <Check aria-hidden="true" className="h-3.5 w-3.5" />
                         </AdminButton>

@@ -200,7 +200,7 @@ export default function AdminProjectStages() {
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Button
-                  aria-label="Edit stage"
+                  aria-label={`Edit stage: ${stage.stage_name}`}
                   variant="ghost"
                   onClick={() => {
                     setEditing(stage);
@@ -218,7 +218,7 @@ export default function AdminProjectStages() {
                   <Edit className="h-4 w-4" />
                 </Button>
                 <Button
-                  aria-label="Delete stage"
+                  aria-label={`Delete stage: ${stage.stage_name}`}
                   variant="ghost"
                   onClick={() => handleDelete(stage.id)}
                   className="rounded-lg p-2 hover:bg-destructive/10 transition-all hover:scale-110"

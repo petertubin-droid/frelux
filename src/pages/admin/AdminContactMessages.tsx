@@ -153,7 +153,7 @@ export default function AdminContactMessages() {
                   variant="danger"
                   type="button"
                   onClick={() => del(item.id)}
-                  aria-label={t("Delete")}
+                  aria-label={`${t("Delete message")}: ${item.subject}`}
                 >
                   <Trash2 className="h-4 w-4" />
                 </AdminIconButton>

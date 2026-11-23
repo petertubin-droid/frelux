@@ -28,6 +28,7 @@ export default function AdminGallery() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("pending");
   const [images, setImages] = useState<Record<string, string[]>>({});
+  const [error, setError] = useState<string | null>(null);
   // Server-side pagination - gallery submissions grow over time.
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(25);
@@ -35,6 +36,7 @@ export default function AdminGallery() {
 
   const load = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
       const statusFilter = filter === "all" ? undefined : filter;
       const [data, count] = await Promise.all([
@@ -55,6 +57,7 @@ export default function AdminGallery() {
       setImages(imgMap);
     } catch (e) {
       console.error(e);
+      setError((e as Error).message || "Failed to load gallery entries");
     } finally {
       setLoading(false);
     }
@@ -98,6 +101,11 @@ export default function AdminGallery() {
           "Review, approve, and feature community project submissions.",
         )}
       />
+      {error && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+          {error}
+        </div>
+      )}
       {/* Filter */}
       <div className="flex gap-2">
         {["pending", "approved", "rejected", "featured", "all"].map((s) => (
@@ -167,6 +175,7 @@ export default function AdminGallery() {
                 {entry.status !== "approved" && entry.status !== "featured" && (
                   <Button
                     variant="ghost"
+                    aria-label={`Approve entry: ${entry.title}`}
                     onClick={() => handleApprove(entry.id)}
                     className="group inline-flex items-center gap-1.5 rounded-lg bg-emerald-500/10 px-3 py-2 text-xs font-medium text-emerald-600 hover:bg-emerald-500/20 transition-all hover:scale-105"
                   >
@@ -177,6 +186,7 @@ export default function AdminGallery() {
                 {entry.status !== "rejected" && (
                   <Button
                     variant="ghost"
+                    aria-label={`Reject entry: ${entry.title}`}
                     onClick={() => handleReject(entry.id)}
                     className="group inline-flex items-center gap-1.5 rounded-lg bg-red-500/10 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-500/20 transition-all hover:scale-105"
                   >
@@ -187,6 +197,7 @@ export default function AdminGallery() {
                 {entry.status !== "featured" && (
                   <Button
                     variant="ghost"
+                    aria-label={`Feature entry: ${entry.title}`}
                     onClick={() => handleFeature(entry.id)}
                     className="group inline-flex items-center gap-1.5 rounded-lg bg-primary/10 px-3 py-2 text-xs font-medium text-primary hover:bg-primary/20 transition-all hover:scale-105"
                   >
@@ -197,6 +208,7 @@ export default function AdminGallery() {
                 {entry.status === "featured" && (
                   <Button
                     variant="ghost"
+                    aria-label={`Unfeature entry: ${entry.title}`}
                     onClick={() => handleUnfeature(entry.id)}
                     className="group inline-flex items-center gap-1.5 rounded-lg bg-zinc-500/10 px-3 py-2 text-xs font-medium text-zinc-600 hover:bg-zinc-500/20 transition-all hover:scale-105"
                   >
@@ -205,6 +217,7 @@ export default function AdminGallery() {
                 )}
                 <Button
                   variant="ghost"
+                  aria-label={`Delete entry: ${entry.title}`}
                   onClick={() => handleDelete(entry.id)}
                   className="inline-flex items-center gap-1.5 rounded-lg bg-destructive/10 px-3 py-2 text-xs font-medium text-destructive hover:bg-destructive/20 transition-all hover:scale-105"
                 >

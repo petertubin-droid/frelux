@@ -314,7 +314,7 @@ export default function AdminPaintComparison() {
               </div>
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <Button
-                  aria-label="Edit paint entry"
+                  aria-label={`Edit paint entry: ${item.display_name}`}
                   variant="ghost"
                   onClick={() => startEdit(item)}
                   className="rounded-lg p-2 hover:bg-muted transition-all hover:scale-110"
@@ -322,7 +322,7 @@ export default function AdminPaintComparison() {
                   <Edit className="h-4 w-4" />
                 </Button>
                 <Button
-                  aria-label="Delete paint entry"
+                  aria-label={`Delete paint entry: ${item.display_name}`}
                   variant="ghost"
                   onClick={() => handleDelete(item.id)}
                   className="rounded-lg p-2 hover:bg-destructive/10 transition-all hover:scale-110"

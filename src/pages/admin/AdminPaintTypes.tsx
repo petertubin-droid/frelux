@@ -125,12 +125,12 @@ export default function AdminPaintTypes() {
                 )}
                 <p className="mt-1 text-xs text-muted-foreground dark:text-muted-foreground">
                   Coverage: {item.coverage_rate} {item.coverage_unit} ·
-                  Containers: {item.container_sizes.join(", ")} L
+                  Containers: {(item.container_sizes ?? []).join(", ")} L
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <Toggle
-                  srLabel="{`Active: ${item.name}`}"
+                  srLabel={`Active: ${item.name}`}
                   checked={item.is_active}
                   onChange={() => toggleActive(item)}
                 />
@@ -143,7 +143,11 @@ export default function AdminPaintTypes() {
                 >
                   <Pencil className="h-3.5 w-3.5" /> {t("Edit")}
                 </AdminButton>
-                <AdminButton variant="danger" onClick={() => remove(item)}>
+                <AdminButton
+                  variant="danger"
+                  onClick={() => remove(item)}
+                  aria-label={`Delete paint type: ${item.name}`}
+                >
                   <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
                 </AdminButton>
               </div>

@@ -111,7 +111,7 @@ export default function AdminLegal() {
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <Toggle
-                  srLabel="{`Published: ${item.name}`}"
+                  srLabel={`Published: ${item.title}`}
                   checked={item.is_published}
                   onChange={() => togglePublished(item)}
                 />
@@ -187,7 +187,7 @@ function LegalForm({
     <AdminModal
       open
       onClose={onClose}
-      title="Edit {initial.title}"
+      title={`Edit ${initial.title}`}
       maxWidth="max-w-2xl"
     >
       <AdminField label="Title">
