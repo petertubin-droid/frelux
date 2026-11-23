@@ -65,7 +65,8 @@ serveWithCors(async (req: Request) => {
       query = query.contains("metadata", { order_id: orderId });
     }
 
-    let { data: row, error: dbError } = await query.maybeSingle();
+    const { data: initialRow, error: dbError } = await query.maybeSingle();
+    let row = initialRow;
     if (dbError) return json({ error: "PAYMENT_RECORD_UNAVAILABLE" }, 503);
 
     // Fallback if containment lookup failed on orderId
