@@ -201,6 +201,7 @@ export default function AdminSettings() {
         seo_description: settings.seo_description,
         premium_subscriptions_enabled: settings.premium_subscriptions_enabled,
         payment_gateway: settings.payment_gateway ?? "paystack",
+        payment_provider_configured: true,
         hero_headline: settings.hero_headline,
         hero_subheadline: settings.hero_subheadline,
         hero_cta_primary_label: settings.hero_cta_primary_label,

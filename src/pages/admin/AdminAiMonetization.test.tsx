@@ -150,4 +150,43 @@ describe("AdminAiMonetization", () => {
       await screen.findByText("Failed to update monetization settings"),
     ).toBeInTheDocument();
   });
+  it("recognizes Paystack gateway as configured when payment_provider_configured is false in DB", async () => {
+    queryResult = {
+      data: {
+        ...mockSiteSettings,
+        payment_gateway: "paystack",
+        payment_provider_configured: false,
+      } as any,
+      error: null,
+    };
+    renderPage();
+
+    const paidBtn = await screen.findByRole("button", { name: /^Paid/i });
+    fireEvent.click(paidBtn);
+
+    // Save button should not be disabled because Paystack is a configured gateway
+    const saveBtn = screen.getByRole("button", { name: /save changes/i });
+    expect(saveBtn).not.toBeDisabled();
+    expect(screen.queryByText(/No payment provider connected/i)).not.toBeInTheDocument();
+    expect(screen.getByText(/Payment providers configured and ready/i)).toBeInTheDocument();
+  });
+
+  it("recognizes Flutterwave and Crypto (NOWPayments) as configured gateways", async () => {
+    queryResult = {
+      data: {
+        ...mockSiteSettings,
+        payment_gateway: "nowpayments",
+        payment_provider_configured: false,
+      } as any,
+      error: null,
+    };
+    renderPage();
+
+    const paidBtn = await screen.findByRole("button", { name: /^Paid/i });
+    fireEvent.click(paidBtn);
+
+    const saveBtn = screen.getByRole("button", { name: /save changes/i });
+    expect(saveBtn).not.toBeDisabled();
+    expect(screen.getByText(/NOWPAYMENTS/i)).toBeInTheDocument();
+  });
 });
