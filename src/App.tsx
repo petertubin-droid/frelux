@@ -2188,7 +2188,11 @@ export default function App() {
                         />
                         <Route
                           path="/bim-ifc-import"
-                          element={<BimIfcImport />}
+                          element={
+                            <RequireSession>
+                              <BimIfcImport />
+                            </RequireSession>
+                          }
                         />
                         <Route
                           path="/four-view-envelope"
@@ -2292,7 +2296,11 @@ export default function App() {
                         />
                         <Route
                           path="/blueprint-takeoff"
-                          element={<BlueprintTakeoff />}
+                          element={
+                            <RequireSession>
+                              <BlueprintTakeoff />
+                            </RequireSession>
+                          }
                         />
                         <Route
                           path="/flooring"
