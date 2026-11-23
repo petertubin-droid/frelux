@@ -16,6 +16,7 @@
  * browser a signed URL avoids streaming 50 MB through a Worker, and they return
  * 501 until R2_ACCESS_KEY_ID and R2_SECRET_ACCESS_KEY are set.
  */
+import { getPortedFunction } from "./functions/registry";
 import { handleGateway, handleHook, handleTurnstile } from "./api";
 import { presignR2Url, safeObjectKey } from "./sigv4";
 
@@ -700,8 +701,29 @@ export default {
     if (url.pathname === "/api/turnstile" && request.method === "POST")
       return handleTurnstile(request, env, cors);
 
-    if (url.pathname.startsWith("/api/fn/"))
+    if (url.pathname.startsWith("/api/fn/")) {
+      // Ported functions run here; everything else keeps proxying to Supabase
+      // until its own wave lands, so a missing port degrades to the old path.
+      const name = decodeURIComponent(url.pathname.slice("/api/fn/".length));
+      const ported = getPortedFunction(name);
+      if (ported) {
+        if (!ported.methods.includes(request.method)) {
+          return new Response(JSON.stringify({ error: "Method not allowed" }), {
+            status: 405,
+            headers: { ...cors, "content-type": "application/json" },
+          });
+        }
+        // The generated Env type has no index signature; the ported runtime
+        // reads bindings by name and treats an absent one as missing.
+        return ported.handler(
+          request,
+          env as unknown as import("./functions/runtime").EdgeEnv,
+          ctx ?? {},
+          cors,
+        );
+      }
       return handleGateway(request, env, url, cors, ctx);
+    }
 
     if (url.pathname.startsWith("/api/hook/") && request.method === "POST")
       return handleHook(request, env, url, cors);

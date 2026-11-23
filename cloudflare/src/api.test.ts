@@ -175,11 +175,29 @@ describe("edge API", () => {
         throw new Error("offline");
       }),
     );
+    // An unported name: `health` now runs on the Worker, so the proxy path is
+    // exercised with a function that has not moved yet.
+    const response = await worker.fetch(
+      new Request(url("/api/fn/ai-livechat")),
+      makeEnv(),
+    );
+    expect(response.status).toBe(502);
+  });
+
+  it("runs a ported function locally instead of proxying it", async () => {
+    const spy = vi.fn(async () => new Response("[]", { status: 200 }));
+    vi.stubGlobal("fetch", spy);
     const response = await worker.fetch(
       new Request(url("/api/fn/health")),
       makeEnv(),
     );
-    expect(response.status).toBe(502);
+    expect(response.status).toBe(200);
+    const body = await response.json();
+    expect(body.runtime).toBe("cloudflare-workers");
+    // The only fetch is the database probe, never a Supabase function call.
+    for (const call of spy.mock.calls) {
+      expect(String(call[0])).not.toContain("/functions/v1/");
+    }
   });
 
   it("leaves the verdict to the function unless strict mode is on", async () => {
