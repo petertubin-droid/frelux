@@ -5,7 +5,11 @@ import { BuildingSizeProvider } from "@/lib/measurement/building-size-context";
 import { PriceBookProvider } from "@/lib/pricing/price-book-context";
 import { isToolRoute } from "@/config/tool-index";
 import { shouldShowLayoutAd } from "@/lib/ad-placement-policy";
-import AdSlot from "@/components/ui/AdSlot";
+// Ads are route-gated and non-critical, so they load after the shell instead
+// of riding in the entry chunk: AdSlot pulls the ad config and network
+// modules with it, and the gate below means the chunk is only fetched on
+// pages that actually show an ad.
+const AdSlot = lazy(() => import("@/components/ui/AdSlot"));
 import { LocalePrompt } from "@/components/ui/LocalePrompt";
 import { Wrench } from "lucide-react";
 import Navbar from "@/components/layout/Navbar";
@@ -765,10 +769,12 @@ export default function Layout() {
             <Outlet />
             <HowManyAnswer />
             {shouldShowLayoutAd(location.pathname) && (
-              <AdSlot
-                slotKey="content_native"
-                className="mx-auto mt-10 max-w-5xl px-4 sm:px-6"
-              />
+              <Suspense fallback={null}>
+                <AdSlot
+                  slotKey="content_native"
+                  className="mx-auto mt-10 max-w-5xl px-4 sm:px-6"
+                />
+              </Suspense>
             )}
           </PriceBookProvider>
         </BuildingSizeProvider>

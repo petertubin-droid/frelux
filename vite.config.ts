@@ -8,6 +8,14 @@ const sentryVitePlugin = hasSentryToken
   ? (await import("@sentry/vite-plugin")).sentryVitePlugin
   : null;
 
+const SRC_DIR = fileURLToPath(new URL("./src", import.meta.url));
+const STUDIO_SHARED_DIR = fileURLToPath(
+  new URL("./supabase/functions/_shared", import.meta.url),
+);
+const ROUTER_DIST = fileURLToPath(
+  new URL("./node_modules/react-router/dist/production", import.meta.url),
+);
+
 // https://vite.dev/config/
 // Build version — injected as VITE_APP_VERSION for error tracking
 const APP_VERSION =
@@ -32,12 +40,27 @@ export default defineConfig({
     "import.meta.env.VITE_APP_VERSION": JSON.stringify(APP_VERSION),
   },
   resolve: {
-    alias: {
-      "@": fileURLToPath(new URL("./src", import.meta.url)),
-      "@studio-shared": fileURLToPath(
-        new URL("./supabase/functions/_shared", import.meta.url),
-      ),
-    },
+    alias: [
+      // react-router 7 resolves its `import` condition to dist/development, so
+      // the dev build ships to production: 363KB of router against 76KB in
+      // dist/production, and the dev file carries no NODE_ENV guard for the
+      // bundler to strip. Both builds expose the same API, so resolve to the
+      // production one. Absolute paths, because the package's exports map does
+      // not expose the subpath.
+      {
+        find: /^react-router$/,
+        replacement: `${ROUTER_DIST}/index.mjs`,
+      },
+      {
+        find: /^react-router\/dom$/,
+        replacement: `${ROUTER_DIST}/dom-export.mjs`,
+      },
+      { find: /^@\/(.*)$/, replacement: `${SRC_DIR}/$1` },
+      {
+        find: /^@studio-shared\/(.*)$/,
+        replacement: `${STUDIO_SHARED_DIR}/$1`,
+      },
+    ],
   },
   build: {
     target: "es2020",
