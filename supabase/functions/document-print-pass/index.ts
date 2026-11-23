@@ -9,7 +9,8 @@
 // is rejected by the unique index, so one payment cannot unlock many documents.
 // =========================================================
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { serveWithCors, corsHeaders } from "../_shared/serve.ts";
+import { serveWithCors } from "../_shared/serve.ts";
+import { corsHeaders } from "../_shared/cors.ts";
 
 const DOCUMENT_PRINT_USD = 1.09;
 const PASS_HOURS = 48;

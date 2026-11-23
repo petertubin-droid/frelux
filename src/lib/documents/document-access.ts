@@ -192,6 +192,105 @@ export function isDocumentPrintUnlocked(documentId: string): boolean {
  * reference; the edge function re-verifies it with the gateway, prices it from
  * the live FX table and writes the row. Nothing is unlocked locally.
  */
+/**
+ * Start a checkout that creates the payment this pass will be issued against.
+ *
+ * The server prices every rail (the browser sends no amount): Paystack is
+ * charged in naira quoted from the dollar fee, Flutterwave in dollars, and the
+ * crypto rails return a hosted invoice to open. Nothing unlocks here; the
+ * returned reference or invoice id is only proof of intent until
+ * document-print-pass verifies the money arrived.
+ */
+export async function startPrintCheckout(params: {
+  documentId: string;
+  gateway: "paystack" | "flutterwave" | "nowpayments" | "btcpay";
+  email?: string | null;
+  marketCode?: string | null;
+}): Promise<{ ok: true; redirectUrl: string } | { ok: false; error: string }> {
+  if (!isSupabaseConfigured)
+    return { ok: false, error: "Payments are not configured." };
+  const supabase = await getSupabase();
+
+  const { data: auth } = await supabase.auth.getUser();
+  const user = auth?.user;
+  if (!user)
+    return { ok: false, error: "Sign in to print this document." };
+
+  const fn =
+    params.gateway === "nowpayments"
+      ? "nowpayments-checkout"
+      : params.gateway === "btcpay"
+        ? "btcpay-checkout"
+        : params.gateway === "flutterwave"
+          ? "flutterwave-checkout"
+          : "paystack-checkout";
+
+  const body: Record<string, unknown> = {
+    purpose: "document_print",
+    document_id: params.documentId,
+    documentId: params.documentId,
+    email: params.email ?? user.email ?? null,
+    user_id: user.id,
+    market_code: params.marketCode ?? null,
+  };
+
+  const { data, error } = await supabase.functions.invoke(fn, { body });
+  if (error) return { ok: false, error: await getFunctionErrorMessage(error) };
+  const payload = (data ?? {}) as {
+    error?: string;
+    authorization_url?: string;
+    checkout_url?: string;
+  };
+  if (payload.error)
+    return { ok: false, error: printCheckoutError(payload.error) };
+  const redirectUrl = payload.authorization_url ?? payload.checkout_url;
+  if (!redirectUrl)
+    return { ok: false, error: "The gateway did not return a checkout link." };
+  return { ok: true, redirectUrl };
+}
+
+/** Plain-language text for the codes the checkout functions return. */
+function printCheckoutError(code: string): string {
+  switch (code) {
+    case "MISSING_DOCUMENT_ID":
+    case "Missing document":
+      return "This document could not be identified for payment.";
+    case "No active FX rate for NGN":
+      return "The print fee cannot be priced right now. Please try again later.";
+    case "Payment provider not configured":
+      return "That payment method is not available right now.";
+    default:
+      return code.replace(/_/g, " ").toLowerCase();
+  }
+}
+
+/** Read the gateway return parameters a print checkout comes back with. */
+export function readPrintReturn(search: string): {
+  gateway: "paystack" | "flutterwave" | "nowpayments" | "btcpay";
+  documentId: string;
+  reference: string;
+} | null {
+  const params = new URLSearchParams(search);
+  if (params.get("print") !== "verify") return null;
+  const rawGateway = params.get("gw") ?? "";
+  const gateway =
+    rawGateway === "flutterwave" ||
+    rawGateway === "nowpayments" ||
+    rawGateway === "btcpay"
+      ? rawGateway
+      : "paystack";
+  const documentId = (params.get("doc") ?? "").trim();
+  const reference = (
+    params.get("reference") ??
+    params.get("trxref") ??
+    params.get("tx_ref") ??
+    params.get("invoice_id") ??
+    ""
+  ).trim();
+  if (!documentId || !reference) return null;
+  return { gateway, documentId, reference };
+}
+
 export async function purchasePrintPass(params: {
   documentId: string;
   gateway: "paystack" | "flutterwave" | "nowpayments" | "btcpay";

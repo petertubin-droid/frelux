@@ -40,6 +40,9 @@ function LocaleAwareRoutes({ children }: { children: ReactNode }) {
   return <SentryRoutes>{children}</SentryRoutes>;
 }
 import { useEffect, useState, lazy, Suspense, type ReactNode } from "react";
+const PrintReturnHandler = lazy(
+  () => import("@/components/documents/PrintReturnHandler"),
+);
 import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { AuthProvider } from "@/lib/auth";
@@ -757,6 +760,9 @@ export default function App() {
                       <TrafficTracker />
                     </Suspense>
                     <NotificationClickHandler />
+                    <Suspense fallback={null}>
+                      <PrintReturnHandler />
+                    </Suspense>
                     <Suspense fallback={null}>
                       <FeedbackBanner />
                     </Suspense>

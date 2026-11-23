@@ -38,6 +38,9 @@ import {
   type TokenPackRow,
 } from "../_shared/token-pricing.ts";
 import { serveWithCors } from "../_shared/serve.ts";
+
+/** The document print fee, in US cents. The gate re-derives the same figure. */
+const DOCUMENT_PRINT_USD_CENTS = 109;
 import {
   checkRateLimit,
   getRateLimitKey,
@@ -76,7 +79,131 @@ serveWithCors(async (req: Request) => {
       metadata,
       purpose,
       pack_id,
+      document_id,
+      documentId,
     } = await req.json();
+
+    // ── Document print pass ──
+    // Server-priced: the fee is DOCUMENT_PRINT_USD converted at the live
+    // NGN rate, never a figure the browser sent. The payment is only worth
+    // anything once document-print-pass re-verifies the charge and matches
+    // the metadata to the document, so nothing here unlocks a document.
+    if (purpose === "document_print") {
+      const documentIdValue = String(document_id ?? documentId ?? "").trim();
+      if (!documentIdValue || documentIdValue.length > 200) {
+        return new Response(JSON.stringify({ error: "Missing document" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const supabaseUrl = Deno.env.get("SUPABASE_URL");
+      const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
+      const secretKey = Deno.env.get("PAYSTACK_SECRET_KEY");
+      if (!supabaseUrl || !serviceRoleKey || !secretKey) {
+        return new Response(
+          JSON.stringify({ error: "Payment provider not configured" }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const admin = createClient(supabaseUrl, serviceRoleKey);
+      const authHeader =
+        req.headers.get("Authorization")?.replace("Bearer ", "") ?? "";
+      const tokenUser = authHeader
+        ? await admin.auth.getUser(authHeader)
+        : { data: { user: null }, error: new Error("no auth header") };
+      const user = tokenUser?.data?.user;
+      if (!user) {
+        return new Response(JSON.stringify({ error: "Unauthorized" }), {
+          status: 401,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      // Paystack settles naira, so the dollar fee is quoted at the rate the
+      // platform already uses. No rate means no charge: refusing is honest,
+      // guessing turns the fee into a fraction of itself.
+      const { data: rateRows } = await admin
+        .from("fx_rates")
+        .select("rate")
+        .eq("base_currency", "USD")
+        .eq("quote_currency", "NGN")
+        .eq("is_active", true)
+        .order("fetched_at", { ascending: false })
+        .limit(1);
+      const rate = Number((rateRows ?? [])[0]?.rate);
+      const amountKobo =
+        Number.isFinite(rate) && rate > 0
+          ? usdCentsToNairaKobo(DOCUMENT_PRINT_USD_CENTS, rate)
+          : null;
+      if (amountKobo === null || amountKobo <= 0) {
+        return new Response(
+          JSON.stringify({ error: "No active FX rate for NGN" }),
+          {
+            status: 409,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const origin = req.headers.get("origin") ?? "";
+      if (!origin) {
+        return new Response(JSON.stringify({ error: "Missing origin" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
+      const printReference = `FRX_PRINT_${user.id.slice(0, 8)}_${Date.now()}`;
+      const initRes = await fetch(
+        "https://api.paystack.co/transaction/initialize",
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${secretKey}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: user.email ?? clientEmail,
+            amount: amountKobo,
+            currency: "NGN",
+            reference: printReference,
+            callback_url: `${origin}/document-studio?print=verify&gw=paystack&doc=${encodeURIComponent(documentIdValue)}`,
+            metadata: {
+              purpose: "document_print",
+              user_id: user.id,
+              document_id: documentIdValue,
+            },
+          }),
+        },
+      );
+      const initData = await initRes.json().catch(() => null);
+      if (!initRes.ok || !initData?.status || !initData?.data?.authorization_url) {
+        return new Response(
+          JSON.stringify({
+            error: initData?.message || "Could not start the print payment",
+          }),
+          {
+            status: initRes.status === 200 ? 502 : initRes.status,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+      return new Response(
+        JSON.stringify({
+          authorization_url: initData.data.authorization_url,
+          reference: printReference,
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
 
     const isApiPlanPurchase = purpose === "api_plan";
     const isTokenPurchase = purpose === "token_purchase";

@@ -42,6 +42,9 @@ import {
 } from "../_shared/token-pricing.ts";
 import { minorToMajor } from "../_shared/currency-units.ts";
 import { serveWithCors } from "../_shared/serve.ts";
+
+/** The document print fee in USD; document-print-pass re-derives the same. */
+const DOCUMENT_PRINT_USD = 1.09;
 import { resolveProviderSecret } from "../_shared/provider-secret.ts";
 import {
   checkRateLimit,
@@ -85,6 +88,8 @@ serveWithCors(async (req: Request) => {
       currency,
       allow_ngn_fallback,
       pack_id,
+      document_id,
+      documentId,
     } = await req.json();
     const plan = typeof plan_id === "string" ? plan_id : "";
     const cycle = billing_cycle === "yearly" ? "yearly" : "monthly";
@@ -92,7 +97,7 @@ serveWithCors(async (req: Request) => {
     const chargeCurrency =
       (typeof currency === "string" && currency.toUpperCase()) || "";
 
-    if ((!plan && !isTokenPurchase) || !email || !user_id) {
+    if ((!plan && !isTokenPurchase && purpose !== "document_print") || !email || !user_id) {
       return json({ error: "Missing required fields" }, 400);
     }
 
@@ -120,6 +125,53 @@ serveWithCors(async (req: Request) => {
       : { data: { user: null }, error: new Error("no auth header") };
     if (!tokenUser?.data?.user || tokenUser.data.user.id !== user_id) {
       return json({ error: "Unauthorized" }, 401);
+    }
+
+    // ── Document print pass ──
+    // Server-priced at the same dollar fee the gate re-derives, charged in
+    // USD so the amount is unambiguous. Unlocking happens only when
+    // document-print-pass verifies this charge and matches the metadata.
+    if (purpose === "document_print") {
+      const documentIdValue = String(document_id ?? documentId ?? "").trim();
+      if (!documentIdValue || documentIdValue.length > 200) {
+        return json({ error: "Missing document" }, 400);
+      }
+      const origin = req.headers.get("origin") ?? "";
+      if (!origin) return json({ error: "Missing origin" }, 400);
+
+      const printRef = `FRX_PRINT_${user_id.slice(0, 8)}_${Date.now()}`;
+      const printRes = await fetch("https://api.flutterwave.com/v3/payments", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${secretKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          tx_ref: printRef,
+          amount: DOCUMENT_PRINT_USD,
+          currency: "USD",
+          redirect_url: `${origin}/document-studio?print=verify&gw=flutterwave&doc=${encodeURIComponent(documentIdValue)}`,
+          payment_options: "card",
+          customer: { email },
+          customizations: {
+            title: "FRELUX",
+            description: "Document print pass",
+          },
+          meta: {
+            purpose: "document_print",
+            user_id,
+            document_id: documentIdValue,
+          },
+        }),
+      });
+      const printData = await printRes.json().catch(() => null);
+      if (!printRes.ok || !printData?.status || !printData?.data?.link) {
+        return json(
+          { error: printData?.message || "Could not start the print payment" },
+          printRes.status === 200 ? 502 : printRes.status,
+        );
+      }
+      return json({ authorization_url: printData.data.link, reference: printRef });
     }
 
     // ── Token purchase branch: price ALWAYS server-side ──

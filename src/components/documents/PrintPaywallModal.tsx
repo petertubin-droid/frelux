@@ -15,6 +15,7 @@ import {
   DOCUMENT_PRINT_USD,
   calculatePrintFeeInCurrency,
   purchasePrintPass,
+  startPrintCheckout,
 } from "@/lib/documents/document-access";
 import { DISPLAY_CURRENCIES } from "@/lib/international/fx-display";
 
@@ -69,32 +70,43 @@ export function PrintPaywallModal({
   const handleUnlockAndPrint = async () => {
     setProcessing(true);
     try {
-      if (!paymentReference) {
-        // Nothing to verify, so nothing is unlocked and nothing is claimed.
-        toast.error(
-          "Payment checkout for the print fee is not enabled yet. Subscribe to print, or try again later.",
+      // Returning from a gateway: the reference is proof of a payment attempt,
+      // and the server decides whether it was money.
+      if (paymentReference) {
+        const result = await purchasePrintPass({
+          documentId,
+          // The crypto button is the multi-coin rail; card buttons map straight
+          // to their gateway.
+          gateway: selectedGateway === "crypto" ? "nowpayments" : selectedGateway,
+          reference: paymentReference,
+        });
+        if (!result.ok) {
+          toast.error(result.error);
+          return;
+        }
+        toast.success(
+          `Print pass activated for this document. Charged ${pricing.formatted}.`,
         );
+        handleClose();
+        handleSuccess();
         return;
       }
-      const result = await purchasePrintPass({
+
+      // Nothing paid yet: create the payment. The server prices it, and the
+      // page comes back with a reference that the pass is issued against.
+      const started = await startPrintCheckout({
         documentId,
-        // The crypto button is the multi-coin rail; card buttons map straight
-        // to their gateway.
         gateway: selectedGateway === "crypto" ? "nowpayments" : selectedGateway,
-        reference: paymentReference,
       });
-      if (!result.ok) {
-        toast.error(result.error);
+      if (!started.ok) {
+        toast.error(started.error);
         return;
       }
-      toast.success(
-        `Print pass activated for this document. Charged ${pricing.formatted}.`,
-      );
-      handleClose();
-      handleSuccess();
+      toast.message("Opening secure checkout…");
+      window.location.assign(started.redirectUrl);
     } catch {
       toast.error(
-        "Could not activate the print pass. Please try again or subscribe.",
+        "Could not start the print payment. Please try again or subscribe.",
       );
     } finally {
       setProcessing(false);
