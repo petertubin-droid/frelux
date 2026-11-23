@@ -211,6 +211,66 @@ export const ENGINE_SURFACES: EngineSurface[] = [
     note: "Gross, deducted, net and finishing wall area before any layer or price is applied.",
   },
   {
+    engineId: "drainage",
+    status: "shared",
+    route: "/drainage-calculator",
+    label: "Drainage Calculator",
+    icon: Droplets,
+    evidence: {
+      module: "@/lib/estimation/drainage-standalone-engine",
+      fn: "calculateDrainageTakeoff",
+      page: "src/pages/StandaloneTakeoffPage.tsx",
+      calledBy:
+        "the drainage calculator page runs the same takeoff with the runs the user measured",
+    },
+    note: "Pipe, stock pieces, chambers, bedding and excavation for measured drainage runs.",
+  },
+  {
+    engineId: "septic_sizing",
+    status: "shared",
+    route: "/septic-sizing-calculator",
+    label: "Septic Sizing Calculator",
+    icon: Droplets,
+    evidence: {
+      module: "@/lib/estimation/septic-sizing-engine",
+      fn: "calculateSepticSizing",
+      page: "src/pages/StandaloneTakeoffPage.tsx",
+      calledBy:
+        "the septic sizing page runs the same sizing from the occupancy and retention the user enters",
+    },
+    note: "Tank working and total volume, plus the soakaway area when a soil rate is supplied.",
+  },
+  {
+    engineId: "plumbing_drainage",
+    status: "shared",
+    route: "/plumbing",
+    label: "Plumbing Estimator",
+    icon: Droplets,
+    evidence: {
+      module: "@/lib/estimation/plumbing-standards-engine",
+      fn: "calculateUpcIpcDrainage",
+      page: "src/components/calculators/RegionalDrainageCheck.tsx",
+      calledBy:
+        "the regional drainage check in the plumbing estimator sizes the building drain from the same fixture counts",
+    },
+    note: "Fixture units, the drain size IPC and UPC tables allow, and the slope that goes with it.",
+  },
+  {
+    engineId: "nec_cable",
+    status: "shared",
+    route: "/electrical",
+    label: "Electrical Estimator",
+    icon: Zap,
+    evidence: {
+      module: "@/lib/estimation/nec-electrical-engine",
+      fn: "calculateNecPreliminaryCable",
+      page: "src/components/calculators/CableSizingCheck.tsx",
+      calledBy:
+        "the cable sizing check in the electrical estimator picks the same preliminary size and voltage drop",
+    },
+    note: "Design current, the preliminary cable size, its ampacity and the resulting voltage drop.",
+  },
+  {
     engineId: "paint",
     status: "shared",
     route: "/paint-calculator",

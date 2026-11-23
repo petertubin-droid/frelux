@@ -1865,6 +1865,254 @@ registerEngine({
   },
 });
 
+// ── Batch 6: building services ──
+//
+// These four are the batch-6 engines whose outputs are quantities. The rest of
+// the batch is deliberately absent: conduit-wiring and generator expose rule
+// parsers, pipe-sizing exposes a bore lookup, water-tower-staging returns an
+// installation sequence, and the borehole engine exposes a trench-depth helper.
+// None of those is a takeoff, and adapting a parser would report the shape of a
+// rule table as if it were a measurement.
+
+interface DrainageInputLike {
+  marketCode?: string;
+  runs?: {
+    lengthM: number;
+    pipeDiameterMm: number;
+    fallMmPerM: number;
+    pipeStockLengthM?: number;
+  }[];
+  inspectionChambers?: number;
+  manholeCount?: number;
+  beddingDepthM?: number;
+  beddingWastePercent?: number;
+  trenchWidthM?: number;
+  trenchDepthM?: number;
+}
+
+registerEngine({
+  id: "drainage",
+  domain: "building",
+  title: "FRELUX Drainage Takeoff Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX drainage engine",
+  async run(rawInput) {
+    const { calculateDrainageTakeoff } =
+      await import("@/lib/estimation/drainage-standalone-engine");
+    const supplied = (rawInput ?? {}) as DrainageInputLike;
+
+    // One 20 m run of 110 mm pipe at 1:60, three inspection chambers: a domestic
+    // drain as the calculator opens it.
+    const result = calculateDrainageTakeoff({
+      marketCode: supplied.marketCode ?? "NG",
+      runs:
+        supplied.runs ??
+        ([{ lengthM: 20, pipeDiameterMm: 110, fallMmPerM: 16.7 }] as never),
+      inspectionChambers: supplied.inspectionChambers ?? 3,
+      manholeCount: supplied.manholeCount ?? 0,
+      beddingDepthM: supplied.beddingDepthM,
+      beddingWastePercent: supplied.beddingWastePercent,
+      trenchWidthM: supplied.trenchWidthM,
+      trenchDepthM: supplied.trenchDepthM,
+    } as never);
+
+    return {
+      ok: true,
+      engine: "drainage",
+      calculatedAt: new Date().toISOString(),
+      quantities: [
+        quantityLine("Total pipe", result.totalPipeLengthM, "m"),
+        quantityLine("Pipe stock pieces", result.pipeStockPieces, "pieces"),
+        quantityLine("Inspection chambers", result.inspectionChambers, "no."),
+        quantityLine("Manholes", result.manholes, "no."),
+        quantityLine("Bedding", result.beddingVolumeM3, "m³"),
+        quantityLine("Excavation", result.excavationVolumeM3, "m³"),
+      ],
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
+interface SepticInputLike {
+  marketCode?: string;
+  occupants?: number;
+  designFlowLitresPerPersonPerDay?: number;
+  retentionDays?: number;
+  storageAllowanceDays?: number;
+  freeboardPercent?: number;
+  acceptedSoilLoadingRateLitresPerM2PerDay?: number;
+  soakawayDepthM?: number;
+  sidewallOnly?: boolean;
+}
+
+registerEngine({
+  id: "septic_sizing",
+  domain: "building",
+  title: "FRELUX Septic Sizing Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX septic sizing engine",
+  async run(rawInput) {
+    const { calculateSepticSizing } =
+      await import("@/lib/estimation/septic-sizing-engine");
+    const supplied = (rawInput ?? {}) as SepticInputLike;
+
+    // Six occupants at 150 litres each with two days of retention: the domestic
+    // household the sizing page starts from.
+    const result = calculateSepticSizing({
+      marketCode: supplied.marketCode ?? "NG",
+      occupants: supplied.occupants ?? 6,
+      designFlowLitresPerPersonPerDay:
+        supplied.designFlowLitresPerPersonPerDay ?? 150,
+      retentionDays: supplied.retentionDays ?? 2,
+      storageAllowanceDays: supplied.storageAllowanceDays,
+      freeboardPercent: supplied.freeboardPercent,
+      acceptedSoilLoadingRateLitresPerM2PerDay:
+        supplied.acceptedSoilLoadingRateLitresPerM2PerDay,
+      soakawayDepthM: supplied.soakawayDepthM,
+      sidewallOnly: supplied.sidewallOnly,
+    } as never);
+
+    const quantities: EngineQuantityLine[] = [
+      quantityLine("Daily design flow", result.dailyDesignFlowLitres, "litres"),
+      quantityLine("Tank working volume", result.tankWorkingVolumeM3, "m³"),
+      quantityLine("Tank total volume", result.tankTotalVolumeM3, "m³"),
+    ];
+    // The soakaway needs a soil loading rate the caller may not have supplied,
+    // so it is absent rather than a zero that reads as "no soakaway needed".
+    if (result.soakawayRequiredAbsorptionAreaM2 !== null) {
+      quantities.push(
+        quantityLine(
+          "Soakaway absorption area",
+          result.soakawayRequiredAbsorptionAreaM2,
+          "m²",
+        ),
+      );
+    }
+
+    return {
+      ok: true,
+      engine: "septic_sizing",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
+interface PlumbingFixturesLike {
+  water_closets?: number;
+  lavatories?: number;
+  showers?: number;
+  bathtubs?: number;
+  kitchen_sinks?: number;
+  dishwashers?: number;
+  clothes_washers?: number;
+  floor_drains?: number;
+}
+
+registerEngine({
+  id: "plumbing_drainage",
+  domain: "building",
+  title: "FRELUX UPC/IPC Drainage Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX drainage standard engine",
+  async run(rawInput) {
+    const { calculateUpcIpcDrainage } =
+      await import("@/lib/estimation/plumbing-standards-engine");
+    const supplied = (rawInput ?? {}) as PlumbingFixturesLike;
+
+    // Two bathrooms and a kitchen: two WCs, two lavatories, one shower and one
+    // kitchen sink, the smallest layout that still exercises the table.
+    const result = calculateUpcIpcDrainage({
+      water_closets: supplied.water_closets ?? 2,
+      lavatories: supplied.lavatories ?? 2,
+      showers: supplied.showers ?? 1,
+      bathtubs: supplied.bathtubs ?? 0,
+      kitchen_sinks: supplied.kitchen_sinks ?? 1,
+      dishwashers: supplied.dishwashers ?? 0,
+      clothes_washers: supplied.clothes_washers ?? 0,
+      floor_drains: supplied.floor_drains ?? 0,
+    } as never);
+
+    return {
+      ok: true,
+      engine: "plumbing_drainage",
+      calculatedAt: new Date().toISOString(),
+      quantities: [
+        quantityLine("Total fixture units", result.total_dfu, "DFU"),
+        quantityLine("Drain capacity", result.max_capacity_dfu, "DFU"),
+        quantityLine(
+          "Minimum slope",
+          result.minimum_slope_percent,
+          "%",
+        ),
+      ],
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
+interface NecCableInputLike {
+  load_watts?: number;
+  run_ft?: number;
+  system?: string;
+  power_factor?: number;
+  lighting_dominant?: boolean;
+  design_current_a?: number;
+  termination_temperature_c?: 60 | 75 | 90;
+}
+
+registerEngine({
+  id: "nec_cable",
+  domain: "building",
+  title: "FRELUX NEC Preliminary Cable Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX cable sizing engine",
+  async run(rawInput) {
+    const { calculateNecPreliminaryCable } =
+      await import("@/lib/estimation/nec-electrical-engine");
+    const supplied = (rawInput ?? {}) as NecCableInputLike;
+
+    // 8 kW over a 100 ft 240 V single-phase run: a domestic cooker circuit.
+    const result = calculateNecPreliminaryCable({
+      load_watts: supplied.load_watts ?? 8000,
+      run_ft: supplied.run_ft ?? 100,
+      system: (supplied.system ?? "240V_single") as never,
+      power_factor: supplied.power_factor ?? 1,
+      lighting_dominant: supplied.lighting_dominant,
+      design_current_a: supplied.design_current_a,
+      termination_temperature_c: supplied.termination_temperature_c,
+    } as never);
+
+    const quantities: EngineQuantityLine[] = [
+      quantityLine("Design current", result.design_current_a, "A"),
+      quantityLine("Run length", result.run_m, "m"),
+    ];
+    if (result.selected_ampacity_a !== null) {
+      quantities.push(
+        quantityLine("Selected ampacity", result.selected_ampacity_a, "A"),
+      );
+    }
+    if (result.voltage_drop.drop_percent !== null) {
+      quantities.push(
+        quantityLine("Voltage drop", result.voltage_drop.drop_percent, "%"),
+      );
+    }
+
+    return {
+      ok: true,
+      engine: "nec_cable",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
 export function listEngines(): EngineDescriptor[] {
   return [...REGISTRY.values()];
 }

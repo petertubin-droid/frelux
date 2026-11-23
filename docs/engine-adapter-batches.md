@@ -108,21 +108,40 @@ The surface test now accepts a page that imports the module's barrel
 (`@/lib/wallfinishing` for `@/lib/wallfinishing/quantity-engine`), which is how
 the wall finishing estimator reaches its arithmetic.
 
-## Batch 6: Building services
+## Batch 6: Building services (closed, 23 November 2026)
 
-| Module                                       | Entry point                    |
-| -------------------------------------------- | ------------------------------ |
-| `estimation/conduit-wiring-engine.ts`        | `parseConduitWiringRules`      |
-| `estimation/nec-electrical-engine.ts`        | `calculateNecPreliminaryCable` |
-| `estimation/pipe-sizing-engine.ts`           | `boresFor`                     |
-| `estimation/plumbing-standards-engine.ts`    | `calculateUpcIpcDrainage`      |
-| `estimation/septic-sizing-engine.ts`         | `calculateSepticSizing`        |
-| `estimation/solar-pv-engine.ts`              | `calculateSolarPv`             |
-| `estimation/water-tower-staging-engine.ts`   | `calculateWaterTowerStaging`   |
-| `estimation/borehole-water-system-engine.ts` | `trenchDepthForMarket`         |
-| `estimation/drainage-standalone-engine.ts`   | `calculateDrainageTakeoff`     |
-| `estimation/generator-engine.ts`             | `parseGeneratorRules`          |
-| `estimation/heat-comfort-engine.ts`          | `calculateHeatComfort`         |
+| Module                                       | Entry point                    | State                                                                              |
+| -------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------- |
+| `estimation/drainage-standalone-engine.ts`   | `calculateDrainageTakeoff`     | done as `drainage`, surface `/drainage-calculator`                                  |
+| `estimation/septic-sizing-engine.ts`         | `calculateSepticSizing`        | done as `septic_sizing`, surface `/septic-sizing-calculator`                        |
+| `estimation/plumbing-standards-engine.ts`    | `calculateUpcIpcDrainage`      | done as `plumbing_drainage`, surface `/plumbing`                                    |
+| `estimation/nec-electrical-engine.ts`        | `calculateNecPreliminaryCable` | done as `nec_cable`, surface `/electrical`                                          |
+| `estimation/conduit-wiring-engine.ts`        | `parseConduitWiringRules`      | declined: exposes a rule parser and `calculateConduitWiring` needs a rules table     |
+| `estimation/generator-engine.ts`             | `parseGeneratorRules`          | declined: same shape, a rules table rather than a takeoff                           |
+| `estimation/pipe-sizing-engine.ts`           | `boresFor`                     | declined: a static bore lookup, no measurement to report                            |
+| `estimation/water-tower-staging-engine.ts`   | `calculateWaterTowerStaging`   | declined: returns an installation sequence, not quantities                          |
+| `estimation/borehole-water-system-engine.ts` | `trenchDepthForMarket`         | declined: a trench-depth helper inside a 1,275-line system model                    |
+| `estimation/solar-pv-engine.ts`              | `calculateSolarPv`             | open: needs a price input, so only the array sizing half is adapt-able as it stands |
+| `estimation/heat-comfort-engine.ts`          | `calculateHeatComfort`         | open: comfort indices rather than quantities, needs a decision on what to report    |
+
+Closed on 23 November 2026 with four adapters and six declines:
+
+- `drainage` takes off pipe, stock pieces, chambers, manholes, bedding and
+  excavation. A 20 m run of 110 mm at 1:60 with three chambers is the default
+  the calculator opens with.
+- `septic_sizing` reports daily design flow and tank working and total volume.
+  The soakaway line is absent unless a soil loading rate is supplied, because a
+  zero there would read as "no soakaway needed" rather than "not given".
+- `plumbing_drainage` reports total fixture units, the drain capacity IPC and
+  UPC allow at the recommended size, and the minimum slope. Two WCs, two
+  lavatories, a shower and a kitchen sink is the default layout.
+- `nec_cable` reports design current, run length, selected ampacity and voltage
+  drop for a preliminary NEC size. It is North American only, and the canonical
+  link says so.
+
+The six declines share one reason: a parser, a lookup table, a sequence or a
+price-dependent result is not a takeoff, and reporting it as one would put a
+number in the console that no page produces.
 
 ## Batch 7: Siteworks and external works
 
