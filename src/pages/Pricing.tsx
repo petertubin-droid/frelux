@@ -543,7 +543,13 @@ export default function Pricing() {
       />
 
       {/* Billing cycle toggle */}
-      <div className="mx-auto max-w-6xl px-4 py-8">
+      <div className="relative mx-auto max-w-6xl px-4 py-8">
+        {/* A soft brand glow behind the hero, so the pricing page reads as a
+            product surface rather than a plain list of boxes. */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 -top-10 -z-10 h-[420px] bg-[radial-gradient(60%_100%_at_50%_0%,hsl(var(--brand-purple)/0.12),transparent_72%)]"
+        />
         {/* Payment method selector: both gateways stay live; admin
             setting is the default, the user may override it. */}
         {gateways.length > 1 && (
@@ -552,7 +558,7 @@ export default function Pricing() {
               role="radiogroup"
               aria-label={t("Payment method")}
               data-testid="gateway-selector"
-              className="inline-flex rounded-xl border border-border bg-card p-1 dark:border-border"
+              className="inline-flex rounded-full border border-border/70 bg-card/80 p-1 shadow-sm backdrop-blur dark:border-white/10"
             >
               {gateways.map((gw) => (
                 <button
@@ -562,7 +568,7 @@ export default function Pricing() {
                   aria-checked={chosenGateway === gw}
                   onClick={() => setChosenGateway(gw)}
                   className={classNames(
-                    "rounded-lg px-4 py-2 text-sm font-medium capitalize transition-colors",
+                    "rounded-full px-4 py-2 text-sm font-medium capitalize transition-all duration-200",
                     chosenGateway === gw
                       ? "bg-brand-purple text-white"
                       : "text-muted-foreground hover:bg-muted",
@@ -585,7 +591,7 @@ export default function Pricing() {
           <div
             role="tablist"
             aria-label={t("Billing cycle")}
-            className="inline-flex rounded-xl border border-border bg-card p-1 dark:border-border border-border dark:bg-background"
+            className="inline-flex rounded-full border border-border/70 bg-card/80 p-1 shadow-sm backdrop-blur dark:border-white/10 dark:bg-background"
           >
             <Button
               variant="ghost"
@@ -680,17 +686,23 @@ export default function Pricing() {
               <div
                 key={plan.id}
                 className={classNames(
-                  "relative flex flex-col rounded-2xl border bg-card p-6 shadow-sm transition-all dark:bg-card",
+                  "relative flex flex-col overflow-hidden rounded-3xl border bg-gradient-to-b from-card to-card/70 p-6 shadow-[0_1px_2px_rgba(15,23,42,0.05),0_16px_40px_-24px_rgba(15,23,42,0.35)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_2px_4px_rgba(15,23,42,0.06),0_26px_60px_-26px_rgba(15,23,42,0.42)] dark:bg-card",
                   plan.highlight
-                    ? "border-brand-purple ring-2 ring-brand-purple/20 lg:scale-105"
+                    ? "border-brand-purple/60 ring-1 ring-brand-purple/25 lg:scale-[1.04] shadow-[0_2px_4px_rgba(124,58,237,0.12),0_28px_64px_-26px_rgba(124,58,237,0.45)]"
                     : "border-border/60 dark:border-white/10",
                   isCurrentPlan && "ring-2 ring-accent-green/30",
                 )}
               >
+                {plan.highlight && (
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-brand-purple/70 to-transparent"
+                  />
+                )}
                 {plan.badge && (
                   <span
                     className={classNames(
-                      "absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide",
+                      "absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] shadow-sm",
                       plan.highlight
                         ? "bg-primary text-primary-foreground"
                         : "bg-muted text-muted-foreground dark:bg-card-foreground/90 dark:text-muted-foreground/80",
@@ -719,7 +731,7 @@ export default function Pricing() {
 
                 <div className="mt-4" aria-live="polite">
                   <span
-                    className="text-3xl font-extrabold text-foreground dark:text-primary-foreground"
+                    className="text-4xl font-extrabold tracking-tight tabular-nums text-foreground dark:text-primary-foreground"
                     data-testid={`plan-price-${plan.id}`}
                     data-currency={shown.currency}
                   >
