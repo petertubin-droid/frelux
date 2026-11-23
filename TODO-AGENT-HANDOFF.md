@@ -208,6 +208,39 @@ from `profiles.role` under RLS. The client gate is convenience only. What
 actually protects price writes is `is_admin()` in both USING and WITH CHECK on
 `estimation_prices` and `estimation_materials` (live-verified).
 
+## No trade engine prices from code (2026-11-23)
+
+Audited all 84 catalogue routes against their price source. None prices from
+hardcoded constants.
+
+- 57 reach a price book (`fetchMarketPriceBook`, `material_prices`,
+  `paint_types`, `paint_comparisons`). Conduit, steel beam, retaining wall and
+  soffit/gutter pass a `SpecialtyPriceMap` from `useSpecialtyPrices`; German
+  floor and fence block read `material_prices` directly.
+- Quantity-only, no money at all: borehole, tall building, water tower staging,
+  mathematical plan/elevation, blueprint takeoff, unit converter.
+- User types the rate: TV console, wallpaper, four-view envelope BOQ export.
+- `SAMPLE_SUPPLIER_INVENTORY` / `SAMPLE_SUPPLIER_PROFILES` in
+  supplier-inventory-engine.ts are TEST FIXTURES only; production reads
+  `supplier_inventory_items` and `supplier_profiles`.
+- Consumption factors in plaster-render-engine.ts (kg/m2, waste %) are
+  datasheet constants, not prices, and belong in code.
+
+REAL GAP FOUND: six engine slugs were never created in estimation_materials
+(downpipe, glazing, gutter bracket, gutter per metre, steel section, weep hole
+pipe), so gutter/soffit and steel beam could never price in ANY market, and
+three more (flooring adhesive, skirting, underlay, gen ats/battery/cable) had
+no price row. Migration 20261123170000 creates the five materials it could
+verify and adds NG prices from live listings (gutter bracket NGN 400, gutter
+NGN 8,269/m materials component, downpipe NGN 7,500, flooring adhesive NGN
+5,000/20kg, ATS 100A NGN 51,926).
+
+Still unpriced ON PURPOSE: steel-section-per-tonne (NG sells per tonne by
+supplier quote, no UC/UB listing to anchor), glazing-per-m2 (made to measure),
+weep-hole-pipe, flooring skirting/underlay, gen-battery, gen-cable. Remaining
+work: those slugs across the other 19 markets, and NG has no verified anchor
+for them yet.
+
 ## Subscription tiers are admin data (2026-11-21)
 
 Tier copy and prices are editable from AdminSubscriptionPricing, and the price
