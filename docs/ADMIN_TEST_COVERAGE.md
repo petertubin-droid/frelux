@@ -138,8 +138,28 @@ leaves the money totals standing.
 rather than `select("*")`, which would ship free-text notes into a screen that
 only shows totals, and Refresh re-reads the ledger.
 
-Tranche 1 is complete. Remaining overall: tranche 2 engine pages, starting with
-`AdminEngineConfig`.
+Tranche 1 is complete.
+
+### Tranche 2 started (23 November 2026)
+
+`AdminEngineConfig` had the placeholder test that asserted only that the module
+exports something. It now has five tests over the settings tab, which is the tab
+that changes calculated output:
+
+- a numeric setting is saved as a number, not the typed string, so `7.5` reaches
+  the engine as `7.5` rather than `"7.5"`
+- a plain text setting stays text
+- a boolean setting is saved as a boolean
+- a rejected save raises "Failed to save" instead of closing silently
+- only settings marked editable offer an edit control
+
+Defect found: every row's edit and save buttons were labelled "Edit setting" and
+"Save setting", so a screen reader heard the same two names on every row with no
+way to tell which setting was about to change. They now name their key, and the
+tests assert the specific name.
+
+Remaining in tranche 2: `AdminAiSettings`, `AdminEngineStudio`,
+`AdminIntelligenceSources`. Then tranche 3, the 34 content CRUD pages.
 
 ## Limits of this audit
 

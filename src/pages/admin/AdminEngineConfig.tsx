@@ -1164,7 +1164,7 @@ function SettingsTab() {
                 {item.is_editable &&
                   (editing[item.setting_key] !== undefined ? (
                     <Button
-                      aria-label="Save setting"
+                      aria-label={`Save ${item.setting_key}`}
                       variant="ghost"
                       onClick={() => handleSave(item.setting_key)}
                       className="rounded p-1 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20"
@@ -1173,7 +1173,7 @@ function SettingsTab() {
                     </Button>
                   ) : (
                     <Button
-                      aria-label="Edit setting"
+                      aria-label={`Edit ${item.setting_key}`}
                       variant="ghost"
                       onClick={() =>
                         setEditing({
