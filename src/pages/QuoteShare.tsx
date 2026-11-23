@@ -193,7 +193,9 @@ export default function QuoteShare() {
               </button>
               <button
                 type="button"
-                onClick={() => void openBoqPrint(snapshot.standard, doc)}
+                onClick={() =>
+                  void openBoqPrint(snapshot.standard, doc, { verify: true })
+                }
                 className="h-9 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
               >
                 Print

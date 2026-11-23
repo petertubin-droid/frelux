@@ -107,7 +107,7 @@ describe("printQuote", () => {
     vi.restoreAllMocks();
   });
 
-  it("writes the document and prints when a popup opens", () => {
+  it("writes the document and prints when a popup opens", async () => {
     const write = vi.fn();
     const close = vi.fn();
     const focus = vi.fn();
@@ -120,7 +120,8 @@ describe("printQuote", () => {
     } as unknown as Window);
     printQuote(opts, "x.html");
     expect(write).toHaveBeenCalled();
-    expect(print).toHaveBeenCalled();
+    // Printing waits for the verification QR to be drawn first.
+    await vi.waitFor(() => expect(print).toHaveBeenCalled());
   });
 
   it("waits for a still-loading image before printing", () => {
@@ -170,11 +171,12 @@ describe("printQuote", () => {
     vi.useRealTimers();
   });
 
-  it("falls back to an HTML file download when popups are blocked", () => {
+  it("falls back to an HTML file download when popups are blocked", async () => {
     const click = vi.fn();
     vi.spyOn(window, "open").mockReturnValue(null);
     vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(click);
     printQuote(opts, "frelux-quote.html");
-    expect(click).toHaveBeenCalled();
+    // The fallback bakes the QR into the file, so the click lands a tick later.
+    await vi.waitFor(() => expect(click).toHaveBeenCalled());
   });
 });

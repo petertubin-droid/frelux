@@ -91,7 +91,9 @@ export default function BoqStudio() {
   // behaviour; switching it off exports without the seal and without a
   // blockchain registration.
   // The seal is the user's decision at export time — off until they opt in.
-  const [verifySeal, setVerifySeal] = useState(false);
+  // Verified by default: an exported BOQ without its QR is a document a client
+  // cannot check. The toggle still lets the user turn the seal off.
+  const [verifySeal, setVerifySeal] = useState(true);
   const [busy, setBusy] = useState(false);
   const [shareBusy, setShareBusy] = useState(false);
   const [shareToken, setShareToken] = useState<string | null>(null);
@@ -1334,8 +1336,8 @@ export default function BoqStudio() {
                 aria-label="Print the FRELUX VERIFY QR on this export"
               />
               <span>
-                <strong className="text-slate-900">FRELUX VERIFY QR</strong> — add
-                a scannable QR at the foot of the document and register this
+                <strong className="text-slate-900">FRELUX VERIFY QR</strong> —
+                add a scannable QR at the foot of the document and register this
                 export&apos;s fingerprint on the Bitcoin-anchored record
                 (OpenTimestamps). Off by default: leave it off for an internal
                 draft, turn it on when the document goes to a client.
