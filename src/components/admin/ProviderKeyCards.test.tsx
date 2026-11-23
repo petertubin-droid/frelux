@@ -76,13 +76,22 @@ describe("ProviderKeyCards", () => {
   it("labels exposure class and consumption state honestly", async () => {
     render(<ProviderKeyCards />);
     await waitFor(() => expect(listMock).toHaveBeenCalled());
-    // resend, web-push-private, open-exchange-rates + the five payment slots
-    expect(screen.getAllByText("Server-side only").length).toBe(8);
-    // openweather, web-push-public, carto
-    expect(screen.getAllByText("Client-safe key").length).toBe(3);
+    // Counted from the registry rather than hardcoded: the crypto gateways
+    // added two server-side providers and the old fixed numbers failed without
+    // anything being wrong. The registry is the source of truth for the cards.
+    const serverSide = PROVIDER_REGISTRY.filter(
+      (p) => p.exposure === "server",
+    ).length;
+    const clientSafe = PROVIDER_REGISTRY.filter(
+      (p) => p.exposure === "client",
+    ).length;
+    const live = PROVIDER_REGISTRY.filter(
+      (p) => p.consumption === "live",
+    ).length;
+    expect(screen.getAllByText("Server-side only").length).toBe(serverSide);
+    expect(screen.getAllByText("Client-safe key").length).toBe(clientSafe);
     expect(screen.getByText("Slot ready")).toBeTruthy();
-    // every provider except the slot-ready FX one
-    expect(screen.getAllByText("Live").length).toBe(10);
+    expect(screen.getAllByText("Live").length).toBe(live);
   });
 
   it("shows masked last4 and Disable for an active stored key, never the raw value", async () => {
@@ -131,7 +140,8 @@ describe("ProviderKeyCards", () => {
     });
     // Empty drafts disable every save button — no provider can fire a save.
     for (const b of btns) expect(b.hasAttribute("disabled")).toBe(true);
-    expect(screen.getAllByText("No key").length).toBe(11);
+    // One "No key" badge per provider when nothing is stored.
+    expect(screen.getAllByText("No key").length).toBe(PROVIDER_REGISTRY.length);
     expect(saveMock).not.toHaveBeenCalled();
   });
 

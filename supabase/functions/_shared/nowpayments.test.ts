@@ -1,4 +1,12 @@
-import { assertEquals } from "https://deno.land/std@0.224.0/assert/mod.ts";
+// Converted from Deno.test to vitest so these assertions actually run in CI.
+// The body is unchanged: assertEquals is kept as a thin wrapper over expect,
+// because the file was written against Deno's std assert and every expectation
+// here is an equality.
+import { describe, expect, it } from "vitest";
+
+const assertEquals = <T,>(actual: T, expected: T) =>
+  expect(actual).toEqual(expected);
+
 import {
   mapNowPaymentsStatus,
   nowPaymentsInvoiceMatchesExpected,
@@ -21,14 +29,15 @@ const invoice = {
   invoice_url: "https://nowpayments.io/payment/?iid=5070216170",
 };
 
-Deno.test(
+describe("NOWPayments", () => {
+  it(
   "NOWPayments invoice binding accepts an exact matching record",
   () => {
     assertEquals(nowPaymentsInvoiceMatchesExpected(invoice, expected), true);
   },
 );
 
-Deno.test(
+it(
   "NOWPayments invoice binding rejects amount, order, and currency mismatches",
   () => {
     assertEquals(
@@ -55,7 +64,7 @@ Deno.test(
   },
 );
 
-Deno.test(
+it(
   "NOWPayments status mapping correctly classifies provider states",
   () => {
     assertEquals(mapNowPaymentsStatus("finished"), "Confirmed");
@@ -71,13 +80,13 @@ Deno.test(
   },
 );
 
-Deno.test("NOWPayments sortObject sorts nested keys alphabetically", () => {
+it("NOWPayments sortObject sorts nested keys alphabetically", () => {
   const input = { z: 1, a: 2, m: { b: 3, a: 4 } };
   const sorted = sortObject(input);
   assertEquals(JSON.stringify(sorted), '{"a":2,"m":{"a":4,"b":3},"z":1}');
 });
 
-Deno.test(
+it(
   "NOWPayments IPN signature verification accepts authentic HMAC-SHA512",
   async () => {
     const secret = "secret_ipn_key_456";
@@ -141,7 +150,7 @@ Deno.test(
   },
 );
 
-Deno.test(
+it(
   "NOWPayments getNowPaymentsPayments queries endpoint with correct query params",
   async () => {
     let capturedUrl = "";
@@ -189,3 +198,4 @@ Deno.test(
     }
   },
 );
+});
