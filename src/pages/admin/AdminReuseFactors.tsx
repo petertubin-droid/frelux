@@ -332,7 +332,7 @@ export default function AdminReuseFactors() {
 
       <AdminModal
         open={modalOpen}
-        title={editing ? "Edit thermal factor" : "Add thermal factor"}
+        title={editing ? "Edit reuse factor" : "Add reuse factor"}
         onClose={() => setModalOpen(false)}
       >
         <div className="grid gap-3">

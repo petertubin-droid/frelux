@@ -256,14 +256,14 @@ export default function AdminSolarPrices() {
                   <td className="p-3">
                     <div className="flex justify-end gap-1">
                       <AdminIconButton
-                        aria-label={`Edit ${p.component_label}`}
+                        aria-label={`Edit ${p.component_label || p.component_key}`}
                         onClick={() => openEdit(p)}
                         title={t("Edit")}
                       >
                         <Pencil className="h-4 w-4" />
                       </AdminIconButton>
                       <AdminIconButton
-                        aria-label={`Delete ${p.component_label}`}
+                        aria-label={`Delete ${p.component_label || p.component_key}`}
                         onClick={() => remove(p)}
                         title={t("Delete")}
                         variant="danger"

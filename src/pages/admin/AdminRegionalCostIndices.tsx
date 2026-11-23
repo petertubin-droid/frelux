@@ -297,7 +297,7 @@ export default function AdminRegionalCostIndices() {
                   </td>
                   <td className="p-3">
                     <Toggle
-                      srLabel="{`Active: ${i.name}`}"
+                      srLabel={`Active: ${i.state} ${i.category}`}
                       checked={i.is_active}
                       onChange={() =>
                         updateRegionalCostIndex(i.id, {

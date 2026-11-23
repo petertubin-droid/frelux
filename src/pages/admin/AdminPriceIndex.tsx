@@ -529,7 +529,11 @@ export default function AdminPriceIndex() {
                   disabled={busy?.id === city.slug}
                   className="rounded-md border border-border px-2 py-1 text-xs hover:bg-muted disabled:opacity-50"
                 >
-                  {busy?.id === city.slug ? "Saving…" : "Disable"}
+                  {busy?.id === city.slug
+                    ? "Saving…"
+                    : city.is_active
+                      ? "Disable"
+                      : "Enable"}
                 </button>
               </li>
             ))}

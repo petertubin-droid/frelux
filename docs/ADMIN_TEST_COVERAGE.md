@@ -68,21 +68,21 @@ silently changes calculated output. Tier 3 is content CRUD.
 | `AdminIntegrations`           | 1     | 2          | 3 CRUD   |
 | `AdminIntelligence`           | 2     | 3          | 3 CRUD   |
 | `AdminLearningReview`         | 1     | 3          | 3 CRUD   |
-| `AdminListedMarkets`          | 2     | 3          | 3 CRUD   |
-| `AdminMaintenanceProfiles`    | 1     | 3          | 3 CRUD   |
-| `AdminPriceIndex`             | 2     | 2          | 3 CRUD   |
-| `AdminPriceSubmissions`       | 1     | 3          | 3 CRUD   |
-| `AdminRegionalCostIndices`    | 1     | 3          | 3 CRUD   |
-| `AdminReuseFactors`           | 1     | 3          | 3 CRUD   |
+| `AdminListedMarkets`          | 7     | 16         | 3 CRUD   |
+| `AdminMaintenanceProfiles`    | 5     | 14         | 3 CRUD   |
+| `AdminPriceIndex`             | 9     | 20         | 3 CRUD   |
+| `AdminPriceSubmissions`       | 6     | 15         | 3 CRUD   |
+| `AdminRegionalCostIndices`    | 6     | 16         | 3 CRUD   |
+| `AdminReuseFactors`           | 5     | 15         | 3 CRUD   |
 | `AdminSiteIntelligence`       | 2     | 3          | 3 CRUD   |
 | `AdminSocialBrandCenter`      | 1     | 3          | 3 CRUD   |
-| `AdminSolarPanels`            | 1     | 3          | 3 CRUD   |
-| `AdminSolarPrices`            | 1     | 3          | 3 CRUD   |
+| `AdminSolarPanels`            | 5     | 15         | 3 CRUD   |
+| `AdminSolarPrices`            | 6     | 16         | 3 CRUD   |
 | `AdminSuppliers`              | 2     | 2          | 3 CRUD   |
 | `AdminTestimonials`           | 2     | 4          | 3 CRUD   |
-| `AdminThermalFactors`         | 1     | 3          | 3 CRUD   |
+| `AdminThermalFactors`         | 5     | 15         | 3 CRUD   |
 | `AdminTranslations`           | 2     | 4          | 3 CRUD   |
-| `AdminTravelApprovals`        | 1     | 1          | 3 CRUD   |
+| `AdminTravelApprovals`        | 6     | 14         | 3 CRUD   |
 | `AdminWallFinishingLibrary`   | 2     | 2          | 3 CRUD   |
 | `AdminWebVitals`              | 2     | 3          | 3 CRUD   |
 | `SeoPerformance`              | 2     | 2          | 3 CRUD   |
@@ -190,7 +190,7 @@ All 9 Tier 1 money pages are now fully conformance-tested:
 - `AdminCashFlowTemplates` (4 tests): verifies exact sum-to-100% milestone
   validation (refuses saving invalid distributions), positive percentage and
   offset type conversions, deletion confirmation, and accessible switch names.
-  *Defect found and fixed*: `srLabel` on row toggles was passed as a literal
+  _Defect found and fixed_: `srLabel` on row toggles was passed as a literal
   string `"{`Default: ${t.name}`}"` rather than interpolated expression.
 - `AdminCreditProfiles` (6 tests): verifies contractor credit profile listing,
   validation rule that on-time jobs cannot exceed verified jobs, required
@@ -213,7 +213,30 @@ Seven Tier 3 admin operational and content suites upgraded from smoke tests to c
 - `AdminTranslations` (6 tests): verifies localization console and status metrics, generates machine drafts via `translate-content` edge function with user session bearer tokens, publishes localized pages with recorded reviewer id, tests rejection workflow, and tests active draft review with inline editing and saving.
 - `AdminCaseStudies` (6 tests): loads approved gallery entries and existing case studies, tests publish/unpublish toggling via `setCaseStudyPublished`, verifies deletion protection with confirmation dialog, verifies modal editing and upsert payload with clean numeric budgets and currencies, and checks empty and error state handling.
 
-Remaining: 23 smoke-only suites in Tier 3 (content CRUD).
+### Tier 3 Material, Cost Index & Operations tranche complete (23 November 2026)
+
+Ten Tier 3 admin pricing, cost index, environmental factors, and operational suites upgraded from smoke tests to comprehensive behavioral conformance suites:
+
+- `AdminPriceSubmissions` (6 tests): tests status filtering (pending/approved/rejected/flagged), review RPC invocation with approved status and verified notes, modal rejection workflow with mandatory reasoning, price flag review, and error state presentation.
+- `AdminTravelApprovals` (6 tests): verifies pending orders listing with client names and travel fees, pro verification badges, approval and revocation RPC payload generation, safety risk warning modal, empty states, and RPC failure handling.
+- `AdminListedMarkets` (7 tests): enforces non-admin access gating, displays provider and company news lists with sentiment and market categories, updates provider sync frequency in milliseconds, toggles active state on companies and news, and tests investor access grant workflow.
+- `AdminPriceIndex` (9 tests): verifies submissions, active cities and market prices loading, approval and rejection actions with note prompts, city active status toggling, cross-currency market comparison statistics, CSV export payload, and error handling.
+- `AdminRegionalCostIndices` (6 tests): lists regional cost factors by country and state, enforces positive numeric factor and source reference validation, validates single active factor per country/state/category, verifies creation payload, tests activation toggle, and verifies deletion confirmation.
+- `AdminReuseFactors` (5 tests): renders material reuse factor catalogue, validates recovery and reuse/recycle fraction bounds (0–1, reuse + recycle <= 1), verifies required source references, tests factor creation payload, verifies edit modal workflow and updates, and confirms deletion.
+- `AdminThermalFactors` (5 tests): renders thermal finish factor library with solar reflectance (albedo) values, validates albedo range [0, 1] and source citations, verifies factor creation payload with surface types (roof/wall), tests edit modal and updates, and verifies deletion.
+- `AdminMaintenanceProfiles` (5 tests): verifies finish maintenance schedules with service lives and cost factors, enforces service life ranges (min <= max) and maintenance interval constraints within service life, tests profile creation payload, tests profile updates, and verifies deletion.
+- `AdminSolarPanels` (5 tests): displays solar panel models with watt peak, physical dimensions, and datasheet citations, validates positive dimensions and watt peak, handles unpriced panels honestly as N/A, tests model creation and edit updates, and verifies deletion.
+- `AdminSolarPrices` (6 tests): lists component prices with currency formatting and supplier references, validates recognised component keys against engine constants, enforces positive prices and units, tests price creation and edit modal updates, and verifies deletion.
+
+Defects found and fixed during this tranche:
+
+1. **`AdminPriceIndex` city toggle button label was inverted**: inactive cities displayed "Disable" instead of "Enable", misleading admins on city availability. Now accurately displays "Enable" when inactive and "Disable" when active.
+2. **`AdminReuseFactors` modal title bug**: modal title was hardcoded as "Edit thermal factor" / "New thermal factor" due to copy-paste from another pane. Corrected to "Edit reuse factor" and "Add reuse factor".
+3. **`AdminRegionalCostIndices` accessibility label**: toggle switch had generic label without state or category, making it ambiguous for screen readers. Now specifies `Active: ${r.state} ${r.category}`.
+4. **`AdminThermalFactors` action button accessibility labels**: row edit and delete buttons only contained `${f.surface_type}`, producing ambiguous "Edit roof" labels for multiple roof factors. Now specifies `${f.category_label || f.category} (${f.surface_type})`.
+5. **`AdminSolarPrices` action button accessibility fallback**: row edit and delete buttons omitted a fallback if `p.component_label` was null, causing `Edit undefined`. Now properly falls back to `p.component_key`.
+
+Remaining: 13 smoke-only suites in Tier 3 (content CRUD).
 
 ## Limits of this audit
 
