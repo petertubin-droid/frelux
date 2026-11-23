@@ -47,16 +47,31 @@ export const DEFAULT_FLOORING_RULES: FlooringRules = {
   skirting_waste_pct: 0,
 };
 
-export function parseFlooringRules(rows: CalcRuleRow[]): FlooringRules {
+export function parseFlooringRules(
+  rows: CalcRuleRow[],
+  marketCode?: string,
+): FlooringRules {
   const rules: FlooringRules = { ...DEFAULT_FLOORING_RULES };
+  const usable = (r: CalcRuleRow): boolean =>
+    r.is_active === undefined || r.is_active === true || r.is_active === null;
+  /**
+   * A rule row can be scoped to one market. Retail bag sizes differ (a 20 kg
+   * sack in NG, a 25 kg sack in DE), so coverage per bag differs too, and
+   * applying one market's coverage everywhere misprices the bags. The market
+   * row wins; an unscoped row is the global default.
+   */
   const get = (key: string): unknown | undefined => {
-    const row = rows.find(
-      (r) =>
-        r.rule_key === key &&
-        (r.is_active === undefined ||
-          r.is_active === true ||
-          r.is_active === null),
-    );
+    const scoped = marketCode
+      ? rows.find(
+          (r) =>
+            r.rule_key === key &&
+            usable(r) &&
+            typeof r.market === "string" &&
+            r.market.toUpperCase() === marketCode.toUpperCase(),
+        )
+      : undefined;
+    const row =
+      scoped ?? rows.find((r) => r.rule_key === key && usable(r) && !r.market);
     return row?.rule_value?.value;
   };
   const pct = (v: unknown): number | null => {

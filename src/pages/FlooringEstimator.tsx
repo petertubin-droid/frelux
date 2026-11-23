@@ -159,8 +159,8 @@ export default function FlooringEstimator() {
   }, [marketCode]);
 
   const rules = useMemo(
-    () => parseFlooringRules(ruleRows as never),
-    [ruleRows],
+    () => parseFlooringRules(ruleRows as never, marketCode),
+    [ruleRows, marketCode],
   );
 
   // Floor waste comes from the owner's rule unless the visitor chooses one for

@@ -208,6 +208,30 @@ from `profiles.role` under RLS. The client gate is convenience only. What
 actually protects price writes is `is_admin()` in both USING and WITH CHECK on
 `estimation_prices` and `estimation_materials` (live-verified).
 
+## Market-scoped calc rules, and a broken governance chain (2026-11-23)
+
+- `estimation_calc_rules` now has a nullable `market` column. A row scoped to a
+  market overrides the unscoped global default; `parseFlooringRules(rows,
+marketCode)` prefers it. Uniqueness moved from (rule_key, calculator_type) to
+  (rule_key, calculator_type, coalesce(market,'')), so a market override can
+  coexist with the default.
+- First use: DE/FR/IT retail tile adhesive in 25 kg sacks. The global
+  adhesive_coverage_m2_per_bag is 5 m2 per 20 kg bag, which is 4 kg/m2; a 25 kg
+  sack at the same 4 kg/m2 is 6.25 m2, so those three markets get 6.25 and the
+  rest keep 5. Prices added: DE EUR 18.95, FR EUR 23.90, IT EUR 9.50.
+- GOTCHA 1: rule_status must be admin_configured | configurable_default |
+  verified_frelux. 'published' violates the check.
+- GOTCHA 2: the governance audit trigger was BROKEN for every governed insert.
+  governance_append_audit() has proconfig search_path=public while pgcrypto
+  lives in `extensions`, so digest() was unresolvable; and the chain had no
+  genesis row, so prev_entry_hash NOT NULL failed on entry one. Migration
+  20261123190000 sets the function's search_path to public, extensions and
+  seeds a genesis entry. A session-level SET does NOT help, because proconfig
+  wins. Before this, no governed insert could succeed anywhere.
+- GOTCHA 3: governance_audit_log.entity_type allows only dimension,
+  formula_variable, waste_factor, labor_rate, calc_rule, approval, tender, and
+  action only create/update/delete/activate/deactivate/price_change/adjust.
+
 ## No trade engine prices from code (2026-11-23)
 
 Audited all 84 catalogue routes against their price source. None prices from

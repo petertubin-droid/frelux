@@ -37,6 +37,8 @@ export interface CalcRuleRow {
   rule_key: string;
   rule_value?: { value?: unknown };
   is_active?: boolean | null;
+  /** ISO market code when the row overrides the global default for one market. */
+  market?: string | null;
 }
 
 export function parseCountVisionRules(rows: CalcRuleRow[]): CountVisionRules {
