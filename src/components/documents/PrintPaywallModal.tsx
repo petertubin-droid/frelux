@@ -14,7 +14,7 @@ import { toast } from "sonner";
 import {
   DOCUMENT_PRINT_USD,
   calculatePrintFeeInCurrency,
-  recordPrintPassUnlock,
+  purchasePrintPass,
 } from "@/lib/documents/document-access";
 import { DISPLAY_CURRENCIES } from "@/lib/international/fx-display";
 
@@ -26,6 +26,8 @@ export interface PrintPaywallModalProps {
   documentId: string;
   documentTitle?: string;
   userCurrency?: string;
+  /** Reference from the gateway checkout; a pass is issued only once the server verifies it. */
+  paymentReference?: string;
   onPrintUnlocked?: () => void;
   onUnlocked?: () => void;
 }
@@ -38,6 +40,7 @@ export function PrintPaywallModal({
   documentId,
   documentTitle = "Document",
   userCurrency = "USD",
+  paymentReference,
   onPrintUnlocked,
   onUnlocked,
 }: PrintPaywallModalProps) {
@@ -66,20 +69,30 @@ export function PrintPaywallModal({
   const handleUnlockAndPrint = async () => {
     setProcessing(true);
     try {
-      // No checkout is wired yet. This records a local pass without taking
-      // payment, and the copy below says so rather than claiming a charge.
-      // Replace with a server-verified purchase before the fee goes live.
-      await Promise.resolve();
-
-      recordPrintPassUnlock({
+      if (selectedGateway === "crypto") {
+        toast.error(
+          "Crypto is not available for print passes yet. Choose a card gateway.",
+        );
+        return;
+      }
+      if (!paymentReference) {
+        // Nothing to verify, so nothing is unlocked and nothing is claimed.
+        toast.error(
+          "Card checkout for the print fee is not enabled yet. Subscribe to print, or try again later.",
+        );
+        return;
+      }
+      const result = await purchasePrintPass({
         documentId,
-        currency: pricing.currency,
-        amount: pricing.amount,
         gateway: selectedGateway,
+        reference: paymentReference,
       });
-
+      if (!result.ok) {
+        toast.error(result.error);
+        return;
+      }
       toast.success(
-        `Print pass activated for this document. No charge was taken: the ${pricing.formatted} print fee is not yet connected to a checkout.`,
+        `Print pass activated for this document. Charged ${pricing.formatted}.`,
       );
       handleClose();
       handleSuccess();
