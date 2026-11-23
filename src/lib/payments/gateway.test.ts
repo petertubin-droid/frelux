@@ -123,16 +123,21 @@ describe("gatewaysForMarket", () => {
     // GHS, ZAR, KES and everything else to Flutterwave. The client must agree,
     // or a buyer is shown a rail the server would not have used.
     expect(gatewayForCurrency("NGN")).toBe("paystack");
-    for (const currency of ["GHS", "ZAR", "KES", "USD", "GBP", "EUR", "EGP"]) {
+    // Owner rule (2026-11-23): paystack wherever it settles the currency,
+    // flutterwave everywhere else.
+    for (const currency of ["GHS", "ZAR", "KES", "USD"]) {
+      expect(gatewayForCurrency(currency)).toBe("paystack");
+    }
+    for (const currency of ["GBP", "EUR", "EGP"]) {
       expect(gatewayForCurrency(currency)).toBe("flutterwave");
     }
-    for (const code of ["GH", "ZA", "KE"]) {
-      expect(gatewayForMarket(code)).toBe("flutterwave");
+    for (const code of ["GH", "ZA", "KE", "US"]) {
+      expect(gatewayForMarket(code)).toBe("paystack");
     }
   });
 
   it("routes every other market to flutterwave, because paystack cannot settle there", () => {
-    for (const code of ["US", "GB", "DE", "FR", "BR", "JP", "IN", "AE", "AU"]) {
+    for (const code of ["GB", "DE", "FR", "BR", "JP", "IN", "AE", "AU"]) {
       expect(gatewayForMarket(code)).toBe("flutterwave");
       const gateways = gatewaysForMarket(code, FULL);
       expect(gateways[0]).toBe("flutterwave");

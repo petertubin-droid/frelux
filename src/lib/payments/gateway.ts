@@ -1,3 +1,4 @@
+import { CURRENCY_REGISTRY } from "@studio-shared/currency-registry";
 // =========================================================
 // FRELUX Payment Gateway Dispatch
 //
@@ -89,7 +90,11 @@ export function availableGateways(
   return ["paystack", "flutterwave", "nowpayments", "btcpay"];
 }
 
-export const PAYSTACK_CURRENCIES: readonly string[] = ["NGN"];
+export const PAYSTACK_CURRENCIES = Object.freeze(
+  Object.entries(CURRENCY_REGISTRY)
+    .filter(([, rules]) => rules.rails.includes("paystack"))
+    .map(([code]) => code),
+);
 
 /** Settlement currency per listed market, from the built-in profiles. */
 function marketCurrency(marketCode?: string | null): string | undefined {
