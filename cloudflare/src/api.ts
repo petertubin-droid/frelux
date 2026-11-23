@@ -36,6 +36,8 @@ export interface ApiEnv {
   SUPABASE_SECRET_KEYS?: string;
   /** Presence-only checks used by the health probe. */
   GEMINI_API_KEY?: string;
+  /** Canonical public origin for functions that emit absolute URLs. */
+  SITE_URL?: string;
   /** Sent as `apikey` on relayed webhooks: the function is signature-guarded,
    *  but the platform still rejects a call that carries no project key. */
   SUPABASE_ANON_KEY?: string;
