@@ -107,12 +107,18 @@ These are tracked in conversation memory and are unrelated to the batches:
   fallback while the `InquiryThread` chunk carries the "Send reply" copy. Treat
   literal UI strings, not minified function names, as the evidence a build is
   live: imported identifiers are renamed in production bundles.
-- **Admin ledger RLS migration unapplied.** `20261121170000_admin_ledger_read_access.sql`
-  is committed but not applied, because every sandbox Supabase management token
-  returns 401. Until it runs, the admin money ledgers show only the owner's rows.
-- **Market page decision pending.** 1,472 of 3,351 prerendered pages are
-  `/market/<country>/<material>`. They are indexable, not duplicates. Either trim
-  to about 8 countries or shard prerender across processes.
+- **Admin ledger RLS: applied, verified 23 November 2026.** The earlier note said
+  this migration was unapplied because the sandbox tokens returned 401; a working
+  token shows it is live. `pg_policies` carries `Admins can read all <table>` on
+  contractor_projects, project_invoices, project_payments, project_expenses and
+  supplier_bills, each `cmd = SELECT` with `qual = is_admin()`, and every one of
+  those tables has `relrowsecurity = true`. Writes remain owner-only, as the
+  migration intends.
+- **Market page decision pending, and now only a decision.** 1,472 of 3,351
+  prerendered pages are `/market/<country>/<material>`. They are indexable, not
+  duplicates. Prerender no longer fails, so the pressure that made this urgent is
+  gone; the open question is whether a thinner country set serves search better
+  than the full one. That is an SEO call for the owner, not a build fix.
 
 ## Verification commands
 
