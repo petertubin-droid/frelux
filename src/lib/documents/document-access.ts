@@ -194,7 +194,7 @@ export function isDocumentPrintUnlocked(documentId: string): boolean {
  */
 export async function purchasePrintPass(params: {
   documentId: string;
-  gateway: "paystack" | "flutterwave";
+  gateway: "paystack" | "flutterwave" | "nowpayments" | "btcpay";
   reference: string;
 }): Promise<{ ok: true; pass: PrintPass } | { ok: false; error: string }> {
   if (!isSupabaseConfigured)

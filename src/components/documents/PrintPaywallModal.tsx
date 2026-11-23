@@ -69,22 +69,18 @@ export function PrintPaywallModal({
   const handleUnlockAndPrint = async () => {
     setProcessing(true);
     try {
-      if (selectedGateway === "crypto") {
-        toast.error(
-          "Crypto is not available for print passes yet. Choose a card gateway.",
-        );
-        return;
-      }
       if (!paymentReference) {
         // Nothing to verify, so nothing is unlocked and nothing is claimed.
         toast.error(
-          "Card checkout for the print fee is not enabled yet. Subscribe to print, or try again later.",
+          "Payment checkout for the print fee is not enabled yet. Subscribe to print, or try again later.",
         );
         return;
       }
       const result = await purchasePrintPass({
         documentId,
-        gateway: selectedGateway,
+        // The crypto button is the multi-coin rail; card buttons map straight
+        // to their gateway.
+        gateway: selectedGateway === "crypto" ? "nowpayments" : selectedGateway,
         reference: paymentReference,
       });
       if (!result.ok) {
