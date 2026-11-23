@@ -211,7 +211,7 @@ describe("Pricing, Crypto and BTCPay options", () => {
 
     // Should now display canonical crypto pricing in USD (.99)
     await vi.waitFor(() => {
-      expect(getByTestId("plan-price-pro").textContent).toBe(".99");
+      expect(getByTestId("plan-price-pro").textContent).toBe("$4.99");
       expect(getByTestId("plan-price-pro").getAttribute("data-currency")).toBe("USD");
     });
   });

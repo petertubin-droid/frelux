@@ -30,6 +30,9 @@ import { Button } from "@/components/ui/shadcn/button";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
 import { useSubscription } from "@/lib/subscription";
+import { ScreenProtection } from "@/components/documents/ScreenProtection";
+import { DocumentSubscriptionGate } from "@/components/documents/DocumentSubscriptionGate";
+import { canExportDocuments } from "@/lib/documents/document-access";
 import {
   archiveStudioTemplate,
   downloadStudioDocument,
@@ -92,6 +95,7 @@ export default function DocumentStudio() {
     useState<StudioTemplate["document_type"]>("quotation");
   const [config, setConfig] = useState<StudioConfig>(freshConfig);
   const [projectModalOpen, setProjectModalOpen] = useState(false);
+  const [subGateOpen, setSubGateOpen] = useState(false);
   const [userProjects, setUserProjects] = useState<DbUserProject[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(false);
 
@@ -445,6 +449,10 @@ export default function DocumentStudio() {
     }
   };
   const download = async () => {
+    if (!canExportDocuments({ isPaid: subscription.isActive, isAdmin: false })) {
+      setSubGateOpen(true);
+      return;
+    }
     setBusy(true);
     try {
       await generateStudioPdf(name, config);
@@ -591,11 +599,15 @@ export default function DocumentStudio() {
                         variant="ghost"
                         size="sm"
                         aria-label={`Download ${document.file_name}`}
-                        onClick={() =>
+                        onClick={() => {
+                          if (!canExportDocuments({ isPaid: subscription.isActive, isAdmin: false })) {
+                            setSubGateOpen(true);
+                            return;
+                          }
                           downloadStudioDocument(document.id).catch(() =>
                             toast.error("Could not download this document."),
-                          )
-                        }
+                          );
+                        }}
                       >
                         <Download className="h-4 w-4" />
                       </Button>

@@ -50,6 +50,11 @@ import {
   type BoqTemplateRow,
 } from "@/lib/boq/types";
 import { downloadBoqXlsx } from "@/lib/boq/xlsx";
+import ScreenProtection from "@/components/documents/ScreenProtection";
+import PrintPaywallModal from "@/components/documents/PrintPaywallModal";
+import DocumentSubscriptionGate from "@/components/documents/DocumentSubscriptionGate";
+import { canExportDocuments, canPrintDocument } from "@/lib/documents/document-access";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { downloadBoqPdf } from "@/lib/boq/pdf";
 import { openBoqPrint } from "@/lib/boq/print";
 import { NumericInput } from "@/components/ui/NumericInput";
@@ -72,7 +77,13 @@ const LABEL =
 const CARD = "rounded-2xl border border-slate-200 bg-white p-5";
 
 export default function BoqStudio() {
-  const { user, loading } = useAuth();
+  const auth = useAuth();
+  const { user, loading } = auth;
+  const cur = useDisplayCurrency();
+  const userCurrency = cur.code || "USD";
+  const [showDocumentGate, setShowDocumentGate] = useState(false);
+  const [showPrintPaywall, setShowPrintPaywall] = useState(false);
+  const [printDocId, setPrintDocId] = useState("boq-studio");
   useSeo({
     title: "Bill of Quantities Generator",
     description:
@@ -352,6 +363,10 @@ export default function BoqStudio() {
 
   const exportPdf = async () => {
     if (!doc || !compiled || !guardExport()) return;
+    if (!canExportDocuments(auth)) {
+      setShowDocumentGate(true);
+      return;
+    }
     const template = templates.find((t) => t.slug === doc.template_slug);
     setBusy(true);
     try {
@@ -375,11 +390,21 @@ export default function BoqStudio() {
 
   const exportExcel = () => {
     if (!doc || !compiled || !guardExport()) return;
+    if (!canExportDocuments(auth)) {
+      setShowDocumentGate(true);
+      return;
+    }
     downloadBoqXlsx(compiled.standard, compiled.document);
   };
 
   const exportPrint = () => {
     if (!compiled || !guardExport()) return;
+    const docRef = doc?.reference || documentId || "boq-studio-doc";
+    if (!canPrintDocument(auth, docRef)) {
+      setPrintDocId(docRef);
+      setShowPrintPaywall(true);
+      return;
+    }
     void openBoqPrint(compiled.standard, compiled.document, {
       verify: verifySeal,
     });
@@ -449,6 +474,11 @@ export default function BoqStudio() {
 
   return (
     <Container>
+      <ScreenProtection
+        documentId={doc?.reference || documentId || "boq-studio"}
+        documentTitle={doc?.title || "BOQ Studio Document"}
+        onPrintRequested={exportPrint}
+      >
       <PageHeader
         title="Bill of Quantities Studio"
         subtitle="Turn validated calculator results into a structured, exportable BOQ."
@@ -1530,6 +1560,55 @@ export default function BoqStudio() {
       />
       <HowCalculatedSection methodologyText={methodologyText("boq")} />
       <EstimateDisclaimer />
+      </ScreenProtection>
+
+      {showPrintPaywall && (
+        <PrintPaywallModal
+          isOpen={showPrintPaywall}
+          onClose={() => setShowPrintPaywall(false)}
+          documentId={printDocId}
+          documentTitle={doc?.title || "BOQ Studio Document"}
+          userCurrency={userCurrency}
+          onPrintUnlocked={() => {
+            if (compiled) {
+              void openBoqPrint(compiled.standard, compiled.document, {
+                verify: verifySeal,
+              });
+            }
+          }}
+        />
+      )}
+
+      {showDocumentGate && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in"
+        >
+          <div className="relative w-full max-w-xl rounded-2xl bg-white p-6 shadow-2xl">
+            <DocumentSubscriptionGate
+              strict={true}
+              documentId={doc?.reference || documentId || "boq-studio"}
+              documentTitle={doc?.title || "BOQ Studio Document"}
+              onPrintUnlocked={() => {
+                setShowDocumentGate(false);
+                exportPrint();
+              }}
+            >
+              <div />
+            </DocumentSubscriptionGate>
+            <div className="mt-4 text-center">
+              <button
+                type="button"
+                onClick={() => setShowDocumentGate(false)}
+                className="text-xs font-semibold text-slate-500 hover:text-slate-800"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </Container>
   );
 }

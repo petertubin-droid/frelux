@@ -21,6 +21,9 @@ import { stageStudioImport } from "@/lib/document-studio";
  *   tax naming, and the paid-tier bank-submittable BOQ export.
  */
 
+import ScreenProtection from "@/components/documents/ScreenProtection";
+import PrintPaywallModal from "@/components/documents/PrintPaywallModal";
+import { canPrintDocument } from "@/lib/documents/document-access";
 import { getActiveDisplayCurrency } from "@/lib/international/fx-display";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useAuth } from "@/lib/auth";
@@ -130,7 +133,7 @@ export default function BoqGenerator() {
   const transportation = useTransportation("boq");
   const money = (v: number) =>
     `${currencySymbol}${v.toLocaleString(undefined, { maximumFractionDigits: 2 })}`;
-  const { user, isPaid } = useAuth();
+  const { user, isPaid, isAdmin } = useAuth();
   const { language } = useLanguage();
 
   const [estimates, setEstimates] = useState<EstimationEstimate[]>([]);
@@ -229,6 +232,9 @@ export default function BoqGenerator() {
     email: "",
   });
   const [bankGateMsg, setBankGateMsg] = useState<string | null>(null);
+  const [printPaywall, setPrintPaywall] = useState(false);
+  const [printDocumentId, setPrintDocumentId] = useState("boq-generator");
+  const [pendingPrintKind, setPendingPrintKind] = useState<"quote" | "standard" | "bank">("quote");
 
   const tax = useMemo(() => boqTaxLabel(marketCode), [marketCode]);
   /** Engine ids used by the quote's line items — drives the standards card. */
@@ -428,6 +434,12 @@ export default function BoqGenerator() {
 
   const exportPdf = () => {
     if (!result?.ok || !quoteRef) return;
+    if (!canPrintDocument({ isPaid, isAdmin }, quoteRef)) {
+      setPrintDocumentId(quoteRef);
+      setPendingPrintKind("quote");
+      setPrintPaywall(true);
+      return;
+    }
     const w = window.open("", "_blank");
     if (!w) return;
     w.document.write(
@@ -452,6 +464,12 @@ export default function BoqGenerator() {
 
   const exportStandardBoq = () => {
     if (!result?.ok || !quoteRef) return;
+    if (!canPrintDocument({ isPaid, isAdmin }, `${quoteRef}-standard`)) {
+      setPrintDocumentId(`${quoteRef}-standard`);
+      setPendingPrintKind("standard");
+      setPrintPaywall(true);
+      return;
+    }
 
     // Group line items into the target professional body standard divisions
     const divisionsMap = new Map<
@@ -546,6 +564,13 @@ export default function BoqGenerator() {
       setBankGateMsg(
         "The bank-submittable BOQ is a Frelux Pro feature. Upgrade to export the formal loan-application document.",
       );
+      return;
+    }
+    setBankGateMsg(null);
+    if (!canPrintDocument({ isPaid, isAdmin }, `${quoteRef}-bank`)) {
+      setPrintDocumentId(`${quoteRef}-bank`);
+      setPendingPrintKind("bank");
+      setPrintPaywall(true);
       return;
     }
     setBankGateMsg(null);

@@ -48,6 +48,8 @@ export const PAID_FEATURES = [
   "template_download",
   "brand_studio",
   "tv_console_ai_design",
+  "document_export",
+  "document_print",
 ] as const;
 
 export type PaidFeature = (typeof PAID_FEATURES)[number];
@@ -68,6 +70,8 @@ export const FEATURE_LABELS: Record<PaidFeature, string> = {
   template_download: "Template Downloads",
   brand_studio: "FRELUX Brand Studio",
   tv_console_ai_design: "AI TV Console Design Parsing",
+  document_export: "Professional Document & BOQ Exports",
+  document_print: "Unlimited Document Printing",
 };
 
 // Plan hierarchy: higher index = more features

@@ -16,6 +16,12 @@ import { formatByCode } from "@/lib/international/currency-format";
 import { useSeo } from "@/lib/seo";
 import { buildBoqPdf } from "@/lib/boq/pdf";
 import { openBoqPrint } from "@/lib/boq/print";
+import { ScreenProtection } from "@/components/documents/ScreenProtection";
+import { PrintPaywallModal } from "@/components/documents/PrintPaywallModal";
+import { DocumentSubscriptionGate } from "@/components/documents/DocumentSubscriptionGate";
+import { canPrintDocument, canExportDocuments } from "@/lib/documents/document-access";
+import { useAuth } from "@/lib/auth";
+
 import { fetchQuoteShare } from "@/lib/boq/share-queries";
 import {
   quoteShareFilename,
@@ -32,6 +38,10 @@ export default function QuoteShare() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const auth = useAuth();
+  const [printPaywallOpen, setPrintPaywallOpen] = useState(false);
+  const [subGateOpen, setSubGateOpen] = useState(false);
+
 
   useSeo({
     title: "Shared quotation",
@@ -81,6 +91,10 @@ export default function QuoteShare() {
 
   const downloadPdf = async () => {
     if (!snapshot) return;
+    if (!canExportDocuments(auth)) {
+      setSubGateOpen(true);
+      return;
+    }
     setBusy(true);
     try {
       // No VERIFY seal here: the seal is the exporter's toggle decision and
@@ -193,9 +207,14 @@ export default function QuoteShare() {
               </button>
               <button
                 type="button"
-                onClick={() =>
-                  void openBoqPrint(snapshot.standard, doc, { verify: true })
-                }
+                onClick={() => {
+                  const docId = doc.reference || "quote-share";
+                  if (!canPrintDocument(auth, docId)) {
+                    setPrintPaywallOpen(true);
+                    return;
+                  }
+                  void openBoqPrint(snapshot.standard, doc, { verify: true });
+                }}
                 className="h-9 rounded-lg border border-slate-200 px-3 text-xs font-semibold text-slate-700 transition hover:bg-slate-50"
               >
                 Print

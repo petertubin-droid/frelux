@@ -1,23 +1,30 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import {
   Printer,
   FileSpreadsheet,
   CalendarDays,
   ClipboardList,
   X,
+  Lock,
 } from "lucide-react";
 import PageHeader from "@/components/ui/PageHeader";
 import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
 import { useLanguage } from "@/lib/i18n";
-
 import { useEscapeKey } from "@/lib/use-escape-key";
+import { useAuth } from "@/lib/auth";
+import { useDisplayCurrency } from "@/lib/international/currency-context";
+import ScreenProtection from "@/components/documents/ScreenProtection";
+import PrintPaywallModal from "@/components/documents/PrintPaywallModal";
+import DocumentSubscriptionGate from "@/components/documents/DocumentSubscriptionGate";
+import {
+  canPrintDocument,
+  calculatePrintFeeInCurrency,
+} from "@/lib/documents/document-access";
+
 /**
- * Free printable project sheets (stand-out item 5).
- *
- * Each sheet is print-optimised: clicking Print sets
- * data-printing on <body>, and print CSS hides everything except
- * the chosen sheet. Save as PDF via the browser print dialog.
+ * Free printable project sheets with Anti-Screenshot & Screen Recording Protection
+ * and Shared Print Paywall ($1.09 in user's currency for non-subscribers).
  */
 
 interface SheetDef {
@@ -51,7 +58,7 @@ const SHEETS: SheetDef[] = [
   },
 ];
 
-function printSheet(id: string) {
+function executePrint(id: string) {
   document.body.dataset.printing = id;
   window.print();
   const cleanup = () => {
@@ -79,63 +86,126 @@ export default function Printables() {
     },
   });
 
+  let auth: { isPaid?: boolean; isAdmin?: boolean } | null = null;
+  try {
+    auth = useAuth();
+  } catch {
+    auth = null;
+  }
+
+  let userCurrency = "USD";
+  try {
+    const displayCur = useDisplayCurrency();
+    userCurrency = displayCur.code || "USD";
+  } catch {
+    userCurrency = "USD";
+  }
+
   const [preview, setPreview] = useState<string | null>(null);
-  useEscapeKey(() => setPreview(null));
+  const [paywallSheet, setPaywallSheet] = useState<SheetDef | null>(null);
+
+  useEscapeKey(() => {
+    setPreview(null);
+    setPaywallSheet(null);
+  });
+
   const active = SHEETS.find((s) => s.id === preview);
+  const printFee = calculatePrintFeeInCurrency(userCurrency);
+
+  const handlePrintRequest = useCallback(
+    (sheetId: string) => {
+      const sheet = SHEETS.find((s) => s.id === sheetId) || SHEETS[0];
+      if (canPrintDocument(auth, sheetId)) {
+        executePrint(sheetId);
+      } else {
+        setPaywallSheet(sheet);
+      }
+    },
+    [auth],
+  );
 
   return (
-    <>
+    <ScreenProtection
+      documentId="printables-collection"
+      documentTitle="FRELUX Printable Templates"
+      onPrintRequested={() => handlePrintRequest(preview || "quote-comparison")}
+    >
       <PageHeader
-        eyebrow="Free Tools"
+        eyebrow="Documents & Templates"
         title={t("Printable Project Templates")}
-        subtitle="Three free, print-ready sheets for your next paint or build project. Fill them in on paper, or save them as PDF."
+        subtitle="Print-ready sheets for your next paint or build project. Subscribed members get unlimited printing; guest access is $1.09 per print."
         breadcrumbs={[{ label: "Free Templates" }]}
       />
 
-      <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6">
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {SHEETS.map((sheet) => {
-            const Icon = sheet.icon;
-            return (
-              <div
-                key={sheet.id}
-                className="flex flex-col rounded-2xl border border-border/80 bg-card p-6 shadow-sm dark:border-white/5 dark:bg-card"
-              >
-                <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <Icon className="h-5 w-5 text-brand-purple" />
-                </div>
-                <h2 className="font-display text-base font-bold text-foreground dark:text-primary-foreground">
-                  {sheet.title}
-                </h2>
-                <p className="mt-2 flex-1 text-sm text-muted-foreground dark:text-muted-foreground">
-                  {sheet.blurb}
-                </p>
-                <div className="mt-5 flex gap-2">
-                  <button
-                    onClick={() => printSheet(sheet.id)}
-                    className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
-                  >
-                    <Printer className="h-4 w-4" /> {t("Print")}
-                  </button>
-                  <button
-                    onClick={() => setPreview(sheet.id)}
-                    className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:border-brand-purple/40 dark:border-white/10 dark:text-primary-foreground"
-                    aria-label={`Preview ${sheet.title}`}
-                  >
-                    {t("Preview")}
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+        {/* Shared Document Gate Notice */}
+        <DocumentSubscriptionGate
+          documentId="printables"
+          documentTitle="Printable Templates Collection"
+          strict={false}
+          onPrintUnlocked={() => {
+            if (paywallSheet) executePrint(paywallSheet.id);
+          }}
+        >
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {SHEETS.map((sheet) => {
+              const Icon = sheet.icon;
+              const isUnlocked = canPrintDocument(auth, sheet.id);
 
-        <p className="mt-6 text-xs leading-relaxed text-muted-foreground dark:text-muted-foreground">
-          In the print dialog choose your printer, or select "Save as PDF" to
-          keep a digital copy. Each sheet prints on a single A4 page.
-        </p>
+              return (
+                <div
+                  key={sheet.id}
+                  className="flex flex-col rounded-2xl border border-border/80 bg-card p-6 shadow-sm dark:border-white/5 dark:bg-card"
+                >
+                  <div className="mb-3 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
+                    <Icon className="h-5 w-5 text-brand-purple" />
+                  </div>
+                  <h2 className="font-display text-base font-bold text-foreground dark:text-primary-foreground">
+                    {sheet.title}
+                  </h2>
+                  <p className="mt-2 flex-1 text-sm text-muted-foreground dark:text-muted-foreground">
+                    {sheet.blurb}
+                  </p>
+                  <div className="mt-5 flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => handlePrintRequest(sheet.id)}
+                      data-testid={`print-btn-${sheet.id}`}
+                      className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                    >
+                      <Printer className="h-4 w-4" />
+                      <span>{t("Print")}</span>
+                      {!isUnlocked && (
+                        <span className="text-[11px] font-normal opacity-85">
+                          ({printFee.formatted})
+                        </span>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setPreview(sheet.id)}
+                      className="rounded-lg border border-border px-4 py-2 text-sm font-semibold text-foreground transition-colors hover:border-brand-purple/40 dark:border-white/10 dark:text-primary-foreground"
+                      aria-label={`Preview ${sheet.title}`}
+                    >
+                      {t("Preview")}
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
 
-        <div className="mt-10"></div>
+          <div className="mt-6 flex items-center justify-between text-xs leading-relaxed text-muted-foreground dark:text-muted-foreground border-t border-slate-200 dark:border-slate-800 pt-4">
+            <p>
+              In the print dialog choose your printer, or select "Save as PDF" to
+              keep a digital copy. Anti-screenshot & recording protection active.
+            </p>
+            <div className="flex items-center gap-1 font-medium text-slate-700 dark:text-slate-300">
+              <Lock className="h-3.5 w-3.5 text-brand-purple" />
+              <span>Print paywall: {printFee.formatted} / doc (eqv. $1.09 USD)</span>
+            </div>
+          </div>
+        </DocumentSubscriptionGate>
       </div>
 
       {/* PREVIEW DIALOG (screen only) */}
@@ -155,6 +225,7 @@ export default function Printables() {
             <div className="flex items-center justify-between px-1 pb-3">
               <h3 className="font-display text-sm font-bold">{active.title}</h3>
               <button
+                type="button"
                 onClick={() => setPreview(null)}
                 aria-label={t("Close preview")}
                 className="rounded-lg border border-border p-1.5 text-muted-foreground transition-colors hover:bg-muted dark:border-white/10"
@@ -165,16 +236,40 @@ export default function Printables() {
             <div className="max-h-[70vh] overflow-y-auto">
               {sheetBody(active.id)}
             </div>
-            <div className="px-1 pt-4">
+            <div className="px-1 pt-4 flex items-center justify-between gap-2">
               <button
-                onClick={() => printSheet(active.id)}
+                type="button"
+                onClick={() => handlePrintRequest(active.id)}
                 className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
               >
                 <Printer className="h-4 w-4" /> {t("Print this sheet")}
+                {!canPrintDocument(auth, active.id) && (
+                  <span className="text-xs opacity-90">
+                    ({printFee.formatted})
+                  </span>
+                )}
               </button>
+
+              <span className="text-xs text-muted-foreground">
+                Protected document · Single page A4
+              </span>
             </div>
           </div>
         </div>
+      )}
+
+      {/* PRINT PAYWALL MODAL */}
+      {paywallSheet && (
+        <PrintPaywallModal
+          isOpen={Boolean(paywallSheet)}
+          onClose={() => setPaywallSheet(null)}
+          documentId={paywallSheet.id}
+          documentTitle={paywallSheet.title}
+          userCurrency={userCurrency}
+          onPrintUnlocked={() => {
+            executePrint(paywallSheet.id);
+          }}
+        />
       )}
 
       {/* PRINT-ONLY SHEETS: each prints alone when chosen */}
@@ -185,7 +280,7 @@ export default function Printables() {
           </div>
         ))}
       </div>
-    </>
+    </ScreenProtection>
   );
 }
 

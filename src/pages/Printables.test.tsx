@@ -1,12 +1,17 @@
-import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
+import { recordPrintPassUnlock } from "@/lib/documents/document-access";
 
 vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 
 import Printables from "@/pages/Printables";
 
 describe("Printables", () => {
+  beforeEach(() => {
+    localStorage.clear();
+  });
+
   it("renders all three sheet cards", () => {
     render(
       <MemoryRouter>
@@ -50,7 +55,30 @@ describe("Printables", () => {
     }
   });
 
-  it("sets body data-printing for the chosen sheet and cleans up after print", () => {
+  it("prompts the $1.09 print paywall when non-subscribed user clicks print", () => {
+    render(
+      <MemoryRouter>
+        <Printables />
+      </MemoryRouter>,
+    );
+    // Non-subscribed user clicks print on sheet
+    const btn = screen.getByTestId("print-btn-quote-comparison");
+    fireEvent.click(btn);
+
+    // Should open the print paywall dialog
+    expect(screen.getByRole("dialog", { name: /Document Print Access/i })).toBeInTheDocument();
+    expect(screen.getByText(/Subscription or One-Time Print Pass Required/i)).toBeInTheDocument();
+    expect(screen.getByTestId("pay-and-print-button")).toBeInTheDocument();
+  });
+
+  it("sets body data-printing for the chosen sheet and cleans up after print when unlocked", () => {
+    // Unlock document with a one-time print pass
+    recordPrintPassUnlock({
+      documentId: "quote-comparison",
+      currency: "USD",
+      amount: 1.09,
+    });
+
     const printSpy = vi.fn();
     window.print = printSpy;
     const afterPrintHandlers: EventListener[] = [];
@@ -68,7 +96,8 @@ describe("Printables", () => {
           <Printables />
         </MemoryRouter>,
       );
-      fireEvent.click(screen.getAllByText("Print")[0]);
+      const btn = screen.getByTestId("print-btn-quote-comparison");
+      fireEvent.click(btn);
       expect(printSpy).toHaveBeenCalledTimes(1);
       expect(document.body.dataset.printing).toBe("quote-comparison");
       afterPrintHandlers.forEach((h) => h(new Event("afterprint")));
@@ -76,6 +105,38 @@ describe("Printables", () => {
     } finally {
       window.addEventListener = origAdd;
     }
+  });
+
+  it("allows paying $1.09 one-time print pass in modal to trigger print", async () => {
+    const printSpy = vi.fn();
+    window.print = printSpy;
+
+    render(
+      <MemoryRouter>
+        <Printables />
+      </MemoryRouter>,
+    );
+
+    const btn = screen.getByTestId("print-btn-quote-comparison");
+    fireEvent.click(btn);
+
+    // Click pay and print
+    const payBtn = screen.getByTestId("pay-and-print-button");
+    fireEvent.click(payBtn);
+
+    await waitFor(() => {
+      expect(printSpy).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("renders screen protection wrapper and security status", () => {
+    render(
+      <MemoryRouter>
+        <Printables />
+      </MemoryRouter>,
+    );
+    expect(screen.getByTestId("screen-protection-wrapper")).toBeInTheDocument();
+    expect(screen.getByText(/Protected Document View/i)).toBeInTheDocument();
   });
 
   it("opens and closes a preview dialog", () => {

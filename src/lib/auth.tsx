@@ -483,3 +483,22 @@ export function useAuth(): AuthContextValue {
   if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }
+
+export function useAuthSafe(): AuthContextValue {
+  const ctx = useContext(AuthContext);
+  if (!ctx) {
+    return {
+      user: null,
+      session: null,
+      profile: null,
+      isPaid: false,
+      isAdmin: false,
+      plan: "free",
+      loading: false,
+      subscriptionEnd: null,
+      refreshSubscription: async () => {},
+      signOut: async () => {},
+    };
+  }
+  return ctx;
+}
