@@ -463,6 +463,7 @@ export default function AdminWallFinishingLibrary() {
                                 <AdminButton
                                   disabled={busy}
                                   variant="success"
+                                  aria-label={`Accept citation: ${s.title}`}
                                   onClick={() =>
                                     void reviewSource(s.id, "accepted")
                                   }
@@ -472,6 +473,7 @@ export default function AdminWallFinishingLibrary() {
                                 <AdminButton
                                   disabled={busy}
                                   variant="secondary"
+                                  aria-label={`Reject citation: ${s.title}`}
                                   onClick={() =>
                                     void reviewSource(s.id, "rejected")
                                   }

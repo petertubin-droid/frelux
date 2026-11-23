@@ -235,6 +235,7 @@ export default function AdminSiteIntelligence() {
                         <Button
                           size="sm"
                           variant="outline"
+                          aria-label={`Verify report ${r.title}`}
                           disabled={
                             busyId === r.id ||
                             r.verification_status === "verified"
@@ -252,6 +253,7 @@ export default function AdminSiteIntelligence() {
                         <Button
                           size="sm"
                           variant="ghost"
+                          aria-label={`Reject report ${r.title}`}
                           disabled={
                             busyId === r.id ||
                             r.verification_status === "rejected"
@@ -366,6 +368,7 @@ export default function AdminSiteIntelligence() {
                         <Button
                           size="sm"
                           variant="ghost"
+                          aria-label={`Withdraw ${p.region_name}`}
                           disabled={p.verification_status === "withdrawn"}
                           onClick={() => withdrawProfile(p.id)}
                         >

@@ -304,6 +304,7 @@ export default function AdminSocialBrandCenter() {
                               },
                         )
                       }
+                      aria-label={`${editing ? "Cancel" : ready ? "Replace keys" : "Add keys"} for ${p.label}`}
                       className="inline-flex items-center gap-1 rounded-md border border-input px-3 py-1.5 text-sm"
                     >
                       {editing ? "Cancel" : ready ? "Replace keys" : "Add keys"}
@@ -311,6 +312,7 @@ export default function AdminSocialBrandCenter() {
                     {ready && (
                       <button
                         onClick={() => void dropCredentials(p)}
+                        aria-label={`Remove credentials for ${p.label}`}
                         disabled={busy === `cred:${p.platform}`}
                         className="inline-flex items-center gap-1 rounded-md border border-input px-3 py-1.5 text-sm disabled:opacity-60"
                       >
@@ -359,6 +361,7 @@ export default function AdminSocialBrandCenter() {
                     <div className="flex flex-wrap items-center gap-2 sm:col-span-2">
                       <button
                         onClick={() => void saveCredentials(p)}
+                        aria-label={`Save keys for ${p.label}`}
                         disabled={busy === `cred:${p.platform}`}
                         className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground disabled:opacity-60"
                       >
@@ -435,6 +438,7 @@ export default function AdminSocialBrandCenter() {
                   {!connected && (
                     <button
                       onClick={() => void connect(p.platform)}
+                      aria-label={`Connect ${p.label}`}
                       disabled={busy === p.platform}
                       className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground disabled:opacity-60"
                     >
@@ -450,6 +454,7 @@ export default function AdminSocialBrandCenter() {
                     <>
                       <button
                         onClick={() => setPermissionsFor(account)}
+                        aria-label={`Permissions for ${p.label}`}
                         className="inline-flex items-center gap-1 rounded-md border border-input px-3 py-1.5 text-sm"
                       >
                         <Eye className="h-3.5 w-3.5" /> Permissions
@@ -460,6 +465,7 @@ export default function AdminSocialBrandCenter() {
                             syncSocialAccount(account.id),
                           )
                         }
+                        aria-label={`Sync ${p.label}`}
                         disabled={busy === `sync:${account.id}`}
                         className="inline-flex items-center gap-1 rounded-md border border-input px-3 py-1.5 text-sm disabled:opacity-60"
                       >
@@ -471,6 +477,7 @@ export default function AdminSocialBrandCenter() {
                             disconnectSocialAccount(account.id),
                           )
                         }
+                        aria-label={`Disconnect ${p.label}`}
                         disabled={busy === `disc:${account.id}`}
                         className="inline-flex items-center gap-1 rounded-md border border-input px-3 py-1.5 text-sm disabled:opacity-60"
                       >
@@ -482,6 +489,7 @@ export default function AdminSocialBrandCenter() {
                             revokeSocialAccess(account.id),
                           )
                         }
+                        aria-label={`Revoke access for ${p.label}`}
                         disabled={busy === `rev:${account.id}`}
                         className="inline-flex items-center gap-1 rounded-md border border-input px-3 py-1.5 text-sm text-destructive disabled:opacity-60"
                       >

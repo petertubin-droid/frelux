@@ -468,7 +468,7 @@ export default function AdminIntegrations() {
                         checked={integration.is_enabled}
                         onCheckedChange={() => handleToggle(integration)}
                         disabled={saving === integration.integration_key}
-                        aria-label={t("Toggle integration")}
+                        aria-label={`Toggle ${integration.display_name}`}
                       />
                     </div>
 
@@ -548,6 +548,7 @@ export default function AdminIntegrations() {
                         ))}
                         <div className="flex items-center gap-3">
                           <Button
+                            aria-label={`Save config for ${integration.display_name}`}
                             onClick={() => handleSaveConfig(integration)}
                             disabled={saving === integration.integration_key}
                             size="sm"

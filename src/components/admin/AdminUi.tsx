@@ -65,6 +65,7 @@ export function AdminButton({
   disabled,
   className,
   title,
+  "aria-label": ariaLabel,
   icon: Icon,
   loading,
 }: {
@@ -76,6 +77,7 @@ export function AdminButton({
   disabled?: boolean;
   className?: string;
   title?: string;
+  "aria-label"?: string;
   icon?: ElementType<{
     className?: string;
     "aria-hidden"?: boolean | "true" | "false";
@@ -103,6 +105,7 @@ export function AdminButton({
       onClick={onClick}
       disabled={disabled || loading}
       title={title}
+      aria-label={ariaLabel}
       className={classNames(
         base,
         variants[variant] || variants.primary,

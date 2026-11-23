@@ -438,6 +438,7 @@ export default function AdminAIAssistant() {
           {/* Input */}
           <div className="rounded-xl border border-border bg-card p-4 dark:border-white/10 dark:bg-card">
             <textarea
+              aria-label={t("Admin AI message")}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}

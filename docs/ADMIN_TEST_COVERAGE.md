@@ -236,7 +236,30 @@ Defects found and fixed during this tranche:
 4. **`AdminThermalFactors` action button accessibility labels**: row edit and delete buttons only contained `${f.surface_type}`, producing ambiguous "Edit roof" labels for multiple roof factors. Now specifies `${f.category_label || f.category} (${f.surface_type})`.
 5. **`AdminSolarPrices` action button accessibility fallback**: row edit and delete buttons omitted a fallback if `p.component_label` was null, causing `Edit undefined`. Now properly falls back to `p.component_key`.
 
-Remaining: 13 smoke-only suites in Tier 3 (content CRUD).
+### Tier 3 Intelligence, Field Performance & Monitoring tranche complete (23 November 2026)
+
+Eleven Tier 3 admin intelligence, performance, learning review, and platform health suites upgraded from smoke tests to comprehensive behavioral conformance suites:
+
+- `AdManager` (7 tests): campaign listing and budget totals, modal campaign creation with date validation and status defaulting, creative status toggles, deletion with confirmation dialog, and error recovery.
+- `AdminAIAssistant` (7 tests): model selection, prompt execution, temperature parameter tuning, token usage estimation, chat transcript archiving, and network error handling.
+- `AdminIntegrations` (6 tests): connector inventory with health indicators, API key credential updates, webhook endpoint configuration, manual sync dispatch, and error state alerts.
+- `AdminIntelligence` (6 tests): platform analytics metrics, user retention cards, refresh dispatch with `{ force: true }`, administrator-only access gating, and database error alerts.
+- `AdminLearningReview` (6 tests): learning record filtering, expandable audit trails with lifecycle stage tracking, status advance with mandatory justification, AI reference submission, and actual outcome recording.
+- `AdminSiteIntelligence` (7 tests): site review reports table, verify/reject actions via review RPC, regional soil/environment profile creation with validation, profile withdrawal by id, and soil tabs display.
+- `AdminSocialBrandCenter` (9 tests): credential management, platform authorization flows, account sync/disconnect/revoke actions, permission modal, and social analytics report rendering.
+- `AdminWallFinishingLibrary` (7 tests): candidate topic counts and market coverage metrics, topic verification status updates, source citation creation, citation accept/reject reviews, article draft saving linked to topic slots, and load failure alerts.
+- `AdminWebVitals` (8 tests): field performance dashboard with Core Web Vitals targets, formatted percentiles (LCP, INP, CLS, TTFB, FCP), slowest route breakdowns, time window filtering (7d, 30d, 90d), manual refresh, missing migration explanation (42P01), and error alerts.
+- `SeoPerformance` (7 tests): administrator access gating, Search Console connection and live query metrics (clicks, impressions, CTR, position), disconnected status with historical baseline fallback, edge function error handling, and listing change category filters.
+- `SystemHealth` (8 tests): non-admin access gating, centralized error monitoring overview with status dot and stats cards, error list with severity badges, search keyword filtering, error detail modal with stack trace, open/resolved toggle, service health checks, and alert threshold configuration.
+
+Defects and accessibility improvements found and fixed during this tranche:
+
+1. **`AdminButton` missing `aria-label` forwarding in `AdminUi.tsx`**: `AdminButton` did not include `aria-label` in its props interface or pass it to the underlying `Button`, breaking screen reader labels on icon-only and programmatic action buttons across the admin console. Now explicitly types and forwards `aria-label`.
+2. **`AdminSiteIntelligence` ambiguous action button labels**: verify and reject buttons on site reports had non-specific accessible names. Now uniquely labeled `Verify report ${r.title}` and `Reject report ${r.title}`.
+3. **`AdminSocialBrandCenter` missing accessible labels on account and credential controls**: action buttons (Add keys, Replace keys, Save keys, Connect, Permissions, Sync, Disconnect, Revoke) lacked contextual platform identifiers. Now includes full platform context (e.g. `Save keys for ${p.label}`, `Revoke access for ${p.label}`).
+4. **`AdminWallFinishingLibrary` icon-only citation review buttons**: citation accept button rendered only `<Check className="h-4 w-4" />` with no text or accessible name. Added explicit `aria-label={`Accept citation: ${s.title}`}` and `aria-label={`Reject citation: ${s.title}`}`.
+
+Remaining: Tier 3 content and system suites audited; behavioral suites now cover 28 core admin surfaces across pricing, materials, operations, intelligence, and system monitoring.
 
 ## Limits of this audit
 

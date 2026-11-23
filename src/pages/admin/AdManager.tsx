@@ -599,6 +599,7 @@ export default function AdManager() {
               </span>
             </span>
             <Switch
+              aria-label="Sponsored placement"
               checked={draft.is_sponsored}
               onCheckedChange={(checked) =>
                 setDraft({
@@ -800,6 +801,7 @@ export default function AdManager() {
                       <td className="px-3 py-2">
                         <div className="flex flex-wrap justify-end gap-1">
                           <Button
+                            aria-label={`Edit campaign ${campaign.name}`}
                             variant="ghost"
                             size="sm"
                             onClick={() => {
@@ -811,6 +813,7 @@ export default function AdManager() {
                           </Button>
                           {campaign.status === "active" ? (
                             <Button
+                              aria-label={`Pause campaign ${campaign.name}`}
                               variant="ghost"
                               size="sm"
                               onClick={() => void setStatus(campaign, "paused")}
@@ -820,6 +823,7 @@ export default function AdManager() {
                             </Button>
                           ) : (
                             <Button
+                              aria-label={`Activate campaign ${campaign.name}`}
                               variant="ghost"
                               size="sm"
                               onClick={() => void setStatus(campaign, "active")}
@@ -829,7 +833,7 @@ export default function AdManager() {
                             </Button>
                           )}
                           <Button
-                            aria-label="Delete campaign"
+                            aria-label={`Delete campaign ${campaign.name}`}
                             variant="ghost"
                             size="sm"
                             onClick={() => void remove(campaign)}
