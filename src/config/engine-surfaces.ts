@@ -18,6 +18,7 @@ import {
   Zap,
   LayoutList,
   Boxes,
+  ShieldCheck,
 } from "lucide-react";
 
 /**
@@ -269,6 +270,51 @@ export const ENGINE_SURFACES: EngineSurface[] = [
         "the cable sizing check in the electrical estimator picks the same preliminary size and voltage drop",
     },
     note: "Design current, the preliminary cable size, its ampacity and the resulting voltage drop.",
+  },
+  {
+    engineId: "paving",
+    status: "shared",
+    route: "/paving-calculator",
+    label: "Paving Calculator",
+    icon: Grid3x3,
+    evidence: {
+      module: "@/lib/estimation/paving-standalone-engine",
+      fn: "calculatePavingTakeoff",
+      page: "src/pages/StandaloneTakeoffPage.tsx",
+      calledBy:
+        "the paving calculator page runs the same takeoff from the area and paver the user measures",
+    },
+    note: "Pavers, bedding and jointing sand, subbase and edge units for a measured area.",
+  },
+  {
+    engineId: "demolition",
+    status: "shared",
+    route: "/demolition-calculator",
+    label: "Demolition Calculator",
+    icon: Boxes,
+    evidence: {
+      module: "@/lib/estimation/demolition-standalone-engine",
+      fn: "calculateDemolitionTakeoff",
+      page: "src/pages/StandaloneTakeoffPage.tsx",
+      calledBy:
+        "the demolition calculator page runs the same takeoff from the elements the user lists",
+    },
+    note: "In-place and loose debris, its mass, and the skip loads it needs.",
+  },
+  {
+    engineId: "site_safety",
+    status: "shared",
+    route: "/global-site-safety-estimator",
+    label: "Site Safety Estimator",
+    icon: ShieldCheck,
+    evidence: {
+      module: "@/lib/estimation/global-site-safety-engine",
+      fn: "calculateSiteSafety",
+      page: "src/pages/GlobalSiteSafetyEstimator.tsx",
+      calledBy:
+        "the site safety estimator provisions the same PPE, signage and first aid from the same site inputs",
+    },
+    note: "PPE, perimeter signage, fall protection, first aid kits and extinguishers for a described site.",
   },
   {
     engineId: "paint",

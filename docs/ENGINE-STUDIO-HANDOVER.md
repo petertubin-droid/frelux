@@ -8,7 +8,7 @@ Written 22 November 2026 for whoever picks this up next. Everything here is on
 Engine Studio (`/admin/engine-studio`) runs an estimation engine only when that
 engine has an adapter registered in `src/lib/ai-foundation/`. The repository has
 110 engine modules. Before this work the console listed 10, because only
-`engines-registry.ts` was active in the running app. It now lists 43.
+`engines-registry.ts` was active in the running app. It now lists 46.
 
 An adapter is a small wrapper that imports the engine module, supplies the same
 defaults the calculator page ships, calls the engine's own function, and maps
@@ -71,8 +71,8 @@ calculator is worse than no adapter.
 | 4     | Structural and temporary works | closed: retaining_wall, temporary_works done. Tall building and mathematical elevation declined (design checks, not quantities)                      |
 | 5     | Finishing trades               | closed 23 November 2026: drywall, insulation, flooring, plaster_render, paint, exterior_finish, wall_areas done. mineral_stone and the wall-finishing cost engine declined (catalogue and price records) |
 | 6     | Building services              | closed 23 November 2026: drainage, septic_sizing, plumbing_drainage, nec_cable done. Six declined (rule parsers, lookups, sequences); solar_pv and heat_comfort left open with reasons |
-| 7     | Siteworks and external         | **next**: 4 modules plus the deferred fence dimension                                                                                               |
-| 8     | Commercial, cost and carbon    | not started, 10 modules                                                                                                                             |
+| 7     | Siteworks and external         | closed 23 November 2026: paving, demolition, site_safety done. circular-reuse declined (needs a factor table and rules); fence dimension declined (dimension record) |
+| 8     | Commercial, cost and carbon    | **next**: 10 modules, none started                                                                                                                  |
 
 Adapters added in this run, each with a parity test: `plastering_wall`,
 `steel_beam`, `foundation_below_dpc`, `concrete_takeoff`, `icf_wall`,
@@ -110,6 +110,6 @@ node scripts/generate-project-map.mjs   # refreshes public/studio/project-map.js
 ```
 
 The engine count is reported live by the coverage card on `/admin/engine-studio`,
-and by `listEngines().length` after `registerAllEngines()`. It is 43 as of
-23 November 2026: 29 in `engines-registry.ts` plus 4, 5 and 5 from the three
+and by `listEngines().length` after `registerAllEngines()`. It is 46 as of
+23 November 2026: 32 in `engines-registry.ts` plus 4, 5 and 5 from the three
 adapter modules `register-all.ts` activates.

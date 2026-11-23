@@ -2113,6 +2113,210 @@ registerEngine({
   },
 });
 
+// ── Batch 7: siteworks and external works ──
+
+interface PavingInputLike {
+  marketCode?: string;
+  areaM2?: number;
+  paverLengthMm?: number;
+  paverWidthMm?: number;
+  paverThicknessMm?: number;
+  jointWidthMm?: number;
+  layingPattern?: "running" | "herringbone" | "basketweave";
+  wastePercent?: number;
+  beddingDepthMm?: number;
+  subbaseDepthMm?: number;
+  edgeLengthM?: number;
+}
+
+registerEngine({
+  id: "paving",
+  domain: "building",
+  title: "FRELUX Paving Takeoff Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX paving engine",
+  async run(rawInput) {
+    const { calculatePavingTakeoff } =
+      await import("@/lib/estimation/paving-standalone-engine");
+    const supplied = (rawInput ?? {}) as PavingInputLike;
+
+    // 50 m² of 200 x 100 mm pavers laid running bond with a 3 mm joint, on a
+    // 50 mm bedding and 150 mm subbase: the driveway the calculator opens with.
+    const result = calculatePavingTakeoff({
+      marketCode: supplied.marketCode ?? "NG",
+      areaM2: supplied.areaM2 ?? 50,
+      paverLengthMm: supplied.paverLengthMm ?? 200,
+      paverWidthMm: supplied.paverWidthMm ?? 100,
+      paverThicknessMm: supplied.paverThicknessMm ?? 60,
+      jointWidthMm: supplied.jointWidthMm ?? 3,
+      layingPattern: supplied.layingPattern ?? "running",
+      wastePercent: supplied.wastePercent ?? 5,
+      beddingDepthMm: supplied.beddingDepthMm ?? 50,
+      subbaseDepthMm: supplied.subbaseDepthMm ?? 150,
+      edgeLengthM: supplied.edgeLengthM,
+    } as never);
+
+    const quantities: EngineQuantityLine[] = [
+      quantityLine("Pavers", result.paversRequired, "pavers"),
+      quantityLine("Bedding sand", result.beddingSandVolumeM3, "m³"),
+      quantityLine("Bedding sand mass", result.beddingSandTonnes, "t"),
+      quantityLine("Jointing sand", result.jointingSandKg, "kg"),
+      quantityLine("Subbase (compacted)", result.compactedSubbaseVolumeM3, "m³"),
+      quantityLine("Subbase (loose)", result.looseSubbaseVolumeM3, "m³"),
+      quantityLine("Subbase mass", result.subbaseTonnes, "t"),
+    ];
+    // Edges are absent rather than zero when no edge run was entered, which is
+    // the engine's own decision and worth keeping in the console.
+    if (result.edgeUnits !== null) {
+      quantities.push(quantityLine("Edge units", result.edgeUnits, "units"));
+    }
+
+    return {
+      ok: true,
+      engine: "paving",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
+interface DemolitionInputLike {
+  marketCode?: string;
+  items?: {
+    type: "wall" | "slab" | "floor" | "roof";
+    lengthM: number;
+    widthM: number;
+    thicknessM: number;
+    quantity?: number;
+  }[];
+  bulkingFactor?: number;
+  skipCapacityM3?: number;
+  debrisDensityTonnesM3?: number;
+}
+
+registerEngine({
+  id: "demolition",
+  domain: "building",
+  title: "FRELUX Demolition Takeoff Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX demolition engine",
+  async run(rawInput) {
+    const { calculateDemolitionTakeoff } =
+      await import("@/lib/estimation/demolition-standalone-engine");
+    const supplied = (rawInput ?? {}) as DemolitionInputLike;
+
+    // One 10 m by 3 m masonry wall, 230 mm thick: a single-room strip-out.
+    const result = calculateDemolitionTakeoff({
+      marketCode: supplied.marketCode ?? "NG",
+      items:
+        supplied.items ??
+        ([
+          {
+            type: "wall",
+            lengthM: 10,
+            widthM: 3,
+            thicknessM: 0.23,
+            quantity: 1,
+          },
+        ] as never),
+      bulkingFactor: supplied.bulkingFactor,
+      skipCapacityM3: supplied.skipCapacityM3,
+      debrisDensityTonnesM3: supplied.debrisDensityTonnesM3,
+    } as never);
+
+    const quantities: EngineQuantityLine[] = [
+      quantityLine("In-place debris", result.inPlaceVolumeM3, "m³"),
+      quantityLine("Loose debris", result.looseDebrisVolumeM3, "m³"),
+      quantityLine("Debris mass", result.estimatedMassTonnes, "t"),
+    ];
+    if (result.estimatedSkipLoads !== null) {
+      quantities.push(
+        quantityLine("Skip loads", result.estimatedSkipLoads, "loads"),
+      );
+    }
+
+    return {
+      ok: true,
+      engine: "demolition",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
+interface SiteSafetyInputLike {
+  framework?: "OSHA_US" | "UK_HSE_CDM" | "INTERNATIONAL_ISO";
+  perimeterMeters?: number;
+  crewCount?: number;
+  reservePpe?: number;
+  signSpacingMeters?: number;
+  workersAtHeight?: number;
+  hasFallRisk?: boolean;
+  hasExcavation?: boolean;
+  excavationPerimeterMeters?: number;
+  tapeLines?: number;
+  excavationSignCount?: number;
+  hasHotWork?: boolean;
+  firstAidWorkersPerKit?: number;
+  fireExtinguisherCount?: number;
+}
+
+registerEngine({
+  id: "site_safety",
+  domain: "building",
+  title: "FRELUX Site Safety Provision Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX site safety engine",
+  async run(rawInput) {
+    const { calculateSiteSafety } =
+      await import("@/lib/estimation/global-site-safety-engine");
+    const supplied = (rawInput ?? {}) as SiteSafetyInputLike;
+
+    // A 100 m perimeter site with ten workers, 10 percent PPE reserve and a
+    // sign every 10 m, no work at height and no excavation: the plain baseline
+    // the page starts from before the user adds risk.
+    const result = calculateSiteSafety({
+      framework: (supplied.framework ?? "INTERNATIONAL_ISO") as never,
+      perimeterMeters: supplied.perimeterMeters ?? 100,
+      crewCount: supplied.crewCount ?? 10,
+      reservePpe: supplied.reservePpe ?? 10,
+      signSpacingMeters: supplied.signSpacingMeters ?? 10,
+      workersAtHeight: supplied.workersAtHeight ?? 0,
+      hasFallRisk: supplied.hasFallRisk ?? false,
+      hasExcavation: supplied.hasExcavation ?? false,
+      excavationPerimeterMeters: supplied.excavationPerimeterMeters ?? 0,
+      tapeLines: supplied.tapeLines ?? 0,
+      excavationSignCount: supplied.excavationSignCount ?? 0,
+      hasHotWork: supplied.hasHotWork ?? false,
+      firstAidWorkersPerKit: supplied.firstAidWorkersPerKit ?? 25,
+      fireExtinguisherCount: supplied.fireExtinguisherCount ?? 0,
+    } as never);
+
+    return {
+      ok: true,
+      engine: "site_safety",
+      calculatedAt: new Date().toISOString(),
+      quantities: [
+        quantityLine("Perimeter signs", result.perimeterSigns, "signs"),
+        quantityLine("Hard hats", result.hardHats, "no."),
+        quantityLine("Hi-vis vests", result.highVisibilityVests, "no."),
+        quantityLine("Safety boot pairs", result.safetyBootPairs, "pairs"),
+        quantityLine("Fall protection users", result.fallProtectionUsers, "no."),
+        quantityLine("Excavation tape", result.excavationTapeMeters, "m"),
+        quantityLine("Excavation signs", result.excavationSigns, "signs"),
+        quantityLine("First aid kits", result.firstAidKits, "kits"),
+        quantityLine("Fire extinguishers", result.fireExtinguishers, "no."),
+      ],
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
 export function listEngines(): EngineDescriptor[] {
   return [...REGISTRY.values()];
 }

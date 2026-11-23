@@ -143,14 +143,34 @@ The six declines share one reason: a parser, a lookup table, a sequence or a
 price-dependent result is not a takeoff, and reporting it as one would put a
 number in the console that no page produces.
 
-## Batch 7: Siteworks and external works
+## Batch 7: Siteworks and external works (closed, 23 November 2026)
 
-| Module                                       | Entry point                  |
-| -------------------------------------------- | ---------------------------- |
-| `estimation/paving-standalone-engine.ts`     | `calculatePavingTakeoff`     |
-| `estimation/demolition-standalone-engine.ts` | `calculateDemolitionTakeoff` |
-| `estimation/global-site-safety-engine.ts`    | `calculateSiteSafety`        |
-| `estimation/circular-reuse-engine.ts`        | `calculateCircularReuse`     |
+| Module                                       | Entry point                  | State                                                                    |
+| -------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------ |
+| `estimation/paving-standalone-engine.ts`     | `calculatePavingTakeoff`     | done as `paving`, surface `/paving-calculator`                            |
+| `estimation/demolition-standalone-engine.ts` | `calculateDemolitionTakeoff` | done as `demolition`, surface `/demolition-calculator`                    |
+| `estimation/global-site-safety-engine.ts`    | `calculateSiteSafety`        | done as `site_safety`, surface `/global-site-safety-estimator`            |
+| `estimation/circular-reuse-engine.ts`        | `calculateCircularReuse`     | declined: takes a per-material factor table and a rules array as inputs   |
+| `measurement/fence-engine.ts`                | `createFenceDimension`       | declined: returns a dimension record, not quantities (the batch-2 deferral) |
+
+Closed on 23 November 2026 with three adapters and two declines:
+
+- `paving` reports pavers, bedding and jointing sand, compacted and loose
+  subbase, and the subbase mass. Edge units appear only when an edge run is
+  measured, because the engine returns null rather than zero and the console
+  keeps that distinction.
+- `demolition` reports in-place and loose debris, the debris mass and the skip
+  loads, from the elements the user lists.
+- `site_safety` reports PPE, perimeter signage, fall protection, tape, first aid
+  kits and extinguishers for a described site. Fall protection is zero until the
+  user declares work at height, which is the engine's own rule.
+- `circular-reuse` declined: `calculateCircularReuse` needs a per-material
+  factor table and a rules array supplied by the caller, and the module ships
+  neither. Inventing factors would produce diversion percentages that look
+  authoritative and are not.
+- The deferred fence dimension closes here as a decline, not a deferral: it
+  builds a measurement record, which is the same shape problem that declined
+  the roof geometry and roof material spec in batch 3.
 
 ## Batch 8: Commercial, cost and carbon
 
