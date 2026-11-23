@@ -1,12 +1,17 @@
-import { useEffect, useLayoutEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link, NavLink, useLocation } from "react-router-dom";
 import {
   BookOpen,
+  Moon,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Pin,
+  Sun,
+  X,
   Calculator,
   FolderKanban,
   Home,
   LogIn,
-  Book,
   Palette,
   Ruler,
   Search,
@@ -20,6 +25,8 @@ import { navWorkspaces, siteConfig, type NavWorkspace } from "@/config/site";
 import { groupWorkspaces, navGroups } from "@/config/navigation";
 import { useLanguage } from "@/lib/i18n";
 import { useAuth } from "@/lib/auth";
+import { useTheme } from "@/lib/theme";
+import { useMarket } from "@/lib/international";
 import { classNames } from "@/lib/utils";
 
 /**
@@ -37,6 +44,34 @@ import { classNames } from "@/lib/utils";
  */
 
 const STORAGE_KEY = "frelux.rail.collapsed";
+const PINNED_STORAGE_KEY = "frelux.rail.pinned";
+
+function loadPinned(): string[] {
+  try {
+    const raw = window.localStorage.getItem(PINNED_STORAGE_KEY);
+    const value = raw ? (JSON.parse(raw) as unknown) : [];
+    return Array.isArray(value) ? value.filter((item) => typeof item === "string") : [];
+  } catch {
+    return [];
+  }
+}
+
+function getCountryFlag(countryCode?: string): string {
+  if (!countryCode || countryCode.length !== 2) return "🌐";
+  return String.fromCodePoint(...countryCode.toUpperCase().split("").map((char) => 127397 + char.charCodeAt(0)));
+}
+
+function loadRecentPaths(): string[] {
+  try {
+    const raw = window.localStorage.getItem("frelux_recent_tools");
+    const value = raw ? (JSON.parse(raw) as unknown) : [];
+    if (!Array.isArray(value)) return [];
+    return value.map((item) => typeof item === "string" ? item : item?.path)
+      .filter((path): path is string => typeof path === "string").slice(0, 6);
+  } catch {
+    return [];
+  }
+}
 
 /** Hover/focus label for the icon rail while the labels are hidden. */
 function RailTip({ children }: { children: React.ReactNode }) {
@@ -103,7 +138,13 @@ export default function AppRail({
 }) {
   const { t } = useLanguage();
   const location = useLocation();
-  const { user, profile } = useAuth();
+  const { user, profile, paidStatus, isPaid } = useAuth();
+  const { theme, toggle: toggleTheme } = useTheme();
+  const { market, marketCode } = useMarket();
+  const [filterQuery, setFilterQuery] = useState("");
+  const [pinnedPaths, setPinnedPaths] = useState<string[]>(loadPinned);
+  const [recentPaths, setRecentPaths] = useState<string[]>(loadRecentPaths);
+  const filterInputRef = useRef<HTMLInputElement>(null);
   const [collapsed, setCollapsed] = useState(() => {
     try {
       const stored = window.localStorage.getItem(STORAGE_KEY);
@@ -112,6 +153,23 @@ export default function AppRail({
       return false;
     }
   });
+
+  useEffect(() => {
+    setRecentPaths(loadRecentPaths());
+  }, [location.pathname]);
+
+  useEffect(() => {
+    const handleShortcut = (event: KeyboardEvent) => {
+      const active = document.activeElement;
+      const typing = active instanceof HTMLInputElement || active instanceof HTMLTextAreaElement || (active instanceof HTMLElement && active.isContentEditable);
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "b" && !typing) {
+        event.preventDefault();
+        setCollapsed((value) => !value);
+      }
+    };
+    window.addEventListener("keydown", handleShortcut);
+    return () => window.removeEventListener("keydown", handleShortcut);
+  }, []);
 
   useLayoutEffect(() => {
     document.documentElement.dataset.rail = collapsed
@@ -146,6 +204,37 @@ export default function AppRail({
     navWorkspaces.find((workspace) => isActive(workspace)) ??
     navWorkspaces[0];
   const activeSections = sectionGroups(activeWorkspace);
+  const filteredSections = useMemo(() => {
+    const query = filterQuery.trim().toLowerCase();
+    if (!query) return activeSections;
+    return activeSections.map((section) => ({
+      ...section,
+      children: section.children.filter((child) =>
+        `${child.label} ${child.path} ${section.label}`.toLowerCase().includes(query),
+      ),
+    })).filter((section) => section.children.length > 0);
+  }, [activeSections, filterQuery]);
+
+  const pinnedItems = useMemo(
+    () => activeWorkspace.children?.filter((child) => pinnedPaths.includes(child.path)) ?? [],
+    [activeWorkspace, pinnedPaths],
+  );
+  const recentItems = useMemo(() => {
+    const children = activeWorkspace.children ?? [];
+    return recentPaths.flatMap((path) => {
+      const match = children.find((child) => child.path === path || child.path.endsWith(`/${path}`));
+      return match ? [match] : [];
+    }).filter((child, index, items) => items.findIndex((item) => item.path === child.path) === index).slice(0, 4);
+  }, [activeWorkspace, recentPaths]);
+
+  const togglePin = (path: string) => {
+    setPinnedPaths((current) => {
+      const next = current.includes(path) ? current.filter((item) => item !== path) : [...current, path];
+      try { window.localStorage.setItem(PINNED_STORAGE_KEY, JSON.stringify(next)); } catch { /* storage unavailable */ }
+      return next;
+    });
+  };
+
   const isAdmin = profile?.role === "admin";
 
   const handleSearch = () => {
@@ -197,23 +286,15 @@ export default function AppRail({
                 }
                 title={
                   collapsed
-                    ? t("Open the section list")
-                    : t("Close the section list")
+                    ? `${t("Open the section list")} (⌘B)`
+                    : `${t("Close the section list")} (⌘B)`
                 }
                 className={classNames(railItem(false), "mx-auto")}
               >
                 {collapsed ? (
-                  <Book
-                    className="h-[20px] w-[20px]"
-                    strokeWidth={1.7}
-                    aria-hidden="true"
-                  />
+                  <PanelLeftOpen className="h-[20px] w-[20px]" strokeWidth={1.7} aria-hidden="true" />
                 ) : (
-                  <BookOpen
-                    className="h-[20px] w-[20px]"
-                    strokeWidth={1.7}
-                    aria-hidden="true"
-                  />
+                  <PanelLeftClose className="h-[20px] w-[20px]" strokeWidth={1.7} aria-hidden="true" />
                 )}
               </button>
         </div>
@@ -268,6 +349,20 @@ export default function AppRail({
 
         <div className="shrink-0 border-t border-border/60 p-2 dark:border-white/10">
           <ul className="space-y-1">
+            {collapsed && (
+              <li>
+                <button
+                  type="button"
+                  onClick={() => window.dispatchEvent(new CustomEvent("frelux:open-menu"))}
+                  aria-label={`${t("Market and currency preferences")}: ${marketCode} ${market.currencyCode}`}
+                  title={`${marketCode} · ${market.currencySymbol} ${market.currencyCode}`}
+                  className={classNames(railItem(false), "text-[14px]")}
+                >
+                  <span aria-hidden="true">{getCountryFlag(marketCode)}</span>
+                  <RailTip>{marketCode} · {market.currencySymbol} {market.currencyCode}</RailTip>
+                </button>
+              </li>
+            )}
             <li>
               <button
                 type="button"
@@ -281,6 +376,17 @@ export default function AppRail({
                   strokeWidth={1.7}
                   aria-hidden="true"
                 />
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                onClick={toggleTheme}
+                aria-label={t("Toggle theme")}
+                title={theme === "dark" ? t("Switch to light mode") : t("Switch to dark mode")}
+                className={railItem(false)}
+              >
+                {theme === "dark" ? <Sun className="h-[20px] w-[20px] text-amber-400" strokeWidth={1.7} aria-hidden="true" /> : <Moon className="h-[20px] w-[20px]" strokeWidth={1.7} aria-hidden="true" />}
               </button>
             </li>
             <li>
@@ -352,35 +458,92 @@ export default function AppRail({
             </Link>
           </div>
 
+          <div className="border-b border-border/40 px-3 py-2 dark:border-white/5">
+            <div className="relative flex items-center">
+              <Search className="pointer-events-none absolute left-2.5 h-3.5 w-3.5 text-muted-foreground" aria-hidden="true" />
+              <input
+                ref={filterInputRef}
+                value={filterQuery}
+                onChange={(event) => setFilterQuery(event.target.value)}
+                placeholder={`${t("Filter")} ${t(activeWorkspace.label)}...`}
+                aria-label={`${t("Filter")} ${t(activeWorkspace.label)}`}
+                className="h-8 w-full rounded-lg border border-border/60 bg-muted/30 pl-8 pr-7 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary/50 focus:bg-background focus:outline-none focus:ring-2 focus:ring-primary/20 dark:bg-white/5"
+              />
+              {filterQuery && <button type="button" onClick={() => { setFilterQuery(""); filterInputRef.current?.focus(); }} aria-label={t("Clear filter")} className="absolute right-2 text-muted-foreground hover:text-foreground"><X className="h-3.5 w-3.5" /></button>}
+            </div>
+          </div>
+
           <nav
             aria-label={t(activeWorkspace.label)}
             className="flex-1 overflow-y-auto overscroll-contain px-2 py-2 [scrollbar-gutter:stable] [scrollbar-width:thin]"
           >
-            {activeSections.map((section) => (
+            {!filterQuery && recentItems.length > 0 && (
+              <div className="mb-2 border-b border-border/40 pb-2 dark:border-white/5">
+                <p className="flex items-center gap-1.5 px-2.5 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{t("Recent")}</p>
+                <ul className="space-y-0.5">{recentItems.map((child) => (
+                  <li key={`recent-${child.path}`}>
+                    <NavLink to={child.path} className={({ isActive: active }) => classNames("block rounded-lg border-l-2 py-1.5 pl-2.5 pr-2 text-[13px]", active ? "border-primary bg-primary/10 text-primary" : "border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground")}>
+                      <span className="block truncate">{t(child.label)}</span>
+                    </NavLink>
+                  </li>
+                ))}</ul>
+              </div>
+            )}
+            {!filterQuery && pinnedItems.length > 0 && (
+              <div className="mb-2 border-b border-border/40 pb-2 dark:border-white/5">
+                <p className="flex items-center gap-1.5 px-2.5 pb-1 pt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-primary"><Pin className="h-3 w-3 fill-primary/30" />{t("Pinned")}</p>
+                <ul className="space-y-0.5">{pinnedItems.map((child) => (
+                  <li key={`pin-${child.path}`} className="group/item flex items-center gap-1">
+                    <NavLink to={child.path} className={({ isActive: active }) => classNames("min-w-0 flex-1 rounded-lg border-l-2 py-1.5 pl-2.5 pr-1 text-[13px]", active ? "border-primary bg-primary/10 text-primary" : "border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground")}>
+                      <span className="block truncate">{t(child.label)}</span>
+                    </NavLink>
+                    <button type="button" onClick={() => togglePin(child.path)} aria-label={`${t("Unpin tool")}: ${t(child.label)}`} title={t("Unpin tool")} className="rounded p-1 text-primary"><Pin className="h-3 w-3 fill-current" /></button>
+                  </li>
+                ))}</ul>
+              </div>
+            )}
+            {filteredSections.length === 0 ? (
+              <div className="px-3 py-8 text-center"><p className="text-xs text-muted-foreground">{t("No tools match")} &ldquo;{filterQuery}&rdquo;</p><button type="button" onClick={() => setFilterQuery("")} className="mt-2 text-[11px] font-semibold text-primary hover:underline">{t("Clear filter")}</button></div>
+            ) : filteredSections.map((section) => (
               <div key={section.key} className="pb-2 last:pb-0">
                 <p className="px-2.5 pb-1 pt-1.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
                   {t(section.label)}
                 </p>
                 <ul className="space-y-0.5">
-                  {section.children.map((child) => (
-                    <li key={child.path}>
-                      <NavLink
-                        to={child.path}
-                        className={({ isActive: childActive }) =>
-                          classNames(
-                            "flex flex-col rounded-lg border-l-2 py-1.5 pl-2.5 pr-2 transition-colors",
-                            childActive
-                              ? "border-primary bg-primary/10 text-primary"
-                              : "border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground dark:hover:bg-white/5",
-                          )
-                        }
-                      >
-                        <span className="text-[13px] font-medium leading-snug">
-                          {t(child.label)}
-                        </span>
-                      </NavLink>
-                    </li>
-                  ))}
+                  {section.children.map((child) => {
+                    const isPinned = pinnedPaths.includes(child.path);
+                    return (
+                      <li key={child.path} className="group/item flex items-center gap-1">
+                        <NavLink
+                          to={child.path}
+                          className={({ isActive: childActive }) =>
+                            classNames(
+                              "min-w-0 flex-1 rounded-lg border-l-2 py-1.5 pl-2.5 pr-1 transition-colors",
+                              childActive
+                                ? "border-primary bg-primary/10 text-primary"
+                                : "border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground dark:hover:bg-white/5",
+                            )
+                          }
+                        >
+                          <span className="block truncate text-[13px] font-medium leading-snug">
+                            {t(child.label)}
+                          </span>
+                        </NavLink>
+                        <button
+                          type="button"
+                          onClick={() => togglePin(child.path)}
+                          aria-label={`${t(isPinned ? "Unpin tool" : "Pin tool")}: ${t(child.label)}`}
+                          title={t(isPinned ? "Unpin tool" : "Pin tool")}
+                          className={classNames(
+                            "shrink-0 rounded p-1 text-muted-foreground transition-opacity hover:text-primary",
+                            isPinned ? "text-primary opacity-100" : "opacity-0 group-hover/item:opacity-100 focus:opacity-100",
+                          )}
+                        >
+                          <Pin className={classNames("h-3 w-3", isPinned && "fill-current")} />
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             ))}
@@ -435,10 +598,16 @@ export default function AppRail({
             )}
           </nav>
 
-          <div className="shrink-0 border-t border-border/60 px-4 py-2 dark:border-white/10">
-            <p className="text-[10px] font-medium text-muted-foreground">
-              {t("FRELUX")} · {t("Smart Calc")}
-            </p>
+          <div className="shrink-0 border-t border-border/60 px-3 py-2 dark:border-white/10">
+            <div className="flex items-center justify-between gap-1">
+              <button type="button" onClick={() => window.dispatchEvent(new CustomEvent("frelux:open-menu"))} aria-label={t("Market and currency preferences")} title={t("Market and currency preferences")} className="inline-flex items-center gap-1.5 rounded-md px-1.5 py-0.5 text-[11px] font-medium text-muted-foreground hover:bg-muted hover:text-foreground">
+                <span aria-hidden="true">{getCountryFlag(marketCode)}</span><span className="font-semibold text-foreground">{marketCode}</span><span className="text-[10px]">· {market.currencySymbol}</span>
+              </button>
+              <div className="flex items-center gap-1.5">
+                {isAdmin ? <span className="rounded bg-primary/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-primary">Admin</span> : isPaid ? <span className="rounded bg-amber-500/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-amber-500">{paidStatus?.plan || "Pro"}</span> : <Link to="/pricing" className="rounded bg-muted px-1.5 py-0.5 text-[9px] font-semibold text-muted-foreground hover:text-foreground">Free</Link>}
+                <span className="text-[10px] font-medium text-muted-foreground">{t("FRELUX")} · {t("Smart Calc")}</span>
+              </div>
+            </div>
           </div>
         </div>
       )}

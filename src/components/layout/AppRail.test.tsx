@@ -177,6 +177,37 @@ describe("AppRail", () => {
     });
   });
 
+
+  it("filters the active workspace's tool list", () => {
+    openColumn("/paint-calculator");
+    const filter = screen.getByRole("textbox", { name: "Filter Construction Tools" });
+    fireEvent.change(filter, { target: { value: "paint" } });
+    const column = screen.getByRole("navigation", { name: "Construction Tools" });
+    expect(within(column).getByText("Paint Calculator")).toBeInTheDocument();
+    expect(within(column).queryByText("Concrete Calculator")).not.toBeInTheDocument();
+  });
+
+  it("pins tools in local preferences and offers them in the pinned section", () => {
+    openColumn("/paint-calculator");
+    fireEvent.click(screen.getByRole("button", { name: "Pin tool: Paint Calculator" }));
+    expect(screen.getByText("Pinned")).toBeInTheDocument();
+    expect(window.localStorage.getItem("frelux.rail.pinned")).toContain("/paint-calculator");
+    expect(screen.getAllByText("Paint Calculator").length).toBeGreaterThan(0);
+  });
+
+  it("toggles the rail with the Cmd/Ctrl+B shortcut", async () => {
+    renderRail();
+    expect(document.documentElement.dataset.rail).toBe("collapsed");
+    fireEvent.keyDown(window, { key: "b", metaKey: true });
+    await waitFor(() => expect(document.documentElement.dataset.rail).toBe("expanded"));
+  });
+
+  it("exposes theme and market shortcuts in the utility dock", () => {
+    renderRail();
+    expect(screen.getByRole("button", { name: "Toggle theme" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /Market and currency preferences/ })).toBeInTheDocument();
+  });
+
   it("keeps the desktop-only contract the layouts depend on", () => {
     const { container } = renderRail();
     const rail = container.querySelector("aside");
