@@ -10,6 +10,12 @@ import { grantRewardedUnlockConfig, verifyRewardedAdConfig } from "./rewarded";
 import { ec3EpdLookupConfig } from "./ec3-epd-lookup";
 import { priceIndexApiConfig, removeOutliers, stats } from "./price-index-api";
 import { checkRateLimit, missingBindings, timingSafeEqual } from "./runtime";
+import {
+  AWAITING_CPU_MEASUREMENT,
+  SUPABASE_ONLY,
+  needsCpuMeasurement,
+  supabaseOnlyReason,
+} from "./registry";
 
 const CORS = { "access-control-allow-origin": "https://freluxtools.com" };
 const env = {
@@ -430,5 +436,34 @@ describe("wave 2 ports", () => {
     expect(res.status).toBe(200);
     expect(body.connected).toBe(false);
     expect(body.reason).toBe("no_credential");
+  });
+});
+
+describe("free-tier rule", () => {
+  it("never ports a function it also marks as Supabase-only", () => {
+    const both = portedFunctionNames().filter((n) => supabaseOnlyReason(n));
+    expect(both).toEqual([]);
+  });
+
+  it("gives every Supabase-only name a reason that says why", () => {
+    for (const [name, reason] of SUPABASE_ONLY) {
+      expect(reason.length).toBeGreaterThan(20);
+      expect(reason).toMatch(/AI:|CPU-heavy:|paid/i);
+      expect(name).toBeTruthy();
+    }
+  });
+
+  it("flags unmeasured CPU only for functions that are actually ported", () => {
+    for (const name of AWAITING_CPU_MEASUREMENT) {
+      expect(portedFunctionNames()).toContain(name);
+      expect(needsCpuMeasurement(name)).toBe(true);
+    }
+  });
+
+  it("keeps the AI exclusion separate from the CPU exclusion", () => {
+    const ai = [...SUPABASE_ONLY].filter(([, r]) => r.startsWith("AI:"));
+    const cpu = [...SUPABASE_ONLY].filter(([, r]) => r.startsWith("CPU-heavy:"));
+    expect(ai.length).toBe(19);
+    expect(cpu.length).toBe(8);
   });
 });

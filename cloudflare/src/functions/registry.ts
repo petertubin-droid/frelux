@@ -51,8 +51,9 @@ const ENTRIES: readonly PortedFunction[] = [
  *  - AI: they call a model provider, which is the owner's exclusion.
  *  - CPU-heavy: the work per request does not fit the 10 ms CPU budget the
  *    Worker runs on (free tier), so moving them would turn a working function
- *    into a 1101 "exceeded CPU" error. They stay on Supabase, which is exactly
- *    the owner's instruction: what 10 ms cannot carry stays where it runs.
+ *    into a 1101 "exceeded CPU" error, or force a paid plan. The owner's rule is
+ *    explicit: anything that would need Workers Paid stays on Supabase, so this
+ *    list is the paid tier by another name and nothing here waits for an upgrade.
  *
  * A name here is a decision, not a to-do: removing it needs evidence (a CPU
  * measurement from `wrangler tail` on a real request), not optimism.
@@ -92,6 +93,26 @@ export const SUPABASE_ONLY: ReadonlyMap<string, string> = new Map([
     ["sitemap", "CPU-heavy: full sitemap assembly over the catalogue exceeds 10 ms CPU."],
   ] as const),
 ]);
+
+/**
+ * Ported functions whose CPU has not been measured on a real request yet.
+ *
+ * The free tier allows 10 ms of CPU per request. These are believed to fit
+ * because their heavy work is I/O (a fetch, a JSON body) rather than
+ * computation, but belief is not a measurement. One `wrangler tail` sample per
+ * name settles it: inside budget keeps the port, over budget moves the name
+ * into SUPABASE_ONLY and the Worker proxies it again with no other change.
+ */
+export const AWAITING_CPU_MEASUREMENT: readonly string[] = [
+  "ec3-epd-lookup",
+  "price-index-api",
+  "client-identity",
+  "seo-search-console",
+];
+
+export function needsCpuMeasurement(name: string): boolean {
+  return AWAITING_CPU_MEASUREMENT.includes(name);
+}
 
 export function supabaseOnlyReason(name: string): string | undefined {
   return SUPABASE_ONLY.get(name);

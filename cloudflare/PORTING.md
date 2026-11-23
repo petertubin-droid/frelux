@@ -87,8 +87,11 @@ keys but do not call a model, so they are in scope.
   (`SUPABASE_SERVICE_ROLE_KEY`, provider keys, `WEBHOOK_SECRET`, …). A missing
   one is a runtime 503, by design.
 - **Provider webhook URLs:** change each dashboard only when its wave is ready.
-- **CPU budget:** the free tier's 10 ms CPU is too small for heavy functions;
-  Workers Paid is required before waves 3–4.
+- **CPU budget:** the free tier's 10 ms CPU is the hard gate, and **no Workers
+  Paid plan is part of the plan** (owner rule, 2026-11-23). A function whose own
+  work cannot fit 10 ms, or whose traffic would exceed the free 100k
+  requests/day, stays on Supabase instead of being ported. `SUPABASE_ONLY`
+  records each one with its reason; nothing on that list waits for an upgrade.
 - **Deploy:** `cd cloudflare && CLOUDFLARE_API_TOKEN=… CLOUDFLARE_ACCOUNT_ID=… npx wrangler deploy`.
 
 ## Honest limits
@@ -113,5 +116,12 @@ keys but do not call a model, so they are in scope.
 | `client-identity` | GoTrue session check, Paystack bank resolve, name match imported from `_shared/name-match.ts` (single source of truth). |
 | `seo-search-console` | Google Search Console; service-account RS256 JWT via Web Crypto, then OAuth refresh, then static token; `connected:false` when uncredentialed. |
 
-Next wave (3): the authenticated CRUD bulk, in sevens. Before it goes live:
-`npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY`, and Workers Paid for the CPU headroom.
+Next wave (3): the authenticated CRUD bulk, in sevens, admitting only what fits
+the free tier. Before it goes live: `npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY`.
+
+**Demotion path.** A ported function that measures over 10 ms CPU in
+`wrangler tail` moves into `SUPABASE_ONLY` with the measurement as its reason;
+the Worker then proxies that name to Supabase again and no other change is
+needed. `AWAITING_CPU_MEASUREMENT` lists the ports still waiting for that first
+sample (`ec3-epd-lookup`, `price-index-api`, `client-identity`,
+`seo-search-console`); they stay ported only until a measurement says otherwise.
