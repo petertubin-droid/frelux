@@ -16,6 +16,12 @@
 import type { EdgeHandler } from "./runtime";
 import { healthConfig } from "./health";
 import { turnstileVerifyConfig } from "./turnstile-verify";
+import {
+  grantRewardedUnlockConfig,
+  verifyRewardedAdConfig,
+} from "./rewarded";
+import { ec3EpdLookupConfig } from "./ec3-epd-lookup";
+import { priceIndexApiConfig } from "./price-index-api";
 
 export interface PortedFunction {
   name: string;
@@ -24,7 +30,66 @@ export interface PortedFunction {
   handler: EdgeHandler;
 }
 
-const ENTRIES: readonly PortedFunction[] = [healthConfig, turnstileVerifyConfig];
+const ENTRIES: readonly PortedFunction[] = [
+  healthConfig,
+  turnstileVerifyConfig,
+  verifyRewardedAdConfig,
+  grantRewardedUnlockConfig,
+  ec3EpdLookupConfig,
+  priceIndexApiConfig,
+];
+
+/**
+ * Functions that must NOT be ported, with the reason. Two kinds:
+ *
+ *  - AI: they call a model provider, which is the owner's exclusion.
+ *  - CPU-heavy: the work per request does not fit the 10 ms CPU budget the
+ *    Worker runs on (free tier), so moving them would turn a working function
+ *    into a 1101 "exceeded CPU" error. They stay on Supabase, which is exactly
+ *    the owner's instruction: what 10 ms cannot carry stays where it runs.
+ *
+ * A name here is a decision, not a to-do: removing it needs evidence (a CPU
+ * measurement from `wrangler tail` on a real request), not optimism.
+ */
+export const SUPABASE_ONLY: ReadonlyMap<string, string> = new Map([
+  // AI (owner exclusion)
+  ...([
+    "ai-admin-assistant",
+    "ai-building-estimation",
+    "ai-color-consult",
+    "ai-color-preview",
+    "ai-construction-extraction",
+    "ai-copilot",
+    "ai-envelope-detect",
+    "ai-ingestion",
+    "ai-learn-assistant",
+    "ai-livechat",
+    "ai-logo-generation",
+    "ai-plan-extraction",
+    "ai-project-assistant",
+    "ai-studio",
+    "ai-tv-console-extract",
+    "ai-visual-finishing",
+    "count-vision",
+    "support-chat",
+    "frelix-api",
+  ].map((name) => [name, "AI: calls a model provider; stays on Supabase."] as const)),
+  // CPU-heavy: cannot fit 10 ms CPU
+  ...([
+    ["pdf-studio-export", "CPU-heavy: server-side PDF composition exceeds 10 ms CPU."],
+    ["roof-view-imagery", "CPU-heavy: raster imagery work exceeds 10 ms CPU."],
+    ["price-intel-scan", "CPU-heavy: multi-source scan loop exceeds 10 ms CPU."],
+    ["broadcast-campaign", "CPU-heavy: batch fan-out exceeds 10 ms CPU."],
+    ["price-digest", "CPU-heavy: digest aggregation exceeds 10 ms CPU."],
+    ["iot-ingest", "CPU-heavy: burst ingest loop exceeds 10 ms CPU."],
+    ["translate-content", "CPU-heavy: translation batching exceeds 10 ms CPU."],
+    ["sitemap", "CPU-heavy: full sitemap assembly over the catalogue exceeds 10 ms CPU."],
+  ] as const),
+]);
+
+export function supabaseOnlyReason(name: string): string | undefined {
+  return SUPABASE_ONLY.get(name);
+}
 
 export const PORTED_FUNCTIONS: ReadonlyMap<string, PortedFunction> = new Map(
   ENTRIES.map((entry) => [entry.name, entry]),

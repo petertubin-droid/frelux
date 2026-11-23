@@ -3,6 +3,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { healthConfig } from "./health";
 import { turnstileVerifyConfig } from "./turnstile-verify";
 import { getPortedFunction, portedFunctionNames } from "./registry";
+import { grantRewardedUnlockConfig, verifyRewardedAdConfig } from "./rewarded";
+import { ec3EpdLookupConfig } from "./ec3-epd-lookup";
+import { priceIndexApiConfig, removeOutliers, stats } from "./price-index-api";
 import { checkRateLimit, missingBindings, timingSafeEqual } from "./runtime";
 
 const CORS = { "access-control-allow-origin": "https://freluxtools.com" };
@@ -41,7 +44,14 @@ describe("runtime", () => {
 
 describe("registry", () => {
   it("lists exactly the functions that run on the Worker", () => {
-    expect(portedFunctionNames()).toEqual(["health", "turnstile-verify"]);
+    expect(portedFunctionNames()).toEqual([
+      "ec3-epd-lookup",
+      "grant-rewarded-unlock",
+      "health",
+      "price-index-api",
+      "turnstile-verify",
+      "verify-rewarded-ad",
+    ]);
   });
 
   it("returns undefined for an unported name so the proxy still answers", () => {
@@ -98,6 +108,160 @@ describe("health port", () => {
     const body = await res.json();
     expect(body.checks.database).toBe("unknown");
     expect(body.notes.join(" ")).toContain("not probed");
+  });
+});
+
+describe("rewarded ad ports", () => {
+  const post = (name: string, body: unknown) =>
+    new Request(`https://api.freluxtools.com/api/fn/${name}`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "cf-connecting-ip": "9.9.9.9" },
+      body: JSON.stringify(body),
+    });
+
+  it("refuses to grant credits when provider verification is not configured", async () => {
+    const res = await verifyRewardedAdConfig.handler(
+      post("verify-rewarded-ad", { adProvider: "monetag", adEventId: "e1" }),
+      {},
+      {},
+      CORS,
+    );
+    expect(res.status).toBe(503);
+    const body = await res.json();
+    expect(body.success).toBe(false);
+    expect(body.code).toBe("SERVER_VERIFICATION_NOT_CONFIGURED");
+  });
+
+  it("requires the fields it names, and rejects an unknown mode", async () => {
+    const missing = await verifyRewardedAdConfig.handler(
+      post("verify-rewarded-ad", { adProvider: "monetag" }),
+      {},
+      {},
+      CORS,
+    );
+    expect(missing.status).toBe(400);
+    const badMode = await verifyRewardedAdConfig.handler(
+      post("verify-rewarded-ad", { adProvider: "m", adEventId: "e", mode: "steal" }),
+      {},
+      {},
+      CORS,
+    );
+    expect(badMode.status).toBe(400);
+  });
+
+  it("never grants an unlock from a client hash", async () => {
+    const res = await grantRewardedUnlockConfig.handler(
+      post("grant-rewarded-unlock", { toolKey: "roof", clientHash: "abc" }),
+      {},
+      {},
+      CORS,
+    );
+    expect(res.status).toBe(503);
+    expect((await res.json()).success).toBe(false);
+  });
+});
+
+describe("ec3-epd-lookup port", () => {
+  const req = (body: unknown) =>
+    new Request("https://api.freluxtools.com/api/fn/ec3-epd-lookup", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+  it("refuses with a precise reason when the key is not configured", async () => {
+    const res = await ec3EpdLookupConfig.handler(req({ materialQuery: "cement" }), {}, {}, CORS);
+    expect(res.status).toBe(503);
+    expect((await res.json()).error).toContain("EC3_API_KEY");
+  });
+
+  it("requires a search term and caps the limit", async () => {
+    const spy = vi.fn(async () =>
+      new Response(JSON.stringify({ epds: [] }), { status: 200 }),
+    );
+    vi.stubGlobal("fetch", spy);
+    const noTerm = await ec3EpdLookupConfig.handler(
+      req({}),
+      { EC3_API_KEY: "k" },
+      {},
+      CORS,
+    );
+    expect(noTerm.status).toBe(400);
+    const res = await ec3EpdLookupConfig.handler(
+      req({ materialQuery: "cement", limit: 999 }),
+      { EC3_API_KEY: "k" },
+      {},
+      CORS,
+    );
+    expect(res.status).toBe(200);
+    expect(String(spy.mock.calls[0][0])).toContain("limit=20");
+  });
+
+  it("passes an upstream 401 through as a bad gateway", async () => {
+    vi.stubGlobal("fetch", vi.fn(async () => new Response("nope", { status: 401 })));
+    const res = await ec3EpdLookupConfig.handler(
+      req({ materialQuery: "cement" }),
+      { EC3_API_KEY: "k" },
+      {},
+      CORS,
+    );
+    expect(res.status).toBe(502);
+  });
+});
+
+describe("price-index-api port", () => {
+  it("refuses to publish without the service role binding", async () => {
+    const res = await priceIndexApiConfig.handler(
+      new Request("https://api.freluxtools.com/api/fn/price-index-api"),
+      { SUPABASE_URL: "https://p.supabase.co" },
+      {},
+      CORS,
+    );
+    expect(res.status).toBe(503);
+  });
+
+  it("publishes a median only with three or more observations", () => {
+    expect(stats([100, 200]).status).toBe("insufficient");
+    const ok = stats([100, 200, 300]);
+    expect(ok.status).toBe("ok");
+    expect(ok.status === "ok" && ok.median).toBe(200);
+  });
+
+  it("drops a far outlier once there are enough observations to justify it", () => {
+    const kept = removeOutliers([100, 102, 98, 101, 99, 5000]);
+    expect(kept).not.toContain(5000);
+  });
+
+  it("reads prices and materials and gates the figure on samples", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.includes("estimation_prices")) {
+        return new Response(
+          JSON.stringify([
+            { ref_id: "m1", price: 100, currency: "NGN", city_slug: null, price_kind: "retail", sale_unit: "bag", supplier_name: "A", price_source: "x", effective_date: "2026-11-01", verification_status: "verified" },
+            { ref_id: "m1", price: 110, currency: "NGN", city_slug: null, price_kind: "retail", sale_unit: "bag", supplier_name: "B", price_source: "x", effective_date: "2026-11-02", verification_status: "verified" },
+            { ref_id: "m1", price: 105, currency: "NGN", city_slug: null, price_kind: "retail", sale_unit: "bag", supplier_name: "C", price_source: "x", effective_date: "2026-11-03", verification_status: "verified" },
+          ]),
+          { status: 200 },
+        );
+      }
+      return new Response(
+        JSON.stringify([{ id: "m1", name: "Cement", slug: "cement", category: "binders" }]),
+        { status: 200 },
+      );
+    });
+    vi.stubGlobal("fetch", fetchMock);
+    const res = await priceIndexApiConfig.handler(
+      new Request("https://api.freluxtools.com/api/fn/price-index-api?material=cement"),
+      { SUPABASE_URL: "https://p.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "svc" },
+      {},
+      CORS,
+    );
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.ok).toBe(true);
+    expect(body.materials_with_figure).toBe(1);
+    expect(body.items[0].median).toBe(105);
   });
 });
 

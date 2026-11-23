@@ -21,9 +21,31 @@ misbehaving function falls back to the path that already works.
 | Set | Count | Where it runs |
 | --- | --- | --- |
 | Total functions | 96 | — |
-| AI functions (excluded) | 18 | Supabase (permanent) |
-| Ported to the Worker | 2 | Cloudflare: `health`, `turnstile-verify` |
-| Non-AI still to port | 76 | Supabase today, proxied |
+| AI functions (excluded) | 19 | Supabase (permanent) |
+| CPU-heavy (excluded) | 8 | Supabase (10 ms budget) |
+| Ported to the Worker | 6 | Cloudflare |
+| Still to port | 63 | Supabase today, proxied |
+
+**Wave size: 7 functions.** A wave is small enough to review, test and roll
+back, and large enough to make visible progress.
+
+Ported so far: `health`, `turnstile-verify` (wave 1); `verify-rewarded-ad`,
+`grant-rewarded-unlock`, `ec3-epd-lookup`, `price-index-api` (wave 2).
+
+### The 10 ms rule
+
+The Worker's free tier gives 10 ms CPU per request. A function whose own work
+does not fit stays on Supabase — moving it would convert a working function into
+a 1101 "exceeded CPU" error, which is worse than leaving it where it runs.
+`SUPABASE_ONLY` in `registry.ts` records each such decision with its reason:
+`pdf-studio-export`, `roof-view-imagery`, `price-intel-scan`,
+`broadcast-campaign`, `price-digest`, `iot-ingest`, `translate-content`,
+`sitemap`.
+
+A name leaves that list only with a CPU measurement from `wrangler tail` on a
+real request, never by optimism. I/O (a PostgREST call, an upstream API) does
+not consume CPU budget, so data-heavy but compute-light functions like
+`price-index-api` still port cleanly.
 
 AI exclusion set: the 16 `ai-*` functions plus `count-vision`, `support-chat` and
 `frelix-api` (all call a model). `health` and `seo-search-console` mention AI
@@ -33,10 +55,12 @@ keys but do not call a model, so they are in scope.
 
 1. **Done** — `health`, `turnstile-verify`: no DB writes, no secrets beyond the
    ones the Worker already has.
-2. **Public reads** — `price-index-api`, `sitemap`, `ec3-epd-lookup`,
-   `verify-copy-get`, `client-identity`, `verify-rewarded-ad`,
-   `grant-rewarded-unlock`. Needs `SUPABASE_SERVICE_ROLE_KEY` as a Worker secret
-   for the service-role reads.
+2. **In progress (4 of 7)** — done: `verify-rewarded-ad`,
+   `grant-rewarded-unlock`, `ec3-epd-lookup`, `price-index-api`. Next three:
+   `client-identity` (needs the 231-line shared identity handler ported onto
+   PostgREST), `seo-search-console` (needs Google service-account JWT signing
+   with Web Crypto), `verify-copy-get` (public read of the hosted copy). Needs
+   `SUPABASE_SERVICE_ROLE_KEY` and `EC3_API_KEY` as Worker secrets.
 3. **Authenticated CRUD** — the bulk of the 76. Reuses the Worker's existing JWT
    introspection (`authMode: introspection` in `/health`); no new auth code.
 4. **Payment webhooks last** — `paystack-webhook`, `escrow-webhook`,
