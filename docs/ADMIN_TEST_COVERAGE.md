@@ -201,7 +201,19 @@ All 9 Tier 1 money pages are now fully conformance-tested:
   without cross-currency mixing, verifies manual refresh, ensures read failures
   conceal balances rather than showing partial figures, and checks empty state.
 
-Remaining: 30 smoke-only suites in Tier 3 (content CRUD).
+### Tier 3 Content & Operations tranche complete (23 November 2026)
+
+Seven Tier 3 admin operational and content suites upgraded from smoke tests to comprehensive behavioral conformance suites:
+
+- `AdminCurrencySettings` (6 tests): pins query to `site_settings.display_currencies`, verifies inverse-rate recalculation and saved numeric currency configuration, ensures scoped updates by row id, and asserts error presentation on load/save failures.
+- `AdminConstructionDictionary` (5 tests): verifies terminology listing and category/status/confidence metrics, approves terminology with `{ action: "approve", verified_by: "admin" }`, rejects and flags for review, loads version history entries, and verifies error handling on query failures.
+- `AdminFeedback` (4 tests): verifies feedback listings with contact emails and origin URLs, updates feedback status via dropdown to `feedback_suggestions`, tests status filter switching, and verifies empty and error state rendering.
+- `AdminTestimonials` (5 tests): verifies testimonial listing and guidance notes, enforces minimum 10-character quote and author name validation before database writes, verifies creation payloads with trimmed strings and nullable fields, tests active/inactive toggle, and verifies deletion confirmation protection.
+- `AdminSuppliers` (6 tests): verifies overview stats and queue listings, routes verification approvals and rejections through `supplier-ops` edge function, tests listing moderation actions, resolves marketplace complaints and dispute reports, and asserts safe presentation of edge function errors.
+- `AdminTranslations` (6 tests): verifies localization console and status metrics, generates machine drafts via `translate-content` edge function with user session bearer tokens, publishes localized pages with recorded reviewer id, tests rejection workflow, and tests active draft review with inline editing and saving.
+- `AdminCaseStudies` (6 tests): loads approved gallery entries and existing case studies, tests publish/unpublish toggling via `setCaseStudyPublished`, verifies deletion protection with confirmation dialog, verifies modal editing and upsert payload with clean numeric budgets and currencies, and checks empty and error state handling.
+
+Remaining: 23 smoke-only suites in Tier 3 (content CRUD).
 
 ## Limits of this audit
 

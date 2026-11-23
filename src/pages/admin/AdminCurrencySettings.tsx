@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Save, CheckCircle2, AlertCircle, Info } from "lucide-react";
+import { Save, CheckCircle2, Info } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { useLanguage } from "@/lib/i18n";
 import {
@@ -65,7 +65,13 @@ export default function AdminCurrencySettings() {
           setRates(asStrings);
         }
       } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Failed to load config");
+        setError(
+          err instanceof Error
+            ? err.message
+            : typeof err === "object" && err !== null && "message" in err
+              ? String((err as { message: unknown }).message)
+              : "Failed to load config",
+        );
       } finally {
         setLoading(false);
       }
@@ -100,7 +106,13 @@ export default function AdminCurrencySettings() {
       if (updateErr) throw updateErr;
       setSavedAt(Date.now());
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to save");
+      setError(
+        err instanceof Error
+          ? err.message
+          : typeof err === "object" && err !== null && "message" in err
+            ? String((err as { message: unknown }).message)
+            : "Failed to save",
+      );
     } finally {
       setSaving(false);
     }

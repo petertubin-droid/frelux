@@ -1,10 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AdminTestimonials from "./AdminTestimonials";
-import * as supabaseModule from "@/lib/supabase";
 
-const rows = [
+const mockTestimonials = [
   {
     id: "t1",
     quote: "The paint calculator was spot on.",
@@ -27,44 +26,149 @@ const rows = [
   },
 ];
 
-const mockSelect = () => ({
-  order: vi.fn().mockResolvedValue({ data: rows, error: null }),
-});
+const mockInsert = vi.fn();
+const mockUpdateEq = vi.fn();
+const mockUpdate = vi.fn(() => ({ eq: mockUpdateEq }));
+const mockDeleteEq = vi.fn();
+const mockDelete = vi.fn(() => ({ eq: mockDeleteEq }));
 
-vi.mock("@/lib/supabase", async () => {
-  const actual = await vi.importActual<typeof supabaseModule>("@/lib/supabase");
+vi.mock("@/lib/supabase", () => {
   return {
-    ...actual,
-    supabase: { from: () => ({ select: mockSelect }) },
+    supabase: {
+      from: vi.fn((table: string) => {
+        if (table === "site_testimonials") {
+          return {
+            select: vi.fn().mockReturnValue({
+              order: vi.fn().mockResolvedValue({ data: mockTestimonials, error: null }),
+            }),
+            insert: mockInsert,
+            update: mockUpdate,
+            delete: mockDelete,
+          };
+        }
+        return {
+          select: vi.fn().mockReturnThis(),
+        };
+      }),
+    },
   };
 });
 
 describe("AdminTestimonials", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.confirm = vi.fn().mockReturnValue(true);
+    mockInsert.mockResolvedValue({ error: null });
+    mockUpdateEq.mockResolvedValue({ error: null });
+    mockDeleteEq.mockResolvedValue({ error: null });
   });
 
-  it("lists active and inactive testimonials", async () => {
+  it("lists active and inactive testimonials and shows guidance", async () => {
     render(
       <MemoryRouter>
         <AdminTestimonials />
       </MemoryRouter>,
     );
     await waitFor(() => {
-      expect(screen.getByText(/paint calculator was spot on/i)).toBeTruthy();
+      expect(screen.getByText(/The paint calculator was spot on/i)).toBeInTheDocument();
+      expect(screen.getByText("Madam Clara, Homeowner — Lagos · order 1")).toBeInTheDocument();
+      expect(screen.getByText("Emeka · order 2")).toBeInTheDocument();
     });
-    expect(
-      screen.getByText("Madam Clara, Homeowner — Lagos · order 1"),
-    ).toBeTruthy();
-    expect(screen.getByText("Emeka · order 2")).toBeTruthy();
+    expect(screen.getByText(/real user quotes only/i)).toBeInTheDocument();
   });
 
-  it("shows the real-quotes-only guidance", () => {
+  it("refuses creation when quote is under 10 chars or author name is blank", async () => {
     render(
       <MemoryRouter>
         <AdminTestimonials />
       </MemoryRouter>,
     );
-    expect(screen.getByText(/real user quotes only/i)).toBeTruthy();
+
+    await screen.findByText(/The paint calculator was spot on/i);
+
+    const quoteInput = screen.getByPlaceholderText(/The exact quote, as the user wrote it/i);
+    fireEvent.change(quoteInput, { target: { value: "Too short" } });
+
+    fireEvent.click(screen.getByRole("button", { name: /Publish testimonial/i }));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("A quote (10+ characters) and an author name are required."),
+      ).toBeInTheDocument();
+    });
+    expect(mockInsert).not.toHaveBeenCalled();
+  });
+
+  it("creates a testimonial with trimmed strings and nullable role/location", async () => {
+    render(
+      <MemoryRouter>
+        <AdminTestimonials />
+      </MemoryRouter>,
+    );
+
+    await screen.findByText(/The paint calculator was spot on/i);
+
+    const quoteInput = screen.getByPlaceholderText(/The exact quote, as the user wrote it/i);
+    fireEvent.change(quoteInput, {
+      target: { value: "  Accurate reinforcement estimation saved us two tonnes of steel.  " },
+    });
+
+    const authorInput = screen.getByLabelText("Author name");
+    fireEvent.change(authorInput, { target: { value: "  Engr. Balogun  " } });
+
+    const roleInput = screen.getByLabelText("Role (e.g. Homeowner)");
+    fireEvent.change(roleInput, { target: { value: "Structural Consultant" } });
+
+    fireEvent.click(screen.getByRole("button", { name: /Publish testimonial/i }));
+
+    await waitFor(() => {
+      expect(mockInsert).toHaveBeenCalledWith({
+        quote: "Accurate reinforcement estimation saved us two tonnes of steel.",
+        author_name: "Engr. Balogun",
+        author_role: "Structural Consultant",
+        author_location: null,
+        sort_order: 0,
+        is_active: true,
+      });
+    });
+  });
+
+  it("toggles active/inactive state of a testimonial", async () => {
+    render(
+      <MemoryRouter>
+        <AdminTestimonials />
+      </MemoryRouter>,
+    );
+
+    await screen.findByText(/The paint calculator was spot on/i);
+
+    const activeBtn = screen.getByRole("button", { name: /^Active$/i });
+    fireEvent.click(activeBtn);
+
+    await waitFor(() => {
+      expect(mockUpdate).toHaveBeenCalledWith({ is_active: false });
+      expect(mockUpdateEq).toHaveBeenCalledWith("id", "t1");
+    });
+  });
+
+  it("deletes testimonial after confirmation dialog is accepted", async () => {
+    render(
+      <MemoryRouter>
+        <AdminTestimonials />
+      </MemoryRouter>,
+    );
+
+    await screen.findByText(/The paint calculator was spot on/i);
+
+    const deleteBtn = screen.getByLabelText("Delete testimonial from Madam Clara");
+    fireEvent.click(deleteBtn);
+
+    expect(window.confirm).toHaveBeenCalledWith(
+      "Delete the testimonial from Madam Clara? This cannot be undone.",
+    );
+    await waitFor(() => {
+      expect(mockDelete).toHaveBeenCalled();
+      expect(mockDeleteEq).toHaveBeenCalledWith("id", "t1");
+    });
   });
 });
