@@ -4,6 +4,8 @@ import {
   type SupabaseClient,
 } from "@supabase/supabase-js";
 
+import { staysOnSupabase } from "@/lib/edge/supabase-only";
+
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
@@ -15,6 +17,11 @@ const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
  * headers, so function traffic stops consuming Supabase's invocation quota.
  * The Worker runs the ported functions itself and proxies the rest back to
  * Supabase, so an unported name still works while its wave lands.
+ *
+ * Three kinds of function are never sent to the Worker at all: AI functions
+ * (it does not deploy them), anything over the free tier's 10 ms CPU budget,
+ * and anything that would need a Workers Paid feature. Those keep calling
+ * Supabase directly; see src/lib/edge/supabase-only.ts.
  *
  * Production defaults to the Worker's api host; set VITE_EDGE_FUNCTIONS_URL to
  * override it, or to an empty string to call Supabase directly.
@@ -42,7 +49,12 @@ export function rewriteFunctionUrl(
   const at = href.indexOf(FUNCTIONS_MARKER);
   if (at < 0) return href;
   if (projectUrl && !href.startsWith(projectUrl)) return href;
-  return `${base}/${href.slice(at + FUNCTIONS_MARKER.length)}`;
+  const rest = href.slice(at + FUNCTIONS_MARKER.length);
+  // AI, CPU-heavy and paid-tier names stay on Supabase; the Worker is not a
+  // relay for them.
+  const name = rest.split(/[/?#]/)[0];
+  if (staysOnSupabase(name)) return href;
+  return `${base}/${rest}`;
 }
 
 const EDGE_FUNCTIONS_BASE = edgeFunctionsBase();
