@@ -16,12 +16,14 @@ const PASS_HOURS = 48;
 /** Rounding tolerance: local rounding must not make a fair payment fail. */
 const AMOUNT_TOLERANCE = 0.97;
 
-type Gateway = "paystack" | "flutterwave";
+type Gateway = "paystack" | "flutterwave" | "nowpayments" | "btcpay";
 
 interface VerifiedCharge {
   amountMinor: number;
   currency: string;
   metadata: Record<string, unknown>;
+  /** Crypto invoices carry the document in the order id this server set. */
+  orderId?: string;
 }
 
 function json(body: unknown, status = 200): Response {
@@ -73,6 +75,51 @@ async function verifyFlutterwave(reference: string): Promise<VerifiedCharge> {
   };
 }
 
+async function verifyNowPayments(invoiceId: string): Promise<VerifiedCharge> {
+  const key = Deno.env.get("NOWPAYMENTS_API_KEY");
+  if (!key) throw new Error("nowpayments_not_configured");
+  const res = await fetch(
+    `https://api.nowpayments.io/v1/invoice/${encodeURIComponent(invoiceId)}`,
+    { headers: { "x-api-key": key } },
+  );
+  const invoice = await res.json();
+  if (!res.ok) throw new Error("payment_not_successful");
+  const status = String(invoice?.payment_status ?? "").toLowerCase();
+  // Only money that arrived counts; waiting or confirming does not.
+  if (status !== "finished" && status !== "confirmed") {
+    throw new Error("payment_not_successful");
+  }
+  return {
+    amountMinor: Math.round(Number(invoice?.price_amount) * 100),
+    currency: String(invoice?.price_currency ?? "usd").toUpperCase(),
+    metadata: {},
+    orderId: String(invoice?.order_id ?? ""),
+  };
+}
+
+async function verifyBtcPay(invoiceId: string): Promise<VerifiedCharge> {
+  const base = Deno.env.get("BTCPAY_URL") ?? Deno.env.get("BTCPAY_SERVER_URL");
+  const storeId = Deno.env.get("BTCPAY_STORE_ID");
+  const apiKey = Deno.env.get("BTCPAY_API_KEY");
+  if (!base || !storeId || !apiKey) throw new Error("btcpay_not_configured");
+  const res = await fetch(
+    `${base.replace(/\/$/, "")}/api/v1/stores/${storeId}/invoices/${encodeURIComponent(invoiceId)}`,
+    { headers: { Authorization: `token ${apiKey}` } },
+  );
+  const invoice = await res.json();
+  if (!res.ok) throw new Error("payment_not_successful");
+  // Settled is the only state that means the bitcoin arrived.
+  if (String(invoice?.status ?? "") !== "Settled") {
+    throw new Error("payment_not_successful");
+  }
+  return {
+    amountMinor: Math.round(Number(invoice?.amount) * 100),
+    currency: String(invoice?.currency ?? "USD").toUpperCase(),
+    metadata: (invoice?.metadata ?? {}) as Record<string, unknown>,
+    orderId: String(invoice?.orderId ?? ""),
+  };
+}
+
 serveWithCors(async (req: Request) => {
   if (req.method !== "POST") return json({ error: "Method not allowed" }, 405);
 
@@ -99,31 +146,38 @@ serveWithCors(async (req: Request) => {
   if (!documentId || documentId.length > 200)
     return json({ error: "Missing documentId" }, 400);
   if (!reference) return json({ error: "Missing reference" }, 400);
-  if (gateway !== "paystack" && gateway !== "flutterwave") {
+  if (!["paystack", "flutterwave", "nowpayments", "btcpay"].includes(gateway)) {
     return json({ error: "Unsupported gateway" }, 400);
   }
 
   let charge: VerifiedCharge;
   try {
-    charge =
-      gateway === "paystack"
-        ? await verifyPaystack(reference)
-        : await verifyFlutterwave(reference);
+    if (gateway === "paystack") charge = await verifyPaystack(reference);
+    else if (gateway === "flutterwave")
+      charge = await verifyFlutterwave(reference);
+    else if (gateway === "nowpayments")
+      charge = await verifyNowPayments(reference);
+    else charge = await verifyBtcPay(reference);
   } catch (err) {
     const reason = err instanceof Error ? err.message : "verification_failed";
     const status = reason === "payment_not_successful" ? 402 : 503;
     return json({ error: reason }, status);
   }
 
-  // The payment must be the one this user made for this document.
-  const metaPurpose = String(charge.metadata?.purpose ?? "");
-  const metaUser = String(charge.metadata?.user_id ?? "");
-  const metaDocument = String(charge.metadata?.document_id ?? "");
-  if (
-    metaPurpose !== "document_print" ||
-    metaUser !== user.id ||
-    metaDocument !== documentId
-  ) {
+  // Prove the payment belongs to this document, and to this user where the rail
+  // carries an identity. Card rails stamp both in metadata; a NOWPayments
+  // invoice carries the document in the order id this server set at creation.
+  const meta = charge.metadata ?? {};
+  const metaPurpose = String(meta.purpose ?? "");
+  const metaUser = String(meta.user_id ?? meta.userId ?? "");
+  const metaDocument = String(meta.document_id ?? meta.documentId ?? "");
+  const matches =
+    gateway === "nowpayments"
+      ? charge.orderId === `FRX-PRINT-${documentId}`
+      : metaPurpose === "document_print" &&
+        metaUser === user.id &&
+        metaDocument === documentId;
+  if (!matches) {
     return json({ error: "Payment does not match this document" }, 403);
   }
 

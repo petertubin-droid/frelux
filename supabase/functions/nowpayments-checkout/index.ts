@@ -1,3 +1,5 @@
+const DOCUMENT_PRINT_USD_CENTS = 109;
+
 // FRELUX PAY: server-priced NOWPayments invoices. No client-supplied amounts or
 // synthetic plan/token pricing are accepted.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -49,6 +51,10 @@ serveWithCors(async (req: Request) => {
       return json({ error: "INVALID_REQUEST" }, 400);
     }
     const purpose = body.purpose ?? "subscription";
+    // A print pass is priced server-side and its invoice carries the document
+    // id, so one settled invoice can only ever unlock the document it was
+    // created for.
+    const documentId = String(body.document_id ?? body.documentId ?? "").trim();
     const plan = typeof body.plan_id === "string" ? body.plan_id.trim() : "";
     const billingCycle = body.billing_cycle;
     const payCurrency =
@@ -56,7 +62,11 @@ serveWithCors(async (req: Request) => {
         ? body.pay_currency.trim().toLowerCase()
         : undefined;
 
-    if (!(["subscription", "token_purchase"] as unknown[]).includes(purpose)) {
+    if (
+      !(
+        ["subscription", "token_purchase", "document_print"] as unknown[]
+      ).includes(purpose)
+    ) {
       return json({ error: "UNSUPPORTED_PURPOSE" }, 400);
     }
 
@@ -82,7 +92,13 @@ serveWithCors(async (req: Request) => {
     let itemDescription: string;
     const currency = "USD";
 
-    if (purpose === "subscription") {
+    if (purpose === "document_print") {
+      if (!documentId || documentId.length > 200) {
+        return json({ error: "MISSING_DOCUMENT_ID" }, 400);
+      }
+      amountMinor = DOCUMENT_PRINT_USD_CENTS;
+      itemDescription = "FRELUX Document Print Pass";
+    } else if (purpose === "subscription") {
       if (!plan || !["monthly", "yearly"].includes(billingCycle)) {
         return json({ error: "INVALID_SUBSCRIPTION_SELECTION" }, 400);
       }
@@ -233,7 +249,10 @@ serveWithCors(async (req: Request) => {
     if (!Number.isFinite(amountFiat) || amountFiat <= 0) {
       return json({ error: "INVALID_PRICE_CONFIGURATION" }, 503);
     }
-    const orderId = `FRX-${crypto.randomUUID()}`;
+    const orderId =
+      purpose === "document_print"
+        ? `FRX-PRINT-${documentId}`
+        : `FRX-${crypto.randomUUID()}`;
     const ipnCallbackUrl = `${supabaseUrl}/functions/v1/nowpayments-webhook`;
     const successUrl = `${siteUrl.origin}/dashboard?payment=nowpayments_success&orderId=${encodeURIComponent(orderId)}`;
     const cancelUrl = `${siteUrl.origin}/pricing`;

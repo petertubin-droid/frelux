@@ -1,3 +1,5 @@
+const DOCUMENT_PRINT_USD_CENTS = 109;
+
 // FRELUX PAY: server-priced BTCPay invoices. No client-supplied amounts or
 // synthetic plan/token pricing are accepted.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
@@ -31,7 +33,8 @@ const json = (body: unknown, status = 200) =>
   });
 
 serveWithCors(async (req: Request) => {
-  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  if (req.method === "OPTIONS")
+    return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "METHOD_NOT_ALLOWED" }, 405);
 
   const userId = await getVerifiedUserId(req);
@@ -49,9 +52,14 @@ serveWithCors(async (req: Request) => {
       return json({ error: "INVALID_REQUEST" }, 400);
     }
     const purpose = body.purpose ?? "subscription";
+    const documentId = String(body.document_id ?? body.documentId ?? "").trim();
     const plan = typeof body.plan_id === "string" ? body.plan_id.trim() : "";
     const billingCycle = body.billing_cycle;
-    if (!(["subscription", "token_purchase"] as unknown[]).includes(purpose)) {
+    if (
+      !(
+        ["subscription", "token_purchase", "document_print"] as unknown[]
+      ).includes(purpose)
+    ) {
       return json({ error: "UNSUPPORTED_PURPOSE" }, 400);
     }
 
@@ -80,7 +88,13 @@ serveWithCors(async (req: Request) => {
     let itemDescription: string;
     const currency = "USD";
 
-    if (purpose === "subscription") {
+    if (purpose === "document_print") {
+      if (!documentId || documentId.length > 200) {
+        return json({ error: "MISSING_DOCUMENT_ID" }, 400);
+      }
+      amountMinor = DOCUMENT_PRINT_USD_CENTS;
+      itemDescription = "FRELUX Document Print Pass";
+    } else if (purpose === "subscription") {
       if (!plan || !["monthly", "yearly"].includes(billingCycle)) {
         return json({ error: "INVALID_SUBSCRIPTION_SELECTION" }, 400);
       }
@@ -92,24 +106,45 @@ serveWithCors(async (req: Request) => {
         return { data: data as unknown[] | null, error };
       });
       if (!priceRows) return json({ error: "PRICE_CATALOG_UNAVAILABLE" }, 503);
-      const price = resolveSubscriptionPrice(priceRows, plan, billingCycle, currency);
+      const price = resolveSubscriptionPrice(
+        priceRows,
+        plan,
+        billingCycle,
+        currency,
+      );
       if (!price || price.priceMinor <= 0) {
         return json({ error: "PLAN_NOT_AVAILABLE_IN_USD" }, 400);
       }
       amountMinor = price.priceMinor;
       itemDescription = `FRELUX ${plan.toUpperCase()} (${billingCycle})`;
     } else {
-      const [{ data: configRow, error: configError }, { data: priceRow, error: priceError }] =
-        await Promise.all([
-          admin.from("token_purchase_config").select("token_amount,is_enabled").eq("id", 1).maybeSingle(),
-          admin.from("token_purchase_prices").select("price_minor,is_active").eq("currency_code", "USD").maybeSingle(),
-        ]);
-      if (configError || priceError) return json({ error: "TOKEN_PRICE_CATALOG_UNAVAILABLE" }, 503);
+      const [
+        { data: configRow, error: configError },
+        { data: priceRow, error: priceError },
+      ] = await Promise.all([
+        admin
+          .from("token_purchase_config")
+          .select("token_amount,is_enabled")
+          .eq("id", 1)
+          .maybeSingle(),
+        admin
+          .from("token_purchase_prices")
+          .select("price_minor,is_active")
+          .eq("currency_code", "USD")
+          .maybeSingle(),
+      ]);
+      if (configError || priceError)
+        return json({ error: "TOKEN_PRICE_CATALOG_UNAVAILABLE" }, 503);
       tokenAmount = Number(configRow?.token_amount);
       amountMinor = Number(priceRow?.price_minor);
-      if (!configRow?.is_enabled || priceRow?.is_active !== true ||
-          !Number.isSafeInteger(tokenAmount) || tokenAmount <= 0 ||
-          !Number.isSafeInteger(amountMinor) || amountMinor <= 0) {
+      if (
+        !configRow?.is_enabled ||
+        priceRow?.is_active !== true ||
+        !Number.isSafeInteger(tokenAmount) ||
+        tokenAmount <= 0 ||
+        !Number.isSafeInteger(amountMinor) ||
+        amountMinor <= 0
+      ) {
         return json({ error: "TOKEN_PURCHASE_NOT_AVAILABLE_IN_USD" }, 400);
       }
       itemDescription = `FRELUX AI Credits (${tokenAmount} tokens)`;
@@ -128,6 +163,7 @@ serveWithCors(async (req: Request) => {
       metadata: {
         userId,
         purpose,
+        documentId,
         plan: purpose === "subscription" ? plan : null,
         billingCycle: purpose === "subscription" ? billingCycle : null,
         tokenAmount,
@@ -135,14 +171,26 @@ serveWithCors(async (req: Request) => {
       redirectUrl: `${siteUrl.origin}/dashboard?payment=btcpay_success&orderId=${encodeURIComponent(orderId)}`,
     });
 
-    if (!invoice.id || invoice.storeId !== config.storeId ||
-        Number(invoice.amount) !== amountFiat || invoice.currency.toUpperCase() !== currency ||
-        !invoice.checkoutLink || !Number.isFinite(invoice.expirationTime)) {
-      throw new Error("BTCPay returned an invoice that does not match the server quote");
+    if (
+      !invoice.id ||
+      invoice.storeId !== config.storeId ||
+      Number(invoice.amount) !== amountFiat ||
+      invoice.currency.toUpperCase() !== currency ||
+      !invoice.checkoutLink ||
+      !Number.isFinite(invoice.expirationTime)
+    ) {
+      throw new Error(
+        "BTCPay returned an invoice that does not match the server quote",
+      );
     }
     const checkoutUrl = new URL(invoice.checkoutLink);
-    if (checkoutUrl.protocol !== "https:" || checkoutUrl.origin !== new URL(config.serverUrl).origin) {
-      throw new Error("BTCPay returned a checkout URL outside the configured server origin");
+    if (
+      checkoutUrl.protocol !== "https:" ||
+      checkoutUrl.origin !== new URL(config.serverUrl).origin
+    ) {
+      throw new Error(
+        "BTCPay returned a checkout URL outside the configured server origin",
+      );
     }
 
     let btcAddress = "";
@@ -151,16 +199,20 @@ serveWithCors(async (req: Request) => {
     let qrCodeData = "";
     try {
       const methods = await getBtcPayPaymentMethods(config, invoice.id);
-      const btcMethod = methods.find((method) =>
-        method.paymentMethod?.toUpperCase().startsWith("BTC") ||
-        method.cryptoCode?.toUpperCase() === "BTC",
+      const btcMethod = methods.find(
+        (method) =>
+          method.paymentMethod?.toUpperCase().startsWith("BTC") ||
+          method.cryptoCode?.toUpperCase() === "BTC",
       );
       if (btcMethod) {
         btcAddress = btcMethod.destination || "";
         amountBtc = Number(btcMethod.due || btcMethod.amount || 0);
         rateFiat = Number(btcMethod.rate || 0);
-        qrCodeData = btcMethod.paymentLink || (btcAddress && amountBtc > 0
-          ? `bitcoin:${btcAddress}?amount=${amountBtc}` : "");
+        qrCodeData =
+          btcMethod.paymentLink ||
+          (btcAddress && amountBtc > 0
+            ? `bitcoin:${btcAddress}?amount=${amountBtc}`
+            : "");
         if (!Number.isFinite(amountBtc) || amountBtc <= 0) {
           btcAddress = "";
           amountBtc = 0;
@@ -203,7 +255,10 @@ serveWithCors(async (req: Request) => {
         metadata,
       });
     if (insertError) {
-      console.error("[btcpay-checkout] invoice persistence failed:", insertError.message);
+      console.error(
+        "[btcpay-checkout] invoice persistence failed:",
+        insertError.message,
+      );
       return json({ error: "INVOICE_PERSISTENCE_FAILED" }, 500);
     }
 
@@ -221,7 +276,10 @@ serveWithCors(async (req: Request) => {
       expires_at: expiresAt,
     });
   } catch (error) {
-    console.error("[btcpay-checkout] failed:", error instanceof Error ? error.message : error);
+    console.error(
+      "[btcpay-checkout] failed:",
+      error instanceof Error ? error.message : error,
+    );
     return json({ error: "CHECKOUT_INITIALIZATION_FAILED" }, 500);
   }
 });
