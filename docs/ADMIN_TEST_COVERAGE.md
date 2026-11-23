@@ -1,0 +1,111 @@
+# Admin test coverage audit
+
+Audited 2026-11-23. Companion to `ADMIN_ACCESS_AUDIT.md`, which covers who may
+reach these screens; this covers whether anything proves they work.
+
+## What was checked
+
+1. **Files without a test.** All 114 admin pages and 17 admin components.
+   Result: one page (`AdminBlockchain`) and two components (`AdminEngineMatrix`,
+   `SevenCountryCoverage`) had no test file. All three now do.
+2. **Routes.** Every admin page is imported and mounted from `src/App.tsx` under
+   the single nested `/admin` tree. No orphans, no admin page reachable outside
+   `RequireAdmin`.
+3. **Whether existing tests assert anything.** This is where the real gap is.
+
+## Finding: 43 of 115 admin page tests are smoke-only
+
+A smoke-only test renders the page and checks that some text appeared. It never
+clicks anything, never asserts that a service was called with the right
+arguments, and never checks a failure path. Such a test passes when the button
+calls the wrong function, when a delete fires on the wrong row, or when an error
+is silently swallowed. `AdminBlockchain` proved this pattern is not theoretical:
+it was the only page with no test at all, and reading it for a test exposed a
+live defect where every NOWPayments invoice was verified by the BTCPay
+verifier.
+
+The worst case is `AdminEngineConfig.test.tsx`, which asserts only that the
+module exports something:
+
+```ts
+it("module exports something", async () => {
+  const mod = await import("@/pages/admin/AdminEngineConfig");
+  expect(Object.keys(mod).length).toBeGreaterThan(0);
+});
+```
+
+That test passes if the page renders a blank div.
+
+## The inventory
+
+Tier 1 is money and destructive actions, where a wrong argument costs a user or
+the business real amounts. Tier 2 is engine wiring, where a wrong setting
+silently changes calculated output. Tier 3 is content CRUD.
+
+| file                          | tests | assertions | tier     |
+| ----------------------------- | ----- | ---------- | -------- |
+| `AdminBoqTemplates`           | 2     | 3          | 1 money  |
+| `AdminCashFlowTemplates`      | 1     | 3          | 1 money  |
+| `AdminCreditProfiles`         | 1     | 3          | 1 money  |
+| `AdminEstimationEstimates`    | 1     | 2          | 1 money  |
+| `AdminExpenseLedger`          | 2     | 6          | 1 money  |
+| `AdminFinance`                | 2     | 4          | 1 money  |
+| `AdminMarginPresets`          | 1     | 3          | 1 money  |
+| `AdminMarketPrices`           | 1     | 1          | 1 money  |
+| `AdminSupplierLedger`         | 2     | 2          | 1 money  |
+| `AdminAiSettings`             | 1     | 2          | 2 engine |
+| `AdminEngineConfig`           | 1     | 2          | 2 engine |
+| `AdminEngineStudio`           | 2     | 3          | 2 engine |
+| `AdminIntelligenceSources`    | 1     | 3          | 2 engine |
+| `AdManager`                   | 2     | 3          | 3 CRUD   |
+| `AdminAIAssistant`            | 1     | 2          | 3 CRUD   |
+| `AdminCaseStudies`            | 2     | 2          | 3 CRUD   |
+| `AdminConstructionDictionary` | 1     | 3          | 3 CRUD   |
+| `AdminCountVision`            | 6     | 16         | 3 CRUD   |
+| `AdminCurrencySettings`       | 3     | 7          | 3 CRUD   |
+| `AdminFeedback`               | 1     | 3          | 3 CRUD   |
+| `AdminFieldSync`              | 5     | 13         | 3 CRUD   |
+| `AdminIntegrations`           | 1     | 2          | 3 CRUD   |
+| `AdminIntelligence`           | 2     | 3          | 3 CRUD   |
+| `AdminLearningReview`         | 1     | 3          | 3 CRUD   |
+| `AdminListedMarkets`          | 2     | 3          | 3 CRUD   |
+| `AdminMaintenanceProfiles`    | 1     | 3          | 3 CRUD   |
+| `AdminPriceIndex`             | 2     | 2          | 3 CRUD   |
+| `AdminPriceSubmissions`       | 1     | 3          | 3 CRUD   |
+| `AdminRegionalCostIndices`    | 1     | 3          | 3 CRUD   |
+| `AdminReuseFactors`           | 1     | 3          | 3 CRUD   |
+| `AdminSiteIntelligence`       | 2     | 3          | 3 CRUD   |
+| `AdminSocialBrandCenter`      | 1     | 3          | 3 CRUD   |
+| `AdminSolarPanels`            | 1     | 3          | 3 CRUD   |
+| `AdminSolarPrices`            | 1     | 3          | 3 CRUD   |
+| `AdminSuppliers`              | 2     | 2          | 3 CRUD   |
+| `AdminTestimonials`           | 2     | 4          | 3 CRUD   |
+| `AdminThermalFactors`         | 1     | 3          | 3 CRUD   |
+| `AdminTranslations`           | 2     | 4          | 3 CRUD   |
+| `AdminTravelApprovals`        | 1     | 1          | 3 CRUD   |
+| `AdminWallFinishingLibrary`   | 2     | 2          | 3 CRUD   |
+| `AdminWebVitals`              | 2     | 3          | 3 CRUD   |
+| `SeoPerformance`              | 2     | 2          | 3 CRUD   |
+| `SystemHealth`                | 1     | 2          | 3 CRUD   |
+
+## Tranche plan
+
+Each tranche is one commit, same rule as everywhere else: test first, and if
+reading the page to write the test exposes a defect, fix it in the same commit
+with the test that proves it.
+
+- **Tranche 1** (money): `AdminMarketPrices`, `AdminFinance`,
+  `AdminExpenseLedger`, `AdminEstimationEstimates`, `AdminMarginPresets`.
+  Every one must assert the payload written to the database, not that a table
+  rendered.
+- **Tranche 2** (engines): `AdminEngineConfig` first, since its current test is
+  a placeholder and it writes engine settings that change calculated output.
+- **Tranche 3** (content CRUD): the remainder, cheapest last.
+
+## Limits of this audit
+
+The smoke-only classification is a heuristic over the test source: interaction
+helpers, mock-call assertions, and negative assertions. A file with none of the
+three is treated as smoke-only. It can miss a file that asserts through a helper,
+and it cannot judge whether an assertion is the right one. Reading each file is
+the only way to settle that, which is what the tranches do.
