@@ -27,7 +27,7 @@ export interface ScreenProtectionProps {
  * 4. Watermarking Layer: Renders subtle security watermark grid to deter leaks.
  * 5. Print Media Guard: Hides content under unapproved native browser print.
  */
-export default function ScreenProtection({
+export function ScreenProtection({
   children,
   enabled = true,
   documentId,
@@ -36,7 +36,9 @@ export default function ScreenProtection({
   className = "",
 }: ScreenProtectionProps) {
   const [isWindowBlurred, setIsWindowBlurred] = useState(false);
-  const [protectionWarning, setProtectionWarning] = useState<string | null>(null);
+  const [protectionWarning, setProtectionWarning] = useState<string | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!enabled) return;
@@ -70,7 +72,9 @@ export default function ScreenProtection({
         } catch {
           // Ignore clipboard permission errors
         }
-        triggerWarning("Screenshot shortcut detected. Screenshots are disabled for this document.");
+        triggerWarning(
+          "Screenshot shortcut detected. Screenshots are disabled for this document.",
+        );
         return;
       }
 
@@ -81,29 +85,55 @@ export default function ScreenProtection({
         if (onPrintRequested) {
           onPrintRequested();
         } else {
-          triggerWarning("Printing is gated. Please use the Print button to unlock this document.");
+          triggerWarning(
+            "Printing is gated. Please use the Print button to unlock this document.",
+          );
         }
         return;
       }
 
       // Mac Screenshot shortcuts: Cmd+Shift+3, Cmd+Shift+4, Cmd+Shift+5
-      if (e.metaKey && e.shiftKey && (e.key === "3" || e.key === "4" || e.key === "5" || e.code === "Digit3" || e.code === "Digit4" || e.code === "Digit5")) {
+      if (
+        e.metaKey &&
+        e.shiftKey &&
+        (e.key === "3" ||
+          e.key === "4" ||
+          e.key === "5" ||
+          e.code === "Digit3" ||
+          e.code === "Digit4" ||
+          e.code === "Digit5")
+      ) {
         e.preventDefault();
-        triggerWarning("Screen capture shortcut detected. Screen capture is protected.");
+        triggerWarning(
+          "Screen capture shortcut detected. Screen capture is protected.",
+        );
         return;
       }
 
       // Windows Snipping Tool: Ctrl+Shift+S or Windows key combos
-      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "s" || e.key === "S")) {
+      if (
+        (e.ctrlKey || e.metaKey) &&
+        e.shiftKey &&
+        (e.key === "s" || e.key === "S")
+      ) {
         e.preventDefault();
-        triggerWarning("Screen grabber shortcut detected. Recording & screenshots are protected.");
+        triggerWarning(
+          "Screen grabber shortcut detected. Recording & screenshots are protected.",
+        );
         return;
       }
 
       // DevTools inspect shortcuts
-      if (e.key === "F12" || ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === "i" || e.key === "I"))) {
+      if (
+        e.key === "F12" ||
+        ((e.ctrlKey || e.metaKey) &&
+          e.shiftKey &&
+          (e.key === "i" || e.key === "I"))
+      ) {
         e.preventDefault();
-        triggerWarning("Developer inspection shortcuts are disabled on protected documents.");
+        triggerWarning(
+          "Developer inspection shortcuts are disabled on protected documents.",
+        );
       }
     };
 
@@ -163,9 +193,7 @@ export default function ScreenProtection({
       <div className="mb-3 flex items-center justify-between rounded-lg border border-emerald-200 bg-emerald-50/70 px-3 py-1.5 text-xs text-emerald-800 print:hidden">
         <div className="flex items-center gap-2">
           <Shield className="h-4 w-4 text-emerald-600 shrink-0" />
-          <span className="font-medium">
-            Protected Document View
-          </span>
+          <span className="font-medium">Protected Document View</span>
           <span className="text-emerald-600/80 hidden sm:inline">
             — Anti-screenshot & screen recording protection active
           </span>
@@ -202,7 +230,8 @@ export default function ScreenProtection({
               Content Shield Active
             </h4>
             <p className="mt-1 max-w-sm text-xs text-slate-300">
-              Screenshots and screen recordings are disabled for this document. Click inside this window to resume viewing.
+              Screenshots and screen recordings are disabled for this document.
+              Click inside this window to resume viewing.
             </p>
           </div>
         )}
@@ -225,15 +254,21 @@ export default function ScreenProtection({
             <span>FRELUX SECURE SYSTEM</span>
             <span>DO NOT SCREENSHOT</span>
             <span>CONFIDENTIAL</span>
-            <span>{documentId ? `ID: ${documentId.slice(0, 8)}` : "PROTECTED"}</span>
+            <span>
+              {documentId ? `ID: ${documentId.slice(0, 8)}` : "PROTECTED"}
+            </span>
           </div>
         </div>
 
         {/* Document Body */}
-        <div className={`transition-filter duration-150 ${isWindowBlurred ? "filter blur-sm pointer-events-none" : ""}`}>
+        <div
+          className={`transition-filter duration-150 ${isWindowBlurred ? "filter blur-sm pointer-events-none" : ""}`}
+        >
           {children}
         </div>
       </div>
     </div>
   );
 }
+
+export default ScreenProtection;

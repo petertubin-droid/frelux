@@ -20,8 +20,14 @@ import {
 
 export type AccountType = "client" | "pro_worker";
 
+import type { SubscriptionPlan } from "@/lib/subscription";
+
 interface AuthState {
   session: Session | null;
+  /** Plan tier of the signed-in user; absent until the paid status loads. */
+  plan?: SubscriptionPlan;
+  /** ISO date the current subscription runs to, when there is one. */
+  subscriptionEnd?: string | null;
   user: User | null;
   profile: DbProfile | null;
   paidStatus: DbUserPaidStatus | null;
@@ -487,17 +493,32 @@ export function useAuth(): AuthContextValue {
 export function useAuthSafe(): AuthContextValue {
   const ctx = useContext(AuthContext);
   if (!ctx) {
+    // A complete, honest no-op context for callers rendered outside the
+    // provider: every member the contract requires is present, and the async
+    // ones report that auth is unavailable rather than pretending to succeed.
+    const unavailable = async () => ({ error: "Auth unavailable" });
     return {
       user: null,
       session: null,
       profile: null,
+      paidStatus: null,
       isPaid: false,
       isAdmin: false,
       plan: "free",
-      loading: false,
       subscriptionEnd: null,
-      refreshSubscription: async () => {},
+      loading: false,
+      configured: false,
+      signIn: async () => ({ error: "Auth unavailable", isAdmin: false }),
+      signUp: async () => ({
+        error: "Auth unavailable",
+        needsConfirmation: false,
+      }),
+      signInWithGoogle: unavailable,
+      signInWithOtp: unavailable,
       signOut: async () => {},
+      resetPassword: unavailable,
+      refreshProfile: async () => {},
+      refreshPaidStatus: async () => {},
     };
   }
   return ctx;

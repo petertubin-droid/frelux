@@ -41,8 +41,12 @@ export function PrintPaywallModal({
   onPrintUnlocked,
   onUnlocked,
 }: PrintPaywallModalProps) {
-  const [selectedCurrency, setSelectedCurrency] = useState(userCurrency || "USD");
-  const [selectedGateway, setSelectedGateway] = useState<"paystack" | "flutterwave" | "crypto">("paystack");
+  const [selectedCurrency, setSelectedCurrency] = useState(
+    userCurrency || "USD",
+  );
+  const [selectedGateway, setSelectedGateway] = useState<
+    "paystack" | "flutterwave" | "crypto"
+  >("paystack");
   const [processing, setProcessing] = useState(false);
 
   const isVisible = Boolean(open ?? isOpen);
@@ -62,8 +66,9 @@ export function PrintPaywallModal({
   const handleUnlockAndPrint = async () => {
     setProcessing(true);
     try {
-      // Simulate/process the $1.09 one-time payment unlock
-      // In production environment, this ties to edge function webhook or inline checkout
+      // No checkout is wired yet. This records a local pass without taking
+      // payment, and the copy below says so rather than claiming a charge.
+      // Replace with a server-verified purchase before the fee goes live.
       await Promise.resolve();
 
       recordPrintPassUnlock({
@@ -74,12 +79,14 @@ export function PrintPaywallModal({
       });
 
       toast.success(
-        `Print pass activated! Billed ${pricing.formatted} ($1.09 USD). Opening print view…`,
+        `Print pass activated for this document. No charge was taken: the ${pricing.formatted} print fee is not yet connected to a checkout.`,
       );
       handleClose();
       handleSuccess();
     } catch {
-      toast.error("Payment authorization failed. Please try again or subscribe.");
+      toast.error(
+        "Could not activate the print pass. Please try again or subscribe.",
+      );
     } finally {
       setProcessing(false);
     }
@@ -92,9 +99,7 @@ export function PrintPaywallModal({
       aria-labelledby="print-paywall-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200"
     >
-      <div
-        className="relative w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200"
-      >
+      <div className="relative w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl overflow-hidden animate-in zoom-in-95 duration-200">
         {/* Top Accent Strip */}
         <div className="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-brand-purple via-blue-600 to-indigo-600" />
 
@@ -114,12 +119,13 @@ export function PrintPaywallModal({
             <Printer className="h-6 w-6" />
           </div>
           <div>
-            <h3 id="print-paywall-title" className="text-lg font-bold text-slate-900">
+            <h3
+              id="print-paywall-title"
+              className="text-lg font-bold text-slate-900"
+            >
               Document Print Access
             </h3>
-            <p className="text-xs text-slate-500">
-              {documentTitle}
-            </p>
+            <p className="text-xs text-slate-500">{documentTitle}</p>
           </div>
         </div>
 
@@ -130,7 +136,9 @@ export function PrintPaywallModal({
             Subscription or One-Time Print Pass Required
           </p>
           <p className="mt-1 text-amber-800/90 leading-relaxed">
-            Printing high-resolution documents requires an active subscription or a one-time single print pass of <strong>$1.09 USD</strong> (billed in your local currency).
+            Printing high-resolution documents requires an active subscription
+            or a one-time single print pass of <strong>$1.09 USD</strong>{" "}
+            (billed in your local currency).
           </p>
         </div>
 
@@ -142,7 +150,10 @@ export function PrintPaywallModal({
                 One-Time Print Fee
               </span>
               <div className="flex items-baseline gap-2 mt-0.5">
-                <span className="text-2xl font-extrabold text-slate-900" data-testid="print-fee-amount">
+                <span
+                  className="text-2xl font-extrabold text-slate-900"
+                  data-testid="print-fee-amount"
+                >
                   {pricing.formatted}
                 </span>
                 <span className="text-xs font-medium text-slate-500">
@@ -153,7 +164,10 @@ export function PrintPaywallModal({
 
             {/* Currency Switcher */}
             <div className="text-right">
-              <label htmlFor="currency-select" className="block text-[10px] uppercase font-bold text-slate-400 mb-1">
+              <label
+                htmlFor="currency-select"
+                className="block text-[10px] uppercase font-bold text-slate-400 mb-1"
+              >
                 Currency
               </label>
               <select
@@ -172,7 +186,11 @@ export function PrintPaywallModal({
           </div>
 
           <p className="mt-2 text-[11px] text-slate-500">
-            Rate applied: 1 USD ≈ {pricing.rate.toLocaleString(undefined, { maximumFractionDigits: 2 })} {pricing.currency}. Valid for 48 hours for this document.
+            Rate applied: 1 USD ≈{" "}
+            {pricing.rate.toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            })}{" "}
+            {pricing.currency}. Valid for 48 hours for this document.
           </p>
         </div>
 

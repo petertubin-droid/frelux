@@ -98,6 +98,11 @@ const FEATURE_MIN_PLAN: Record<PaidFeature, SubscriptionPlan> = {
   pro_connect_messaging: "premium",
   template_download: "premium",
   brand_studio: "pro",
+  // Any active subscriber is entitled to document exports and printing (the
+  // gate checks isPaid, not a specific tier), so the minimum is the lowest paid
+  // plan rather than pro.
+  document_export: "basic",
+  document_print: "basic",
   tv_console_ai_design: "pro",
 };
 
