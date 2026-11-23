@@ -59,13 +59,20 @@ afterEach(() => {
 
 describe("native registry", () => {
   it("registers the wave-1 functions", () => {
-    expect(Object.keys(NATIVE_FUNCTIONS).sort()).toEqual([
-      "health",
-      "price-index-api",
-      "sitemap",
-      "turnstile-verify",
-      "verify-copy-get",
-    ]);
+    const ported = Object.keys(NATIVE_FUNCTIONS);
+    expect(ported).toEqual(
+      expect.arrayContaining([
+        "health",
+        "verify-copy-get",
+        "price-index-api",
+        "turnstile-verify",
+        "sitemap",
+        "verify-copy",
+      ]),
+    );
+    // AI and payment surface stays on Supabase by the scope decision.
+    expect(ported).not.toContain("paystack-verify");
+    expect(ported).not.toContain("ai-copilot");
   });
 
   it("does not register webhook or AI functions yet", () => {

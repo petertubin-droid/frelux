@@ -178,7 +178,7 @@ describe("edge API", () => {
       }),
     );
     const response = await worker.fetch(
-      new Request(url("/api/fn/verify-copy")),
+      new Request(url("/api/fn/verify-copy-purge")),
       makeEnv(),
     );
     expect(response.status).toBe(502);

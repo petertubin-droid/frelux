@@ -12,6 +12,7 @@ import { verifyCopyGet } from "./verify-copy-get";
 import { priceIndexApi } from "./price-index-api";
 import { turnstileVerify } from "./turnstile-verify";
 import { sitemap } from "./sitemap";
+import { verifyCopy } from "./verify-copy";
 
 export type NativeHandler = (
   request: Request,
@@ -26,4 +27,5 @@ export const NATIVE_FUNCTIONS: Record<string, NativeHandler> = {
   "price-index-api": priceIndexApi,
   "turnstile-verify": turnstileVerify,
   sitemap,
+  "verify-copy": verifyCopy,
 };
