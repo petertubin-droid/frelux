@@ -72,12 +72,23 @@ calculator is worse than no adapter.
 | 5     | Finishing trades               | closed 23 November 2026: drywall, insulation, flooring, plaster_render, paint, exterior_finish, wall_areas done. mineral_stone and the wall-finishing cost engine declined (catalogue and price records) |
 | 6     | Building services              | closed 23 November 2026: drainage, septic_sizing, plumbing_drainage, nec_cable done. Six declined (rule parsers, lookups, sequences); solar_pv and heat_comfort left open with reasons |
 | 7     | Siteworks and external         | closed 23 November 2026: paving, demolition, site_safety done. circular-reuse declined (needs a factor table and rules); fence dimension declined (dimension record) |
-| 8     | Commercial, cost and carbon    | **next**: 10 modules, none started                                                                                                                  |
+| 8     | Commercial, cost and carbon    | closed 23 November 2026: all ten declined. Each needs a database table (calc rules, carbon factors, labour rates, price book) or contract money values that a pure adapter cannot supply |
+
+All eight batches are now decided. Batches 1 to 7 are closed with adapters where
+the engine's output is a quantity and a decline where it is not; batch 8 is
+closed with ten declines because every module in it needs a database table or
+contract money values that a pure adapter cannot supply. The console runs 46
+engines: 33 registered in `engines-registry.ts` and 13 from the three modules
+`register-all.ts` activates (4, 5 and 4). Every adapter added across these
+batches ships with a parity test.
 
 Adapters added in this run, each with a parity test: `plastering_wall`,
 `steel_beam`, `foundation_below_dpc`, `concrete_takeoff`, `icf_wall`,
 `masonry`, `concrete_volume`, `waterproofing`, `soffit_gutter`,
-`retaining_wall`, `temporary_works`, `drywall`, `insulation`, `paint`.
+`retaining_wall`, `temporary_works`, `drywall`, `insulation`, `paint`,
+`plaster_render`, `flooring`, `exterior_finish`, `wall_areas`, `drainage`,
+`septic_sizing`, `plumbing_drainage`, `nec_cable`, `paving`, `demolition`,
+`site_safety`.
 
 Also in this run: `register-all.ts` activates `engines-expanded`,
 `engines-phase2` and `engines-structural`, which were written but never called
@@ -89,9 +100,13 @@ of those three modules; the answer is yes more often than not.
 
 These are tracked in conversation memory and are unrelated to the batches:
 
-- **Netlify build dies mid-prerender** with a bare exit code 2 at roughly route
-  1,500 of 3,351 and no error text. Green locally on Node 20 and Node 24 against
-  live data, and in CI. Needs a Netlify access token to read the real deploy log.
+- **Netlify build dies mid-prerender**: closed on 23 November 2026. A deploy
+  did publish, verified from outside: the live CSP now carries
+  `challenges.cloudflare.com` in `script-src` and `connect-src`, and the served
+  `Messages` chunk contains the "This conversation could not be opened"
+  fallback while the `InquiryThread` chunk carries the "Send reply" copy. Treat
+  literal UI strings, not minified function names, as the evidence a build is
+  live: imported identifiers are renamed in production bundles.
 - **Admin ledger RLS migration unapplied.** `20261121170000_admin_ledger_read_access.sql`
   is committed but not applied, because every sandbox Supabase management token
   returns 401. Until it runs, the admin money ledgers show only the owner's rows.
@@ -111,5 +126,6 @@ node scripts/generate-project-map.mjs   # refreshes public/studio/project-map.js
 
 The engine count is reported live by the coverage card on `/admin/engine-studio`,
 and by `listEngines().length` after `registerAllEngines()`. It is 46 as of
-23 November 2026: 32 in `engines-registry.ts` plus 4, 5 and 5 from the three
-adapter modules `register-all.ts` activates.
+23 November 2026: 33 engine ids in `engines-registry.ts` plus 4, 5 and 4 from the
+three adapter modules `register-all.ts` activates. Count the ids, not the
+`registerEngine` calls: a module can re-register an engine it already declared.

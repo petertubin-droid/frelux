@@ -172,20 +172,37 @@ Closed on 23 November 2026 with three adapters and two declines:
   builds a measurement record, which is the same shape problem that declined
   the roof geometry and roof material spec in batch 3.
 
-## Batch 8: Commercial, cost and carbon
+## Batch 8: Commercial, cost and carbon (closed, 23 November 2026)
 
-| Module                                   | Entry point                  |
-| ---------------------------------------- | ---------------------------- |
-| `estimation/boq-engine.ts`               | `generateBoq`                |
-| `estimation/budget-variance-engine.ts`   | `computeBudgetVariance`      |
-| `estimation/cash-flow-engine.ts`         | `calculateCashFlow`          |
-| `estimation/margin-engine.ts`            | `calculateMargin`            |
-| `estimation/contractor-credit-engine.ts` | `calculateCreditScore`       |
-| `estimation/price-forecast-engine.ts`    | `forecastMaterialPrice`      |
-| `estimation/embodied-carbon-engine.ts`   | `calculateEmbodiedCarbon`    |
-| `estimation/labour-crew-engine.ts`       | `calculateLabour`            |
-| `finance/retention-engine.ts`            | `computeRetention`           |
-| `finance/tax-engine.ts`                  | `calculateJurisdictionalTax` |
+| Module                                   | Entry point                  | State                                                                                     |
+| ---------------------------------------- | ---------------------------- | ----------------------------------------------------------------------------------------- |
+| `estimation/embodied-carbon-engine.ts`   | `calculateEmbodiedCarbon`    | declined: needs `carbon_factors`, EPD factors and `estimation_calc_rules` from the database |
+| `estimation/labour-crew-engine.ts`       | `calculateLabour`            | declined: needs the `labour_rates` table (output per worker day) and its calc rules        |
+| `estimation/boq-engine.ts`               | `generateBoq`                | declined: needs a rate per line, which is the price book                                   |
+| `estimation/budget-variance-engine.ts`   | `computeBudgetVariance`      | declined: compares two money values the caller must supply, budget and actual              |
+| `estimation/cash-flow-engine.ts`         | `calculateCashFlow`          | declined: needs a payment schedule of amounts, which is a contract not a takeoff           |
+| `estimation/margin-engine.ts`            | `calculateMargin`            | declined: needs revenue and cost, and neither can be defaulted without inventing a price   |
+| `estimation/contractor-credit-engine.ts` | `calculateCreditScore`       | declined: needs a credit rule table; with no rules the engine refuses by design            |
+| `estimation/price-forecast-engine.ts`    | `forecastMaterialPrice`      | declined: needs a historical price series, which is data rather than a rule                |
+| `finance/retention-engine.ts`            | `computeRetention`           | declined: needs a contract value and retention terms                                       |
+| `finance/tax-engine.ts`                  | `calculateJurisdictionalTax` | declined: needs taxable amounts and the jurisdiction's rate table                          |
+
+Closed on 23 November 2026 with ten declines and no adapters, which is the honest
+result for this batch rather than a gap.
+
+Every module here reads a table the app loads at runtime from the database
+(`estimation_calc_rules`, `carbon_factors`, `labour_rates`, the price book) or
+takes money values that only a contract or a payment schedule can supply. An
+adapter is a pure wrapper: it imports the engine and calls it with defaults. It
+cannot load those tables, and inventing them would put numbers in the console
+that no page produces, which is the one failure this whole exercise exists to
+prevent. A carbon factor is a published EPD value; a labour output rate is a
+measured one; a retention percentage is a contract term. None is a default.
+
+What would open this batch is a product decision, not an adapter: either the
+rules and factors move into a static module the bundle can import, or the engine
+contract is extended so an adapter may load them. Until then these ten stay on
+their own pages, where the tables are already loaded and the numbers are real.
 
 ## Not engines
 
