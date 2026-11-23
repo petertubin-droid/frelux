@@ -7,6 +7,66 @@ import {
 const url = import.meta.env.VITE_SUPABASE_URL as string | undefined;
 const anonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined;
 
+/**
+ * Edge functions run on the Cloudflare Worker, not Supabase.
+ *
+ * Every `supabase.functions.invoke()` is rewritten from
+ * `<project>/functions/v1/<name>` to `<edge base>/<name>`, keeping the same
+ * headers, so function traffic stops consuming Supabase's invocation quota.
+ * The Worker runs the ported functions itself and proxies the rest back to
+ * Supabase, so an unported name still works while its wave lands.
+ *
+ * Production defaults to the Worker's api host; set VITE_EDGE_FUNCTIONS_URL to
+ * override it, or to an empty string to call Supabase directly.
+ */
+const FUNCTIONS_MARKER = "/functions/v1/";
+
+export function edgeFunctionsBase(): string {
+  const configured = import.meta.env.VITE_EDGE_FUNCTIONS_URL;
+  const raw =
+    typeof configured === "string"
+      ? configured
+      : import.meta.env.PROD
+        ? "https://api.freluxtools.com/api/fn"
+        : "";
+  return raw.replace(/\/+$/, "");
+}
+
+/** Rewrite a Supabase function URL to the edge base; anything else is untouched. */
+export function rewriteFunctionUrl(
+  href: string,
+  projectUrl: string,
+  base: string,
+): string {
+  if (!base) return href;
+  const at = href.indexOf(FUNCTIONS_MARKER);
+  if (at < 0) return href;
+  if (projectUrl && !href.startsWith(projectUrl)) return href;
+  return `${base}/${href.slice(at + FUNCTIONS_MARKER.length)}`;
+}
+
+const EDGE_FUNCTIONS_BASE = edgeFunctionsBase();
+
+/**
+ * fetch wrapper handed to every client: it only rewrites function calls, so
+ * Postgres, auth and storage requests are untouched.
+ */
+const edgeFunctionsFetch: typeof fetch = (input, init) => {
+  if (!EDGE_FUNCTIONS_BASE) return fetch(input, init);
+  const projectUrl = (url as string) || "";
+  if (input instanceof Request) {
+    const target = rewriteFunctionUrl(
+      input.url,
+      projectUrl,
+      EDGE_FUNCTIONS_BASE,
+    );
+    if (target === input.url) return fetch(input, init);
+    return fetch(new Request(target, input), init);
+  }
+  const href = typeof input === "string" ? input : input.toString();
+  return fetch(rewriteFunctionUrl(href, projectUrl, EDGE_FUNCTIONS_BASE), init);
+};
+
 export const isSupabaseConfigured = Boolean(url && anonKey);
 
 if (import.meta.env.DEV && !isSupabaseConfigured) {
@@ -22,6 +82,7 @@ export const supabase: SupabaseClient = isSupabaseConfigured
         autoRefreshToken: true,
         detectSessionInUrl: true,
       },
+      global: { fetch: edgeFunctionsFetch },
     })
   : createClient("https://placeholder.supabase.co", "placeholder-anon-key");
 
@@ -54,6 +115,7 @@ export function supabaseWithClientHash(clientHash: string): SupabaseClient {
     },
     global: {
       headers: { "x-client-hash": clientHash },
+      fetch: edgeFunctionsFetch,
     },
   });
   hashBoundClientHash = clientHash;

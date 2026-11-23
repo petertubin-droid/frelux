@@ -78,6 +78,9 @@ const FORWARDED_HEADERS = [
   "content-type",
   "accept",
   "x-client-info",
+  // Anonymous estimate ownership is bound to this hash by RLS, so a proxy that
+  // drops it silently turns every anonymous write into a 403.
+  "x-client-hash",
   "x-frelux-signature",
   // The provider's own proof has to reach the function: it verifies the
   // signature again from the raw body, so a relay that drops these headers
@@ -303,7 +306,10 @@ async function hookSignatureValid(
   if (paystack) {
     // Escrow and checkout are separate Paystack integrations, each with its own
     // secret key, so a signature is valid if either key produced it.
-    for (const secret of [env.PAYSTACK_SECRET_KEY, env.PAYSTACK_ESCROW_SECRET]) {
+    for (const secret of [
+      env.PAYSTACK_SECRET_KEY,
+      env.PAYSTACK_ESCROW_SECRET,
+    ]) {
       if (!secret) continue;
       if (await signatureMatchesSha512(secret, body, paystack)) return true;
     }
@@ -346,7 +352,10 @@ export async function handleHook(
   // of the secret created a second place to drift, and a Worker holding a stale
   // copy rejected every genuine callback. HOOK_STRICT="on" restores the edge
   // check for anyone who wants the body refused before it reaches the function.
-  if (env.HOOK_STRICT === "on" && (await hookSignatureValid(request, env, raw))) {
+  if (
+    env.HOOK_STRICT === "on" &&
+    (await hookSignatureValid(request, env, raw))
+  ) {
     // verified at the edge
   } else if (env.HOOK_STRICT === "on") {
     return json({ error: "Invalid signature" }, 401, cors);
