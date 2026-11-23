@@ -2,6 +2,9 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import { healthConfig } from "./health";
 import { turnstileVerifyConfig } from "./turnstile-verify";
+import { verifyCopyGetConfig } from "./verify-copy-get";
+import { clientIdentityConfig } from "./client-identity";
+import { seoSearchConsoleConfig } from "./seo-search-console";
 import { getPortedFunction, portedFunctionNames } from "./registry";
 import { grantRewardedUnlockConfig, verifyRewardedAdConfig } from "./rewarded";
 import { ec3EpdLookupConfig } from "./ec3-epd-lookup";
@@ -45,11 +48,14 @@ describe("runtime", () => {
 describe("registry", () => {
   it("lists exactly the functions that run on the Worker", () => {
     expect(portedFunctionNames()).toEqual([
+      "client-identity",
       "ec3-epd-lookup",
       "grant-rewarded-unlock",
       "health",
       "price-index-api",
+      "seo-search-console",
       "turnstile-verify",
+      "verify-copy-get",
       "verify-rewarded-ad",
     ]);
   });
@@ -358,5 +364,71 @@ describe("turnstile-verify port", () => {
       CORS,
     );
     expect(res.status).toBe(405);
+  });
+});
+
+describe("wave 2 ports", () => {
+  it("verify-copy-get rejects a malformed token before any lookup", async () => {
+    const calls: string[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo) => {
+      calls.push(String(input));
+      return new Response("[]", { status: 200 });
+    }));
+    const res = await verifyCopyGetConfig.handler(
+      new Request("https://api.freluxtools.com/api/fn/verify-copy-get", {
+        method: "POST",
+        body: JSON.stringify({ token: "NOT-A-TOKEN!" }),
+      }),
+      { SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "svc" },
+      {},
+      {},
+    );
+    expect(res.status).toBe(400);
+    expect(calls.length).toBe(0);
+  });
+
+  it("verify-copy-get refuses to guess when the service role key is absent", async () => {
+    const res = await verifyCopyGetConfig.handler(
+      new Request("https://api.freluxtools.com/api/fn/verify-copy-get", {
+        method: "POST",
+        body: JSON.stringify({ token: "abcdefghijklmnop" }),
+      }),
+      { SUPABASE_URL: "https://x.supabase.co" },
+      {},
+      {},
+    );
+    expect(res.status).toBe(503);
+  });
+
+  it("client-identity requires a session before touching the database", async () => {
+    const calls: string[] = [];
+    vi.stubGlobal("fetch", vi.fn(async (input: RequestInfo) => {
+      calls.push(String(input));
+      return new Response("{}", { status: 200 });
+    }));
+    const res = await clientIdentityConfig.handler(
+      new Request("https://api.freluxtools.com/api/fn/client-identity", {
+        method: "POST",
+        body: JSON.stringify({ action: "client_identity_submit" }),
+      }),
+      { SUPABASE_URL: "https://x.supabase.co", SUPABASE_SERVICE_ROLE_KEY: "svc" },
+      {},
+      {},
+    );
+    expect(res.status).toBe(401);
+    expect(calls.length).toBe(0);
+  });
+
+  it("seo-search-console reports not connected instead of inventing metrics", async () => {
+    const res = await seoSearchConsoleConfig.handler(
+      new Request("https://api.freluxtools.com/api/fn/seo-search-console", { method: "POST", body: "{}" }),
+      {},
+      {},
+      {},
+    );
+    const body = (await res.json()) as { connected: boolean; reason: string };
+    expect(res.status).toBe(200);
+    expect(body.connected).toBe(false);
+    expect(body.reason).toBe("no_credential");
   });
 });

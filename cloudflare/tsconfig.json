@@ -8,8 +8,9 @@
     "noEmit": true,
     "skipLibCheck": true,
     "isolatedModules": true,
+    "allowImportingTsExtensions": true,
     "types": []
   },
-  "include": ["src"],
+  "include": ["src", "../supabase/functions/_shared/name-match.ts"],
   "exclude": ["src/**/*.test.ts"]
 }

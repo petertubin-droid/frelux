@@ -22,6 +22,9 @@ import {
 } from "./rewarded";
 import { ec3EpdLookupConfig } from "./ec3-epd-lookup";
 import { priceIndexApiConfig } from "./price-index-api";
+import { verifyCopyGetConfig } from "./verify-copy-get";
+import { clientIdentityConfig } from "./client-identity";
+import { seoSearchConsoleConfig } from "./seo-search-console";
 
 export interface PortedFunction {
   name: string;
@@ -37,6 +40,9 @@ const ENTRIES: readonly PortedFunction[] = [
   grantRewardedUnlockConfig,
   ec3EpdLookupConfig,
   priceIndexApiConfig,
+  verifyCopyGetConfig,
+  clientIdentityConfig,
+  seoSearchConsoleConfig,
 ];
 
 /**

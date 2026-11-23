@@ -99,3 +99,19 @@ keys but do not call a model, so they are in scope.
   not a quota.
 - Nothing in this folder is part of the Vite app build; the Worker has its own
   typecheck and test project.
+
+
+## Wave 2 - complete (7 of 7)
+
+| Function | Notes |
+| --- | --- |
+| `verify-rewarded-ad` | Still refuses to grant credits: a client callback is not proof of a view. |
+| `grant-rewarded-unlock` | Same refusal contract, ported verbatim in intent. |
+| `ec3-epd-lookup` | Transparent EC3 proxy; precise 503 when the key is unset. |
+| `price-index-api` | PostgREST reads, 3-sample gate, median/MAD rule, 60s cache. |
+| `verify-copy-get` | QR token to signed copy URL, lazy 3-day purge, fingerprint survives. |
+| `client-identity` | GoTrue session check, Paystack bank resolve, name match imported from `_shared/name-match.ts` (single source of truth). |
+| `seo-search-console` | Google Search Console; service-account RS256 JWT via Web Crypto, then OAuth refresh, then static token; `connected:false` when uncredentialed. |
+
+Next wave (3): the authenticated CRUD bulk, in sevens. Before it goes live:
+`npx wrangler secret put SUPABASE_SERVICE_ROLE_KEY`, and Workers Paid for the CPU headroom.
