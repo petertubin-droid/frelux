@@ -285,6 +285,17 @@ export const AdminEngineMatrix: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-zinc-800/60 font-mono">
+              {filteredEngines.length === 0 && (
+                <tr>
+                  <td
+                    colSpan={5}
+                    className="py-8 px-4 text-center text-sm text-zinc-400 font-sans"
+                  >
+                    No engines match this search and category. Clear the search
+                    or choose a different category.
+                  </td>
+                </tr>
+              )}
               {filteredEngines.map((engine) => {
                 const expanded = expandedEngineId === engine.id;
                 return (
