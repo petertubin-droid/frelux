@@ -8,7 +8,7 @@ Written 22 November 2026 for whoever picks this up next. Everything here is on
 Engine Studio (`/admin/engine-studio`) runs an estimation engine only when that
 engine has an adapter registered in `src/lib/ai-foundation/`. The repository has
 110 engine modules. Before this work the console listed 10, because only
-`engines-registry.ts` was active in the running app. It now lists 37.
+`engines-registry.ts` was active in the running app. It now lists 39.
 
 An adapter is a small wrapper that imports the engine module, supplies the same
 defaults the calculator page ships, calls the engine's own function, and maps
@@ -31,7 +31,11 @@ calculator is worse than no adapter.
    `status: "none"` and `route: null`. An honest unresolved mapping gets
    `canonicalId: null`, an entry in `UNRESOLVED_ENGINE_IDS`, and a note
    explaining why no id fits. Never claim a mapping you cannot defend.
-3. **Compare by label, not by index, and expect rounding.** The steel engine
+3. **A page may reach an engine through its barrel.** The surface test accepts
+   `@/lib/wallfinishing` as evidence for `@/lib/wallfinishing/quantity-engine`,
+   because that is how the wall finishing estimator imports it. Name the module
+   that holds the arithmetic, not the barrel, in `evidence.module`.
+4. **Compare by label, not by index, and expect rounding.** The steel engine
    rounds printed lines, so an index comparison failed on 0.1 against 0.0996
    while the arithmetic agreed. Every parity test in
    `src/lib/ai-foundation/__tests__/` matches lines by label with a 2 decimal
@@ -64,9 +68,9 @@ calculator is worse than no adapter.
 | 1     | Concrete and substructure      | closed: `concrete_takeoff`, `icf_wall`, `concrete_volume` done. `reinforcement` declined (id taken), `increte` declined (needs a product catalogue) |
 | 2     | Masonry and blockwork          | closed: `masonry` done. `createFenceDimension` deferred to batch 7 (it returns a dimension record)                                                  |
 | 3     | Roofing and envelope           | closed: `waterproofing`, `soffit_gutter` done. Roof geometry and roof material spec declined (geometry and spec records, not quantities)            |
-| 4     | Structural and temporary works | not started                                                                                                                                         |
-| 5     | Finishing trades               | not started, 10 modules, the biggest single batch                                                                                                   |
-| 6     | Building services              | not started, 11 modules                                                                                                                             |
+| 4     | Structural and temporary works | closed: retaining_wall, temporary_works done. Tall building and mathematical elevation declined (design checks, not quantities)                      |
+| 5     | Finishing trades               | closed 23 November 2026: drywall, insulation, flooring, plaster_render, paint, exterior_finish, wall_areas done. mineral_stone and the wall-finishing cost engine declined (catalogue and price records) |
+| 6     | Building services              | **next**: 11 modules, none started                                                                                                                  |
 | 7     | Siteworks and external         | not started, includes the deferred fence dimension                                                                                                  |
 | 8     | Commercial, cost and carbon    | not started, 10 modules                                                                                                                             |
 
@@ -106,4 +110,6 @@ node scripts/generate-project-map.mjs   # refreshes public/studio/project-map.js
 ```
 
 The engine count is reported live by the coverage card on `/admin/engine-studio`,
-and by `listEngines().length` after `registerAllEngines()`.
+and by `listEngines().length` after `registerAllEngines()`. It is 39 as of
+23 November 2026: 25 in `engines-registry.ts` plus 4, 5 and 5 from the three
+adapter modules `register-all.ts` activates.

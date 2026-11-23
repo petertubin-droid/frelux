@@ -77,12 +77,18 @@ describe("engine surface manifest", () => {
         new RegExp(`function ${evidence!.fn}\\b`),
       );
       const page = read(evidence!.page);
+      // A page may import the module itself or the barrel that re-exports it
+      // (`@/lib/wallfinishing` for `@/lib/wallfinishing/quantity-engine`), and
+      // both are the page reaching this arithmetic without executeEngine.
+      const parent = evidence!.module.replace(/\/[^/]+$/, "");
+      const reaches =
+        page.includes(evidence!.module) ||
+        (parent !== evidence!.module && page.includes(parent));
       if (surface.status === "shared") {
-        // A page reaches that module without going through executeEngine.
-        expect(page, surface.engineId).toContain(evidence!.module);
+        expect(reaches, surface.engineId).toBe(true);
       } else {
-        // Divergent means the page does not touch the engine's module.
-        expect(page, surface.engineId).not.toContain(evidence!.module);
+        // Divergent means the page does not touch the engine's module at all.
+        expect(reaches, surface.engineId).toBe(false);
       }
     }
   });

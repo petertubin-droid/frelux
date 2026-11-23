@@ -45,6 +45,8 @@ export const UNRESOLVED_ENGINE_IDS = [
   "painting_wall_area",
   "timeline_estimator",
   "quote_check",
+  "exterior_finish",
+  "wall_areas",
   "window_blinds",
   "takeoff",
   "plastering_wall",
@@ -196,6 +198,18 @@ export const CANONICAL_ENGINE_MANIFEST: readonly CanonicalEngineLink[] = [
     canonicalId: null,
     confidence: "unresolved",
     note: "The canonical vocabulary carries tile and screeding as floor finishes but nothing for board, vinyl or parquet flooring with its underlay and skirting, so this takeoff has no id to claim.",
+  },
+  {
+    aiEngineId: "exterior_finish",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "The canonical vocabulary carries EIFS and DEFS as wall systems rather than as a takeoff of their layers, so this adapter has no quantity id to claim.",
+  },
+  {
+    aiEngineId: "wall_areas",
+    canonicalId: null,
+    confidence: "unresolved",
+    note: "Measured wall area is an intermediate of every finishing trade rather than a canonical trade of its own, so there is no id to claim.",
   },
   {
     aiEngineId: "paint",

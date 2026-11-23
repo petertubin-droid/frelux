@@ -181,6 +181,36 @@ export const ENGINE_SURFACES: EngineSurface[] = [
     note: "Packs or square metres of flooring, underlay, adhesive and skirting for a measured floor.",
   },
   {
+    engineId: "exterior_finish",
+    status: "shared",
+    route: "/defs-calculator",
+    label: "DEFS Calculator",
+    icon: Layers,
+    evidence: {
+      module: "@/lib/estimation/exterior-finish-engine",
+      fn: "calculateDefs",
+      page: "src/pages/DefsCalculator.tsx",
+      calledBy:
+        "the DEFS calculator calls calculateDefs directly, which is the branch this adapter reaches through calculateExteriorFinish",
+    },
+    note: "Mesh, base coat, primer, finish coat and the backing board for a measured exterior wall.",
+  },
+  {
+    engineId: "wall_areas",
+    status: "shared",
+    route: "/wall-finish-estimator",
+    label: "Wall Finish Estimator",
+    icon: Layers,
+    evidence: {
+      module: "@/lib/wallfinishing/quantity-engine",
+      fn: "calculateWallAreas",
+      page: "src/pages/WallFinishEstimator.tsx",
+      calledBy:
+        "the wall finishing estimator measures every wall with calculateWallAreas before applying its layers",
+    },
+    note: "Gross, deducted, net and finishing wall area before any layer or price is applied.",
+  },
+  {
     engineId: "paint",
     status: "shared",
     route: "/paint-calculator",

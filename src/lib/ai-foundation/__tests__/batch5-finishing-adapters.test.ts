@@ -10,6 +10,8 @@ import {
   DEFAULT_FLOORING_RULES,
 } from "@/lib/estimation/flooring-engine";
 import { calculatePlasterRender } from "@/lib/estimation/plaster-render-engine";
+import { calculateDefs } from "@/lib/estimation/exterior-finish-engine";
+import { calculateWallAreas } from "@/lib/wallfinishing/quantity-engine";
 
 describe("batch 5 finishing adapters", () => {
   it("are registered", () => {
@@ -18,6 +20,8 @@ describe("batch 5 finishing adapters", () => {
     expect(ids).toContain("insulation");
     expect(ids).toContain("flooring");
     expect(ids).toContain("plaster_render");
+    expect(ids).toContain("exterior_finish");
+    expect(ids).toContain("wall_areas");
   });
 
   it("drywall matches the engine", async () => {
@@ -119,5 +123,87 @@ describe("batch 5 finishing adapters", () => {
     // Quantities are authoritative; money is left null rather than invented
     // from a price book the console does not hold.
     expect(result.costs).toBeNull();
+  });
+
+  it("exterior finish matches the DEFS branch the page calls", async () => {
+    const direct = calculateDefs({
+      systemType: "DEFS",
+      netWallAreaM2: 100,
+      perimeterLinearM: 40,
+      openingPerimeterM: 6,
+      substrate: "cement-board",
+      wastagePercent: 5,
+      finishTexture: "medium_swirl",
+      marketCode: "NG",
+    } as never);
+
+    const result = await executeEngine("exterior_finish", {});
+    expect(result.ok).toBe(true);
+
+    const byLabel = (label: string) =>
+      result.quantities.find((q) => q.label === label)?.quantity;
+    expect(byLabel("Net wall area")).toBeCloseTo(
+      direct.geometry.netWallAreaM2,
+      2,
+    );
+    expect(byLabel("Mesh rolls")).toBe(direct.layers.meshRolls);
+    expect(byLabel("Base coat bags")).toBe(direct.layers.baseCoatBags);
+    expect(byLabel("Primer pails")).toBe(direct.layers.primerPails);
+    expect(byLabel("Finish pails")).toBe(direct.layers.finishPails);
+    expect(byLabel("Boards")).toBe(direct.defs?.boardsCount);
+    expect(byLabel("Joint tape rolls")).toBe(direct.defs?.jointTapeRolls);
+  });
+
+  it("exterior finish omits the backing board on masonry", async () => {
+    const result = await executeEngine("exterior_finish", {
+      substrate: "masonry",
+    });
+    expect(result.ok).toBe(true);
+    // The base coat goes straight onto prepared blockwork, so there is no board
+    // line at all rather than a zero that looks like a missing quantity.
+    expect(result.quantities.find((q) => q.label === "Boards")).toBeUndefined();
+    expect(
+      result.quantities.find((q) => q.label === "Base coat bags")?.quantity,
+    ).toBeGreaterThan(0);
+  });
+
+  it("wall areas match the measuring engine", async () => {
+    const direct = calculateWallAreas({
+      id: "engine-studio-wall",
+      label: "Wall 1",
+      lengthM: 10,
+      heightM: 3,
+      surface: "interior",
+      wallSystemId: "engine-studio",
+      assemblyId: "engine-studio",
+      openings: [
+        {
+          id: "opening-1",
+          type: "door",
+          widthM: 1.2,
+          heightM: 1.5,
+          quantity: 1,
+          revealDepthM: 0,
+          deduct: true,
+        },
+      ],
+      excludedAreaM2: 0,
+    } as never);
+
+    const result = await executeEngine("wall_areas", {});
+    expect(result.ok).toBe(true);
+    const byLabel = (label: string) =>
+      result.quantities.find((q) => q.label === label)?.quantity;
+    expect(byLabel("Gross area")).toBeCloseTo(direct.grossAreaM2, 6);
+    expect(byLabel("Openings deducted")).toBeCloseTo(direct.openingAreaM2, 6);
+    expect(byLabel("Net area")).toBeCloseTo(direct.netAreaM2, 6);
+    expect(byLabel("Finishing area")).toBeCloseTo(direct.finishingAreaM2, 6);
+  });
+
+  it("wall areas deducts an exclusion the caller names", async () => {
+    const result = await executeEngine("wall_areas", { excludedAreaM2: 4 });
+    expect(result.ok).toBe(true);
+    const net = result.quantities.find((q) => q.label === "Net area")?.quantity;
+    expect(net).toBeCloseTo(30 - 1.8 - 4, 6);
   });
 });

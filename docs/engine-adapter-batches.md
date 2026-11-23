@@ -64,7 +64,7 @@ with their own unit size rather than a default.
 | `engineering/tall-building-engine.ts`             | wind and elevation checks        | declined: it performs design checks and returns pressure coefficients, not a quantity list, so there is nothing for a takeoff console to report                                    |
 | `engineering/mathematical-elevation-engine.ts`    | `calculateMathematicalElevation` | declined: it returns a nested per-level math report plus discrepancies against hand calculations, and no page calls it. Flattening that into quantities would lose the point of it |
 
-## Batch 5: Finishing trades (in progress, 22 November 2026)
+## Batch 5: Finishing trades (closed, 23 November 2026)
 
 | Module                                       | Entry point                  | State                                                          |
 | -------------------------------------------- | ---------------------------- | -------------------------------------------------------------- |
@@ -75,16 +75,38 @@ with their own unit size rather than a default.
 | `estimation/plaster-render-engine.ts`        | `calculatePlasterRender`     | done as `plaster_render`, surface `/plaster-render-calculator` |
 | `estimation/exterior-finish-engine.ts`       | `sharedFinishLayers`         | open                                                           |
 | `estimation/flooring-engine.ts`              | `calculateFlooring`          | done as `flooring`, surface `/flooring-calculator`             |
-| `estimation/mineral-stone-engine.ts`         | `calculateMineralStone`      | open                                                           |
-| `wallfinishing/quantity-engine.ts`           | `calculateWallAreas`         | open                                                           |
-| `wallfinishing/cost-engine.ts`               | `calculateLayerCost`         | open                                                           |
+| `estimation/mineral-stone-engine.ts`         | `calculateMineralStone`      | declined: takes a product and profile record from a catalogue  |
+| `wallfinishing/quantity-engine.ts`           | `calculateWallAreas`         | done as `wall_areas`, surface `/wall-finish-estimator`         |
+| `wallfinishing/cost-engine.ts`               | `calculateLayerCost`         | declined: needs a resolved price per layer                      |
 
 The paint pair was taken as one job, as planned: the `paint` adapter reports
 theoretical litres from `paint-engine`, then the exact packs and the whole packs
 to buy from `painting-engine`'s `litresToBuckets`. Coverage (10 m²/L) and pack
 size (20 L) are inputs with disclosed defaults, because both are product
-properties rather than rules. Five modules remain in this batch: exterior finish,
-flooring, mineral stone, and the wall finishing quantity and cost pair.
+properties rather than rules.
+
+Closed on 23 November 2026 with two adapters and two declines:
+
+- `exterior_finish` reports the DEFS branch through `calculateExteriorFinish`,
+  which is the same function the DEFS page reaches as `calculateDefs`: net wall
+  area, mesh, base coat, primer and finish coat, plus the backing board, screws,
+  tape, track and bead. On masonry the board lines are absent rather than zero,
+  because the base coat goes straight onto prepared blockwork.
+- `wall_areas` reports the measurement step every finishing layer starts from:
+  gross, openings deducted, manual exclusions, net, reveals and finishing area.
+  It needs no template, assembly or price, which is exactly why it can be
+  adapted on its own.
+- `mineral_stone` declined: `calculateMineralStone` takes a product and profile
+  record with pack coverage and price, and there is no catalogue in the code.
+  Inventing coverage would produce quantities wrong in a way nobody can see,
+  the same reason `increte` was declined in batch 1.
+- `wallfinishing/cost-engine` declined: `calculateLayerCost` requires a resolved
+  price and labour rate. A cost without a rate is invented, so this engine has
+  nothing honest to report in a console that supplies no prices.
+
+The surface test now accepts a page that imports the module's barrel
+(`@/lib/wallfinishing` for `@/lib/wallfinishing/quantity-engine`), which is how
+the wall finishing estimator reaches its arithmetic.
 
 ## Batch 6: Building services
 

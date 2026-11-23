@@ -1676,6 +1676,195 @@ registerEngine({
   },
 });
 
+// ── Exterior finish: the shared EIFS/DEFS wall layers ──
+//
+// One adapter over calculateExteriorFinish, the function the exterior finish
+// page calls for both systems. The DEFS branch is the default because it is the
+// one whose inputs are all geometry: a net wall area, its perimeter and the
+// opening perimeter the beads run around. EIFS needs the full EifsWallInput
+// contract, so a caller who wants that passes systemType through raw and the
+// page's own adapter still owns it.
+//
+// The layer rates (mesh overlap, bag weight, pail weight, texture spread) are
+// the module's own constants, imported by the engine, not repeated here.
+interface ExteriorFinishInputLike {
+  netWallAreaM2?: number;
+  perimeterLinearM?: number;
+  openingPerimeterM?: number;
+  substrate?: "cement-board" | "exterior-gypsum" | "masonry";
+  wastagePercent?: number;
+  finishTexture?: string;
+  marketCode?: string;
+}
+
+registerEngine({
+  id: "exterior_finish",
+  domain: "finishing",
+  title: "FRELUX Exterior Finish Takeoff Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX exterior finish engine",
+  async run(rawInput) {
+    const { calculateExteriorFinish } =
+      await import("@/lib/estimation/exterior-finish-engine");
+    const supplied = (rawInput ?? {}) as ExteriorFinishInputLike;
+
+    // 100 m² of wall, 40 m perimeter, 6 m of opening perimeter, cement board,
+    // 5 percent wastage: the DEFS defaults the page starts a user on.
+    const input = {
+      systemType: "DEFS",
+      netWallAreaM2: supplied.netWallAreaM2 ?? 100,
+      perimeterLinearM: supplied.perimeterLinearM ?? 40,
+      openingPerimeterM: supplied.openingPerimeterM ?? 6,
+      substrate: supplied.substrate ?? "cement-board",
+      wastagePercent: supplied.wastagePercent ?? 5,
+      finishTexture: supplied.finishTexture ?? "medium_swirl",
+      marketCode: supplied.marketCode ?? "NG",
+    } as never;
+
+    const result = calculateExteriorFinish({ systemType: "DEFS", input } as never);
+
+    if (!result.ok) {
+      return {
+        ok: false,
+        engine: "exterior_finish",
+        calculatedAt: new Date().toISOString(),
+        quantities: [],
+        costs: null,
+        raw: result,
+        error: result.errors.join(" ") || "The exterior finish engine rejected the wall.",
+      };
+    }
+
+    const layers = result.layers;
+    const quantities: EngineQuantityLine[] = [
+      quantityLine("Net wall area", result.geometry.netWallAreaM2, "m²"),
+      quantityLine("Mesh", layers.meshAreaM2, "m²"),
+      quantityLine("Mesh rolls", layers.meshRolls, "rolls"),
+      quantityLine("Base coat", layers.baseCoatKg, "kg"),
+      quantityLine("Base coat bags", layers.baseCoatBags, "bags"),
+      quantityLine("Primer", layers.primerKg, "kg"),
+      quantityLine("Primer pails", layers.primerPails, "pails"),
+      quantityLine("Finish coat", layers.finishCoatKg, "kg"),
+      quantityLine("Finish pails", layers.finishPails, "pails"),
+    ];
+
+    // The DEFS backing is bought only when it is not masonry, so those lines are
+    // absent rather than zero when the base coat goes straight onto blockwork.
+    if (result.defs && !result.defs.boardsOmitted) {
+      quantities.push(
+        quantityLine("Board purchase area", result.defs.boardPurchaseAreaM2, "m²"),
+        quantityLine("Boards", result.defs.boardsCount, "boards"),
+        quantityLine("Screw boxes", result.defs.screwBoxes, "boxes"),
+        quantityLine("Joint tape", result.defs.jointTapeM, "m"),
+        quantityLine("Joint tape rolls", result.defs.jointTapeRolls, "rolls"),
+        quantityLine("Starter track", result.defs.starterTrackPieces, "pieces"),
+        quantityLine("Casing bead", result.defs.casingBeadPieces, "pieces"),
+      );
+    }
+
+    return {
+      ok: true,
+      engine: "exterior_finish",
+      calculatedAt: new Date().toISOString(),
+      quantities,
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
+// ── Wall finishing: measured wall areas before any layer is chosen ──
+//
+// calculateWallAreas is the step every wall finishing layer starts from: gross
+// area, the openings deducted, the exclusions, the reveals, and the finishing
+// area the layers are applied to. It is a pure geometry function, so it needs no
+// template, no assembly and no price, which is why it can be adapted on its own
+// while calculateLayerQuantity cannot (it needs a WallLayerTemplate from the
+// assembly catalogue) and calculateLayerCost cannot (it needs a resolved price).
+interface WallAreaInputLike {
+  lengthM?: number;
+  heightM?: number;
+  openings?: {
+    id: string;
+    type: string;
+    widthM: number;
+    heightM: number;
+    quantity: number;
+    revealDepthM: number;
+    deduct: boolean;
+  }[];
+  excludedAreaM2?: number;
+  surface?: "interior" | "exterior";
+}
+
+registerEngine({
+  id: "wall_areas",
+  domain: "finishing",
+  title: "FRELUX Wall Finishing Area Engine",
+  authoritative: true,
+  creditedAs: "Calculated by the authoritative FRELUX wall finishing engine",
+  async run(rawInput) {
+    const { calculateWallAreas } = await import("@/lib/wallfinishing/quantity-engine");
+    const supplied = (rawInput ?? {}) as WallAreaInputLike;
+
+    // One 10 m by 3 m wall with a single 1.2 m by 1.5 m door deducted, which is
+    // the wall the finishing calculators open with.
+    const wall = {
+      id: "engine-studio-wall",
+      label: "Wall 1",
+      lengthM: supplied.lengthM ?? 10,
+      heightM: supplied.heightM ?? 3,
+      surface: supplied.surface ?? "interior",
+      wallSystemId: "engine-studio",
+      assemblyId: "engine-studio",
+      openings:
+        supplied.openings ??
+        ([
+          {
+            id: "opening-1",
+            type: "door",
+            widthM: 1.2,
+            heightM: 1.5,
+            quantity: 1,
+            revealDepthM: 0,
+            deduct: true,
+          },
+        ] as never),
+      excludedAreaM2: supplied.excludedAreaM2 ?? 0,
+    } as never;
+
+    const result = calculateWallAreas(wall);
+
+    if (!result.ok) {
+      return {
+        ok: false,
+        engine: "wall_areas",
+        calculatedAt: new Date().toISOString(),
+        quantities: [],
+        costs: null,
+        raw: result,
+        error: result.errors.join(" ") || "The wall finishing engine rejected the wall.",
+      };
+    }
+
+    return {
+      ok: true,
+      engine: "wall_areas",
+      calculatedAt: new Date().toISOString(),
+      quantities: [
+        quantityLine("Gross area", result.grossAreaM2, "m²"),
+        quantityLine("Openings deducted", result.openingAreaM2, "m²"),
+        quantityLine("Manual exclusions", result.excludedAreaM2, "m²"),
+        quantityLine("Net area", result.netAreaM2, "m²"),
+        quantityLine("Reveal area", result.revealAreaM2, "m²"),
+        quantityLine("Finishing area", result.finishingAreaM2, "m²"),
+      ],
+      costs: null,
+      raw: result,
+    };
+  },
+});
+
 export function listEngines(): EngineDescriptor[] {
   return [...REGISTRY.values()];
 }
