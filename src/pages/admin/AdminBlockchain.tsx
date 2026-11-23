@@ -480,7 +480,14 @@ export default function AdminBlockchain() {
                           className="h-7 text-[10px] px-2"
                           disabled={verifyingInvoiceId === inv.invoice_id}
                           onClick={() =>
-                            handleManualInvoiceVerify(inv.invoice_id)
+                            // The row already knows its provider and the table
+                            // prints it, so verification must follow that same
+                            // field. Without it every NOWPayments invoice was
+                            // sent to the BTCPay verifier.
+                            handleManualInvoiceVerify(
+                              inv.invoice_id,
+                              inv.provider,
+                            )
                           }
                         >
                           {verifyingInvoiceId === inv.invoice_id ? (
