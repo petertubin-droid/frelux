@@ -8,7 +8,13 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import {
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+  within,
+} from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AdminCountVision from "./AdminCountVision";
 
@@ -67,8 +73,10 @@ const fetchRulesMock = vi.fn();
 const fetchLogMock = vi.fn();
 
 vi.mock("@/lib/estimation/queries", () => ({
-  fetchCountVisionRules: () => fetchRulesMock(),
-  fetchCountVisionLog: () => fetchLogMock(),
+  // Forward the arguments: a wrapper that drops them cannot prove the pane asks
+  // for the page it claims to ask for.
+  fetchCountVisionRules: (...args: unknown[]) => fetchRulesMock(...args),
+  fetchCountVisionLog: (...args: unknown[]) => fetchLogMock(...args),
 }));
 
 beforeEach(() => {
@@ -141,5 +149,44 @@ describe("AdminCountVision pane", () => {
     });
     renderPane();
     await waitFor(() => screen.getByText(/You don't have permission/i));
+  });
+
+  it("asks for the first page of the log at the default page size", async () => {
+    renderPane();
+    await waitFor(() => expect(fetchLogMock).toHaveBeenCalledWith(0, 25));
+    expect(fetchRulesMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("asks the server for the next page rather than slicing in the browser", async () => {
+    fetchLogMock.mockResolvedValue({ data: logRows, error: null, count: 60 });
+    renderPane();
+    const next = await screen.findByLabelText("Next page");
+    fireEvent.click(next);
+    await waitFor(() => expect(fetchLogMock).toHaveBeenLastCalledWith(1, 25));
+    // The count the server returned is what the pager reports, not the row count.
+    expect(await screen.findByText(/Showing 26–50 of 60/)).toBeInTheDocument();
+  });
+
+  it("returns to the first page when the page size changes", async () => {
+    fetchLogMock.mockResolvedValue({ data: logRows, error: null, count: 60 });
+    renderPane();
+    fireEvent.click(await screen.findByLabelText("Next page"));
+    await waitFor(() => expect(fetchLogMock).toHaveBeenLastCalledWith(1, 25));
+
+    fireEvent.change(screen.getByLabelText("Rows per page"), {
+      target: { value: "50" },
+    });
+    await waitFor(() => expect(fetchLogMock).toHaveBeenLastCalledWith(0, 50));
+  });
+
+  it("shows no log at all when the rules cannot be read", async () => {
+    fetchRulesMock.mockResolvedValue({
+      data: null,
+      error: { message: "count_vision_rules read failed" },
+    });
+    renderPane();
+    await waitFor(() => screen.getByText(/count_vision_rules read failed/i));
+    // Half a pane would invite a decision on stale limits.
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
   });
 });

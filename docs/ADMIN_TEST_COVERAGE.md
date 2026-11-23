@@ -285,10 +285,28 @@ Defects and accessibility improvements found and fixed during this tranche:
 4. **`AdminWallFinishingLibrary` icon-only citation review buttons**: citation accept button rendered only `<Check className="h-4 w-4" />` with no text or accessible name. Added explicit `aria-label={`Accept citation: ${s.title}`}` and `aria-label={`Reject citation: ${s.title}`}`.
 
 Remaining: Tier 3 content and system suites audited; behavioral suites now cover 28 core admin surfaces across pricing, materials, operations, intelligence, and system monitoring.
-Remaining: 41 smoke-only suites, not 13. Two from the inventory above
-(`AdminCountVision`, `AdminFieldSync`) plus the 39 the first pass missed (see
-the correction). The arithmetic: 82 smoke-only at audit time, 41 upgraded
-across the tranches, 41 left.
+
+### Tier 3 Engine panes tranche complete (23 November 2026)
+
+The last two inventoried suites now assert their wiring rather than their text:
+
+- `AdminCountVision` (10 tests): the pane asks for `(page, pageSize)` and the
+  rules once, the pager asks the server for the next page instead of slicing in
+  the browser, a page-size change restarts at page 0, the pager reports the
+  server's count ("Showing 26–50 of 60") rather than the rows it received, and a
+  rules read failure hides the log entirely instead of inviting a decision on
+  stale limits.
+- `AdminFieldSync` (8 tests): the pane asks for the newest 100 captures and the
+  rules once, the retry card counts only captures with a recorded queue attempt
+  (one of two in the fixture), and a rules failure shows no capture list at all.
+
+Defect found: the `AdminCountVision` mock wrapped the query functions without
+forwarding arguments, so the suite could not have noticed the pane asking for
+the wrong page. The wrapper now forwards, and the pagination tests prove it.
+
+Remaining: 39 smoke-only suites, all from the 39 the first pass missed (see the
+correction). The arithmetic: 82 smoke-only at audit time, 43 upgraded across the
+tranches, 39 left.
 
 ## Limits of this audit
 

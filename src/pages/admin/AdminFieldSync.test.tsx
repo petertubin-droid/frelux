@@ -8,7 +8,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AdminFieldSync from "./AdminFieldSync";
 
@@ -121,5 +121,36 @@ describe("AdminFieldSync pane", () => {
     });
     renderPane();
     await waitFor(() => screen.getByText(/database unreachable/i));
+  });
+
+  it("asks for the newest hundred captures and the rules once", async () => {
+    const queries = await import("@/lib/estimation/queries");
+    renderPane();
+    await waitFor(() =>
+      expect(queries.fetchFieldCaptureLog).toHaveBeenCalledWith(100),
+    );
+    expect(queries.fetchOfflineFieldRules).toHaveBeenCalledTimes(1);
+  });
+
+  it("counts only captures that actually went through the queue twice", async () => {
+    renderPane();
+    const label = await screen.findByText(/needed a retry/i);
+    const card = label.closest("div");
+    // Two captures in the fixture, one with a recorded queue attempt.
+    expect(card && within(card).getByText("1")).toBeInTheDocument();
+  });
+
+  it("shows no capture list when the rules cannot be read", async () => {
+    const queries = await import("@/lib/estimation/queries");
+    (
+      queries.fetchOfflineFieldRules as ReturnType<typeof vi.fn>
+    ).mockResolvedValueOnce({
+      data: null,
+      error: { message: "rules table locked" },
+    });
+    renderPane();
+    await waitFor(() => screen.getByText(/rules table locked/i));
+    expect(screen.queryByRole("table")).not.toBeInTheDocument();
+    expect(screen.queryByText(/Ikeja duplex: room 2/i)).not.toBeInTheDocument();
   });
 });
