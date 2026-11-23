@@ -105,3 +105,25 @@ guess. Settling it needs a runtime check per page with an admin session.
 4. Enable RLS on the four merge/move tables, even though they carry no grants.
 5. Leave the `/admin` tree as it is: nested guard plus `is_admin()` policies is
    the correct shape.
+
+## 6. Remediation (2026-11-23)
+
+All recommendations actioned.
+
+| item                 | change                                                                                                                                                                 | evidence                                                                    |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| 3a user-data routes  | `RequireSession` added and wired to `/properties`, `/project-workspace`, `/project-workspace/:id`, both client-estimate editors, `/workspace-settings`, `/gallery/new` | CI green only, 4/4 gate tests, tsc 0                                        |
+| 3c heavy compute     | `/bim-ifc-import` and `/blueprint-takeoff` now require a session                                                                                                       | CI green only, tsc 0                                                        |
+| 3b operational views | kept public, decision recorded below                                                                                                                                   | static + live read policies                                                 |
+| 4 RLS                | enabled on all four merge/move tables, no policies                                                                                                                     | verified live: 4/4 `relrowsecurity = true`, public tables without RLS now 0 |
+| 5 admin tree         | unchanged, correct as built                                                                                                                                            | live policy check                                                           |
+
+Decision on 3b: `/site-intelligence`, `/material-price-index` and
+`/material-prices` stay public. The price book's read policies are public by
+design (`est_prices_public_read`, `est_materials_public_read`), so these pages
+surface data that is already readable with the anon key. Gating them would
+change the product without changing exposure. Flip by wrapping in
+`RequireSession` in `src/App.tsx` if that judgement changes.
+
+Still open: the shell list from section 4 needs a runtime pass with an admin
+session, which no static analysis can substitute for.

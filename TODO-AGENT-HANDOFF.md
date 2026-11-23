@@ -179,6 +179,35 @@ GROUP BY scan_confidence;
 
 - 2026-11 UI & Theme Configuration update: added administrative toggle switches for the mobile bottom navigation bar and the floating AI live chat assistant widget in Admin Settings and Admin AI Settings (both defaulted to toggled off). Updated website default visual mode from dark to light mode across theme provider, pre-paint inline script in index.html, and admin theme unmount restoration.
 
+## Admin access audit remediated (2026-11-23)
+
+Full findings in `docs/ADMIN_ACCESS_AUDIT.md`. What changed:
+
+- `RequireSession` (`src/components/auth/RequireSession.tsx`) is the door for
+  pages showing a signed-in person's own data: redirects to
+  `/login?redirect=<address>`, keeps the query string, waits while the session
+  resolves. Separate from `RequireAdmin` on purpose (no admin role involved).
+- Gated routes: `/properties`, `/project-workspace`, `/project-workspace/:id`,
+  both client-estimate editor routes, `/workspace-settings`, `/gallery/new`,
+  plus the heavy compute surfaces `/bim-ifc-import` and `/blueprint-takeoff`.
+  `/gallery` stays public (showcase, not private data) and `/quote-check` stays
+  public on purpose (no upload, works as a lead-in; one-line change to gate).
+- RLS enabled on `product_category_merges`, `product_category_moves`,
+  `pro_category_merges`, `pro_profile_category_moves` (migration
+  20261123140000), with no policies, which denies everything but service_role.
+  Verified live: all four `relrowsecurity = true`, and the count of public
+  tables without RLS is 0.
+- Decision recorded, not a code change: `/site-intelligence`,
+  `/material-price-index` and `/material-prices` remain public. The price book
+  read policies are public by design (`est_prices_public_read`,
+  `est_materials_public_read`), so these pages show data that is already
+  public; gating them would change the product, not the exposure.
+
+GOTCHA: `/admin` is one nested tree behind `RequireAdmin`, and `isAdmin` comes
+from `profiles.role` under RLS. The client gate is convenience only. What
+actually protects price writes is `is_admin()` in both USING and WITH CHECK on
+`estimation_prices` and `estimation_materials` (live-verified).
+
 ## Subscription tiers are admin data (2026-11-21)
 
 Tier copy and prices are editable from AdminSubscriptionPricing, and the price
