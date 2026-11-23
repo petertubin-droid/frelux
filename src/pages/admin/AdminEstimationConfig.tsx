@@ -22,6 +22,23 @@ import type {
   RuleStatus,
 } from "@/types/estimation";
 
+// These three tables have no `name` column. The accessible names used to
+// interpolate `item.name`, `rule.name` and `ver.name`, which the types never
+// had, so every toggle and delete control announced "Active: undefined". The
+// labels now come from the columns each table actually carries.
+function packSizeLabel(pack: EstimationPackSize): string {
+  const unit = pack.pack_unit_id ? ` ${pack.pack_unit_id}` : "";
+  return `${pack.ref_type} ${pack.pack_size}${unit}`;
+}
+
+function calcRuleLabel(rule: EstimationCalcRule): string {
+  return rule.rule_key;
+}
+
+function calcVersionLabel(version: EstimationCalcVersion): string {
+  return version.version_label ?? `v${version.version_number}`;
+}
+
 type TabType = "units" | "pack_sizes" | "calc_rules" | "calc_versions";
 
 const CALCULATOR_TYPES = [
@@ -693,7 +710,7 @@ function PackSizesTab() {
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
                   <Toggle
-                    srLabel={`Active: ${item.name}`}
+                    srLabel={`Active: ${packSizeLabel(item)}`}
                     checked={item.is_active}
                     onChange={() => toggleActive(item)}
                   />
@@ -708,7 +725,7 @@ function PackSizesTab() {
                   </AdminButton>
                   <AdminButton
                     variant="danger"
-                    aria-label={`Delete pack size ${item.name}`}
+                    aria-label={`Delete pack size ${packSizeLabel(item)}`}
                     onClick={() => remove(item)}
                   >
                     <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
@@ -1175,7 +1192,7 @@ function CalcRulesTab() {
 
               <div className="flex shrink-0 items-center gap-3 pt-1">
                 <Toggle
-                  srLabel={`Active: ${rule.name}`}
+                  srLabel={`Active: ${calcRuleLabel(rule)}`}
                   checked={rule.is_active}
                   onChange={() => toggleActive(rule)}
                 />
@@ -1190,7 +1207,7 @@ function CalcRulesTab() {
                 </AdminButton>
                 <AdminButton
                   variant="danger"
-                  aria-label={`Delete rule ${rule.name}`}
+                  aria-label={`Delete rule ${calcRuleLabel(rule)}`}
                   onClick={() => remove(rule)}
                 >
                   <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
@@ -1510,7 +1527,7 @@ function CalcVersionsTab() {
               </div>
               <div className="flex shrink-0 items-center gap-3">
                 <Toggle
-                  srLabel={`Active: ${ver.name}`}
+                  srLabel={`Active: ${calcVersionLabel(ver)}`}
                   checked={ver.is_active}
                   onChange={() => toggleActive(ver)}
                 />
@@ -1525,7 +1542,7 @@ function CalcVersionsTab() {
                 </AdminButton>
                 <AdminButton
                   variant="danger"
-                  aria-label={`Delete version ${ver.name}`}
+                  aria-label={`Delete version ${calcVersionLabel(ver)}`}
                   onClick={() => remove(ver)}
                 >
                   <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />

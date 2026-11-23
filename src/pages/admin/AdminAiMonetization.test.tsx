@@ -20,7 +20,10 @@ const mockSiteSettings = {
   updated_at: "2026-11-20T00:00:00Z",
 };
 
-let queryResult = { data: mockSiteSettings, error: null };
+let queryResult: {
+  data: typeof mockSiteSettings | null;
+  error: { message: string } | null;
+} = { data: mockSiteSettings, error: null };
 const updateEqMock = vi.fn().mockReturnValue(Promise.resolve({ error: null }));
 
 vi.mock("@/lib/supabase", () => ({
