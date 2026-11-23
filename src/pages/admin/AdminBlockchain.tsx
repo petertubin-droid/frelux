@@ -34,6 +34,7 @@ import {
   formatSats,
   verifyBtcPayInvoice,
 } from "@/lib/payments/btcpay";
+import { verifyNowPaymentsInvoice } from "@/lib/payments/nowpayments";
 import { verifyDocumentOnBlockchain } from "@/lib/blockchain/opentimestamps";
 
 interface AdminInvoiceRow {
@@ -49,6 +50,7 @@ interface AdminInvoiceRow {
   amount_sats: number;
   status: string;
   btc_address?: string;
+  provider?: string;
   created_at: string;
   expires_at: string;
   confirmed_at?: string;
@@ -174,11 +176,19 @@ export default function AdminBlockchain() {
     toast.success("OpenTimestamps calendar telemetry updated.");
   };
 
-  const handleManualInvoiceVerify = async (invoiceId: string) => {
+  const handleManualInvoiceVerify = async (
+    invoiceId: string,
+    provider?: string,
+  ) => {
     setVerifyingInvoiceId(invoiceId);
     try {
-      const res = await verifyBtcPayInvoice(invoiceId);
-      toast.success(`Invoice ${invoiceId} status: ${res.status}`);
+      if (provider === "nowpayments") {
+        const res = await verifyNowPaymentsInvoice(invoiceId);
+        toast.success(`NOWPayments invoice ${invoiceId} status: ${res.status}`);
+      } else {
+        const res = await verifyBtcPayInvoice(invoiceId);
+        toast.success(`BTCPay invoice ${invoiceId} status: ${res.status}`);
+      }
       await fetchData();
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
@@ -395,6 +405,7 @@ export default function AdminBlockchain() {
                 <thead className="bg-muted/50 text-muted-foreground border-b border-border">
                   <tr>
                     <th className="py-2.5 px-3 font-medium">Invoice ID</th>
+                    <th className="py-2.5 px-3 font-medium">Gateway</th>
                     <th className="py-2.5 px-3 font-medium">Purpose / Plan</th>
                     <th className="py-2.5 px-3 font-medium">Amount BTC</th>
                     <th className="py-2.5 px-3 font-medium">Satoshis</th>
@@ -414,6 +425,16 @@ export default function AdminBlockchain() {
                     <tr key={inv.id} className="hover:bg-muted/30">
                       <td className="py-2.5 px-3 font-mono font-medium text-foreground">
                         {inv.invoice_id}
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <Badge
+                          variant="outline"
+                          className="text-[10px] capitalize"
+                        >
+                          {inv.provider === "nowpayments"
+                            ? "NOWPayments"
+                            : "BTCPay"}
+                        </Badge>
                       </td>
                       <td className="py-2.5 px-3 capitalize">
                         {inv.plan_id

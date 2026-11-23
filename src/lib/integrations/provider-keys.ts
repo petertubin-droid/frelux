@@ -142,7 +142,8 @@ export const PROVIDER_REGISTRY: readonly ProviderMeta[] = [
     consumptionNote:
       "Server-side only: used by btcpay-checkout / btcpay-verify / btcpay-webhook when BTCPAY_API_KEY is not set as an env var. The key never reaches the browser.",
     envVar: "BTCPAY_API_KEY",
-    docsUrl: "https://docs.btcpayserver.org/API/Greenfield/v1/#section/Authentication",
+    docsUrl:
+      "https://docs.btcpayserver.org/API/Greenfield/v1/#section/Authentication",
     icon: "exchange",
   },
   {
@@ -156,6 +157,33 @@ export const PROVIDER_REGISTRY: readonly ProviderMeta[] = [
       "Server-side: btcpay-webhook verifies every delivery against this secret (BTCPAY_WEBHOOK_SECRET env var takes precedence). Without it, webhooks are refused rather than trusted.",
     envVar: "BTCPAY_WEBHOOK_SECRET",
     docsUrl: "https://docs.btcpayserver.org/API/Greenfield/v1/#tag/Webhooks",
+    icon: "exchange",
+  },
+  {
+    id: "nowpayments-api-key",
+    label: "NOWPayments API Key (FRELUX PAY)",
+    description:
+      "Your NOWPayments production API key from Store settings → API keys. Used server-side to generate dynamic multi-crypto invoices (Bitcoin, Ethereum, USDT, Solana, and 200+ coins).",
+    exposure: "server",
+    consumption: "live",
+    consumptionNote:
+      "Server-side only: read by nowpayments-checkout and nowpayments-verify when NOWPAYMENTS_API_KEY is not set as an env var. The key never reaches the browser.",
+    envVar: "NOWPAYMENTS_API_KEY",
+    docsUrl:
+      "https://documenter.getpostman.com/view/7907941/2s93JtP3x6#authentication",
+    icon: "exchange",
+  },
+  {
+    id: "nowpayments-ipn-secret",
+    label: "NOWPayments IPN Secret Key (FRELUX PAY)",
+    description:
+      "The Instant Payment Notification (IPN) secret key from Store settings. FRELUX PAY uses this secret to verify the x-nowpayments-sig HMAC-SHA512 header on incoming payment notifications.",
+    exposure: "server",
+    consumption: "live",
+    consumptionNote:
+      "Server-side only: nowpayments-webhook verifies every IPN notification against this secret before crediting accounts. Without it, incoming webhooks are refused.",
+    envVar: "NOWPAYMENTS_IPN_SECRET",
+    docsUrl: "https://nowpayments.io/doc",
     icon: "exchange",
   },
   {

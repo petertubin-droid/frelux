@@ -280,7 +280,7 @@ const routes = [
         "featureList": [
           "Multi-market construction material and cost calculators",
           "FRELUX VERIFY: QR-coded and Bitcoin-timestamped tamper-proof BOQs",
-          "FRELUX PAY: Borderless Bitcoin subscription payments via BTCPay Server",
+          "FRELUX PAY: Borderless multi-cryptocurrency subscription payments via NOWPayments & BTCPay Server",
           "40+ localized project templates across global markets"
         ]
       },

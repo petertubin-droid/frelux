@@ -2,13 +2,13 @@
 // FRELUX Payment Gateway Dispatch
 //
 // Paystack remains the default and flagship gateway for Nigeria.
-// Admin can select Stripe (international) or Flutterwave
-// (Pan-African) in Admin Settings → Payment gateway.
+// Admin can select Stripe (international), Flutterwave (Pan-African),
+// or NOWPayments / BTCPay (FRELUX PAY borderless crypto) in Admin Settings.
 //
 // Paystack and Flutterwave use server-created hosted checkout URLs, so their
 // secret keys must stay in Edge Function secrets and cannot be inferred from
-// browser environment variables. Stripe still requires a browser publishable
-// key. The server reports missing/invalid provider credentials at checkout.
+// browser environment variables. NOWPayments and BTCPay use server-priced
+// crypto invoices. The server reports missing/invalid provider credentials.
 // =========================================================
 
 import {
@@ -23,23 +23,13 @@ import {
 import { BUILTIN_MARKET_PROFILES } from "@/lib/international/market-context";
 import type { SubscriptionPlan } from "@/lib/subscription";
 
-/**
- * Two gateways, split by what can actually settle the money.
- *
- * Paystack charges in its own settlement currencies (NGN, GHS, ZAR, KES).
- * Flutterwave covers everywhere else and also gives an international card a
- * route into an African market, so it is never wrong, only slower.
- *
- * Stripe was removed rather than repaired: it had no signature-verified
- * webhook, so a payment could succeed without ever crediting a purchase.
- * Running two working rails is better than three where one takes money it
- * cannot honour.
- */
-export type PaymentGateway = "paystack" | "flutterwave" | "btcpay";
+export type PaymentGateway =
+  "paystack" | "flutterwave" | "nowpayments" | "btcpay";
 
 export const PAYMENT_GATEWAYS: PaymentGateway[] = [
   "paystack",
   "flutterwave",
+  "nowpayments",
   "btcpay",
 ];
 
@@ -77,6 +67,7 @@ export function resolveCheckoutGateway(
 ): ResolvedGateway {
   const wanted = parseGateway(setting);
   if (wanted === "paystack") return { gateway: "paystack" };
+  if (wanted === "nowpayments") return { gateway: "nowpayments" };
   if (wanted === "btcpay") return { gateway: "btcpay" };
 
   const configured = isFlutterwaveConfigured(cfg);
@@ -90,28 +81,14 @@ export function resolveCheckoutGateway(
 }
 
 /**
- * Gateways with a browser-side checkout path. Both use hosted Edge Function
- * checkout, so their secret configuration cannot be inferred from VITE_
- * variables and neither is hidden on that basis.
+ * Gateways with a browser-side checkout path.
  */
 export function availableGateways(
   _cfg: GatewayRuntimeConfig,
 ): PaymentGateway[] {
-  return ["paystack", "flutterwave", "btcpay"];
+  return ["paystack", "flutterwave", "nowpayments", "btcpay"];
 }
 
-/**
- * The rail is decided by the currency being charged, not by where the buyer
- * happens to be sitting, because that is what the server does:
- * `providerForCurrency` in supabase/functions/_shared/escrow_providers.ts keeps
- * naira on Paystack and sends every other currency to Flutterwave. Two list of
- * countries used to disagree with that rule, which is how a Ghanaian buyer could
- * be sent to a rail the server would not have chosen.
- *
- * Paystack's account can also settle GHS, ZAR and KES. Adding them here (and to
- * the server map) is a one-line change once the Paystack account is enabled for
- * those countries; until then they go to Flutterwave, which settles them today.
- */
 export const PAYSTACK_CURRENCIES: readonly string[] = ["NGN"];
 
 /** Settlement currency per listed market, from the built-in profiles. */
@@ -146,8 +123,7 @@ export function currencyForMarket(
 
 /**
  * Checkout gateways for a market, primary first. Paystack is only offered
- * where it settles locally; Flutterwave stays available everywhere so an
- * African buyer can still pay by international card.
+ * where it settles locally; Flutterwave and crypto stay available everywhere.
  */
 export function gatewaysForMarket(
   marketCode: string | null | undefined,
@@ -188,7 +164,6 @@ async function initializeFlutterwaveSubscription(
   email: string,
   userId: string,
   marketCode?: string | null,
-  /** Browser-reported country, used to gate the domestic naira price list. */
   originMarketCode?: string | null,
 ): Promise<CheckoutStartResult> {
   const { data, error } = await supabase.functions.invoke(
@@ -200,8 +175,6 @@ async function initializeFlutterwaveSubscription(
         amount_minor: amountMinor,
         email,
         user_id: userId,
-        // The market's own price row is what the page showed; the server
-        // resolves and quotes it, never trusting an amount here.
         market_code: marketCode ?? null,
         origin_market: originMarketCode ?? null,
       },
@@ -223,8 +196,6 @@ async function initializeFlutterwaveSubscription(
 
 /**
  * Start subscription checkout through the effective gateway.
- * Same return shape as initializeSubscriptionCheckout so the
- * Pricing page treats both identically.
  */
 export async function startSubscriptionCheckout(
   planId: SubscriptionPlan,
@@ -232,20 +203,8 @@ export async function startSubscriptionCheckout(
   amountMinor: number,
   email: string,
   userId: string,
-  /**
-   * Explicit user choice from the checkout selector. When set and
-   * configured, it wins over FRELUX default; otherwise FRELUX
-   * default (with Paystack fallback) runs. Both gateways stay live:
-   * FRELUX setting is the default, never a kill switch.
-   */
   preferred?: PaymentGateway,
-  /**
-   * Visitor market. Paystack cannot settle currencies outside NGN/GHS/ZAR/KES,
-   * so a non-African market switches the default to Flutterwave even when the
-   * admin default is Paystack. An explicit user choice still wins.
-   */
   marketCode?: string | null,
-  /** Browser-reported country, used to gate the domestic naira price list. */
   originMarketCode?: string | null,
 ): Promise<CheckoutStartResult> {
   const wanted = marketCode
@@ -256,8 +215,6 @@ export async function startSubscriptionCheckout(
   if (preferred) {
     resolved = resolveCheckoutGateway(preferred, cfg);
     if (resolved.fallbackFrom && parseGateway(wanted) !== "paystack") {
-      // User's pick is not configured in this build; fall back to the
-      // admin default resolution rather than silently to Paystack.
       resolved = resolveCheckoutGateway(wanted, cfg);
     }
   }
@@ -280,9 +237,6 @@ export async function startSubscriptionCheckout(
       return { authorization_url: result.authorization_url };
     }
 
-    // A rejected Paystack API key is a server configuration failure, not a
-    // failed transaction. Retry via Flutterwave's hosted checkout before any
-    // charge exists. Never retry after a redirect or verification attempt.
     if (
       /(?:invalid|incorrect|unauthori[sz]ed).{0,30}(?:api[\s_-]*)?key|(?:api[\s_-]*)?key.{0,30}(?:invalid|incorrect)/i.test(
         result.error,
@@ -303,6 +257,24 @@ export async function startSubscriptionCheckout(
       };
     }
     return { error: result.error };
+  }
+
+  if (resolved.gateway === "nowpayments") {
+    try {
+      const { initializeNowPaymentsCheckout } =
+        await import("@/lib/payments/nowpayments");
+      const res = await initializeNowPaymentsCheckout({
+        planId,
+        billingCycle,
+        marketCode,
+        originMarketCode,
+        email,
+      });
+      return { authorization_url: res.checkout_url };
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      return { error: `FRELUX PAY (NOWPayments) checkout error: ${msg}` };
+    }
   }
 
   if (resolved.gateway === "btcpay") {
@@ -335,5 +307,7 @@ export async function startSubscriptionCheckout(
     );
   }
 
-  return { error: "Stripe checkout is not available in this checkout flow." };
+  return {
+    error: "Selected payment gateway is not available in this checkout flow.",
+  };
 }

@@ -60,7 +60,7 @@ const VERIFY_FAQS = [
   {
     question: "How does FRELUX PAY work for global subscriptions?",
     answer:
-      "FRELUX PAY lets builders, contractors, and firms anywhere in the world pay for Pro plans and digital tools directly in Bitcoin via BTCPay Server—eliminating cross-border card declines, currency conversion hurdles, and third-party payment delays.",
+      "FRELUX PAY lets builders, contractors, and firms anywhere in the world pay for Pro plans and digital tools directly in Bitcoin and major cryptocurrencies via NOWPayments and BTCPay Server—eliminating cross-border card declines, currency conversion hurdles, and third-party payment delays.",
   },
   {
     question:
@@ -302,9 +302,8 @@ export default function Verify() {
 
               {copy?.reason === "expired" && copy.expired_at && (
                 <p className="text-xs text-muted-foreground">
-                  Copy deleted{" "}
-                  {new Date(copy.expired_at).toLocaleString()} — three days
-                  after export, as printed on the document.
+                  Copy deleted {new Date(copy.expired_at).toLocaleString()} —
+                  three days after export, as printed on the document.
                 </p>
               )}
             </CardContent>

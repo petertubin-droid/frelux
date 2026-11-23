@@ -26,7 +26,13 @@ const FULL: GatewayRuntimeConfig = { flutterwavePublicKey: "FLWPUBK_test_x" };
 
 describe("parseGateway", () => {
   it("accepts exactly the two gateways that can settle a charge", () => {
-    expect(PAYMENT_GATEWAYS).toEqual(["paystack", "flutterwave", "btcpay"]);
+    expect(PAYMENT_GATEWAYS).toEqual([
+      "paystack",
+      "flutterwave",
+      "nowpayments",
+      "btcpay",
+    ]);
+    expect(parseGateway("nowpayments")).toBe("nowpayments");
     expect(parseGateway("paystack")).toBe("paystack");
     expect(parseGateway("flutterwave")).toBe("flutterwave");
     expect(parseGateway("btcpay")).toBe("btcpay");
@@ -88,11 +94,13 @@ describe("availableGateways", () => {
     expect(availableGateways(FULL)).toEqual([
       "paystack",
       "flutterwave",
+      "nowpayments",
       "btcpay",
     ]);
     expect(availableGateways(EMPTY)).toEqual([
       "paystack",
       "flutterwave",
+      "nowpayments",
       "btcpay",
     ]);
   });

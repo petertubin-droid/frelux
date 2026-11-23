@@ -128,8 +128,9 @@ export default function FeaturesSection() {
             </div>
           </div>
           <p className="mt-3 text-sm leading-relaxed text-primary-foreground/75">
-            Unlock Pro tools from anywhere in the world using Bitcoin (via
-            BTCPay Server) alongside standard global payment methods.
+            Unlock Pro tools from anywhere in the world using Bitcoin and 200+
+            cryptocurrencies (via NOWPayments & BTCPay Server) alongside
+            standard global payment methods.
           </p>
         </div>
       </Container>

@@ -63,6 +63,8 @@ describe("registry", () => {
       "btcpay-store-id",
       "btcpay-api-key",
       "btcpay-webhook-secret",
+      "nowpayments-api-key",
+      "nowpayments-ipn-secret",
       "flutterwave-secret-key",
       "open-exchange-rates",
     ]);
@@ -72,6 +74,8 @@ describe("registry", () => {
       "btcpay-store-id",
       "btcpay-api-key",
       "btcpay-webhook-secret",
+      "nowpayments-api-key",
+      "nowpayments-ipn-secret",
       "flutterwave-secret-key",
     ]) {
       const provider = PROVIDER_REGISTRY.find((p) => p.id === id)!;
@@ -94,7 +98,9 @@ describe("registry", () => {
   it("marks exactly the client-visible keys (OpenWeather, CARTO, VAPID public)", () => {
     for (const p of PROVIDER_REGISTRY) {
       expect(p.exposure === "client").toBe(
-        p.id === "openweather" || p.id === "carto" || p.id === "web-push-public",
+        p.id === "openweather" ||
+          p.id === "carto" ||
+          p.id === "web-push-public",
       );
     }
   });

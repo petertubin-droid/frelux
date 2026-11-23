@@ -204,7 +204,13 @@ export default function Pricing() {
   const gateways: PaymentGateway[] = gatewaysForMarket(
     market.marketCode,
     currentGatewayRuntimeConfig(),
-  ).filter((g) => g === "paystack" || g === "flutterwave" || g === "btcpay");
+  ).filter(
+    (g) =>
+      g === "paystack" ||
+      g === "flutterwave" ||
+      g === "nowpayments" ||
+      g === "btcpay",
+  );
 
   useEffect(() => {
     let alive = true;
@@ -242,6 +248,54 @@ export default function Pricing() {
     // Flutterwave appends tx_ref to the redirect URL; verify server-side.
     const txRef = searchParams.get("tx_ref");
     const isFlutterwave = gw === "flutterwave" || !!txRef;
+    const nowpaymentsInvoice =
+      searchParams.get("nowpayments_invoice") ||
+      (searchParams.get("payment") === "nowpayments_success"
+        ? searchParams.get("orderId") || searchParams.get("invoice_id")
+        : null);
+
+    if (nowpaymentsInvoice) {
+      setVerifying(true);
+      import("@/lib/payments/nowpayments").then(
+        ({ verifyNowPaymentsInvoice }) => {
+          verifyNowPaymentsInvoice(nowpaymentsInvoice)
+            .then(async (res) => {
+              if (res.status === "Confirmed" || res.activated) {
+                setVerifyResult("success");
+                await refreshProfile();
+                toast({
+                  title: "Crypto payment confirmed!",
+                  message: "Your premium subscription has been activated.",
+                  type: "success",
+                });
+              } else {
+                setVerifyResult("error");
+                toast({
+                  title: "Crypto payment status: " + res.status,
+                  message:
+                    "Your transaction is currently being processed by the blockchain network.",
+                  type: "info",
+                });
+              }
+              setVerifying(false);
+            })
+            .catch((err) => {
+              setVerifyResult("error");
+              toast({
+                title: "Verification issue",
+                message:
+                  err instanceof Error
+                    ? err.message
+                    : "Could not verify payment",
+                type: "error",
+              });
+              setVerifying(false);
+            });
+        },
+      );
+      return;
+    }
+
     const btcInvoice = searchParams.get("btcpay_invoice");
 
     if (btcInvoice) {
@@ -334,6 +388,34 @@ export default function Pricing() {
         type: "error",
       });
       navigate("/contact?subject=Subscription%20Inquiry");
+      return;
+    }
+
+    if (chosenGateway === "nowpayments") {
+      setLoadingPlan(plan.id);
+      try {
+        const { initializeNowPaymentsCheckout } =
+          await import("@/lib/payments/nowpayments");
+        const inv = await initializeNowPaymentsCheckout({
+          planId: plan.id,
+          billingCycle,
+          marketCode: market.marketCode,
+          originMarketCode: detectedMarket,
+          email: user?.email,
+        });
+        window.location.href = inv.checkout_url;
+      } catch (err: unknown) {
+        const msg = err instanceof Error ? err.message : String(err);
+        toast({
+          title: "FRELUX PAY (Crypto) Unavailable",
+          message: msg.includes("NOWPAYMENTS_NOT_CONFIGURED")
+            ? "FRELUX PAY (NOWPayments) is not configured yet. Please configure the API key in Admin Settings or choose an alternative gateway."
+            : msg,
+          type: "error",
+        });
+      } finally {
+        setLoadingPlan(null);
+      }
       return;
     }
 
@@ -488,9 +570,11 @@ export default function Pricing() {
                 >
                   {gw === "paystack"
                     ? "Paystack"
-                    : gw === "btcpay"
-                      ? "FRELUX PAY (Bitcoin)"
-                      : "Flutterwave"}
+                    : gw === "nowpayments"
+                      ? "FRELUX PAY (Crypto / Multi-Currency)"
+                      : gw === "btcpay"
+                        ? "FRELUX PAY (Bitcoin)"
+                        : "Flutterwave"}
                   {defaultGateway === gw && " (default)"}
                 </button>
               ))}
