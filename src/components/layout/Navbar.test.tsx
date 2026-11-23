@@ -183,10 +183,12 @@ describe("Navbar", () => {
     expect(within(drawer).queryByText(/Quick tools/i)).toBeNull();
   });
 
-  it("renders categorized dropdowns for tools in mobile drawer and supports folding", async () => {
-    await renderNavbar();
-    const trigger = screen.getByRole("button", { name: "Open menu" });
-    fireEvent.click(trigger);
+  it("leaves the section holding the current page open, and the rest folded", async () => {
+    // Standing on a Building Structure tool: that section is the one open, so
+    // the visitor can see where they are without a tap, and the other sections
+    // stay folded so the list is short.
+    await renderNavbar(["/german-floor-calculator"]);
+    fireEvent.click(screen.getByRole("button", { name: "Open menu" }));
     const drawer = await screen.findByRole("dialog", {
       name: "FRELUX navigation menu",
     });
@@ -197,12 +199,53 @@ describe("Navbar", () => {
     const structureBtn = await within(drawer).findByRole("button", {
       name: /Building Structure/i,
     });
-    expect(structureBtn).toBeDefined();
-
+    expect(structureBtn.getAttribute("aria-expanded")).toBe("true");
     expect(
       within(drawer).getByRole("link", { name: /German Floor/i }),
     ).toBeDefined();
 
+    // Every other section in the same workspace is folded.
+    const otherSections = within(drawer)
+      .getAllByRole("button")
+      .filter(
+        (button) =>
+          button.getAttribute("aria-controls") &&
+          !/Building Structure/i.test(button.textContent ?? ""),
+      );
+    expect(otherSections.length).toBeGreaterThan(0);
+    for (const section of otherSections) {
+      expect(section.getAttribute("aria-expanded")).toBe("false");
+    }
+  });
+
+  it("folds the tool categories by default and opens the one you ask for", async () => {
+    await renderNavbar();
+    const trigger = screen.getByRole("button", { name: "Open menu" });
+    fireEvent.click(trigger);
+    const drawer = await screen.findByRole("dialog", {
+      name: "FRELUX navigation menu",
+    });
+    fireEvent.click(
+      within(drawer).getByRole("button", { name: "Construction Tools" }),
+    );
+
+    // Categories arrive folded: the section headers are buttons you can see,
+    // and their tools are hidden, so the drawer is a short list rather than a
+    // sixty-tool wall.
+    const structureBtn = await within(drawer).findByRole("button", {
+      name: /Building Structure/i,
+    });
+    expect(structureBtn.getAttribute("aria-expanded")).toBe("false");
+    expect(within(drawer).queryByRole("link", { name: /German Floor/i })).toBeNull();
+
+    // Opening one reveals its tools and only its tools.
+    fireEvent.click(structureBtn);
+    expect(structureBtn.getAttribute("aria-expanded")).toBe("true");
+    expect(
+      within(drawer).getByRole("link", { name: /German Floor/i }),
+    ).toBeDefined();
+
+    // And it folds again.
     fireEvent.click(structureBtn);
     expect(structureBtn.getAttribute("aria-expanded")).toBe("false");
   });

@@ -195,12 +195,24 @@ export default function Navbar() {
     window.addEventListener("frelux:open-menu", openMenu);
     return () => window.removeEventListener("frelux:open-menu", openMenu);
   }, []);
+  // A fold made on one visit should not still be folded on the next: the drawer
+  // opens to its default, which is the current section and nothing else.
+  useEffect(() => {
+    if (mobileOpen) {
+      setOpenSections([]);
+      setFoldedSections([]);
+    }
+  }, [mobileOpen]);
   const [scrolled, setScrolled] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [mobileExpanded, setMobileExpanded] = useState<string | null>(null);
-  // Section dropdowns inside an open workspace. Open by default, so a tool is
-  // never hidden behind a second tap; folding is there for anyone who wants to
-  // shorten the list.
+  // Section dropdowns inside an open workspace. Folded by default, with the
+  // section the visitor is standing in left open: opening every section turned
+  // Construction Tools into a sixty-tool wall, and the drawer had to be scrolled
+  // for screens at a time to reach anything. Two lists, because a default is not
+  // an opinion: a section is open when the visitor opened it, closed when they
+  // closed it, and otherwise open only if it holds the current page.
+  const [openSections, setOpenSections] = useState<string[]>([]);
   const [foldedSections, setFoldedSections] = useState<string[]>([]);
   const [avatarError, setAvatarError] = useState(false);
   // Drawer search: with sixty-odd tools, typing the one you want is faster
@@ -399,6 +411,16 @@ export default function Navbar() {
   ];
 
   // Group children by section for premium dropdown rendering
+  /** The section of the workspace that holds the current page, if any. */
+  function activeSectionKey(workspace: { label: string; children?: NavChild[] }) {
+    const active = (workspace.children ?? []).find(
+      (child) =>
+        location.pathname === child.path ||
+        location.pathname.startsWith(`${child.path}/`),
+    );
+    return active?.section ? `${workspace.label}/${active.section}` : null;
+  }
+
   function groupBySection(
     children: NavChild[] | undefined,
   ): { section: string | null; items: NavChild[] }[] {
@@ -1275,8 +1297,18 @@ export default function Navbar() {
                                               );
                                             }
 
-                                            const folded =
-                                              foldedSections.includes(groupKey);
+                                            const currentSectionKey =
+                                              activeSectionKey(workspace);
+                                            const open = openSections.includes(
+                                              groupKey,
+                                            )
+                                              ? true
+                                              : foldedSections.includes(
+                                                                    groupKey,
+                                                                  )
+                                                                ? false
+                                                                : groupKey ===
+                                                                  currentSectionKey;
                                             const SectionIcon = getSectionIcon(
                                               group.section,
                                             );
@@ -1288,25 +1320,49 @@ export default function Navbar() {
                                               >
                                                 <button
                                                   type="button"
-                                                  aria-expanded={!folded}
+                                                  aria-expanded={open}
                                                   aria-controls={groupKey}
-                                                  onClick={() =>
-                                                    setFoldedSections(
-                                                      (current) =>
-                                                        current.includes(
-                                                          groupKey,
-                                                        )
-                                                          ? current.filter(
-                                                              (key) =>
-                                                                key !==
+                                                  onClick={() => {
+                                                    if (open) {
+                                                      setFoldedSections(
+                                                        (current) =>
+                                                          current.includes(
+                                                            groupKey,
+                                                          )
+                                                            ? current
+                                                            : [
+                                                                ...current,
                                                                 groupKey,
-                                                            )
-                                                          : [
-                                                              ...current,
-                                                              groupKey,
-                                                            ],
-                                                    )
-                                                  }
+                                                              ],
+                                                      );
+                                                      setOpenSections(
+                                                        (current) =>
+                                                          current.filter(
+                                                            (key) =>
+                                                              key !== groupKey,
+                                                          ),
+                                                      );
+                                                    } else {
+                                                      setOpenSections(
+                                                        (current) =>
+                                                          current.includes(
+                                                            groupKey,
+                                                          )
+                                                            ? current
+                                                            : [
+                                                                ...current,
+                                                                groupKey,
+                                                              ],
+                                                      );
+                                                      setFoldedSections(
+                                                        (current) =>
+                                                          current.filter(
+                                                            (key) =>
+                                                              key !== groupKey,
+                                                          ),
+                                                      );
+                                                    }
+                                                  }}
                                                   className="flex w-full items-center justify-between gap-2 rounded-xl px-2.5 py-1.5 text-xs font-semibold text-card-foreground transition-colors hover:bg-muted/30 hover:text-foreground"
                                                 >
                                                   <div className="flex min-w-0 items-center gap-1.5">
@@ -1326,14 +1382,14 @@ export default function Navbar() {
                                                       aria-hidden="true"
                                                       className={classNames(
                                                         "h-3 w-3 shrink-0 text-muted-foreground transition-transform duration-200",
-                                                        folded && "-rotate-90",
+                                                        !open && "-rotate-90",
                                                       )}
                                                     />
                                                   </div>
                                                 </button>
                                                 <div
                                                   id={groupKey}
-                                                  hidden={folded}
+                                                  hidden={!open}
                                                   className="space-y-0.5 border-t border-border/30 px-1 pb-1 pt-0.5 dark:border-white/5"
                                                 >
                                                   {renderLinks()}
