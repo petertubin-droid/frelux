@@ -120,7 +120,7 @@ describe("AdminMaterialPrices Interactive Suite", () => {
     renderWithProviders();
 
     await screen.findByRole("heading", { name: /Material Price Tracker/i });
-    const historyBtn = screen.getByRole("button", { name: /Price History/i });
+    const historyBtn = await screen.findByRole("button", { name: /Price History/i });
     fireEvent.click(historyBtn);
 
     expect(projectIntelligence.fetchMaterialPriceHistory).toHaveBeenCalled();

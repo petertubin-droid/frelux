@@ -99,7 +99,7 @@ describe("AdminErrors", () => {
     renderPage();
 
     await screen.findByRole("heading", { level: 1, name: /Error Monitor/i });
-    const criticalTab = screen.getByRole("button", { name: "critical" });
+    const criticalTab = await screen.findByRole("button", { name: "critical" });
     fireEvent.click(criticalTab);
 
     await waitFor(() => {

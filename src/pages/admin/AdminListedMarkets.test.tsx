@@ -310,7 +310,7 @@ describe("AdminListedMarkets", () => {
     );
 
     await screen.findByRole("heading", { name: /Market/i });
-    const emailInput = screen.getByLabelText("investor@example.com");
+    const emailInput = await screen.findByLabelText("investor@example.com");
     fireEvent.change(emailInput, { target: { value: "partner@example.com" } });
 
     const grantBtn = screen.getByRole("button", { name: "Grant access" });
@@ -346,7 +346,7 @@ describe("AdminListedMarkets", () => {
     );
 
     await screen.findByRole("heading", { name: /Market/i });
-    const emailInput = screen.getByLabelText("investor@example.com");
+    const emailInput = await screen.findByLabelText("investor@example.com");
     fireEvent.change(emailInput, { target: { value: "unknown@example.com" } });
 
     const grantBtn = screen.getByRole("button", { name: "Grant access" });

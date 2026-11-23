@@ -75,8 +75,9 @@ describe("AdminAiMonetization", () => {
   it("updates free daily uses and sends update payload on save", async () => {
     renderPage();
 
-    await screen.findByRole("heading", { level: 1, name: /AI Monetization/i });
-    const freeUsesInput = screen.getByLabelText(/Daily free AI uses/i);
+    // The header renders in the loading branch too, so await the control that
+    // only exists once the settings have arrived.
+    const freeUsesInput = await screen.findByLabelText(/Daily free AI uses/i);
     fireEvent.change(freeUsesInput, { target: { value: "8" } });
 
     const saveBtn = screen.getByRole("button", { name: /save changes/i });
@@ -95,8 +96,7 @@ describe("AdminAiMonetization", () => {
     };
     renderPage();
 
-    await screen.findByRole("heading", { level: 1, name: /AI Monetization/i });
-    const paidBtn = screen.getByRole("button", { name: /^Paid/i });
+    const paidBtn = await screen.findByRole("button", { name: /^Paid/i });
     fireEvent.click(paidBtn);
 
     // Save button should be disabled because canSave() checks this
@@ -111,8 +111,7 @@ describe("AdminAiMonetization", () => {
     };
     renderPage();
 
-    await screen.findByRole("heading", { level: 1, name: /AI Monetization/i });
-    const paidBtn = screen.getByRole("button", { name: /^Paid/i });
+    const paidBtn = await screen.findByRole("button", { name: /^Paid/i });
     fireEvent.click(paidBtn);
 
     const saveBtn = screen.getByRole("button", { name: /save changes/i });
@@ -142,8 +141,9 @@ describe("AdminAiMonetization", () => {
     });
     renderPage();
 
-    await screen.findByRole("heading", { level: 1, name: /AI Monetization/i });
-    const saveBtn = screen.getByRole("button", { name: /save changes/i });
+    const saveBtn = await screen.findByRole("button", {
+      name: /save changes/i,
+    });
     fireEvent.click(saveBtn);
 
     expect(
