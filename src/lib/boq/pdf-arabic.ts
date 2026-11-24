@@ -316,12 +316,91 @@ export function mirror(left: number, width: number, rtl: boolean): number {
 }
 
 /** Width of a shaped string in points. */
+/** True when text contains multiple distinct complex scripts requiring different font faces. */
+export function hasMixedComplexScripts(text: string): boolean {
+  let count = 0;
+  if (isArabicDocument(text)) count++;
+  if (isDevanagariDocument(text)) count++;
+  if (isCjkDocument(text)) count++;
+  return count > 1;
+}
+
+export interface MixedTextSegment {
+  script: "arabic" | "devanagari" | "cjk" | "common";
+  text: string;
+}
+
+/**
+ * Segment a string into runs of compatible scripts so that multi-script text
+ * (e.g. Arabic + Devanagari or CJK in the same line) can be shaped and drawn
+ * with the correct font for each script run without dropping glyphs.
+ */
+export function segmentMixedText(
+  text: string,
+  defaultScript: "arabic" | "devanagari" | "cjk" = "arabic",
+): MixedTextSegment[] {
+  if (!text) return [];
+  const chars = Array.from(text);
+  const segments: MixedTextSegment[] = [];
+  let currentScript: "arabic" | "devanagari" | "cjk" | "common" = "common";
+  let currentText = "";
+
+  for (let i = 0; i < chars.length; i++) {
+    const ch = chars[i];
+    let s: "arabic" | "devanagari" | "cjk" | "common" = "common";
+    if (ARABIC_SCRIPT.test(ch)) s = "arabic";
+    else if (DEVANAGARI_SCRIPT.test(ch)) s = "devanagari";
+    else if (CJK_SCRIPT.test(ch)) s = "cjk";
+
+    if (s === "common") {
+      currentText += ch;
+    } else {
+      if (currentScript === "common" || currentScript === s) {
+        currentScript = s;
+        currentText += ch;
+      } else {
+        segments.push({ script: currentScript, text: currentText });
+        currentScript = s;
+        currentText = ch;
+      }
+    }
+  }
+  if (currentText) {
+    segments.push({
+      script: currentScript === "common" ? defaultScript : currentScript,
+      text: currentText,
+    });
+  }
+  if (segments.length > 1 && segments[0].script === "common") {
+    segments[0].script = segments[1].script;
+  }
+  return segments;
+}
+
+/** Width of a shaped string in points. */
 export function shapedWidth(
   font: FontkitFont,
   text: string,
   sizePt: number,
+  fonts?: FontRegistry,
 ): number {
   if (!text) return 0;
+  if (hasMixedComplexScripts(text) && fonts) {
+    const defaultScript = isArabicDocument(text)
+      ? "arabic"
+      : isDevanagariDocument(text)
+        ? "devanagari"
+        : "cjk";
+    const segments = segmentMixedText(text, defaultScript);
+    return segments.reduce((sum, seg) => {
+      let segFont = font;
+      if (seg.script === "arabic" && fonts.arabic) segFont = fonts.arabic;
+      else if (seg.script === "devanagari" && fonts.devanagari) segFont = fonts.devanagari;
+      else if (seg.script === "cjk" && fonts.cjk) segFont = fonts.cjk;
+      const run = shapeText(seg.text, segFont);
+      return sum + (run.advance / run.unitsPerEm) * sizePt;
+    }, 0);
+  }
   const run = shapeText(text, font);
   return (run.advance / run.unitsPerEm) * sizePt;
 }
@@ -403,49 +482,131 @@ function drawIn(
   pad = 0,
 ): number {
   if (!text) return 0;
-  const activeFont = selectFont(text, ctx.font, ctx.fonts);
-  const width = shapedWidth(activeFont, text, sizePt);
-  const left = mirror(box.left, box.width, ctx.rtl);
-  let x: number;
-  if (align === "center") {
-    x = left + (box.width - width) / 2;
-  } else {
-    const atStart = align === "start" ? !ctx.rtl : ctx.rtl;
-    x = atStart ? left + pad : left + box.width - pad - width;
+  if (!hasMixedComplexScripts(text)) {
+    const activeFont = selectFont(text, ctx.font, ctx.fonts);
+    const width = shapedWidth(activeFont, text, sizePt, ctx.fonts);
+    const left = mirror(box.left, box.width, ctx.rtl);
+    let x: number;
+    if (align === "center") {
+      x = left + (box.width - width) / 2;
+    } else {
+      const atStart = align === "start" ? !ctx.rtl : ctx.rtl;
+      x = atStart ? left + pad : left + box.width - pad - width;
+    }
+    const run: ShapedRun = shapeText(text, activeFont);
+    drawShapedRun(roundingPage(ctx.page), run, activeFont, {
+      x,
+      y,
+      sizePt,
+      // pdf-lib validates the colour instance, not a plain {r,g,b}; the shaper's
+      // option type is intentionally loose so it stays engine-agnostic.
+      color: rgb(color.red, color.green, color.blue) as unknown as {
+        r: number;
+        g: number;
+        b: number;
+      },
+    });
+
+    // Invisible text at the same origin, in reading order. It carries no visual
+    // weight (opacity 0) and is what a reader selects or searches for.
+    if (ctx.textFont) {
+      const plain = ctx.textFont.widthOfTextAtSize(text, sizePt);
+      const textX = align === "start" ? x : x + width - plain;
+      try {
+        ctx.page.drawText(text, {
+          x: Math.max(0, textX),
+          y,
+          size: sizePt,
+          font: ctx.textFont as never,
+          opacity: 0,
+        });
+      } catch {
+        // A glyph the subset font cannot draw must not sink the document: the
+        // outlines above are the document, the layer is an aid.
+      }
+    }
+    return width;
   }
-  const run: ShapedRun = shapeText(text, activeFont);
-  drawShapedRun(roundingPage(ctx.page), run, activeFont, {
-    x,
-    y,
-    sizePt,
-    // pdf-lib validates the colour instance, not a plain {r,g,b}; the shaper's
-    // option type is intentionally loose so it stays engine-agnostic.
-    color: rgb(color.red, color.green, color.blue) as unknown as {
-      r: number;
-      g: number;
-      b: number;
-    },
+
+  // Multi-script text segmentation: draw each script run with its dedicated font
+  const defaultScript = ctx.rtl
+    ? "arabic"
+    : isDevanagariDocument(text)
+      ? "devanagari"
+      : isCjkDocument(text)
+        ? "cjk"
+        : "arabic";
+  const rawSegments = segmentMixedText(text, defaultScript);
+  const segments = rawSegments.map((seg) => {
+    let segFont = ctx.font;
+    if (ctx.fonts) {
+      if (seg.script === "arabic" && ctx.fonts.arabic) segFont = ctx.fonts.arabic;
+      else if (seg.script === "devanagari" && ctx.fonts.devanagari) segFont = ctx.fonts.devanagari;
+      else if (seg.script === "cjk" && ctx.fonts.cjk) segFont = ctx.fonts.cjk;
+    }
+    const run: ShapedRun = shapeText(seg.text, segFont);
+    const width = (run.advance / run.unitsPerEm) * sizePt;
+    return { ...seg, font: segFont, run, width };
   });
 
-  // Invisible text at the same origin, in reading order. It carries no visual
-  // weight (opacity 0) and is what a reader selects or searches for.
+  const totalWidth = segments.reduce((sum, s) => sum + s.width, 0);
+  const left = mirror(box.left, box.width, ctx.rtl);
+  let startX: number;
+  if (align === "center") {
+    startX = left + (box.width - totalWidth) / 2;
+  } else {
+    const atStart = align === "start" ? !ctx.rtl : ctx.rtl;
+    startX = atStart ? left + pad : left + box.width - pad - totalWidth;
+  }
+
+  if (ctx.rtl) {
+    let rightPen = startX + totalWidth;
+    for (const seg of segments) {
+      const originX = seg.run.rtl ? rightPen : rightPen - seg.width;
+      drawShapedRun(roundingPage(ctx.page), seg.run, seg.font, {
+        x: originX,
+        y,
+        sizePt,
+        color: rgb(color.red, color.green, color.blue) as unknown as {
+          r: number;
+          g: number;
+          b: number;
+        },
+      });
+      rightPen -= seg.width;
+    }
+  } else {
+    let leftPen = startX;
+    for (const seg of segments) {
+      const originX = seg.run.rtl ? leftPen + seg.width : leftPen;
+      drawShapedRun(roundingPage(ctx.page), seg.run, seg.font, {
+        x: originX,
+        y,
+        sizePt,
+        color: rgb(color.red, color.green, color.blue) as unknown as {
+          r: number;
+          g: number;
+          b: number;
+        },
+      });
+      leftPen += seg.width;
+    }
+  }
+
   if (ctx.textFont) {
-    const plain = ctx.textFont.widthOfTextAtSize(text, sizePt);
-    const textX = align === "start" ? x : x + width - plain;
     try {
       ctx.page.drawText(text, {
-        x: Math.max(0, textX),
+        x: Math.max(0, startX),
         y,
         size: sizePt,
         font: ctx.textFont as never,
         opacity: 0,
       });
     } catch {
-      // A glyph the subset font cannot draw must not sink the document: the
-      // outlines above are the document, the layer is an aid.
+      // Ignored for invisible text layer
     }
   }
-  return width;
+  return totalWidth;
 }
 
 /**
@@ -486,7 +647,7 @@ export function wrapShaped(
           /[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uAC00-\uD7AF]/.test(seg);
         const joiner = segIsCjk || !current ? "" : " ";
         const candidate = current ? `${current}${joiner}${seg}` : seg;
-        if (shapedWidth(activeFont, candidate, sizePt) <= maxWidth || !current) {
+        if (shapedWidth(activeFont, candidate, sizePt, fonts) <= maxWidth || !current) {
           current = candidate;
         } else {
           lines.push(current);
@@ -504,7 +665,7 @@ export function wrapShaped(
   let current = "";
   for (const word of words) {
     const candidate = current ? `${current} ${word}` : word;
-    if (shapedWidth(activeFont, candidate, sizePt) <= maxWidth || !current) {
+    if (shapedWidth(activeFont, candidate, sizePt, fonts) <= maxWidth || !current) {
       current = candidate;
     } else {
       lines.push(current);
@@ -708,6 +869,7 @@ export async function buildOutlineBoqPdf(
       (isSurvey ? "Untitled market survey" : "Untitled Bill of Quantities"),
     titleSize,
     CONTENT,
+    fontRegistry,
   );
   for (const line of titleLines) {
     drawIn(

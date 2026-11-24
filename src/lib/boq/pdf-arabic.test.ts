@@ -30,6 +30,8 @@ import {
   isDevanagariDocument,
   isCjkDocument,
   isOutlineDocument,
+  hasMixedComplexScripts,
+  segmentMixedText,
   mirror,
   shapedWidth,
   wrapShaped,
@@ -588,6 +590,79 @@ describe("Devanagari and CJK outline BOQ PDFs", () => {
     });
 
     const compiled = compileBoq(multiScriptDoc);
+    expect(needsOutlineRenderer(compiled.standard, compiled.document)).toBe(true);
+
+    const bytes = await buildOutlineBoqPdf(compiled.standard, compiled.document, {
+      now: NOW,
+    });
+    expect(Buffer.from(bytes.slice(0, 5)).toString()).toBe("%PDF-");
+    const pdf = await PDFDocument.load(bytes);
+    expect(pdf.getPageCount()).toBeGreaterThanOrEqual(1);
+
+    const sealed = await sealOutlineBoqPdf(compiled.standard, compiled.document, {
+      now: NOW,
+    });
+    expect(sha(sealed.bytes)).toBe(sealed.hash);
+    expect(sealed.hash).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it("detects and segments intra-string multi-script text across Arabic, Devanagari, and CJK", () => {
+    // Single script + common characters
+    expect(hasMixedComplexScripts("مشروع سكني (Villa 102)")).toBe(false);
+    expect(hasMixedComplexScripts("Structural Works - 结构工程 (01)")).toBe(false);
+    expect(hasMixedComplexScripts("M25 ग्रेड कंक्रीट (Concrete)")).toBe(false);
+
+    // Multi-script text in a single string
+    const mixed = "مشروع فيلا - 结构工程 - कंक्रीट कार्य";
+    expect(hasMixedComplexScripts(mixed)).toBe(true);
+
+    const segments = segmentMixedText(mixed, "arabic");
+    expect(segments.length).toBe(3);
+    expect(segments[0].script).toBe("arabic");
+    expect(segments[0].text).toContain("مشروع");
+    expect(segments[1].script).toBe("cjk");
+    expect(segments[1].text).toContain("结构工程");
+    expect(segments[2].script).toBe("devanagari");
+    expect(segments[2].text).toContain("कंक्रीट");
+  });
+
+  it("renders documents containing intra-string mixed scripts to deterministic hashable PDFs", async () => {
+    const intraMixedDoc = doc({
+      title: "International Project: مشروع فيلا - 结构工程 - कंक्रीट कार्य",
+      description: "Multi-national joint development: فيلا (Villa) / 商业综合体 / वाणिज्यिक भवन",
+      client: { name: "Global Joint Venture (العالمية / 中建 / ग्लोबल)", address: "Dubai - Beijing - Mumbai" },
+      contractor: { name: "Consortium LLC (شركة الائتلاف / 联合体 / कंसोर्टियम)" },
+      review: {
+        status: "reviewed",
+        reviewer_name: "Lead Structural Engineer (مهندس استشاري / 主任工程师 / मुख्य अभियंता)",
+        note: "Approved with cross-script validation: مطابق للمواصفات / 符合规范 / मानकों के अनुरूप",
+      },
+      sections: [
+        {
+          id: "s1",
+          code: "01",
+          title: "01. Foundations & Concrete - الخرسانة المسلحة - 钢筋混凝土 - प्रबलित कंक्रीट",
+          notes: "Batch mixing standard IS 456 / GB 50010 / كود البناء العربي",
+          items: [
+            {
+              id: "i1",
+              item_number: "01.01",
+              description: "M30 Concrete Pour (صب خرسانة جاهزة - 现浇混凝土 - कंक्रीट ढलाई)",
+              specification: "High-grade structural mix",
+              unit: "m³",
+              quantity: 120,
+              material_rate: 8500,
+              labour_rate: 2200,
+              plant_rate: 900,
+              notes: "Test cubes required: مكعبات اختبار / 试块送检 / परीक्षण घन",
+              rates_include_waste: true,
+            },
+          ],
+        },
+      ],
+    });
+
+    const compiled = compileBoq(intraMixedDoc);
     expect(needsOutlineRenderer(compiled.standard, compiled.document)).toBe(true);
 
     const bytes = await buildOutlineBoqPdf(compiled.standard, compiled.document, {
