@@ -36,6 +36,11 @@ export const SUPABASE_ONLY_FUNCTIONS: readonly string[] = [
   "ai-studio",
   "ai-tv-console-extract",
   "ai-visual-finishing",
+  // Admin AI assistant for Network Hub -> House Promos: fetches a partner page
+  // server-side (SSRF-guarded) and returns its real og: metadata. It belongs to
+  // the admin AI surface, and it was the function whose Worker route failed
+  // with "Failed to send a request to the Edge Function".
+  "ad-from-url",
   "count-vision",
   "support-chat",
   "frelix-api",

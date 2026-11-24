@@ -1,0 +1,75 @@
+import { readFileSync, readdirSync } from "node:fs";
+import { join } from "node:path";
+import { describe, expect, it } from "vitest";
+import { APPROVED_MARKET_CODES } from "@/lib/international/countries";
+
+/**
+ * Static guards over the signup trigger.
+ *
+ * The trigger is the only code path that can create a profile, and it runs
+ * inside auth.users INSERT, so a mistake in it does not fail a test: it makes
+ * every signup return "Database error saving new user" while the suite stays
+ * green. That is exactly what happened with NEW.app_metadata, which does not
+ * exist on auth.users (the column is raw_app_meta_data; the camelCase name only
+ * exists in GoTrue's API response). These checks read the migration chain the
+ * way a fresh database would replay it and assert the final definition.
+ */
+
+const MIGRATIONS = join(process.cwd(), "supabase/migrations");
+
+function migrationFiles(): { version: string; file: string; sql: string }[] {
+  return readdirSync(MIGRATIONS)
+    .filter((f) => f.endsWith(".sql"))
+    .sort()
+    .map((file) => ({
+      version: file.slice(0, 14),
+      file,
+      sql: readFileSync(join(MIGRATIONS, file), "utf8"),
+    }));
+}
+
+/** The last migration that defines handle_new_user is the live definition. */
+function latestTriggerDefinition() {
+  const defining = migrationFiles().filter((m) =>
+    /FUNCTION\s+public\.handle_new_user\s*\(/i.test(m.sql),
+  );
+  expect(defining.length, "no migration defines handle_new_user").toBeGreaterThan(0);
+  return defining[defining.length - 1];
+}
+
+describe("handle_new_user trigger definition", () => {
+  it("reads raw_app_meta_data, the column auth.users actually has", () => {
+    const latest = latestTriggerDefinition();
+    expect(latest.sql).toContain("NEW.raw_app_meta_data");
+    // The camelCase name is a GoTrue API field, not a column: referencing it
+    // raises 42703 on every insert and kills registration.
+    expect(latest.sql).not.toMatch(/NEW\.app_metadata/);
+  });
+
+  it("only allows country codes the registration form offers", () => {
+    const latest = latestTriggerDefinition();
+    // The guard reads: COALESCE(UPPER(BTRIM(...country_code)), '') NOT IN ('NG', ...).
+    const allowlist = latest.sql.match(/NOT IN \(([^)]+)\)/);
+    expect(allowlist, "no country allowlist in the trigger").toBeTruthy();
+    const allowed = new Set(
+      [...allowlist![1].matchAll(/'([A-Z]{2})'/g)].map((m) => m[1]),
+    );
+    const offered = new Set(APPROVED_MARKET_CODES);
+    // A code the form offers but the trigger rejects is a signup that dies on
+    // submit; a code the trigger allows but the form never offers is dead weight.
+    expect([...offered].filter((c) => !allowed.has(c))).toEqual([]);
+    expect([...allowed].filter((c) => !offered.has(c))).toEqual([]);
+  });
+
+  it("still writes the identity and location columns it was extended for", () => {
+    const latest = latestTriggerDefinition();
+    for (const column of [
+      "location",
+      "nin_number",
+      "government_id_type",
+      "government_id_number",
+    ]) {
+      expect(latest.sql, column).toContain(column);
+    }
+  });
+});

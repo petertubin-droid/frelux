@@ -79,6 +79,7 @@ export const SUPABASE_ONLY: ReadonlyMap<string, string> = new Map([
     "ai-studio",
     "ai-tv-console-extract",
     "ai-visual-finishing",
+    "ad-from-url",
     "count-vision",
     "support-chat",
     "frelix-api",

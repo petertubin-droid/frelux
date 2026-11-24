@@ -140,7 +140,29 @@ const json = (body: unknown, status = 200, headers: HeadersInit = {}) =>
     headers: { "content-type": "application/json; charset=utf-8", ...headers },
   });
 
-function corsHeaders(origin: string | null, env: Env): Record<string, string> {
+/**
+ * The headers supabase-js puts on every functions.invoke call. `apikey` and
+ * `x-client-info` are not simple headers, so the browser sends them in the
+ * preflight and blocks the request unless this list names them. A preflight
+ * that allowed only authorization and content-type made every browser call to
+ * /api/fn fail with "Failed to send a request to the Edge Function" while curl
+ * worked, because curl sends no preflight.
+ */
+const INVOKE_HEADERS = [
+  "authorization",
+  "content-type",
+  "apikey",
+  "x-client-info",
+  "x-client-version",
+  "x-client-hash",
+  "x-supabase-api-version",
+].join(", ");
+
+function corsHeaders(
+  origin: string | null,
+  env: Env,
+  requestedHeaders?: string | null,
+): Record<string, string> {
   const allowed = (env.ALLOWED_ORIGINS ?? "https://freluxtools.com")
     .split(",")
     .map((value) => value.trim())
@@ -148,7 +170,12 @@ function corsHeaders(origin: string | null, env: Env): Record<string, string> {
   const headers: Record<string, string> = { vary: "Origin" };
   if (origin && allowed.includes(origin)) {
     headers["access-control-allow-origin"] = origin;
-    headers["access-control-allow-headers"] = "authorization, content-type";
+    // Echo what the browser asked for when it says, so a new client header
+    // cannot silently break the preflight again, and fall back to the list
+    // supabase-js uses when the request does not name any.
+    headers["access-control-allow-headers"] = requestedHeaders?.trim()
+      ? `${INVOKE_HEADERS}, ${requestedHeaders.trim()}`
+      : INVOKE_HEADERS;
     headers["access-control-allow-methods"] = "GET, POST, OPTIONS";
     headers["access-control-max-age"] = "86400";
   }
@@ -349,7 +376,11 @@ export default {
     ctx?: { waitUntil: (p: Promise<unknown>) => void },
   ): Promise<Response> {
     const url = new URL(request.url);
-    const cors = corsHeaders(request.headers.get("origin"), env);
+    const cors = corsHeaders(
+      request.headers.get("origin"),
+      env,
+      request.headers.get("access-control-request-headers"),
+    );
 
     if (request.method === "OPTIONS") {
       return new Response(null, { status: 204, headers: cors });
