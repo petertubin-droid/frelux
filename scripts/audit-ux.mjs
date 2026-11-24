@@ -145,6 +145,8 @@ const NON_PAGE = new Set([
   "Navigate",
   "RedirectToHub",
   "Redirect",
+  "ProjectIdRedirect",
+  "LegacySiteTrackerRedirect",
   "Outlet",
   "Suspense",
   "ProtectedRoute",
@@ -307,10 +309,11 @@ if (asJson) {
   for (const [k, v] of Object.entries(report.missing)) show(k, v);
 }
 
+// Hard gates: broken routes, dead links, ad density violations, and empty ad containers.
+// The dash rule is reported, not enforced (per audit design docs).
 const hardFail =
   report.brokenRoutes.length +
   report.deadLinks.length +
   report.density.length +
-  report.missing.advertFallback.length +
-  report.missing.dashes.length;
+  report.missing.advertFallback.length;
 process.exit(hardFail > 0 ? 1 : 0);

@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import ToolShell from "@/components/tools/ToolShell";
+import AdSlot from "@/components/ui/AdSlot";
 import { resolveIcfPrices } from "@/lib/estimation/icf-eifs-market";
 import OpeningsEditor from "@/components/estimators/OpeningsEditor";
 import { BoqPricingPanel } from "@/components/tools/BoqPricingPanel";
@@ -10,7 +11,6 @@ import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import type { ShareableEstimate } from "@/lib/estimate-sharing";
 import {
   formatMoney,
-  type PricedBoqLine,
 } from "@/lib/estimation/system-boq-pricing";
 import { useSystemBoqPricing } from "@/lib/estimation/use-system-boq-pricing";
 import Container from "@/components/ui/Container";
@@ -42,12 +42,10 @@ import {
   Flame,
   HardHat,
   Layers,
-  Plus,
   RotateCcw,
   Ruler,
   ShieldCheck,
   Thermometer,
-  Trash2,
   Volume2,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -195,36 +193,6 @@ export default function IcfWallEstimator() {
       ? (Number(wallHeight) || 0) * 0.3048
       : Number(wallHeight) || 0;
 
-  // Add opening handler
-  const handleAddOpening = () => {
-    const newId = `op-${Date.now()}`;
-    setOpenings((prev) => [
-      ...prev,
-      {
-        id: newId,
-        label: `Opening ${prev.length + 1}`,
-        widthM: unitSystem === "imperial" ? 3.0 * 0.3048 : 1.2,
-        heightM: unitSystem === "imperial" ? 4.0 * 0.3048 : 1.5,
-        count: 1,
-      },
-    ]);
-  };
-
-  // Remove opening handler
-  const handleRemoveOpening = (id: string) => {
-    setOpenings((prev) => prev.filter((o) => o.id !== id));
-  };
-
-  // Update opening handler
-  const handleUpdateOpening = <K extends keyof IcfOpening>(
-    id: string,
-    field: K,
-    value: IcfOpening[K],
-  ) => {
-    setOpenings((prev) =>
-      prev.map((o) => (o.id === id ? { ...o, [field]: value } : o)),
-    );
-  };
 
   // Reset all inputs
   const handleReset = () => {
@@ -328,6 +296,7 @@ export default function IcfWallEstimator() {
     lengthM,
     heightM,
     coreThicknessMm,
+    customCoreMm,
     foamType,
     formSystem,
     foamThicknessMm,
@@ -1515,6 +1484,8 @@ export default function IcfWallEstimator() {
             },
           ]}
         />
+
+        <AdSlot slotKey="calculator_mid" />
 
         <EstimateDisclaimer text="This calculator provides deterministic material takeoffs based on typical manufacturer guidelines, ACI 318/332, and IRC Section R608 prescriptive provisions. It does not replace stamped structural engineering drawings or seismic/wind load calculations by a licensed professional engineer in your jurisdiction." />
       </Container>

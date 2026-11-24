@@ -14,7 +14,7 @@
 
 export const BUNDLED_BOOK_VERSION = "production catalog 2026-10-13";
 
-import { DERIVED_ROLE_MAPPINGS } from "@/lib/international/role-mapping-derive";
+import { DERIVED_ROLE_MAPPINGS } from "./role-mapping-derive";
 
 export interface BundledPrice {
   p: number;

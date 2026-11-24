@@ -19,17 +19,6 @@ function blockFor(lang) {
   const start = source.indexOf(`\n  ${lang}: {`);
   return start === -1 ? "" : source.slice(start, source.indexOf("\n  },", start));
 }
-const dictionaryKeys = (block) =>
-  new Set(
-    [...block.matchAll(/\n\s{4}(?:"([^"]+)"|([A-Za-z_$][\w$]*))\s*:/g)].map((m) => m[1] || m[2]),
-  );
-
-const catalogSource = readFileSync("src/lib/i18n-coverage.ts", "utf8");
-const catalogBlock = catalogSource.slice(
-  catalogSource.indexOf("CORE_CATALOG"),
-  catalogSource.indexOf("] as const;"),
-);
-const CORE = [...catalogBlock.matchAll(/"([^"]+)"/g)].map((m) => m[1]);
 
 // The generated inventory is whatever the locale files actually cover.
 const localeDir = "src/lib/i18n/locales";
@@ -41,6 +30,23 @@ if (existsSync(localeDir)) {
 }
 const INVENTORY = new Set(Object.values(generated).flatMap((d) => Object.keys(d)));
 
+const dictionaryKeys = (block, lang) => {
+  const inline = new Set(
+    [...block.matchAll(/\n\s{4}(?:"([^"]+)"|([A-Za-z_$][\w$]*))\s*:/g)].map((m) => m[1] || m[2]),
+  );
+  if (lang && generated[lang]) {
+    for (const k of Object.keys(generated[lang])) inline.add(k);
+  }
+  return inline;
+};
+
+const catalogSource = readFileSync("src/lib/i18n-coverage.ts", "utf8");
+const catalogBlock = catalogSource.slice(
+  catalogSource.indexOf("CORE_CATALOG"),
+  catalogSource.indexOf("] as const;"),
+);
+const CORE = [...catalogBlock.matchAll(/"([^"]+)"/g)].map((m) => m[1]);
+
 const bar = (pct) => "█".repeat(Math.round(pct / 5)).padEnd(20, "·");
 
 console.log(`\nCurated catalog (gates indexing): ${CORE.length} strings`);
@@ -50,7 +56,7 @@ console.log("  " + "-".repeat(52));
 
 for (const lang of LANGS) {
   const isEnglish = lang === "en";
-  const curatedKeys = isEnglish ? new Set(CORE) : dictionaryKeys(blockFor(lang));
+  const curatedKeys = isEnglish ? new Set(CORE) : dictionaryKeys(blockFor(lang), lang);
   const curatedDone = CORE.filter((k) => curatedKeys.has(k)).length;
   const curatedPct = Math.floor((curatedDone / CORE.length) * 100);
 
@@ -68,7 +74,7 @@ for (const lang of LANGS) {
 
 const complete = LANGS.filter((lang) => {
   if (lang === "en") return true;
-  const curatedKeys = dictionaryKeys(blockFor(lang));
+  const curatedKeys = dictionaryKeys(blockFor(lang), lang);
   const curatedOk = CORE.every((k) => curatedKeys.has(k));
   const gen = generated[lang] ?? {};
   const genOk = [...INVENTORY].every((k) => String(gen[k] ?? "").trim().length > 0);

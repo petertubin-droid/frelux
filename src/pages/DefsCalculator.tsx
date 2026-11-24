@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Info, Layers, RotateCcw } from "lucide-react";
 
 import ToolShell from "@/components/tools/ToolShell";
+import AdSlot from "@/components/ui/AdSlot";
 import Container from "@/components/ui/Container";
 import { Badge } from "@/components/ui/shadcn/badge";
 import { Button } from "@/components/ui/shadcn/button";
@@ -160,7 +161,7 @@ export default function DefsCalculator() {
     marketCode,
   ]);
 
-  function reset() {
+  function handleReset() {
     setWallLength("40");
     setWallHeight("3.0");
     setSubstrate("cement-board");
@@ -199,7 +200,7 @@ export default function DefsCalculator() {
             variant="outline"
             size="sm"
             className="h-7 text-xs gap-1.5"
-            onClick={reset}
+            onClick={handleReset}
           >
             <RotateCcw className="h-3.5 w-3.5" />
             Reset Defaults
@@ -501,7 +502,9 @@ export default function DefsCalculator() {
         <div className="rounded-xl border bg-card p-4">
           <h2 className="text-sm font-semibold">DEFS questions</h2>
           <dl className="mt-2 space-y-3">
-            {DEFS_FAQ.map((item) => (
+            <AdSlot slotKey="calculator_mid" />
+
+        {DEFS_FAQ.map((item) => (
               <div key={item.question}>
                 <dt className="text-sm font-medium">{item.question}</dt>
                 <dd className="mt-1 text-xs text-muted-foreground">

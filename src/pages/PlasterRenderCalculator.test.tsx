@@ -1,4 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+
+vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
 import { render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import PlasterRenderCalculator from "./PlasterRenderCalculator";

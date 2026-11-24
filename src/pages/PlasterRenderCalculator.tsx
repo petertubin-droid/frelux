@@ -2,6 +2,8 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Layers, Info, AlertTriangle, Ruler } from "lucide-react";
 import ToolShell from "@/components/tools/ToolShell";
+import AdSlot from "@/components/ui/AdSlot";
+import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useTechnicalLabels } from "@/lib/construction-dictionary/use-technical-labels";
 import {
@@ -116,6 +118,20 @@ export default function PlasterRenderCalculator() {
     ],
   );
 
+  const handleReset = () => {
+    setSystem("exterior_render");
+    setSubstrate("clay_brick");
+    setAreaM2("100");
+    setThicknessMm("15");
+    setGrainMm(2);
+    setTexturedCoatMm("4");
+    setOpeningAreaM2("0");
+    setCornerM("0");
+    setPerimeterM("0");
+    setWastePercent("10");
+    setWetZone(false);
+  };
+
   const result = useMemo(() => calculatePlasterRender(input), [input]);
 
   return (
@@ -128,9 +144,12 @@ export default function PlasterRenderCalculator() {
           {/* Inputs */}
           <section className="space-y-4 rounded-2xl border border-border bg-card p-5">
             <div>
-              <p className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
-                <Layers className="h-4 w-4 text-brand-purple" /> System
-              </p>
+              <div className="mb-2 flex items-center justify-between">
+                <p className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                  <Layers className="h-4 w-4 text-brand-purple" /> System
+                </p>
+                <CalculatorResetButton onReset={handleReset} />
+              </div>
               <div className="space-y-2">
                 {SYSTEMS.map((s) => (
                   <button
@@ -482,6 +501,10 @@ export default function PlasterRenderCalculator() {
             </li>
           </ol>
         </section>
+
+        <div className="mt-6">
+          <AdSlot slotKey="calculator_mid" />
+        </div>
 
         <section className="mt-6 rounded-2xl border border-border bg-card p-5 text-sm">
           <h2 className="mb-2 font-semibold text-foreground">
