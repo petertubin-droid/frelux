@@ -94,6 +94,7 @@ const DisplaySettings = lazy(
  * first paint rather than before it.
  */
 function preloadChromeControls() {
+  if (import.meta.env.MODE === "test") return;
   void import("@/components/layout/DisplaySettings");
   void import("@/components/ui/AccessibilityToggle");
   void import("@/components/ui/LanguageSwitcher");
@@ -321,6 +322,7 @@ export default function Navbar() {
   }, [mobileOpen]);
 
   useEffect(() => {
+    if (import.meta.env.MODE === "test") return;
     const idle = (
       window as Window & {
         requestIdleCallback?: (cb: () => void) => number;

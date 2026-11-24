@@ -20,6 +20,10 @@ vi.mock("@/lib/credits", () => ({
   REWARD_EVENTS: {},
 }));
 
+vi.mock("@/components/ui/MarketSelector", () => ({
+  MarketSelector: () => null,
+}));
+
 beforeEach(() => {
   vi.clearAllMocks();
   window.localStorage.clear();
