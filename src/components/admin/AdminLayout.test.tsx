@@ -1,3 +1,5 @@
+import { render, screen, fireEvent } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
@@ -152,5 +154,224 @@ describe("AdminLayout", () => {
 
     // An admin screen rendered outside the guard is readable by anyone.
     expect(unguarded).toEqual([]);
+  });
+
+  describe("SidebarContent dropdown toggle behavior", () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    it("renders categories and closes active category when clicked", async () => {
+      const { SidebarContent } = await import("@/components/admin/AdminLayout");
+      render(
+        <MemoryRouter initialEntries={["/admin"]}>
+          <SidebarContent
+            user="admin@frelux.com"
+            onSignOut={() => {}}
+            theme="light"
+            onToggleTheme={() => {}}
+          />
+        </MemoryRouter>,
+      );
+
+      // On /admin, Overview is active and starts open
+      expect(
+        screen.getByRole("link", { name: /dashboard/i }),
+      ).toBeInTheDocument();
+
+      // Find Overview category toggle button
+      const overviewBtn = screen.getByRole("button", {
+        name: /toggle section.*overview/i,
+      });
+      expect(overviewBtn).toHaveAttribute("aria-expanded", "true");
+
+      // Click to close Overview category
+      fireEvent.click(overviewBtn);
+
+      // It must be closed!
+      expect(overviewBtn).toHaveAttribute("aria-expanded", "false");
+      expect(
+        screen.queryByRole("link", { name: /dashboard/i }),
+      ).not.toBeInTheDocument();
+
+      // Click again to reopen
+      fireEvent.click(overviewBtn);
+      expect(overviewBtn).toHaveAttribute("aria-expanded", "true");
+      expect(
+        screen.getByRole("link", { name: /dashboard/i }),
+      ).toBeInTheDocument();
+    });
+
+    it("opens and closes another category cleanly", async () => {
+      const { SidebarContent } = await import("@/components/admin/AdminLayout");
+      render(
+        <MemoryRouter initialEntries={["/admin"]}>
+          <SidebarContent
+            user="admin@frelux.com"
+            onSignOut={() => {}}
+            theme="light"
+            onToggleTheme={() => {}}
+          />
+        </MemoryRouter>,
+      );
+
+      const usersBtn = screen.getByRole("button", {
+        name: /toggle section.*users/i,
+      });
+      expect(usersBtn).toHaveAttribute("aria-expanded", "false");
+      expect(
+        screen.queryByRole("link", { name: /user management/i }),
+      ).not.toBeInTheDocument();
+
+      // Open Users category
+      fireEvent.click(usersBtn);
+      expect(usersBtn).toHaveAttribute("aria-expanded", "true");
+      expect(
+        screen.getByRole("link", { name: /user management/i }),
+      ).toBeInTheDocument();
+
+      // Close Users category
+      fireEvent.click(usersBtn);
+      expect(usersBtn).toHaveAttribute("aria-expanded", "false");
+      expect(
+        screen.queryByRole("link", { name: /user management/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("allows multiple categories to be opened and closed independently", async () => {
+      const { SidebarContent } = await import("@/components/admin/AdminLayout");
+      render(
+        <MemoryRouter initialEntries={["/admin"]}>
+          <SidebarContent
+            user="admin@frelux.com"
+            onSignOut={() => {}}
+            theme="light"
+            onToggleTheme={() => {}}
+          />
+        </MemoryRouter>,
+      );
+
+      const overviewBtn = screen.getByRole("button", {
+        name: /toggle section.*overview/i,
+      });
+      const usersBtn = screen.getByRole("button", {
+        name: /toggle section.*users/i,
+      });
+      const enginesBtn = screen.getByRole("button", {
+        name: /toggle section.*construction engines/i,
+      });
+
+      // Open Users and Engines
+      fireEvent.click(usersBtn);
+      fireEvent.click(enginesBtn);
+
+      expect(overviewBtn).toHaveAttribute("aria-expanded", "true");
+      expect(usersBtn).toHaveAttribute("aria-expanded", "true");
+      expect(enginesBtn).toHaveAttribute("aria-expanded", "true");
+
+      // Close Overview without needing to touch others
+      fireEvent.click(overviewBtn);
+      expect(overviewBtn).toHaveAttribute("aria-expanded", "false");
+      expect(usersBtn).toHaveAttribute("aria-expanded", "true");
+      expect(enginesBtn).toHaveAttribute("aria-expanded", "true");
+
+      // Close Users
+      fireEvent.click(usersBtn);
+      expect(usersBtn).toHaveAttribute("aria-expanded", "false");
+      expect(enginesBtn).toHaveAttribute("aria-expanded", "true");
+
+      // Close Engines
+      fireEvent.click(enginesBtn);
+      expect(enginesBtn).toHaveAttribute("aria-expanded", "false");
+    });
+
+    it("expands and collapses all categories via quick toggle", async () => {
+      const { SidebarContent } = await import("@/components/admin/AdminLayout");
+      render(
+        <MemoryRouter initialEntries={["/admin"]}>
+          <SidebarContent
+            user="admin@frelux.com"
+            onSignOut={() => {}}
+            theme="light"
+            onToggleTheme={() => {}}
+          />
+        </MemoryRouter>,
+      );
+
+      const expandAllBtn = screen.getByRole("button", { name: /expand all/i });
+      fireEvent.click(expandAllBtn);
+
+      const collapseAllBtn = screen.getByRole("button", {
+        name: /collapse all/i,
+      });
+      expect(collapseAllBtn).toBeInTheDocument();
+
+      // Now all categories are expanded
+      expect(
+        screen.getByRole("link", { name: /engine config/i }),
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("link", { name: /user management/i }),
+      ).toBeInTheDocument();
+
+      // Collapse all
+      fireEvent.click(collapseAllBtn);
+      expect(
+        screen.queryByRole("link", { name: /engine config/i }),
+      ).not.toBeInTheDocument();
+      expect(
+        screen.queryByRole("link", { name: /user management/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("auto-expands matching sections when a search query is entered", async () => {
+      const { SidebarContent } = await import("@/components/admin/AdminLayout");
+      render(
+        <MemoryRouter initialEntries={["/admin"]}>
+          <SidebarContent
+            user="admin@frelux.com"
+            onSignOut={() => {}}
+            theme="light"
+            onToggleTheme={() => {}}
+          />
+        </MemoryRouter>,
+      );
+
+      // Search input
+      const searchInput = screen.getByPlaceholderText(/search admin pages/i);
+      fireEvent.change(searchInput, { target: { value: "Engine Config" } });
+
+      // Construction Engines section should now be visible and open
+      expect(
+        screen.getByRole("link", { name: /engine config/i }),
+      ).toBeInTheDocument();
+    });
+
+    it("migrates from localStorage open sections cleanly", async () => {
+      localStorage.setItem(
+        "admin:sidebar-open-sections",
+        JSON.stringify(["Users", "System"]),
+      );
+      const { SidebarContent } = await import("@/components/admin/AdminLayout");
+      render(
+        <MemoryRouter initialEntries={["/admin"]}>
+          <SidebarContent
+            user="admin@frelux.com"
+            onSignOut={() => {}}
+            theme="light"
+            onToggleTheme={() => {}}
+          />
+        </MemoryRouter>,
+      );
+
+      const usersBtn = screen.getByRole("button", {
+        name: /toggle section.*users/i,
+      });
+      const systemBtn = screen.getByRole("button", {
+        name: /toggle section.*system/i,
+      });
+      expect(usersBtn).toHaveAttribute("aria-expanded", "true");
+      expect(systemBtn).toHaveAttribute("aria-expanded", "true");
+    });
   });
 });

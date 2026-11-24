@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import AppRail from "@/components/layout/AppRail";
 import {
   NavLink,
@@ -560,6 +560,7 @@ export const navModules: NavModule[] = [
   },
 ];
 
+const ADMIN_SIDEBAR_OPEN_KEY = "admin:sidebar-open-sections";
 const ADMIN_SIDEBAR_COLLAPSED_KEY = "admin:sidebar-collapsed";
 
 /** Flat path lookup for breadcrumbs and search. */
@@ -765,7 +766,7 @@ function AdminLayoutInner() {
   );
 }
 
-function SidebarContent({
+export function SidebarContent({
   user,
   onSignOut,
   onNavigate,
@@ -779,43 +780,9 @@ function SidebarContent({
   onToggleTheme: () => void;
 }) {
   const { t } = useLanguage();
-  // Sidebar search filters sections/pages so the owner can jump straight to
-  // any admin page (materials, prices, engines, users, settings…) instead of
-  // hunting through the sidebar.
-  const [query, setQuery] = useState("");
-
-  // Collapsible category dropdowns. The collapsed set persists across
-  // visits (localStorage). On first use everything starts collapsed except
-  // the section containing the current page, so the sidebar reads as an
-  // organized menu of categories instead of a ~100-link wall.
-  const [collapsed, setCollapsed] = useState<Set<string>>(() => {
-    try {
-      const raw = localStorage.getItem(ADMIN_SIDEBAR_COLLAPSED_KEY);
-      if (!raw) return new Set<string>(navModules.map((m) => m.heading));
-      return new Set(JSON.parse(raw) as string[]);
-    } catch {
-      return new Set<string>(navModules.map((m) => m.heading));
-    }
-  });
-  const toggleCollapsed = (heading: string) => {
-    setCollapsed((prev) => {
-      const next = new Set(prev);
-      if (next.has(heading)) next.delete(heading);
-      else next.add(heading);
-      try {
-        localStorage.setItem(
-          ADMIN_SIDEBAR_COLLAPSED_KEY,
-          JSON.stringify([...next]),
-        );
-      } catch {
-        /* storage unavailable - keep in-memory state */
-      }
-      return next;
-    });
-  };
   const location = useLocation();
-  // The section of the active page always stays open, even if collapsed,
-  // so the owner never loses sight of where they are.
+
+  // Determine active section from current route
   const activeHeading = useMemo(() => {
     const match = flatNav.find((f) => f.item.to === location.pathname);
     if (match) return match.heading;
@@ -828,6 +795,92 @@ function SidebarContent({
       .sort((a, b) => b.item.to.length - a.item.to.length)[0];
     return prefix?.heading;
   }, [location.pathname]);
+
+  // Sidebar search filters sections/pages
+  const [query, setQuery] = useState("");
+
+  // Open categories set. Tracking opened sections directly ensures that
+  // clicking any dropdown toggles it open or closed reliably, without any
+  // locked state or race condition between categories.
+  const [openSections, setOpenSections] = useState<Set<string>>(() => {
+    try {
+      const rawOpen = localStorage.getItem(ADMIN_SIDEBAR_OPEN_KEY);
+      if (rawOpen) {
+        const parsed = JSON.parse(rawOpen);
+        if (Array.isArray(parsed)) return new Set<string>(parsed);
+      }
+      // Migrate from older collapsed key if valid
+      const rawCollapsed = localStorage.getItem(ADMIN_SIDEBAR_COLLAPSED_KEY);
+      if (rawCollapsed) {
+        const parsedCollapsed = JSON.parse(rawCollapsed);
+        if (
+          Array.isArray(parsedCollapsed) &&
+          parsedCollapsed.length > 0 &&
+          parsedCollapsed.length < navModules.length
+        ) {
+          const collapsedSet = new Set(parsedCollapsed as string[]);
+          const open = navModules
+            .map((m) => m.heading)
+            .filter((h) => !collapsedSet.has(h));
+          if (open.length > 0) return new Set<string>(open);
+        }
+      }
+    } catch {
+      /* storage unavailable or parse error */
+    }
+
+    // Default on initial load: open the current page section, or Overview
+    return new Set<string>([activeHeading || "Overview"]);
+  });
+
+  // When navigating to a new route in a different section, auto-open that section
+  // so the user sees where they are.
+  const prevActiveHeadingRef = useRef<string | undefined>(activeHeading);
+  useEffect(() => {
+    if (activeHeading && activeHeading !== prevActiveHeadingRef.current) {
+      prevActiveHeadingRef.current = activeHeading;
+      setOpenSections((prev) => {
+        if (prev.has(activeHeading)) return prev;
+        const next = new Set(prev);
+        next.add(activeHeading);
+        try {
+          localStorage.setItem(
+            ADMIN_SIDEBAR_OPEN_KEY,
+            JSON.stringify([...next]),
+          );
+        } catch {
+          /* storage unavailable */
+        }
+        return next;
+      });
+    }
+  }, [activeHeading]);
+
+  // Explicit toggle for each category dropdown.
+  // Clicking an open category ALWAYS closes it; clicking a closed category ALWAYS opens it.
+  const toggleSection = (heading: string) => {
+    setOpenSections((prev) => {
+      const next = new Set(prev);
+      if (next.has(heading)) {
+        next.delete(heading);
+      } else {
+        next.add(heading);
+      }
+      try {
+        localStorage.setItem(ADMIN_SIDEBAR_OPEN_KEY, JSON.stringify([...next]));
+        const collapsedList = navModules
+          .map((m) => m.heading)
+          .filter((h) => !next.has(h));
+        localStorage.setItem(
+          ADMIN_SIDEBAR_COLLAPSED_KEY,
+          JSON.stringify(collapsedList),
+        );
+      } catch {
+        /* storage unavailable */
+      }
+      return next;
+    });
+  };
 
   const q = query.trim().toLowerCase();
   const modules = useMemo(
@@ -848,6 +901,31 @@ function SidebarContent({
         : navModules,
     [q],
   );
+
+  const allOpen =
+    modules.length > 0 && modules.every((m) => openSections.has(m.heading));
+
+  const toggleAll = () => {
+    setOpenSections((prev) => {
+      const next = allOpen
+        ? new Set<string>()
+        : new Set<string>(navModules.map((m) => m.heading));
+      try {
+        localStorage.setItem(ADMIN_SIDEBAR_OPEN_KEY, JSON.stringify([...next]));
+        const collapsedList = navModules
+          .map((m) => m.heading)
+          .filter((h) => !next.has(h));
+        localStorage.setItem(
+          ADMIN_SIDEBAR_COLLAPSED_KEY,
+          JSON.stringify(collapsedList),
+        );
+      } catch {
+        /* storage unavailable */
+      }
+      return next;
+    });
+  };
+
   return (
     <div className="flex h-full flex-col">
       <div className="hidden border-b border-border/60 px-5 py-5 dark:border-white/10 lg:block">
@@ -885,24 +963,33 @@ function SidebarContent({
         </div>
       </div>
 
+      <div className="flex items-center justify-between px-4 py-2 border-b border-border/40 text-xs text-muted-foreground/80 dark:border-white/5">
+        <span className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60">
+          {t("Categories")}
+        </span>
+        <button
+          type="button"
+          onClick={toggleAll}
+          className="text-[11px] font-medium text-muted-foreground hover:text-primary transition-colors"
+        >
+          {allOpen ? t("Collapse all") : t("Expand all")}
+        </button>
+      </div>
+
       <nav
         className="flex-1 overflow-y-auto p-3"
         aria-label={t("Admin sections")}
       >
         {modules.map((module) => {
           let lastGroup: string | undefined;
-          // When searching, every matching section is force-expanded so
-          // results are visible immediately; otherwise sections open when
-          // not collapsed (or when they hold the active page).
-          const isOpen = q
-            ? true
-            : !collapsed.has(module.heading) ||
-              module.heading === activeHeading;
+          // When searching, force-expand all matching sections.
+          // Otherwise, open state is strictly controlled by openSections.
+          const isOpen = q ? true : openSections.has(module.heading);
           return (
             <div key={module.heading} className="mb-2">
               <button
                 type="button"
-                onClick={() => toggleCollapsed(module.heading)}
+                onClick={() => toggleSection(module.heading)}
                 aria-expanded={isOpen}
                 aria-label={`${t("Toggle section")}: ${t(module.heading)}`}
                 className="flex w-full items-center justify-between rounded-lg px-3 py-1.5 text-xs font-bold uppercase tracking-[0.16em] text-muted-foreground transition-colors hover:bg-muted/60 hover:text-primary dark:hover:bg-white/5"
@@ -921,39 +1008,40 @@ function SidebarContent({
                   />
                 </span>
               </button>
-              <div className="mt-0.5 space-y-0.5">
-                {module.items.map((item) => {
-                  if (!isOpen) return null;
-                  const Icon = item.icon;
-                  const showGroup = item.group && item.group !== lastGroup;
-                  lastGroup = item.group;
-                  return (
-                    <div key={item.to}>
-                      {showGroup && (
-                        <p className="mt-2 px-3 pb-0.5 text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
-                          {t(item.group ?? "")}
-                        </p>
-                      )}
-                      <NavLink
-                        to={item.to}
-                        end={item.end}
-                        onClick={onNavigate}
-                        className={({ isActive }) =>
-                          classNames(
-                            "relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
-                            isActive
-                              ? "bg-gradient-to-r from-primary to-primary/85 text-primary-foreground shadow-[0_10px_24px_-14px_hsl(var(--primary)),inset_0_1px_0_0_rgba(255,255,255,0.12)]"
-                              : "text-muted-foreground hover:bg-muted/60 hover:text-foreground dark:text-muted-foreground/90 dark:hover:bg-white/5 dark:hover:text-foreground",
-                          )
-                        }
-                      >
-                        <Icon className="h-4 w-4 shrink-0" />
-                        {t(item.label)}
-                      </NavLink>
-                    </div>
-                  );
-                })}
-              </div>
+              {isOpen && (
+                <div className="mt-0.5 space-y-0.5">
+                  {module.items.map((item) => {
+                    const Icon = item.icon;
+                    const showGroup = item.group && item.group !== lastGroup;
+                    lastGroup = item.group;
+                    return (
+                      <div key={item.to}>
+                        {showGroup && (
+                          <p className="mt-2 px-3 pb-0.5 text-xs font-bold uppercase tracking-widest text-muted-foreground/60">
+                            {t(item.group ?? "")}
+                          </p>
+                        )}
+                        <NavLink
+                          to={item.to}
+                          end={item.end}
+                          onClick={onNavigate}
+                          className={({ isActive }) =>
+                            classNames(
+                              "relative flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium transition-all duration-200",
+                              isActive
+                                ? "bg-gradient-to-r from-primary to-primary/85 text-primary-foreground shadow-[0_10px_24px_-14px_hsl(var(--primary)),inset_0_1px_0_0_rgba(255,255,255,0.12)]"
+                                : "text-muted-foreground hover:bg-muted/60 hover:text-foreground dark:text-muted-foreground/90 dark:hover:bg-white/5 dark:hover:text-foreground",
+                            )
+                          }
+                        >
+                          <Icon className="h-4 w-4 shrink-0" />
+                          {t(item.label)}
+                        </NavLink>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           );
         })}
