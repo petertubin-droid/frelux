@@ -60,7 +60,7 @@ const VERIFY_FAQS = [
   {
     question: "How does FRELUX PAY work for global subscriptions?",
     answer:
-      "FRELUX PAY lets builders, contractors, and firms anywhere in the world pay for Pro plans and digital tools directly in Bitcoin and major cryptocurrencies via NOWPayments and BTCPay Server—eliminating cross-border card declines, currency conversion hurdles, and third-party payment delays.",
+      "FRELUX PAY lets builders, contractors, and firms anywhere in the world pay for Pro plans and digital tools directly in Bitcoin and 200+ cryptocurrencies via NOWPayments—eliminating cross-border card declines, currency conversion hurdles, and third-party payment delays.",
   },
   {
     question:

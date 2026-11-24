@@ -186,12 +186,13 @@ describe("Pricing, USD plans and billing toggle", () => {
   });
 });
 
-describe("Pricing, Crypto and BTCPay options", () => {
-  it("marks BTCPay as Coming Soon and disabled in payment gateway selector", async () => {
-    const { getByRole } = await renderPage();
-    const btcpayBtn = getByRole("radio", { name: /bitcoin.*coming soon/i });
-    expect(btcpayBtn).toBeInTheDocument();
-    expect(btcpayBtn).toBeDisabled();
+describe("Pricing, crypto portal and retired BTCPay option", () => {
+  it("offers NOWPayments as the crypto portal and does not offer BTCPay", async () => {
+    const { getByRole, queryByRole } = await renderPage();
+    const cryptoBtn = getByRole("radio", { name: /crypto/i });
+    expect(cryptoBtn).toBeInTheDocument();
+    expect(cryptoBtn).not.toBeDisabled();
+    expect(queryByRole("radio", { name: /btcpay|bitcoin/i })).toBeNull();
   });
 
   it("displays canonical crypto prices (USD) when Crypto gateway is selected even in local market", async () => {

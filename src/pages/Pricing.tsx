@@ -182,7 +182,9 @@ export default function Pricing() {
   );
   const [activeBtcInvoice, setActiveBtcInvoice] =
     useState<BtcPayInvoiceResult | null>(null);
-  const [selectedPlanForBtc, setSelectedPlanForBtc] =
+  // BTCPay is no longer offered to buyers, so nothing sets the plan it would
+  // display; the modal keeps reading it in case the rail returns.
+  const [selectedPlanForBtc, _setSelectedPlanForBtc] =
     useState<PricingPlan | null>(null);
   useEffect(() => {
     try {
@@ -546,48 +548,34 @@ export default function Pricing() {
               data-testid="gateway-selector"
               className="inline-flex rounded-full border border-border/70 bg-card/80 p-1 shadow-sm backdrop-blur dark:border-white/10"
             >
-              {gateways.map((gw) => {
-                const isBtcPay = gw === "btcpay";
-                return (
+              {gateways
+                // NOWPayments is the crypto portal. BTCPay is kept in the
+                // server code but is not offered to buyers: showing a second
+                // crypto button that can only say "coming soon" reads as a
+                // broken portal rather than an alternative.
+                .filter((gw) => gw !== "btcpay")
+                .map((gw) => (
                   <button
                     key={gw}
                     type="button"
                     role="radio"
                     aria-checked={chosenGateway === gw}
-                    disabled={isBtcPay}
-                    onClick={() => {
-                      if (isBtcPay) {
-                        toast({
-                          title: t("Coming Soon"),
-                          message: t(
-                            "BTCPay is not fully implemented yet and will be available soon.",
-                          ),
-                          type: "info",
-                        });
-                        return;
-                      }
-                      setChosenGateway(gw);
-                    }}
+                    onClick={() => setChosenGateway(gw)}
                     className={classNames(
                       "rounded-full px-4 py-2 text-sm font-medium capitalize transition-all duration-200",
                       chosenGateway === gw
                         ? "bg-brand-purple text-white"
-                        : isBtcPay
-                          ? "cursor-not-allowed opacity-60 text-muted-foreground"
-                          : "text-muted-foreground hover:bg-muted",
+                        : "text-muted-foreground hover:bg-muted",
                     )}
                   >
                     {gw === "paystack"
                       ? "Paystack"
                       : gw === "nowpayments"
-                        ? "FRELUX PAY (Crypto / Multi-Currency)"
-                        : gw === "btcpay"
-                          ? "FRELUX PAY (Bitcoin - Coming Soon)"
-                          : "Flutterwave"}
+                        ? "FRELUX PAY (Crypto)"
+                        : "Flutterwave"}
                     {defaultGateway === gw && " (default)"}
                   </button>
-                );
-              })}
+                ))}
             </div>
           </div>
         )}
