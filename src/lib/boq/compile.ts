@@ -21,6 +21,7 @@ import {
 } from "@/lib/finance/boq-standard";
 import type { TaxCalculationResult } from "@/lib/finance/tax-engine";
 import { formatByCode } from "@/lib/international/currency-format";
+import { reviewerCredit } from "@/lib/identity/credentials";
 import { roundMoney } from "@/lib/money/round";
 import type {
   BoqStudioDocument,
@@ -314,6 +315,8 @@ function normaliseDocument(doc: BoqStudioDocument): NormalisedBoqDocument {
       reviewer_name: asText(reviewRaw.reviewer_name) || undefined,
       reviewer_qualification:
         asText(reviewRaw.reviewer_qualification) || undefined,
+      reviewer_credential_verified:
+        reviewRaw.reviewer_credential_verified === true,
     },
     sections,
   };
@@ -582,10 +585,14 @@ export function formatMoney(
 /** The label stamped on every exported page. Never claims approval without a reviewer. */
 export function documentStatusLabel(doc: BoqStudioDocument): string {
   if (doc.review.status === "reviewed" && doc.review.reviewer_name) {
-    const qual = doc.review.reviewer_qualification
-      ? `, ${doc.review.reviewer_qualification}`
-      : "";
-    return `Reviewed by ${doc.review.reviewer_name}${qual}`;
+    // The status line is on every page, so it goes through the same gate as the
+    // review block: an unverified suffix is not printed anywhere.
+    const credit = reviewerCredit(
+      doc.review.reviewer_name,
+      doc.review.reviewer_qualification,
+      doc.review.reviewer_credential_verified === true,
+    );
+    return `Reviewed by ${credit}`;
   }
   if (doc.review.status === "rejected")
     return "Preliminary: returned for revision";

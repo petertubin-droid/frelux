@@ -108,10 +108,7 @@ serveWithCors(async (req: Request) => {
         government_id_number: body.government_id_number,
       });
       if (!identity.ok) {
-        return errorResponse(
-          Object.values(identity.errors).join(" "),
-          400,
-        );
+        return errorResponse(Object.values(identity.errors).join(" "), 400);
       }
       const { nin_number, government_id_type, government_id_number } =
         identity.normalized;
@@ -257,9 +254,7 @@ serveWithCors(async (req: Request) => {
         const identity = validateIdentity({
           country_code: country_code ?? target.country_code,
           nin_number:
-            body.nin_number !== undefined
-              ? body.nin_number
-              : target.nin_number,
+            body.nin_number !== undefined ? body.nin_number : target.nin_number,
           government_id_type:
             body.government_id_type !== undefined
               ? body.government_id_type
@@ -273,9 +268,42 @@ serveWithCors(async (req: Request) => {
           return errorResponse(Object.values(identity.errors).join(" "), 400);
         }
         updatePayload.nin_number = identity.normalized.nin_number;
-        updatePayload.government_id_type = identity.normalized.government_id_type;
+        updatePayload.government_id_type =
+          identity.normalized.government_id_type;
         updatePayload.government_id_number =
           identity.normalized.government_id_number;
+      }
+      // Professional credential suffix. The suffix is a claim about a
+      // registration, so only this admin endpoint can stamp it verified, and
+      // changing the claim clears the stamp: a new claim needs a new check.
+      if (body.credential_suffix !== undefined) {
+        const suffix = String(body.credential_suffix ?? "")
+          .replace(/\s+/g, " ")
+          .replace(/^[,\s]+|[,\s]+$/g, "")
+          .trim()
+          .slice(0, 60);
+        updatePayload.credential_suffix = suffix || null;
+        const changed = suffix !== (target.credential_suffix ?? "");
+        if (changed) {
+          updatePayload.credential_verified_at = null;
+          updatePayload.credential_verified_by = null;
+        }
+      }
+      if (body.credential_verified !== undefined) {
+        const verified = body.credential_verified === true;
+        const suffix =
+          updatePayload.credential_suffix !== undefined
+            ? updatePayload.credential_suffix
+            : target.credential_suffix;
+        if (verified && !suffix)
+          return errorResponse(
+            "State the credential suffix before verifying it.",
+            400,
+          );
+        updatePayload.credential_verified_at = verified
+          ? new Date().toISOString()
+          : null;
+        updatePayload.credential_verified_by = verified ? actorId : null;
       }
       const { error: profileError } = await admin
         .from("profiles")

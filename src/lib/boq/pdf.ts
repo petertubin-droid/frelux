@@ -11,6 +11,7 @@
 import { formatByCode } from "@/lib/international/currency-format";
 import type { StandardBoqDocument } from "@/lib/finance/boq-standard";
 import { documentStatusLabel } from "./compile";
+import { reviewerCredit } from "@/lib/identity/credentials";
 import { saveSealedPdf } from "@/lib/pdf-seal";
 import { drawFreluxMark, drawFreluxWatermark } from "@/lib/pdf-logo";
 import {
@@ -66,7 +67,11 @@ function money(amount: number, currency: string): string {
  * ellipsised rather than allowed to overlap the title.
  */
 function fitHeaderBrand(
-  doc: { getTextWidth: (text: string) => number; setFont: (f: string, s: string) => void; setFontSize: (n: number) => void },
+  doc: {
+    getTextWidth: (text: string) => number;
+    setFont: (f: string, s: string) => void;
+    setFontSize: (n: number) => void;
+  },
   brand: string,
   maxWidth: number,
 ): string {
@@ -117,7 +122,10 @@ export async function buildBoqPdf(
       section.title,
       ...section.subSections.flatMap((sub) => [
         sub.title,
-        ...sub.items.flatMap((item) => [item.description, item.specificationRef]),
+        ...sub.items.flatMap((item) => [
+          item.description,
+          item.specificationRef,
+        ]),
       ]),
     ]),
   ]
@@ -163,11 +171,7 @@ export async function buildBoqPdf(
       doc.setFont(fontFamily, "bold");
       doc.setFontSize(13);
       const headerBrand = options.customBranding
-        ? fitHeaderBrand(
-            doc,
-            studio.contractor.name.trim() || "FRELUX",
-            26 - 3,
-          )
+        ? fitHeaderBrand(doc, studio.contractor.name.trim() || "FRELUX", 26 - 3)
         : "FRELUX";
       doc.text(headerBrand, margin, 11);
       doc.setFont(fontFamily, "normal");
@@ -530,7 +534,11 @@ export async function buildBoqPdf(
     doc.setFont(fontFamily, "normal");
     doc.setFontSize(8);
     doc.text(
-      `${studio.review.reviewer_name}${studio.review.reviewer_qualification ? `, ${studio.review.reviewer_qualification}` : ""}`,
+      reviewerCredit(
+        studio.review.reviewer_name,
+        studio.review.reviewer_qualification,
+        studio.review.reviewer_credential_verified === true,
+      ),
       margin,
       y,
     );

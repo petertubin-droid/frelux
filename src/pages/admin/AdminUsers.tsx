@@ -90,6 +90,8 @@ export default function AdminUsers() {
     country_code: "",
     location: "",
     nin_number: "",
+    credential_suffix: "",
+    credential_verified: false,
     government_id_type: "national_id",
     government_id_number: "",
     account_type: "client",
@@ -247,6 +249,8 @@ export default function AdminUsers() {
       country_code: "",
       location: "",
       nin_number: "",
+      credential_suffix: "",
+      credential_verified: false,
       government_id_type: "national_id",
       government_id_number: "",
       account_type: "client",
@@ -268,6 +272,8 @@ export default function AdminUsers() {
       country_code: user.country_code ?? resolveUserCountry(user).code ?? "",
       location: user.location ?? "",
       nin_number: user.nin_number ?? "",
+      credential_suffix: user.credential_suffix ?? "",
+      credential_verified: Boolean(user.credential_verified_at),
       government_id_type: user.government_id_type || "national_id",
       government_id_number: user.government_id_number ?? "",
       account_type: user.account_type ?? "client",
@@ -315,6 +321,10 @@ export default function AdminUsers() {
           action: editingUser ? "update" : "invite",
           userId: editingUser?.id,
           ...form,
+          // Only the admin endpoint can stamp a credential verified; the server
+          // clears the stamp whenever the stated suffix changes.
+          credential_suffix: form.credential_suffix,
+          credential_verified: form.credential_verified,
           // Professional details live on pro_profiles; the whitelist in
           // admin_update_pro_profile decides what may be written.
           pro:
@@ -1004,6 +1014,35 @@ export default function AdminUsers() {
               placeholder="e.g. Lagos, Nigeria or Austin, Texas"
               onChange={(e) => setForm({ ...form, location: e.target.value })}
             />
+          </AdminField>
+          <AdminField
+            label="Professional credential suffix"
+            hint="Prints after the reviewer's name on documents, and only while you have verified it."
+          >
+            <AdminInput
+              value={form.credential_suffix}
+              maxLength={60}
+              placeholder="e.g. FNSE, COREN R.12345"
+              onChange={(e) =>
+                setForm({
+                  ...form,
+                  credential_suffix: e.target.value,
+                  // A changed claim is an unchecked claim: drop the stamp.
+                  credential_verified: false,
+                })
+              }
+            />
+            <label className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                aria-label="Credential verified"
+                checked={form.credential_verified}
+                onChange={(e) =>
+                  setForm({ ...form, credential_verified: e.target.checked })
+                }
+              />
+              I verified this credential against the register
+            </label>
           </AdminField>
           {form.country_code === "NG" ? (
             <AdminField

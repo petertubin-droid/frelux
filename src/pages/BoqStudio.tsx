@@ -63,6 +63,7 @@ import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { useLanguage } from "@/lib/i18n";
 import { UnrenderableScriptError } from "@/lib/boq/fonts";
 import { downloadBoqPdf } from "@/lib/boq/pdf";
+import { resolveReviewerCredential } from "@/lib/identity/credentials";
 import {
   downloadArabicBoqPdf,
   needsArabicRenderer,
@@ -1656,20 +1657,29 @@ export default function BoqStudio() {
                     aria-label={t("Reviewer name")}
                     className={FIELD}
                     value={doc.review.reviewer_name ?? ""}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const name = e.target.value;
+                      // A suffix prints only when an administrator verified it
+                      // on the reviewer's own profile.
+                      const credit = resolveReviewerCredential(
+                        name,
+                        auth.profile,
+                      );
                       patch({
                         review: {
                           ...doc.review,
-                          status: e.target.value.trim()
-                            ? "reviewed"
-                            : "unreviewed",
-                          reviewer_name: e.target.value,
-                          reviewed_at: e.target.value.trim()
+                          status: name.trim() ? "reviewed" : "unreviewed",
+                          reviewer_name: name,
+                          reviewer_qualification: credit.verified
+                            ? (credit.suffix ?? undefined)
+                            : undefined,
+                          reviewer_credential_verified: credit.verified,
+                          reviewed_at: name.trim()
                             ? new Date().toISOString()
                             : undefined,
                         },
-                      })
-                    }
+                      });
+                    }}
                   />
                   <p className="mt-1 text-xs text-slate-500">
                     {t(
@@ -1683,16 +1693,18 @@ export default function BoqStudio() {
                     aria-label={t("Reviewer qualification")}
                     className={FIELD}
                     value={doc.review.reviewer_qualification ?? ""}
-                    onChange={(e) =>
-                      patch({
-                        review: {
-                          ...doc.review,
-                          reviewer_qualification: e.target.value,
-                        },
-                      })
-                    }
-                    placeholder={t("e.g. QS, MNIQS")}
+                    readOnly
+                    placeholder={t("Verified by an administrator")}
                   />
+                  <p className="mt-1 text-xs text-slate-500">
+                    {doc.review.reviewer_credential_verified
+                      ? t(
+                          "Verified credential on file. It prints after the reviewer's name.",
+                        )
+                      : t(
+                          "A credential suffix prints only when an administrator has verified it on the reviewer's profile. An unverified claim never reaches the document.",
+                        )}
+                  </p>
                 </div>
               </div>
               <p className="mt-3 rounded-lg bg-slate-50 p-3 text-xs text-slate-600">

@@ -189,6 +189,7 @@ describe("compileBoq", () => {
           status: "reviewed",
           reviewer_name: "A. Bello",
           reviewer_qualification: "QS, MNIQS",
+          reviewer_credential_verified: true,
         },
       }),
     );
@@ -196,6 +197,20 @@ describe("compileBoq", () => {
     expect(documentStatusLabel(approved.document)).toBe(
       "Reviewed by A. Bello, QS, MNIQS",
     );
+  });
+
+  it("names the reviewer but withholds a suffix nobody verified", () => {
+    const approved = compileBoq(
+      baseDoc({
+        review: {
+          status: "reviewed",
+          reviewer_name: "A. Bello",
+          reviewer_qualification: "QS, MNIQS",
+        },
+      }),
+    );
+    expect(approved.is_preliminary).toBe(false);
+    expect(documentStatusLabel(approved.document)).toBe("Reviewed by A. Bello");
   });
 
   it("ignores a stale reviewed flag with no reviewer name", () => {

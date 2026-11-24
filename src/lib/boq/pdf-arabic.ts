@@ -32,6 +32,7 @@ import * as fontkitNs from "fontkit";
 import type { StandardBoqDocument } from "@/lib/finance/boq-standard";
 import { formatByCode } from "@/lib/international/currency-format";
 import { documentStatusLabel } from "./compile";
+import { reviewerCredit } from "@/lib/identity/credentials";
 import type { BoqStudioDocument } from "./types";
 import { drawShapedRun, shapeText, type ShapedRun } from "./arabic-shaping";
 import { downloadSealedPdf, sealAndStampPdf } from "@/lib/pdf-seal";
@@ -869,7 +870,11 @@ export async function buildArabicBoqPdf(
     y -= 13;
     drawIn(
       ctx,
-      `${studio.review.reviewer_name}${studio.review.reviewer_qualification ? `, ${studio.review.reviewer_qualification}` : ""}`,
+      reviewerCredit(
+        studio.review.reviewer_name,
+        studio.review.reviewer_qualification,
+        studio.review.reviewer_credential_verified === true,
+      ),
       { left: MARGIN, width: CONTENT },
       y,
       8,

@@ -169,3 +169,43 @@ describe("global readiness and paywall edges", () => {
     expect(pdf.getNumberOfPages()).toBeGreaterThanOrEqual(1);
   });
 });
+
+describe("reviewer credentials on the document", () => {
+  const reviewed = (verified: boolean): BoqStudioDocument => ({
+    ...doc(),
+    review: {
+      status: "reviewed",
+      reviewer_name: "Engr. U. Okereke",
+      reviewer_qualification: "FNSE",
+      reviewer_credential_verified: verified,
+      reviewed_at: "2026-11-20T00:00:00Z",
+    },
+  });
+
+  it("prints a suffix an administrator verified", () => {
+    const compiled = compileBoq(reviewed(true));
+    const html = boqStudioPrintHtml(compiled.standard, compiled.document);
+    expect(html).toContain("Engr. U. Okereke, FNSE");
+  });
+
+  it("withholds a suffix nobody verified, and prints the bare name", () => {
+    const compiled = compileBoq(reviewed(false));
+    const html = boqStudioPrintHtml(compiled.standard, compiled.document);
+    expect(html).toContain("Engr. U. Okereke");
+    expect(html).not.toContain("FNSE");
+  });
+
+  it("drops a qualification that arrives without a verification flag", () => {
+    const compiled = compileBoq({
+      ...doc(),
+      review: {
+        status: "reviewed",
+        reviewer_name: "Engr. U. Okereke",
+        reviewer_qualification: "QS, MNIQS",
+        reviewed_at: "2026-11-20T00:00:00Z",
+      },
+    });
+    const html = boqStudioPrintHtml(compiled.standard, compiled.document);
+    expect(html).not.toContain("MNIQS");
+  });
+});

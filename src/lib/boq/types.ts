@@ -96,6 +96,12 @@ export interface BoqReview {
   status: "unreviewed" | "reviewed" | "rejected";
   reviewer_name?: string;
   reviewer_qualification?: string;
+  /**
+   * True only when an administrator verified the credential suffix on the
+   * reviewer's profile. An unverified suffix is not printed: it is a claim
+   * about a registration, and a document must not make one unchecked.
+   */
+  reviewer_credential_verified?: boolean;
   reviewed_at?: string;
   note?: string;
 }

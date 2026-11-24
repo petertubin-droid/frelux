@@ -10,6 +10,11 @@ export interface DbProfile {
   country_code?: string | null;
   location?: string | null;
   nin_number?: string | null;
+  /** Professional credential claim, e.g. "FNSE, COREN R.12345". */
+  credential_suffix?: string | null;
+  /** Admin stamp: NULL means unverified, and the suffix is not printed. */
+  credential_verified_at?: string | null;
+  credential_verified_by?: string | null;
   government_id_type?: string | null;
   government_id_number?: string | null;
   avatar_url: string;

@@ -13,6 +13,7 @@ import {
 } from "@/lib/finance/boq-standard";
 import { formatByCode } from "@/lib/international/currency-format";
 import { documentStatusLabel } from "./compile";
+import { reviewerCredit } from "@/lib/identity/credentials";
 import type { BoqStudioDocument } from "./types";
 import { verifyPageUrl, verifySealCopy } from "@/lib/blockchain/verify-seal";
 
@@ -100,7 +101,11 @@ export function boqStudioPrintHtml(
   const review =
     studio.review.status === "reviewed" && studio.review.reviewer_name
       ? `<section class="studio-notes"><h3>Professional review</h3><p>${escapeHtml(
-          `${studio.review.reviewer_name}${studio.review.reviewer_qualification ? `, ${studio.review.reviewer_qualification}` : ""}`,
+          reviewerCredit(
+            studio.review.reviewer_name,
+            studio.review.reviewer_qualification,
+            studio.review.reviewer_credential_verified === true,
+          ),
         )}${studio.review.reviewed_at ? ` — reviewed ${escapeHtml(studio.review.reviewed_at.slice(0, 10))}` : ""}</p>${
           studio.review.note ? `<p>${escapeHtml(studio.review.note)}</p>` : ""
         }</section>`
@@ -194,7 +199,6 @@ export async function openBoqPrint(
   win.focus();
 }
 
-
 /**
  * Summary print view: the same figures as the free PDF, rendered by the browser.
  *
@@ -214,10 +218,16 @@ export function boqSummaryPrintHtml(
 
   const rows = [
     row("Measured works", summary.measuredWorksTotal),
-    summary.preliminariesAmount ? row("Preliminaries", summary.preliminariesAmount) : "",
-    summary.contingencyAmount ? row("Contingency", summary.contingencyAmount) : "",
+    summary.preliminariesAmount
+      ? row("Preliminaries", summary.preliminariesAmount)
+      : "",
+    summary.contingencyAmount
+      ? row("Contingency", summary.contingencyAmount)
+      : "",
     summary.taxAmount ? row("Tax", summary.taxAmount) : "",
-    summary.retentionAmount ? row("Retention / holdback", summary.retentionAmount) : "",
+    summary.retentionAmount
+      ? row("Retention / holdback", summary.retentionAmount)
+      : "",
     row("Net payable", summary.netPayableTotal, true),
   ].join("");
 
