@@ -392,7 +392,7 @@ export default function BoqStudio() {
     setIsSampleActive(false);
     setDoc(row.boq_document);
     setDocumentId(row.id);
-    toast.success(`Loaded ${row.title}`);
+    toast.success(`${t("Loaded")} ${row.title}`);
   };
 
   const guardExport = (): boolean => {
@@ -1193,7 +1193,7 @@ export default function BoqStudio() {
                                   <input
                                     className="w-16 rounded border border-slate-200 px-1.5 py-1 text-xs"
                                     value={item.item_number}
-                                    placeholder="auto"
+                                    placeholder={t("auto")}
                                     onChange={(e) =>
                                       patchItem(section.id, item.id, {
                                         item_number: e.target.value,
