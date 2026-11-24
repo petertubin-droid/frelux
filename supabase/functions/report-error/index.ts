@@ -132,6 +132,11 @@ serveWithCors(async (req: Request): Promise<Response> => {
     return jsonResponse({ error: "Invalid JSON" }, 400);
   }
 
+  // Health check / ping check from SystemHealth or monitoring
+  if (payload.test === true || payload.health_check === true) {
+    return jsonResponse({ status: "ok", healthy: true });
+  }
+
   // ── Reject oversized payloads (max 10KB) ──
   const payloadSize = JSON.stringify(payload).length;
   if (payloadSize > 10240) {

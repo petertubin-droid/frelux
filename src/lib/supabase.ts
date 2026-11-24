@@ -60,23 +60,47 @@ export function rewriteFunctionUrl(
 const EDGE_FUNCTIONS_BASE = edgeFunctionsBase();
 
 /**
- * fetch wrapper handed to every client: it only rewrites function calls, so
+ * fetch wrapper handed to every client: it rewrites function calls to the
+ * Cloudflare Worker edge base, falling back to direct Supabase invocation if
+ * the edge hop is unreachable, blocked, or returns a 502/503 gateway error.
  * Postgres, auth and storage requests are untouched.
  */
-const edgeFunctionsFetch: typeof fetch = (input, init) => {
+export const edgeFunctionsFetch: typeof fetch = async (input, init) => {
   if (!EDGE_FUNCTIONS_BASE) return fetch(input, init);
   const projectUrl = (url as string) || "";
+  const href =
+    input instanceof Request
+      ? input.url
+      : typeof input === "string"
+        ? input
+        : input.toString();
+  const target = rewriteFunctionUrl(href, projectUrl, EDGE_FUNCTIONS_BASE);
+  if (target === href) return fetch(input, init);
+
+  let fallbackInput: RequestInfo | URL = input;
+  let edgeInput: RequestInfo | URL = target;
   if (input instanceof Request) {
-    const target = rewriteFunctionUrl(
-      input.url,
-      projectUrl,
-      EDGE_FUNCTIONS_BASE,
-    );
-    if (target === input.url) return fetch(input, init);
-    return fetch(new Request(target, input), init);
+    try {
+      fallbackInput = input.clone();
+      edgeInput = new Request(target, input);
+    } catch {
+      edgeInput = new Request(target, input);
+      fallbackInput = input;
+    }
   }
-  const href = typeof input === "string" ? input : input.toString();
-  return fetch(rewriteFunctionUrl(href, projectUrl, EDGE_FUNCTIONS_BASE), init);
+
+  try {
+    const res = await fetch(edgeInput, init);
+    // 502 / 503 means the Worker cannot reach Supabase or is failing upstream:
+    // fall back to direct Supabase invocation so user actions never fail.
+    if ((res.status === 502 || res.status === 503) && target !== href) {
+      return await fetch(fallbackInput, init);
+    }
+    return res;
+  } catch {
+    // Edge hop network failure, DNS issue, or CORS block: fall back directly to Supabase.
+    return await fetch(fallbackInput, init);
+  }
 };
 
 export const isSupabaseConfigured = Boolean(url && anonKey);

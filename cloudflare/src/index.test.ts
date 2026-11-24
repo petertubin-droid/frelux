@@ -290,6 +290,16 @@ describe("file worker", () => {
       "https://freluxtools.com",
     );
 
+    const lovable = await worker.fetch(
+      new Request(url("/health"), {
+        headers: { origin: "https://frelux.lovable.app" },
+      }),
+      makeEnv(),
+    );
+    expect(lovable.headers.get("access-control-allow-origin")).toBe(
+      "https://frelux.lovable.app",
+    );
+
     const denied = await worker.fetch(
       new Request(url("/health"), {
         headers: { origin: "https://evil.example" },

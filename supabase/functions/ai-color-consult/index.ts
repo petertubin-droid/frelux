@@ -504,7 +504,7 @@ serveWithCors(async (req: Request) => {
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
-  let payload: ConsultRequest;
+  let payload: ConsultRequest & { health_check?: boolean };
   try {
     payload = await req.json();
   } catch {
@@ -512,6 +512,10 @@ serveWithCors(async (req: Request) => {
       { error: "Invalid JSON body", code: "BAD_REQUEST" },
       400,
     );
+  }
+
+  if (payload.health_check) {
+    return jsonResponse({ ok: true, status: "healthy" });
   }
 
   if (!payload.mode || (payload.mode !== "text" && payload.mode !== "image")) {

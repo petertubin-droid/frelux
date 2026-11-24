@@ -94,7 +94,7 @@ const metadata = {
     {
       type: "plain_text",
       name: "ALLOWED_ORIGINS",
-      text: "https://freluxtools.com,https://www.freluxtools.com,http://localhost:5173",
+      text: "https://freluxtools.com,https://www.freluxtools.com,https://frelux.lovable.app,https://freluxtools.netlify.app,http://localhost:5173",
     },
     {
       type: "plain_text",

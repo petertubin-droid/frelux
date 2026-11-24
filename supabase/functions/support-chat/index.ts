@@ -88,38 +88,63 @@ async function callGemini(
   message: string,
   history: Array<{ role: "user" | "model"; text: string }>,
 ): Promise<string> {
-  const apiKey = Deno.env.get("GEMINI_API_KEY");
+  const apiKey =
+    Deno.env.get("GEMINI_API_KEY") ||
+    Deno.env.get("GOOGLE_AI_API_KEY");
   if (!apiKey) throw new Error("NO_API_KEY");
 
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
-        contents: [
-          ...history.map((m) => ({
-            role: m.role,
-            parts: [{ text: m.text }],
-          })),
-          { role: "user", parts: [{ text: message }] },
-        ],
-        generationConfig: { temperature: 0.5, maxOutputTokens: 800 },
-      }),
-    },
-  );
-  if (!res.ok) {
-    throw new Error(`GEMINI_HTTP_${res.status}`);
+  const models = [
+    GEMINI_MODEL,
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+  ];
+
+  let lastError: Error | null = null;
+  for (const model of models) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: AbortSignal.timeout(15_000),
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: SYSTEM_PROMPT }] },
+            contents: [
+              ...history.map((m) => ({
+                role: m.role,
+                parts: [{ text: m.text }],
+              })),
+              { role: "user", parts: [{ text: message }] },
+            ],
+            generationConfig: { temperature: 0.5, maxOutputTokens: 800 },
+          }),
+        },
+      );
+      if (!res.ok) {
+        lastError = new Error(`GEMINI_HTTP_${res.status}`);
+        if (res.status === 404) continue;
+        throw lastError;
+      }
+      const data = await res.json();
+      const text = (data?.candidates?.[0]?.content?.parts ?? [])
+        .map((p: { text?: string }) => p?.text ?? "")
+        .filter(Boolean)
+        .join("")
+        .trim();
+      if (!text) throw new Error("EMPTY_RESPONSE");
+      return text.slice(0, 2000);
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      if (lastError.name === "TimeoutError" || lastError.name === "AbortError") {
+        throw lastError;
+      }
+      if (lastError.message.includes("404")) continue;
+      throw lastError;
+    }
   }
-  const data = await res.json();
-  const text = (data?.candidates?.[0]?.content?.parts ?? [])
-    .map((p: { text?: string }) => p?.text ?? "")
-    .filter(Boolean)
-    .join("")
-    .trim();
-  if (!text) throw new Error("EMPTY_RESPONSE");
-  return text.slice(0, 2000);
+  throw lastError ?? new Error("ALL_MODELS_FAILED");
 }
 
 serveWithCors(async (req: Request) => {
@@ -132,11 +157,16 @@ serveWithCors(async (req: Request) => {
     message?: unknown;
     history?: unknown;
     clientId?: unknown;
+    health_check?: unknown;
   };
   try {
     payload = await req.json();
   } catch {
     return json(400, { error: "Invalid JSON body." });
+  }
+
+  if (payload.health_check) {
+    return json(200, { ok: true, status: "healthy" });
   }
 
   // Rate limit per client id (falls back to IP). Anonymous-safe.

@@ -158,17 +158,45 @@ const INVOKE_HEADERS = [
   "x-supabase-api-version",
 ].join(", ");
 
+export function isOriginAllowed(origin: string | null, env: Env): boolean {
+  if (!origin) return false;
+  const allowed = (env.ALLOWED_ORIGINS ?? "https://freluxtools.com")
+    .split(",")
+    .map((value) => value.trim())
+    .filter(Boolean);
+  if (allowed.includes("*") || allowed.includes(origin)) return true;
+
+  const standardOrigins = [
+    "https://freluxtools.com",
+    "https://www.freluxtools.com",
+    "http://freluxtools.com",
+    "http://www.freluxtools.com",
+    "https://freluxtools.netlify.app",
+    "https://frelux.lovable.app",
+  ];
+  if (standardOrigins.includes(origin)) return true;
+
+  // Netlify previews
+  if (/^https:\/\/[a-z0-9-]+--freluxtools\.netlify\.app$/i.test(origin)) return true;
+
+  // Lovable preview, staging, projects, and editor surfaces
+  if (/^https:\/\/[a-z0-9-]+\.lovable\.app$/i.test(origin)) return true;
+  if (/^https:\/\/[a-z0-9-]+\.lovableproject\.com$/i.test(origin)) return true;
+  if (/^https:\/\/(.*\.)?lovable\.dev$/i.test(origin)) return true;
+
+  // Local development on any port
+  if (/^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin)) return true;
+
+  return false;
+}
+
 function corsHeaders(
   origin: string | null,
   env: Env,
   requestedHeaders?: string | null,
 ): Record<string, string> {
-  const allowed = (env.ALLOWED_ORIGINS ?? "https://freluxtools.com")
-    .split(",")
-    .map((value) => value.trim())
-    .filter(Boolean);
   const headers: Record<string, string> = { vary: "Origin" };
-  if (origin && allowed.includes(origin)) {
+  if (origin && isOriginAllowed(origin, env)) {
     headers["access-control-allow-origin"] = origin;
     // Echo what the browser asked for when it says, so a new client header
     // cannot silently break the preflight again, and fall back to the list
@@ -176,7 +204,8 @@ function corsHeaders(
     headers["access-control-allow-headers"] = requestedHeaders?.trim()
       ? `${INVOKE_HEADERS}, ${requestedHeaders.trim()}`
       : INVOKE_HEADERS;
-    headers["access-control-allow-methods"] = "GET, POST, OPTIONS";
+    headers["access-control-allow-methods"] =
+      "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD";
     headers["access-control-max-age"] = "86400";
   }
   return headers;

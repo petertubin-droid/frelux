@@ -128,3 +128,65 @@ describe("edgeFunctionsBase", () => {
     expect(edgeFunctionsBase()).toBe("");
   });
 });
+
+describe("edgeFunctionsFetch fallback resilience", () => {
+  it("falls back to Supabase directly if edge gateway throws network/CORS error", async () => {
+    vi.stubEnv("VITE_EDGE_FUNCTIONS_URL", EDGE);
+    const { edgeFunctionsFetch } = await load();
+
+    const fetchCalls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const urlStr = typeof input === "string" ? input : input instanceof Request ? input.url : input.toString();
+        fetchCalls.push(urlStr);
+        if (urlStr.startsWith(EDGE)) {
+          throw new TypeError("Failed to fetch (CORS/Network error)");
+        }
+        return new Response(JSON.stringify({ ok: true, source: "supabase" }), { status: 200 });
+      }),
+    );
+
+    const res = await edgeFunctionsFetch(`${PROJECT}/functions/v1/health`, {
+      method: "POST",
+      body: JSON.stringify({ ping: true }),
+    });
+
+    expect(fetchCalls[0]).toBe(`${EDGE}/health`);
+    expect(fetchCalls[1]).toBe(`${PROJECT}/functions/v1/health`);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.source).toBe("supabase");
+    vi.unstubAllGlobals();
+  });
+
+  it("falls back to Supabase directly if edge gateway returns 502 or 503", async () => {
+    vi.stubEnv("VITE_EDGE_FUNCTIONS_URL", EDGE);
+    const { edgeFunctionsFetch } = await load();
+
+    const fetchCalls: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const urlStr = typeof input === "string" ? input : input instanceof Request ? input.url : input.toString();
+        fetchCalls.push(urlStr);
+        if (urlStr.startsWith(EDGE)) {
+          return new Response(JSON.stringify({ error: "Bad gateway" }), { status: 502 });
+        }
+        return new Response(JSON.stringify({ ok: true, source: "supabase" }), { status: 200 });
+      }),
+    );
+
+    const res = await edgeFunctionsFetch(`${PROJECT}/functions/v1/nowpayments-checkout`, {
+      method: "POST",
+      body: JSON.stringify({ amount: 100 }),
+    });
+
+    expect(fetchCalls[0]).toBe(`${EDGE}/nowpayments-checkout`);
+    expect(fetchCalls[1]).toBe(`${PROJECT}/functions/v1/nowpayments-checkout`);
+    expect(res.status).toBe(200);
+    const data = await res.json();
+    expect(data.source).toBe("supabase");
+    vi.unstubAllGlobals();
+  });
+});
