@@ -49,7 +49,27 @@ export interface BoqPdfOptions {
 }
 
 function money(amount: number, currency: string): string {
-  return formatByCode(amount, currency || "XXX", { decimals: 2 });
+  // The currency's own minor units: JPY and KRW have none, so a yen figure
+  // prints 1,234 rather than 1,234.00. Others keep two decimals.
+  return formatByCode(amount, currency || "XXX", { decimals: "native" });
+}
+
+/**
+ * Fit the contractor name into the header without running into the document
+ * title at margin + 26. A long legal name (or a longer translation of it) is
+ * ellipsised rather than allowed to overlap the title.
+ */
+function fitHeaderBrand(
+  doc: { getTextWidth: (text: string) => number; setFont: (f: string, s: string) => void; setFontSize: (n: number) => void },
+  brand: string,
+  maxWidth: number,
+): string {
+  if (doc.getTextWidth(brand) <= maxWidth) return brand;
+  let trimmed = brand;
+  while (trimmed.length > 1 && doc.getTextWidth(`${trimmed}…`) > maxWidth) {
+    trimmed = trimmed.slice(0, -1);
+  }
+  return `${trimmed.trimEnd()}…`;
 }
 
 export async function buildBoqPdf(
@@ -109,7 +129,11 @@ export async function buildBoqPdf(
       doc.setFont("helvetica", "bold");
       doc.setFontSize(13);
       const headerBrand = options.customBranding
-        ? studio.contractor.name.trim() || "FRELUX"
+        ? fitHeaderBrand(
+            doc,
+            studio.contractor.name.trim() || "FRELUX",
+            26 - 3,
+          )
         : "FRELUX";
       doc.text(headerBrand, margin, 11);
       doc.setFont("helvetica", "normal");
@@ -509,11 +533,13 @@ export async function downloadBoqPdf(
   standard: StandardBoqDocument,
   studio: BoqStudioDocument,
   options: BoqPdfOptions = {},
-): Promise<{ hash: string; verificationId?: string }> {
+): Promise<{ hash: string; verificationId?: string; stampError?: string }> {
   // A token exists only when the seal is printed: no QR, no hosted copy.
   // It is created before the PDF is drawn because the QR must carry it.
+  // A summary preview never prints the seal, so it must not host a copy: the
+  // token would point at a record no reader can reach from the document.
   const copyToken =
-    options.verify === true
+    options.verify === true && !options.summaryOnly
       ? (options.copyToken ?? createVerifyCopyToken())
       : undefined;
   const doc = await buildBoqPdf(standard, studio, {

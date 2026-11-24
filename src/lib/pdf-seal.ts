@@ -153,6 +153,12 @@ export interface SealResult {
   sealed: Uint8Array;
   hash: string;
   verificationId?: string;
+  /**
+   * Why the blockchain registration did not happen, when one was requested.
+   * Present means the file is sealed but NOT verified: the caller must say so
+   * rather than imply the document was anchored.
+   */
+  stampError?: string;
 }
 
 export async function sealAndStampPdf(
@@ -173,6 +179,7 @@ export async function sealAndStampPdf(
     await import("@/lib/blockchain/opentimestamps");
   const hash = await calculateBytesSha256(sealed);
   let verificationId: string | undefined;
+  let stampError: string | undefined;
 
   if (options.stampOnBlockchain) {
     try {
@@ -197,6 +204,13 @@ export async function sealAndStampPdf(
         await uploadHostedCopy({ token: options.copyToken, bytes: sealed });
       }
     } catch (stampErr) {
+      // A refused or failed registration is reported, not swallowed: the
+      // document is sealed either way, but calling it verified would be a
+      // claim the server did not make.
+      stampError =
+        stampErr instanceof Error
+          ? stampErr.message
+          : "Blockchain registration did not complete.";
       console.warn(
         "[pdf-seal] blockchain timestamping skipped/failed:",
         stampErr,
@@ -204,7 +218,7 @@ export async function sealAndStampPdf(
     }
   }
 
-  return { sealed, hash, verificationId };
+  return { sealed, hash, verificationId, stampError };
 }
 
 /**

@@ -440,7 +440,11 @@ export default function BoqStudio() {
         customBranding: verified,
         branding,
       });
-      if (res?.verificationId) {
+      if (verified && res?.stampError) {
+        toast.error(
+          `Sealed, but not blockchain-verified: ${res.stampError}`,
+        );
+      } else if (res?.verificationId) {
         toast.success(
           `Verified BOQ PDF exported & anchored to Bitcoin blockchain (ID: ${res.verificationId})`,
         );

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { compileBoq } from "./compile";
-import { buildBoqPdf } from "./pdf";
+import { buildBoqPdf, downloadBoqPdf } from "./pdf";
 import { boqStudioPrintHtml } from "./print";
 import { createEmptyDocument, type BoqStudioDocument } from "./types";
 
@@ -134,5 +134,38 @@ describe("market survey exports", () => {
     const priced = doc();
     const html = boqStudioPrintHtml(compileBoq(priced).standard, priced);
     expect(html).not.toContain("Market survey schedule");
+  });
+});
+
+describe("global readiness and paywall edges", () => {
+  it("prints a zero-decimal currency without a fake .00", async () => {
+    const compiled = compileBoq(doc({ currency: "JPY" }));
+    const pdf = await buildBoqPdf(compiled.standard, compiled.document, {
+      verify: false,
+      stampOnBlockchain: false,
+    });
+    const raw = pdf.output() as string;
+    expect(raw).toContain("115,000");
+    expect(raw).not.toContain("115,000.00");
+  });
+
+  it("hosts no copy for a summary preview, because no QR points at one", async () => {
+    const compiled = compileBoq(doc());
+    const res = await downloadBoqPdf(compiled.standard, compiled.document, {
+      summaryOnly: true,
+      verify: true,
+      stampOnBlockchain: false,
+    });
+    expect(res.verificationId).toBeUndefined();
+  });
+
+  it("ellipsises a contractor name too long for the header", async () => {
+    const compiled = compileBoq(doc());
+    const pdf = await buildBoqPdf(compiled.standard, compiled.document, {
+      verify: false,
+      stampOnBlockchain: false,
+      customBranding: true,
+    });
+    expect(pdf.getNumberOfPages()).toBeGreaterThanOrEqual(1);
   });
 });

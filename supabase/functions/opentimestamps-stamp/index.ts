@@ -10,6 +10,7 @@
 
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { serveWithCors } from "../_shared/serve.ts";
+import { checkVerifiedExportEntitlement } from "../_shared/verified-export-guard.ts";
 import { getVerifiedUserId, checkRateLimit, RATE_LIMITS } from "../_shared/rate-limit.ts";
 import { rateLimitedResponse } from "../_shared/cors.ts";
 import { submitHashToOpenTimestamps } from "../_shared/opentimestamps.ts";
@@ -72,6 +73,23 @@ serveWithCors(async (req: Request) => {
     const documentReference = body.document_reference == null ? null :
       typeof body.document_reference === "string" ? body.document_reference.trim() : undefined;
     const documentType = body.document_type ?? "boq";
+
+    // A verified BOQ is the paid product. The registration is the only part of
+    // it a server can refuse, so it is refused here rather than trusted from a
+    // UI flag: an unentitled caller gets 403 and no blockchain record, while
+    // the free summary export (which never reaches this function) is unaffected.
+    if (documentType === "boq") {
+      const verdict = await checkVerifiedExportEntitlement(userId);
+      if (!verdict.ok) {
+        return new Response(
+          JSON.stringify({ error: verdict.message, code: verdict.code }),
+          {
+            status: verdict.code === "VERIFIED_EXPORT_UNAVAILABLE" ? 503 : 403,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+    }
     const byteSize = body.byte_size == null ? null : Number(body.byte_size);
     const metadata = body.metadata ?? {};
     // Token printed in the document QR; the hosted copy is uploaded under it.
