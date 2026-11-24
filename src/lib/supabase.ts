@@ -173,19 +173,34 @@ export async function getFunctionErrorMessage(error: unknown): Promise<string> {
   if (error instanceof FunctionsHttpError) {
     try {
       const body = await error.context.json();
-      if (
-        body &&
-        typeof body === "object" &&
-        "error" in body &&
-        typeof body.error === "string"
-      ) {
-        return body.error;
+      if (body && typeof body === "object") {
+        if (
+          "error" in body &&
+          typeof body.error === "string" &&
+          body.error.trim()
+        ) {
+          return body.error.trim();
+        }
+        if (
+          "message" in body &&
+          typeof body.message === "string" &&
+          body.message.trim()
+        ) {
+          return body.message.trim();
+        }
       }
     } catch {
-      // Response body wasn't JSON, fall through to the generic message below.
+      // Response body was not JSON, fall through to the generic message below.
     }
   }
-  return error instanceof Error
-    ? error.message
-    : "Something went wrong. Please try again.";
+  if (error instanceof Error) {
+    if (
+      error.message.includes("Edge Function returned a non-2xx status code") ||
+      error.message.includes("non-2xx")
+    ) {
+      return "The AI service is temporarily unavailable. Please try again.";
+    }
+    return error.message;
+  }
+  return "Something went wrong. Please try again.";
 }

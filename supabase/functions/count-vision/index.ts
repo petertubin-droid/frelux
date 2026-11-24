@@ -167,35 +167,47 @@ Respond with ONLY valid JSON, no markdown fences:
 "unclear" = units are present but you cannot count them honestly (say why).
 "not_found" = no countable material units in the photo.`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [
-            { text: prompt },
-            { inlineData: { mimeType: image.mimeType, data: image.data } },
-          ],
-        },
-      ],
-      generationConfig: {
-        temperature: 0,
-        // Counting needs a plain answer, not chain-of-thought:
-        // without thinkingBudget: 0 the model spends the token
-        // budget on thoughts and returns no JSON text at all.
-        thinkingConfig: { thinkingBudget: 0 },
-        maxOutputTokens: 1024,
-        responseMimeType: "application/json",
+  const candidateModels = [
+    GEMINI_MODEL,
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+  ];
+  let response: Response | null = null;
+  const reqBody = JSON.stringify({
+    contents: [
+      {
+        parts: [
+          { text: prompt },
+          { inlineData: { mimeType: image.mimeType, data: image.data } },
+        ],
       },
-    }),
+    ],
+    generationConfig: {
+      temperature: 0,
+      thinkingConfig: { thinkingBudget: 0 },
+      maxOutputTokens: 1024,
+      responseMimeType: "application/json",
+    },
   });
 
-  if (!response.ok) {
-    const detail = await response.text().catch(() => "");
+  for (const model of candidateModels) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: reqBody,
+    });
+    if (response.ok) break;
+    if (response.status === 404) continue;
+    break;
+  }
+
+  if (!response || !response.ok) {
+    const status = response?.status ?? 500;
+    const detail = response ? await response.text().catch(() => "") : "";
     throw new Error(
-      `Gemini request failed (${response.status}): ${detail.slice(0, 200)}`,
+      `Gemini request failed (${status}): ${detail.slice(0, 200)}`,
     );
   }
 

@@ -1,4 +1,8 @@
-import { supabase, isSupabaseConfigured } from './supabase';
+import {
+  supabase,
+  isSupabaseConfigured,
+  getFunctionErrorMessage,
+} from "./supabase";
 
 // =========================================================
 // AI Project Assistant Client
@@ -72,45 +76,76 @@ export interface ProjectDataForAi {
   notes?: string;
 }
 
-export async function aiProjectReview(projectData: ProjectDataForAi): Promise<ProjectAiReview> {
-  if (!isSupabaseConfigured) throw new Error('Supabase is not configured');
-  const { data, error } = await supabase.functions.invoke('ai-project-assistant', {
-    body: { action: 'review', projectData },
-  });
-  if (error) throw error;
+export async function aiProjectReview(
+  projectData: ProjectDataForAi,
+): Promise<ProjectAiReview> {
+  if (!isSupabaseConfigured) throw new Error("Supabase is not configured");
+  const { data, error } = await supabase.functions.invoke(
+    "ai-project-assistant",
+    {
+      body: { action: "review", projectData },
+    },
+  );
+  if (error) {
+    const msg = await getFunctionErrorMessage(error);
+    throw new Error(msg);
+  }
   if (data?.error) throw new Error(data.error);
   return data.result as ProjectAiReview;
 }
 
 export async function aiProjectOptimize(
   projectData: ProjectDataForAi,
-  target: string
+  target: string,
 ): Promise<ProjectAiOptimization> {
-  if (!isSupabaseConfigured) throw new Error('Supabase is not configured');
-  const { data, error } = await supabase.functions.invoke('ai-project-assistant', {
-    body: { action: 'optimize', projectData, optimizationTarget: target },
-  });
-  if (error) throw error;
+  if (!isSupabaseConfigured) throw new Error("Supabase is not configured");
+  const { data, error } = await supabase.functions.invoke(
+    "ai-project-assistant",
+    {
+      body: { action: "optimize", projectData, optimizationTarget: target },
+    },
+  );
+  if (error) {
+    const msg = await getFunctionErrorMessage(error);
+    throw new Error(msg);
+  }
   if (data?.error) throw new Error(data.error);
   return data.result as ProjectAiOptimization;
 }
 
-export async function aiProjectExplain(projectData: ProjectDataForAi): Promise<ProjectAiExplanation> {
-  if (!isSupabaseConfigured) throw new Error('Supabase is not configured');
-  const { data, error } = await supabase.functions.invoke('ai-project-assistant', {
-    body: { action: 'explain', projectData },
-  });
-  if (error) throw error;
+export async function aiProjectExplain(
+  projectData: ProjectDataForAi,
+): Promise<ProjectAiExplanation> {
+  if (!isSupabaseConfigured) throw new Error("Supabase is not configured");
+  const { data, error } = await supabase.functions.invoke(
+    "ai-project-assistant",
+    {
+      body: { action: "explain", projectData },
+    },
+  );
+  if (error) {
+    const msg = await getFunctionErrorMessage(error);
+    throw new Error(msg);
+  }
   if (data?.error) throw new Error(data.error);
   return data.result as ProjectAiExplanation;
 }
 
-export async function aiProjectQa(projectData: ProjectDataForAi, question: string): Promise<ProjectAiQa> {
-  if (!isSupabaseConfigured) throw new Error('Supabase is not configured');
-  const { data, error } = await supabase.functions.invoke('ai-project-assistant', {
-    body: { action: 'qa', projectData, question },
-  });
-  if (error) throw error;
+export async function aiProjectQa(
+  projectData: ProjectDataForAi,
+  question: string,
+): Promise<ProjectAiQa> {
+  if (!isSupabaseConfigured) throw new Error("Supabase is not configured");
+  const { data, error } = await supabase.functions.invoke(
+    "ai-project-assistant",
+    {
+      body: { action: "qa", projectData, question },
+    },
+  );
+  if (error) {
+    const msg = await getFunctionErrorMessage(error);
+    throw new Error(msg);
+  }
   if (data?.error) throw new Error(data.error);
   return data.result as ProjectAiQa;
 }
@@ -140,12 +175,17 @@ export interface ColorPreviewRequest {
   style?: string;
 }
 
-export async function aiColorPreview(req: ColorPreviewRequest): Promise<ColorPreviewResult> {
-  if (!isSupabaseConfigured) throw new Error('Supabase is not configured');
-  const { data, error } = await supabase.functions.invoke('ai-color-preview', {
+export async function aiColorPreview(
+  req: ColorPreviewRequest,
+): Promise<ColorPreviewResult> {
+  if (!isSupabaseConfigured) throw new Error("Supabase is not configured");
+  const { data, error } = await supabase.functions.invoke("ai-color-preview", {
     body: req,
   });
-  if (error) throw error;
+  if (error) {
+    const msg = await getFunctionErrorMessage(error);
+    throw new Error(msg);
+  }
   if (data?.error) throw new Error(data.error);
   return data.result as ColorPreviewResult;
 }

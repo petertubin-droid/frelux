@@ -5,16 +5,18 @@ import {
   rateLimitHeaders,
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
-import { serveWithCors } from "../_shared/serve.ts";
 import { serveAi } from "../_shared/serve-ai.ts";
+import {
+  callGeminiApi,
+  cleanJsonFence,
+  getGeminiApiKey,
+} from "../_shared/gemini.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers":
     "Content-Type, Authorization, X-Client-Info, Apikey",
 };
-
-const GEMINI_MODEL = "gemini-3.6-flash";
 
 interface PreviewRequest {
   imageDataUrl?: string;
@@ -33,33 +35,28 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
-async function getAuthenticatedUserId(
-  req: Request,
-  supabaseUrl: string,
-  anonKey: string,
-): Promise<string | null> {
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader) return null;
-  const supabase = createClient(supabaseUrl, anonKey, {
-    global: { headers: { Authorization: authHeader } },
-  });
-  const { data } = await supabase.auth.getUser();
-  return data.user?.id ?? null;
-}
-
 async function getAiConfig(
   supabase: ReturnType<typeof createClient>,
-): Promise<{ ai_enabled: boolean; gemini_api_key: string } | null> {
-  const { data } = await supabase
-    .from("site_settings")
-    .select("key, value")
-    .in("key", ["ai_enabled", "gemini_api_key"]);
-  if (!data || data.length === 0) return null;
-  const map: Record<string, string> = {};
-  for (const row of data) map[row.key] = row.value;
+): Promise<{ ai_enabled: boolean; apiKey: string }> {
+  let ai_enabled = true;
+  try {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("ai_enabled")
+      .limit(1)
+      .maybeSingle();
+    if (data && typeof data.ai_enabled === "boolean") {
+      ai_enabled = data.ai_enabled;
+    }
+  } catch {
+    // Keep default true if query fails
+  }
+
+  const apiKey = getGeminiApiKey();
+
   return {
-    ai_enabled: map["ai_enabled"] !== "false",
-    gemini_api_key: map["gemini_api_key"] ?? "",
+    ai_enabled,
+    apiKey,
   };
 }
 
@@ -85,7 +82,9 @@ async function callGeminiForPreview(
   }>;
   applicationTips: string[];
 }> {
-  const colors = req.targetColors.map((c) => `${c.name} (${c.hex})`).join(", ");
+  const colors = (req.targetColors || [])
+    .map((c) => `${c.name || "Color"} (${c.hex || "#CCCCCC"})`)
+    .join(", ");
   const context = [
     req.roomType ? `Room type: ${req.roomType}` : "",
     req.lightingCondition ? `Lighting: ${req.lightingCondition}` : "",
@@ -120,9 +119,10 @@ Provide a JSON response with:
   "applicationTips": ["Specific tips for applying this color — primer needs, number of coats, finish type, surface preparation"]
 }`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-
-  let parts: unknown[];
+  let parts: Array<{
+    text?: string;
+    inlineData?: { mimeType: string; data: string };
+  }>;
   if (req.imageDataUrl) {
     const { data, mimeType } = extractBase64FromDataUrl(req.imageDataUrl);
     parts = [{ text: textPrompt }, { inlineData: { mimeType, data } }];
@@ -130,36 +130,23 @@ Provide a JSON response with:
     parts = [{ text: textPrompt }];
   }
 
-  const body = {
+  const { text } = await callGeminiApi({
+    apiKey,
     contents: [{ parts }],
     generationConfig: {
       temperature: 0.8,
       topP: 0.9,
-      maxOutputTokens: 1500,
+      maxOutputTokens: 2000,
       responseMimeType: "application/json",
     },
-  };
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
   });
 
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`${res.status}:${errText.slice(0, 300)}`);
-  }
-
-  const json = await res.json();
-  const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error("EMPTY_RESPONSE");
-
+  const cleanText = cleanJsonFence(text);
   try {
-    return JSON.parse(text);
+    return JSON.parse(cleanText);
   } catch {
     return {
-      previewDescription: text,
+      previewDescription: cleanText,
       colorSuggestions: [],
       applicationTips: [],
     };
@@ -176,57 +163,84 @@ serveAi(async (req: Request) => {
   const rl = checkRateLimit(rlKey, RATE_LIMITS.AI);
   if (!rl.allowed) {
     return new Response(
-      JSON.stringify({ error: "Too many requests. Please try again later." }),
+      JSON.stringify({
+        error: "Too many requests. Please try again later.",
+        code: "RATE_LIMITED",
+      }),
       {
         status: 429,
         headers: {
           "Content-Type": "application/json",
           ...corsHeaders,
           "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+          ...rateLimitHeaders(rl.remaining, rl.resetAt),
         },
       },
     );
   }
-  const _rlHeaders = rateLimitHeaders(rl.remaining, rl.resetAt);
 
   if (req.method !== "POST") {
-    return jsonResponse({ error: "Method not allowed" }, 405);
+    return jsonResponse(
+      { error: "Method not allowed", code: "METHOD_NOT_ALLOWED" },
+      405,
+    );
   }
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
-    if (!supabaseUrl || !anonKey) {
-      return jsonResponse({ error: "Server not configured" }, 500);
+    if (!supabaseUrl || !serviceKey) {
+      return jsonResponse(
+        { error: "Server not configured", code: "SERVER_NOT_CONFIGURED" },
+        500,
+      );
     }
 
-    const body: PreviewRequest = await req.json();
+    let body: PreviewRequest;
+    try {
+      body = await req.json();
+    } catch {
+      return jsonResponse(
+        { error: "Invalid JSON body", code: "INVALID_BODY" },
+        400,
+      );
+    }
 
-    // Verify auth
-    await getAuthenticatedUserId(req, supabaseUrl, anonKey);
+    if (
+      !body.targetColors ||
+      !Array.isArray(body.targetColors) ||
+      body.targetColors.length === 0
+    ) {
+      return jsonResponse(
+        { error: "At least one target color is required", code: "BAD_REQUEST" },
+        400,
+      );
+    }
 
     const adminSupabase = createClient(supabaseUrl, serviceKey);
     const config = await getAiConfig(adminSupabase);
-    if (!config?.ai_enabled) {
+    if (!config.ai_enabled) {
       return jsonResponse(
         { error: "AI features are currently disabled", code: "AI_DISABLED" },
         403,
       );
     }
-    if (!config.gemini_api_key) {
+    if (!config.apiKey) {
       return jsonResponse(
-        { error: "AI service not configured", code: "NO_API_KEY" },
+        {
+          error: "AI service not configured with an API key",
+          code: "NO_API_KEY",
+        },
         503,
       );
     }
 
-    const result = await callGeminiForPreview(config.gemini_api_key, body);
+    const result = await callGeminiForPreview(config.apiKey, body);
     return jsonResponse({ result });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error("AI Color Preview error:", message);
     return jsonResponse({ error: message, code: "INTERNAL_ERROR" }, 500);
   }
-});
+}, "ai_color_preview");

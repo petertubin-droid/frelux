@@ -158,7 +158,8 @@ serveAi(async (req: Request) => {
 
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const anonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-  const geminiKey = Deno.env.get("GOOGLE_AI_API_KEY");
+  const geminiKey =
+    Deno.env.get("GOOGLE_AI_API_KEY") || Deno.env.get("GEMINI_API_KEY");
   if (!geminiKey) {
     return jsonResponse(
       {
@@ -212,21 +213,33 @@ Return JSON matching the schema.`;
         maxOutputTokens: 800,
       },
     });
-    const callGemini = () =>
-      fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${geminiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: geminiBody,
-          signal: AbortSignal.timeout(20_000),
-        },
-      );
+    const candidateModels = [
+      GEMINI_MODEL,
+      "gemini-2.5-flash",
+      "gemini-2.0-flash",
+      "gemini-1.5-flash",
+    ];
+    let response: Response | null = null;
+    for (const model of candidateModels) {
+      const callGemini = () =>
+        fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: geminiBody,
+            signal: AbortSignal.timeout(20_000),
+          },
+        );
 
-    let response = await callGemini();
-    if (response.status === 429 || response.status === 503) {
-      await new Promise((r) => setTimeout(r, 700));
       response = await callGemini();
+      if (response.status === 429 || response.status === 503) {
+        await new Promise((r) => setTimeout(r, 700));
+        response = await callGemini();
+      }
+      if (response.ok) break;
+      if (response.status === 404) continue;
+      break;
     }
 
     if (!response.ok) {

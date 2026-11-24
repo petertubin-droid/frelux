@@ -31,6 +31,11 @@ export function getSafeError(
     return "Network error. Check your connection and try again.";
   if (msg.includes("timeout"))
     return "The request timed out. Please try again.";
+  if (
+    msg.includes("Edge Function returned a non-2xx status code") ||
+    msg.includes("non-2xx")
+  )
+    return "The AI service is temporarily unavailable. Please try again.";
 
   // If the message is short and doesn't contain newlines, pass it through
   if (msg.length <= 120 && !msg.includes("\n")) return msg;

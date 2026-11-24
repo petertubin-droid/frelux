@@ -1,20 +1,22 @@
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
-import { serveWithCors } from "../_shared/serve.ts";
 import { serveAi } from "../_shared/serve-ai.ts";
 import {
   checkRateLimit,
   getRateLimitKey,
+  rateLimitHeaders,
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
-import { rateLimitedResponse } from "../_shared/cors.ts";
+import {
+  callGeminiApi,
+  cleanJsonFence,
+  getGeminiApiKey,
+} from "../_shared/gemini.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
   "Access-Control-Allow-Headers":
     "Content-Type, Authorization, X-Client-Info, Apikey",
 };
-
-const GEMINI_MODEL = "gemini-3.6-flash";
 
 interface ProjectAssistantRequest {
   action: "review" | "optimize" | "explain" | "qa" | "preview_suggestion";
@@ -51,45 +53,28 @@ function jsonResponse(body: unknown, status = 200): Response {
   });
 }
 
-async function getAuthenticatedUserId(
-  req: Request,
-  supabaseUrl: string,
-  anonKey: string,
-): Promise<string | null> {
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader) return null;
-  const supabase = createClient(supabaseUrl, anonKey, {
-    global: { headers: { Authorization: authHeader } },
-  });
-  const { data } = await supabase.auth.getUser();
-  return data.user?.id ?? null;
-}
-
-async function isUserAdmin(
-  supabase: ReturnType<typeof createClient>,
-  userId: string,
-): Promise<boolean> {
-  const { data } = await supabase
-    .from("profiles")
-    .select("role")
-    .eq("id", userId)
-    .single();
-  return data?.role === "admin";
-}
-
 async function getAiConfig(
   supabase: ReturnType<typeof createClient>,
-): Promise<{ ai_enabled: boolean; gemini_api_key: string } | null> {
-  const { data } = await supabase
-    .from("site_settings")
-    .select("key, value")
-    .in("key", ["ai_enabled", "gemini_api_key"]);
-  if (!data || data.length === 0) return null;
-  const map: Record<string, string> = {};
-  for (const row of data) map[row.key] = row.value;
+): Promise<{ ai_enabled: boolean; apiKey: string }> {
+  let ai_enabled = true;
+  try {
+    const { data } = await supabase
+      .from("site_settings")
+      .select("ai_enabled")
+      .limit(1)
+      .maybeSingle();
+    if (data && typeof data.ai_enabled === "boolean") {
+      ai_enabled = data.ai_enabled;
+    }
+  } catch {
+    // Keep default true if read fails
+  }
+
+  const apiKey = getGeminiApiKey();
+
   return {
-    ai_enabled: map["ai_enabled"] !== "false",
-    gemini_api_key: map["gemini_api_key"] ?? "",
+    ai_enabled,
+    apiKey,
   };
 }
 
@@ -119,9 +104,9 @@ PROJECT DETAILS:
 - Finish Quality: ${projectData.finish_quality}
 - Budget Level: ${projectData.budget_level}
 - Status: ${projectData.status}
-- Total Material Cost: ${projectData.currency_symbol}${projectData.total_material_cost?.toLocaleString()}
-- Total Labour Cost: ${projectData.currency_symbol}${projectData.total_labour_cost?.toLocaleString()}
-- Total Project Cost: ${projectData.currency_symbol}${projectData.total_project_cost?.toLocaleString()}
+- Total Material Cost: ${currencySymbol}${projectData.total_material_cost?.toLocaleString()}
+- Total Labour Cost: ${currencySymbol}${projectData.total_labour_cost?.toLocaleString()}
+- Total Project Cost: ${currencySymbol}${projectData.total_project_cost?.toLocaleString()}
 
 ROOMS:
 ${roomSummary}
@@ -147,6 +132,8 @@ function buildOptimizePrompt(
   target: string,
 ): string {
   const rooms = projectData.rooms ?? [];
+  const currencySymbol =
+    projectData.currency_symbol ?? projectData.currency ?? "";
   const roomSummary =
     rooms.length > 0
       ? rooms
@@ -166,9 +153,9 @@ CURRENT PROJECT:
 - Building Type: ${projectData.building_type}
 - Finish Quality: ${projectData.finish_quality}
 - Budget Level: ${projectData.budget_level}
-- Total Material Cost: ${projectData.currency_symbol}${projectData.total_material_cost?.toLocaleString()}
-- Total Labour Cost: ${projectData.currency_symbol}${projectData.total_labour_cost?.toLocaleString()}
-- Total Project Cost: ${projectData.currency_symbol}${projectData.total_project_cost?.toLocaleString()}
+- Total Material Cost: ${currencySymbol}${projectData.total_material_cost?.toLocaleString()}
+- Total Labour Cost: ${currencySymbol}${projectData.total_labour_cost?.toLocaleString()}
+- Total Project Cost: ${currencySymbol}${projectData.total_project_cost?.toLocaleString()}
 
 ROOMS:
 ${roomSummary}
@@ -195,6 +182,8 @@ function buildExplainPrompt(
   projectData: ProjectAssistantRequest["projectData"],
 ): string {
   const rooms = projectData.rooms ?? [];
+  const currencySymbol =
+    projectData.currency_symbol ?? projectData.currency ?? "";
   const roomSummary =
     rooms.length > 0
       ? rooms
@@ -210,7 +199,7 @@ function buildExplainPrompt(
 PROJECT:
 - Name: ${projectData.name}
 - Type: ${projectData.project_type}
-- Total Cost: ${projectData.currency_symbol}${projectData.total_project_cost?.toLocaleString()}
+- Total Cost: ${currencySymbol}${projectData.total_project_cost?.toLocaleString()}
 
 ROOMS:
 ${roomSummary}
@@ -235,13 +224,15 @@ function buildQaPrompt(
   projectData: ProjectAssistantRequest["projectData"],
   question: string,
 ): string {
+  const currencySymbol =
+    projectData.currency_symbol ?? projectData.currency ?? "";
   return `You are an expert construction consultant for FRELUX. Answer the user's question about their project.
 
 PROJECT CONTEXT:
 - Name: ${projectData.name}
 - Type: ${projectData.project_type}
 - Building Type: ${projectData.building_type}
-- Total Cost: ${projectData.currency_symbol}${projectData.total_project_cost?.toLocaleString()}
+- Total Cost: ${currencySymbol}${projectData.total_project_cost?.toLocaleString()}
 
 USER QUESTION: "${question}"
 
@@ -254,77 +245,80 @@ Provide a helpful, professional answer as JSON:
 }`;
 }
 
-async function callGemini(apiKey: string, prompt: string): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-
-  const body = {
-    contents: [{ parts: [{ text: prompt }] }],
-    generationConfig: {
-      temperature: 0.7,
-      topP: 0.9,
-      maxOutputTokens: 2000,
-      responseMimeType: "application/json",
-    },
-  };
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`${res.status}:${errText.slice(0, 300)}`);
-  }
-
-  const json = await res.json();
-  const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error("EMPTY_RESPONSE");
-  return text;
-}
-
 serveAi(async (req: Request) => {
-  // Audit fix M-7 (2026-09-11): rate limit this endpoint per user
-  // (falls back to client IP). OPTIONS preflights are answered at
-  // the CORS boundary and never reach this check.
-  const rl = checkRateLimit(await getRateLimitKey(req), RATE_LIMITS.AI);
-  if (!rl.allowed) return rateLimitedResponse(rl.resetAt);
-
   if (req.method === "OPTIONS") {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
+
+  const rlKey = await getRateLimitKey(req);
+  const rl = checkRateLimit(rlKey, RATE_LIMITS.AI);
+  if (!rl.allowed) {
+    return new Response(
+      JSON.stringify({
+        error: "Too many requests. Please wait a moment and try again.",
+        code: "RATE_LIMITED",
+      }),
+      {
+        status: 429,
+        headers: {
+          "Content-Type": "application/json",
+          ...corsHeaders,
+          "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)),
+          ...rateLimitHeaders(rl.remaining, rl.resetAt),
+        },
+      },
+    );
+  }
+
   if (req.method !== "POST") {
-    return jsonResponse({ error: "Method not allowed" }, 405);
+    return jsonResponse(
+      { error: "Method not allowed", code: "METHOD_NOT_ALLOWED" },
+      405,
+    );
   }
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-    const anonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";
     const serviceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
 
-    if (!supabaseUrl || !anonKey) {
-      return jsonResponse({ error: "Server not configured" }, 500);
+    if (!supabaseUrl || !serviceKey) {
+      return jsonResponse(
+        { error: "Server not configured", code: "SERVER_NOT_CONFIGURED" },
+        500,
+      );
     }
 
-    const body: ProjectAssistantRequest = await req.json();
+    let body: ProjectAssistantRequest;
+    try {
+      body = await req.json();
+    } catch {
+      return jsonResponse(
+        { error: "Invalid JSON body", code: "INVALID_BODY" },
+        400,
+      );
+    }
 
-    // Auth check
-    const userId = await getAuthenticatedUserId(req, supabaseUrl, anonKey);
+    if (!body.projectData) {
+      return jsonResponse(
+        { error: "projectData is required", code: "BAD_REQUEST" },
+        400,
+      );
+    }
+
     const adminSupabase = createClient(supabaseUrl, serviceKey);
-    const _isAdmin = userId ? await isUserAdmin(adminSupabase, userId) : false;
-
-    // Get AI config
     const config = await getAiConfig(adminSupabase);
-    if (!config?.ai_enabled) {
+    if (!config.ai_enabled) {
       return jsonResponse(
         { error: "AI features are currently disabled", code: "AI_DISABLED" },
         403,
       );
     }
-    if (!config.gemini_api_key) {
+    if (!config.apiKey) {
       return jsonResponse(
-        { error: "AI service not configured", code: "NO_API_KEY" },
+        {
+          error: "AI service not configured with an API key",
+          code: "NO_API_KEY",
+        },
         503,
       );
     }
@@ -345,26 +339,44 @@ serveAi(async (req: Request) => {
         prompt = buildExplainPrompt(body.projectData);
         break;
       case "qa":
-        if (!body.question)
+        if (!body.question) {
           return jsonResponse(
-            { error: "Question is required for QA action" },
+            {
+              error: "Question is required for QA action",
+              code: "BAD_REQUEST",
+            },
             400,
           );
+        }
         prompt = buildQaPrompt(body.projectData, body.question);
         break;
       case "preview_suggestion":
         prompt = buildReviewPrompt(body.projectData);
         break;
       default:
-        return jsonResponse({ error: "Invalid action" }, 400);
+        return jsonResponse(
+          { error: "Invalid action", code: "BAD_REQUEST" },
+          400,
+        );
     }
 
-    const aiResponse = await callGemini(config.gemini_api_key, prompt);
+    const { text } = await callGeminiApi({
+      apiKey: config.apiKey,
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.7,
+        topP: 0.9,
+        maxOutputTokens: 2000,
+        responseMimeType: "application/json",
+      },
+    });
+
+    const cleanText = cleanJsonFence(text);
     let parsed: unknown;
     try {
-      parsed = JSON.parse(aiResponse);
+      parsed = JSON.parse(cleanText);
     } catch {
-      parsed = { rawResponse: aiResponse };
+      parsed = { rawResponse: cleanText };
     }
 
     return jsonResponse({ result: parsed });
@@ -373,4 +385,4 @@ serveAi(async (req: Request) => {
     console.error("AI Project Assistant error:", message);
     return jsonResponse({ error: message, code: "INTERNAL_ERROR" }, 500);
   }
-});
+}, "ai_project_assistant");

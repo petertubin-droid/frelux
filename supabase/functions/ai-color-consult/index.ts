@@ -6,6 +6,11 @@ import {
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
 import { serveWithCors } from "../_shared/serve.ts";
+import {
+  callGeminiApi,
+  cleanJsonFence,
+  getGeminiApiKey,
+} from "../_shared/gemini.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -382,9 +387,6 @@ async function callGemini(
   description: string | undefined,
   imageDataUrl?: string,
 ): Promise<AiRecommendation> {
-  const model = GEMINI_MODEL;
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-
   let parts: unknown[];
   if (mode === "image" && imageDataUrl) {
     const { data, mimeType: mt } = extractBase64FromDataUrl(imageDataUrl);
@@ -393,48 +395,20 @@ async function callGemini(
     parts = buildTextContents(description ?? "No description provided.");
   }
 
-  const body = {
-    contents: [{ parts }],
+  const { text } = await callGeminiApi({
+    apiKey,
+    contents: [{ parts: parts as never }],
     generationConfig: {
       temperature: 0.7,
       topP: 0.9,
       maxOutputTokens: 4096,
       responseMimeType: "application/json",
     },
-  };
-
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
   });
-
-  if (!res.ok) {
-    const errText = await res.text();
-    let code = "PROVIDER_ERROR";
-    if (res.status === 429) code = "RATE_LIMITED";
-    else if (res.status === 400 || res.status === 401 || res.status === 403)
-      code = "AUTH_ERROR";
-    throw new Error(`${code}:${res.status}:${errText.slice(0, 200)}`);
-  }
-
-  const json = await res.json();
-  const text = json?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text)
-    throw new Error("EMPTY_RESPONSE:No content returned by AI provider");
 
   let parsed: AiRecommendation;
   try {
-    let cleanText = text.trim();
-    // Remove markdown code fences if present
-    const fence = String.fromCharCode(96, 96, 96);
-    if (cleanText.startsWith(fence)) {
-      const lines = cleanText.split(String.fromCharCode(10));
-      lines.shift(); // remove opening fence line
-      if (lines[lines.length - 1].trim() === fence) lines.pop();
-      cleanText = lines.join(String.fromCharCode(10));
-    }
-    cleanText = cleanText.trim();
+    const cleanText = cleanJsonFence(text);
     parsed = JSON.parse(cleanText);
   } catch (_e) {
     throw new Error("MALFORMED_JSON:AI returned non-JSON content");
@@ -491,7 +465,7 @@ serveWithCors(async (req: Request) => {
     return jsonResponse({ error: "Method not allowed" }, 405);
   }
 
-  const apiKey = Deno.env.get("GOOGLE_AI_API_KEY");
+  const apiKey = getGeminiApiKey();
   if (!apiKey) {
     return jsonResponse(
       { error: "AI service not configured", code: "NO_API_KEY" },

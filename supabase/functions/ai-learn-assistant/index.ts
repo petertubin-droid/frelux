@@ -135,7 +135,12 @@ async function callGemini(
   systemPrompt: string,
   userPrompt: string,
 ): Promise<string> {
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
+  const candidateModels = [
+    GEMINI_MODEL,
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+  ];
   const body = {
     contents: [{ parts: [{ text: systemPrompt }, { text: userPrompt }] }],
     generationConfig: {
@@ -145,15 +150,23 @@ async function callGemini(
     },
   };
 
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+  let res: Response | null = null;
+  for (const model of candidateModels) {
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    res = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (res.ok) break;
+    if (res.status === 404) continue;
+    break;
+  }
 
-  if (!res.ok) {
-    const errText = await res.text();
-    throw new Error(`Gemini API error: ${res.status} ${errText}`);
+  if (!res || !res.ok) {
+    const status = res?.status ?? 500;
+    const errText = res ? await res.text() : "";
+    throw new Error(`Gemini API error: ${status} ${errText}`);
   }
 
   const json = await res.json();

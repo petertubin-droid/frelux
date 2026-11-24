@@ -363,41 +363,52 @@ Always include in verification_checklist:
   // answer, and waiting 6.8 seconds to receive it again only made the page feel
   // broken, so it is surfaced immediately as busy. A connection that never
   // answers is bounded per attempt instead of hanging the request.
+  const candidateModels = [
+    GEMINI_MODEL,
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+  ];
   const RETRYABLE = new Set([500, 502, 503, 504]);
-  const BACKOFF_MS = [600, 1500, 3000];
+  const BACKOFF_MS = [600, 1500];
   const ATTEMPT_TIMEOUT_MS = 28_000;
   let response: Response | null = null;
   let timedOut = false;
-  for (let attempt = 0; attempt <= BACKOFF_MS.length; attempt++) {
-    try {
-      response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: requestBody,
-          signal: AbortSignal.timeout(ATTEMPT_TIMEOUT_MS),
-        },
-      );
-    } catch (networkError) {
-      response = null;
-      timedOut = true;
-      console.warn(
-        `[ai-building-estimation] Gemini request failed, attempt ${attempt + 1}:`,
-        networkError instanceof Error ? networkError.message : networkError,
-      );
+
+  for (const model of candidateModels) {
+    for (let attempt = 0; attempt <= BACKOFF_MS.length; attempt++) {
+      try {
+        response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: requestBody,
+            signal: AbortSignal.timeout(ATTEMPT_TIMEOUT_MS),
+          },
+        );
+      } catch (networkError) {
+        response = null;
+        timedOut = true;
+        console.warn(
+          `[ai-building-estimation] Gemini request failed on ${model}, attempt ${attempt + 1}:`,
+          networkError instanceof Error ? networkError.message : networkError,
+        );
+        if (attempt < BACKOFF_MS.length) {
+          await new Promise((r) => setTimeout(r, BACKOFF_MS[attempt]));
+        }
+        continue;
+      }
+      if (response.ok) break;
+      if (response.status === 404) break;
+      if (!RETRYABLE.has(response.status)) break;
       if (attempt < BACKOFF_MS.length) {
         await new Promise((r) => setTimeout(r, BACKOFF_MS[attempt]));
       }
-      continue;
     }
-    if (response.ok || !RETRYABLE.has(response.status)) break;
-    console.warn(
-      `[ai-building-estimation] Gemini ${response.status}, attempt ${attempt + 1}`,
-    );
-    if (attempt < BACKOFF_MS.length) {
-      await new Promise((r) => setTimeout(r, BACKOFF_MS[attempt]));
-    }
+    if (response?.ok) break;
+    if (response?.status === 404) continue;
+    break;
   }
 
   if (!response || !response.ok) {
