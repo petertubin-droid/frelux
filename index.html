@@ -25,9 +25,9 @@
             var h=l.hash||"",s=l.search||"";
             isAuth=localStorage.getItem(OAUTH_M)==='1'||h.indexOf('access_token')!==-1||s.indexOf('code=')!==-1||s.indexOf('redirect=')!==-1;
           }catch(e){}
-          if(isAuth&&stored>0&&stored<=600){short=stored;}
-          else if(neutral){try{localStorage.setItem(EDGE,String(Math.round(short)));}catch(e){}}
-          else if(stored>0){short=stored;}
+          if(short>0&&short<=600){try{localStorage.setItem(EDGE,String(Math.round(short)));}catch(e){}}
+          else if(isAuth&&stored>0&&stored<=600){short=stored;}
+          else if(!neutral&&stored>0&&stored<=600){short=stored;}
           var touch=(navigator.maxTouchPoints||0)>0||(window.matchMedia&&matchMedia('(pointer: coarse)').matches);
           var phone=touch&&short>0&&short<=600;
           if(phone)scale=80;

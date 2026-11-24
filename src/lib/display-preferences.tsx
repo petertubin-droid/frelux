@@ -63,9 +63,10 @@ export const DEFAULT_PREFERENCES: DisplayPreferences = {
 
 /** The default for this device, judged the same way the viewport scale is. */
 export function defaultScaleForDevice(win: Window = window): DisplayScale {
+  const touch = deviceTakesTouch(win);
   const isPhone = isPhoneDevice({
     deviceShortEdge: deviceCssShortEdge(win),
-    touch: deviceTakesTouch(win),
+    touch,
   });
   return isPhone ? DEFAULT_MOBILE_SCALE : DEFAULT_DESKTOP_SCALE;
 }

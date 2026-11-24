@@ -200,3 +200,17 @@ describe("applyViewport", () => {
     expect(document.head.querySelector('meta[name="viewport"]')).not.toBeNull();
   });
 });
+
+describe("readStoredShortEdge and stored device persistence", () => {
+  it("reads stored short edge correctly and respects phone bounds", () => {
+    localStorage.setItem("frelux_device_short_edge_v1", "390");
+    const win = {
+      localStorage: window.localStorage,
+      screen: { width: 780, height: 1690, orientation: { type: "portrait-primary" } },
+      document: {
+        querySelector: () => ({ getAttribute: () => "width=780, initial-scale=0.8" }),
+      },
+    } as unknown as Window;
+    expect(deviceCssShortEdge(win)).toBe(390);
+  });
+});

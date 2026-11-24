@@ -16,6 +16,8 @@ import {
   OAUTH_MOBILE_KEY,
   PHONE_MAX_SHORT_EDGE,
   deviceCssShortEdge,
+  readStoredShortEdge,
+  deviceTakesTouch,
 } from "@/lib/display-viewport";
 
 export type AccountType = "client" | "pro_worker";
@@ -66,6 +68,7 @@ interface AuthContextValue extends AuthState {
   ) => Promise<SignUpResult>;
   signInWithGoogle: (
     accountType?: AccountType,
+    redirectTo?: string,
   ) => Promise<{ error: string | null }>;
   signInWithOtp: (email: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
@@ -426,7 +429,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         return { error: null, needsConfirmation };
       },
-      signInWithGoogle: async (accountType) => {
+      signInWithGoogle: async (accountType, redirectTo) => {
         // Only signup has a pending profile choice; existing users must never be
         // silently changed from pro_worker to client during ordinary sign-in.
         if (accountType) {
@@ -436,22 +439,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
         try {
           const edge = deviceCssShortEdge();
-          if (edge > 0 && edge <= PHONE_MAX_SHORT_EDGE) {
+          const stored = readStoredShortEdge();
+          const phoneEdge =
+            edge > 0 && edge <= PHONE_MAX_SHORT_EDGE
+              ? edge
+              : stored > 0 && stored <= PHONE_MAX_SHORT_EDGE
+                ? stored
+                : 0;
+          if (phoneEdge > 0 || deviceTakesTouch()) {
             localStorage.setItem(OAUTH_MOBILE_KEY, "1");
-            localStorage.setItem(
-              DEVICE_SHORT_EDGE_KEY,
-              String(Math.round(edge)),
-            );
+            if (phoneEdge > 0) {
+              localStorage.setItem(
+                DEVICE_SHORT_EDGE_KEY,
+                String(Math.round(phoneEdge)),
+              );
+            }
           }
         } catch {
           /* ignore storage error */
         }
         const supabase = await getSupabase();
+        const returnTarget = redirectTo || "/dashboard";
+        const callbackUrl = `${window.location.origin}/login?redirect=${encodeURIComponent(returnTarget)}`;
         try {
           const { error } = await supabase.auth.signInWithOAuth({
             provider: "google",
             options: {
-              redirectTo: `${window.location.origin}/login?redirect=/dashboard`,
+              redirectTo: callbackUrl,
             },
           });
           if (error) localStorage.removeItem("frelux_pending_account_type");

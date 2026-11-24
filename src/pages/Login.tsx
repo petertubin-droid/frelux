@@ -67,8 +67,13 @@ export default function Login() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectTo = getSafeAuthRedirect(searchParams.get("redirect"));
+  const initialMode = searchParams.get("mode");
 
-  const [mode, setMode] = useState<Mode>("signin");
+  const [mode, setMode] = useState<Mode>(
+    initialMode === "signup" || initialMode === "reset"
+      ? initialMode
+      : "signin",
+  );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [accountType, setAccountType] = useState<AccountType>("client");
@@ -182,13 +187,26 @@ export default function Login() {
 
   useEffect(() => {
     if (user && !hasPendingOAuthProfile && !oauthProfileProcessing) {
-      try {
-        localStorage.removeItem("frelux_oauth_mobile_v1");
-      } catch {
-        /* ignore storage error */
-      }
+      // Retain OAuth mobile marker during transition so downstream landing routes maintain phone scale
+      const timer = setTimeout(() => {
+        try {
+          localStorage.removeItem("frelux_oauth_mobile_v1");
+        } catch {
+          /* ignore storage error */
+        }
+      }, 5000);
+      return () => clearTimeout(timer);
     }
   }, [user, hasPendingOAuthProfile, oauthProfileProcessing]);
+
+  useEffect(() => {
+    if (showSuccess) {
+      const timer = setTimeout(() => {
+        navigate(redirectTo, { replace: true });
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSuccess, redirectTo, navigate]);
 
   if (
     user &&
@@ -312,24 +330,21 @@ export default function Login() {
   async function handleGoogleSignIn() {
     setError(null);
     if (mode === "signup") {
-      const normalizedPhone = toE164(phone, countryCode);
-      if (!countryCode) {
-        setError("Select your country or region.");
-        return;
+      if (countryCode && phone) {
+        const normalizedPhone = toE164(phone, countryCode);
+        if (normalizedPhone) {
+          sessionStorage.setItem(
+            "frelux_pending_signup_phone",
+            `+${normalizedPhone}`,
+          );
+          sessionStorage.setItem("frelux_pending_signup_country", countryCode);
+        }
       }
-      if (!normalizedPhone) {
-        setError("Enter a valid mobile number for the selected country.");
-        return;
-      }
-      sessionStorage.setItem(
-        "frelux_pending_signup_phone",
-        `+${normalizedPhone}`,
-      );
-      sessionStorage.setItem("frelux_pending_signup_country", countryCode);
     }
     setGoogleLoading(true);
     const { error } = await signInWithGoogle(
       mode === "signup" ? accountType : undefined,
+      redirectTo,
     );
     if (error) {
       sessionStorage.removeItem("frelux_pending_signup_phone");

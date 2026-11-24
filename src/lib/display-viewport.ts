@@ -155,7 +155,7 @@ export function deviceTakesTouch(win: Window = window): boolean {
 export const DEVICE_SHORT_EDGE_KEY = "frelux_device_short_edge_v1";
 export const OAUTH_MOBILE_KEY = "frelux_oauth_mobile_v1";
 
-function readStoredShortEdge(win: Window = window): number {
+export function readStoredShortEdge(win: Window = window): number {
   try {
     const raw = win.localStorage?.getItem(DEVICE_SHORT_EDGE_KEY);
     const value = raw ? Number(raw) : 0;
@@ -167,7 +167,7 @@ function readStoredShortEdge(win: Window = window): number {
 
 function rememberShortEdge(value: number, win: Window = window): void {
   try {
-    if (value > 0)
+    if (value > 0 && value <= PHONE_MAX_SHORT_EDGE)
       win.localStorage?.setItem(
         DEVICE_SHORT_EDGE_KEY,
         String(Math.round(value)),
@@ -221,32 +221,56 @@ export function deviceCssShortEdge(win: Window = window): number {
 
   const stored = readStoredShortEdge(win);
 
-  // If this load is returning from an OAuth redirect (such as Google Sign In)
-  // or carrying an OAuth mobile marker, the phone's layout may be reporting
-  // widened dimensions from the pre-redirect viewport. Prefer the stored phone edge.
-  if (stored > 0 && stored <= PHONE_MAX_SHORT_EDGE && isAuthRedirect(win)) {
+  // If returning from an auth redirect or carrying an OAuth mobile marker,
+  // or if the viewport has already been widened/scaled, prefer the stored phone edge.
+  if (
+    stored > 0 &&
+    stored <= PHONE_MAX_SHORT_EDGE &&
+    (isAuthRedirect(win) || !viewportIsUntouched(win.document))
+  ) {
     return stored;
   }
 
   if (viewportIsUntouched(win.document)) {
-    rememberShortEdge(short, win);
+    if (short <= PHONE_MAX_SHORT_EDGE) {
+      rememberShortEdge(short, win);
+      return short;
+    }
     return short;
   }
-  return stored || short;
+
+  return stored > 0 && stored <= PHONE_MAX_SHORT_EDGE ? stored : short;
 }
 
 /** The width to lay out for at 100%, in the current orientation. */
 export function deviceCssWidth(win: Window = window): number {
   const screenWidth = win.screen?.width ?? 0;
   const screenHeight = win.screen?.height ?? 0;
-  // screen.width follows orientation on some browsers and not on others, so
-  // use the short edge for a phone held upright and the live value otherwise.
   const short = Math.min(screenWidth, screenHeight);
   const orientation = win.screen?.orientation?.type ?? "";
   const landscape = orientation.startsWith("landscape");
-  const device = landscape
+  const stored = readStoredShortEdge(win);
+  const dpr = win.devicePixelRatio || 1;
+
+  if (!landscape && stored > 0 && stored <= PHONE_MAX_SHORT_EDGE) {
+    return stored;
+  }
+
+  let device = landscape
     ? Math.max(screenWidth, screenHeight)
     : short || screenWidth;
+
+  if (device <= 0) device = win.innerWidth;
+
+  if (
+    device > PHONE_MAX_SHORT_EDGE &&
+    dpr > 1 &&
+    device / dpr <=
+      (landscape ? PHONE_MAX_SHORT_EDGE * 2 : PHONE_MAX_SHORT_EDGE)
+  ) {
+    device = Math.round(device / dpr);
+  }
+
   return device > 0 ? device : win.innerWidth;
 }
 
