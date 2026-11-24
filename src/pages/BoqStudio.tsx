@@ -64,6 +64,10 @@ import { useLanguage } from "@/lib/i18n";
 import { UnrenderableScriptError } from "@/lib/boq/fonts";
 import { downloadBoqPdf } from "@/lib/boq/pdf";
 import {
+  downloadArabicBoqPdf,
+  needsArabicRenderer,
+} from "@/lib/boq/pdf-arabic";
+import {
   boqStudioPrintHtml,
   boqSummaryPrintHtml,
   openBoqPrint,
@@ -148,8 +152,10 @@ export default function BoqStudio() {
     if (!doc) return;
     setDoc(convertSurveyToPriced(doc));
     toast.success(
-        t("Converted to a priced quote. The captured market rates are kept as line rates."),
-      );
+      t(
+        "Converted to a priced quote. The captured market rates are kept as line rates.",
+      ),
+    );
   };
 
   const refreshLibrary = useCallback(async () => {
@@ -236,8 +242,8 @@ export default function BoqStudio() {
     setDocumentId(null);
     setIsSampleActive(true);
     toast.success(
-        t("Loaded verified sample 3-bedroom bungalow BOQ with blockchain proof."),
-      );
+      t("Loaded verified sample 3-bedroom bungalow BOQ with blockchain proof."),
+    );
   };
 
   const patch = (changes: Partial<BoqStudioDocument>) =>
@@ -330,9 +336,7 @@ export default function BoqStudio() {
     if (!doc) return;
     const chosen = importPreviews.filter((p) => selectedImports[p.record.ref]);
     if (chosen.length === 0) {
-      toast.error(
-        t("Select at least one saved calculation to import."),
-      );
+      toast.error(t("Select at least one saved calculation to import."));
       return;
     }
     const allLines = chosen.flatMap((p) => p.lines);
@@ -372,9 +376,7 @@ export default function BoqStudio() {
           document: doc,
           totals: compiled?.standard.summary ?? null,
         });
-      toast.success(
-        t("BOQ saved."),
-      );
+      toast.success(t("BOQ saved."));
       void refreshLibrary();
     } catch (error) {
       toast.error(
@@ -421,13 +423,29 @@ export default function BoqStudio() {
     }
     setBusy(true);
     try {
+      // An Arabic document is drawn by the pdf-lib renderer: the jsPDF engine
+      // cannot shape it, and a printed page cannot be hashed or sealed.
+      if (needsArabicRenderer(compiled.standard, compiled.document)) {
+        await downloadArabicBoqPdf(compiled.standard, compiled.document, {
+          summaryOnly: true,
+          stampOnBlockchain: false,
+        });
+        toast.success(
+          t(
+            "Free FRELUX summary BOQ downloaded. Line-level details are excluded.",
+          ),
+        );
+        return;
+      }
       await downloadBoqPdf(compiled.standard, compiled.document, {
         summaryOnly: true,
         verify: false,
         stampOnBlockchain: false,
       });
       toast.success(
-        t("Free FRELUX summary BOQ downloaded. Line-level details are excluded."),
+        t(
+          "Free FRELUX summary BOQ downloaded. Line-level details are excluded.",
+        ),
       );
     } catch (error) {
       if (error instanceof UnrenderableScriptError && compiled) {
@@ -441,7 +459,9 @@ export default function BoqStudio() {
             ? t(
                 "This script needs browser text shaping, so the summary opened in the print view. Choose Save as PDF there.",
               )
-            : t("The print view was blocked. Allow pop-ups to print this document."),
+            : t(
+                "The print view was blocked. Allow pop-ups to print this document.",
+              ),
         );
         return;
       }
@@ -480,6 +500,35 @@ export default function BoqStudio() {
           // The BOQ contractor identity remains the safe branded fallback.
         }
       }
+      if (needsArabicRenderer(compiled.standard, compiled.document)) {
+        const arabic = await downloadArabicBoqPdf(
+          compiled.standard,
+          compiled.document,
+          {
+            showMaterialRate: template?.show_material_rate ?? true,
+            showLabourRate: template?.show_labour_rate ?? true,
+            stampOnBlockchain: verified,
+          },
+        );
+        if (verified && arabic?.stampError) {
+          toast.error(
+            `${t("Sealed, but not blockchain-verified:")} ${arabic.stampError}`,
+          );
+        } else if (verified && arabic?.verificationId) {
+          toast.success(
+            `Verified BOQ PDF exported & anchored to Bitcoin blockchain (ID: ${arabic.verificationId})`,
+          );
+        } else if (verified) {
+          toast.error(
+            t(
+              "Arabic BOQ PDF exported, but the blockchain anchor was not created.",
+            ),
+          );
+        } else {
+          toast.success(t("FRELUX-branded BOQ PDF downloaded."));
+        }
+        return;
+      }
       const res = await downloadBoqPdf(compiled.standard, compiled.document, {
         showMaterialRate: template?.show_material_rate ?? true,
         showLabourRate: template?.show_labour_rate ?? true,
@@ -498,8 +547,10 @@ export default function BoqStudio() {
         );
       } else {
         toast.success(
-        t("FRELUX-branded BOQ PDF downloaded without blockchain verification."),
-      );
+          t(
+            "FRELUX-branded BOQ PDF downloaded without blockchain verification.",
+          ),
+        );
       }
     } catch (error) {
       if (error instanceof UnrenderableScriptError && compiled) {
@@ -514,7 +565,9 @@ export default function BoqStudio() {
             ? t(
                 "This script needs browser text shaping, so the document opened in the print view and was not blockchain-verified. Choose Save as PDF there.",
               )
-            : t("The print view was blocked. Allow pop-ups to print this document."),
+            : t(
+                "The print view was blocked. Allow pop-ups to print this document.",
+              ),
         );
         return;
       }
@@ -593,9 +646,7 @@ export default function BoqStudio() {
       }
       setShareToken(token);
       setShareSnapshot(snapshot);
-      toast.success(
-        t("Share link created."),
-      );
+      toast.success(t("Share link created."));
     } catch (error) {
       toast.error(
         error instanceof UnrenderableScriptError
@@ -610,13 +661,9 @@ export default function BoqStudio() {
   const copyShareLink = async (url: string) => {
     try {
       await navigator.clipboard.writeText(url);
-      toast.success(
-        t("Link copied."),
-      );
+      toast.success(t("Link copied."));
     } catch {
-      toast.error(
-        t("Copy failed. Select the link and copy it manually."),
-      );
+      toast.error(t("Copy failed. Select the link and copy it manually."));
     }
   };
 
@@ -629,9 +676,7 @@ export default function BoqStudio() {
     }
     setShareToken(null);
     setShareSnapshot(null);
-    toast.success(
-        t("Share link revoked. The link no longer opens."),
-      );
+    toast.success(t("Share link revoked. The link no longer opens."));
   };
 
   const money = (value: number) =>
@@ -656,7 +701,9 @@ export default function BoqStudio() {
       >
         <PageHeader
           title={t("Bill of Quantities Studio")}
-          subtitle={t("Turn validated calculator results into a structured, exportable BOQ.")}
+          subtitle={t(
+            "Turn validated calculator results into a structured, exportable BOQ.",
+          )}
         />
 
         <div className="mb-6 grid gap-3 sm:grid-cols-[1fr_auto_auto_auto]">
@@ -708,7 +755,9 @@ export default function BoqStudio() {
                 {t("Start a bill of quantities")}
               </h2>
               <p className="mt-2 text-sm text-slate-600">
-                {t("Pick a template and create a document. Sections come from the FRELUX standard library and stay editable.")}
+                {t(
+                  "Pick a template and create a document. Sections come from the FRELUX standard library and stay editable.",
+                )}
               </p>
               <p className="mt-4 rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
                 {sources.length > 0
@@ -723,7 +772,9 @@ export default function BoqStudio() {
                 <p className="mt-1 text-xs text-emerald-800/80 dark:text-emerald-300/80 leading-relaxed">
                   Inspect a completed 180 m² 3-bedroom bungalow takeoff
                   calibrated by registered civil quantity surveyors with live
-                  {t("SHA-256 cryptographic attestation before entering your own")}
+                  {t(
+                    "SHA-256 cryptographic attestation before entering your own",
+                  )}
                   project.
                 </p>
                 <button
@@ -782,21 +833,27 @@ export default function BoqStudio() {
                     <div className="flex flex-wrap items-center gap-2">
                       <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                       <span className="text-base font-semibold">
-                        {t("Sample Verified BOQ & Immutable Cryptographic Attestation")}
+                        {t(
+                          "Sample Verified BOQ & Immutable Cryptographic Attestation",
+                        )}
                       </span>
                       <span className="inline-flex items-center rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                         {SAMPLE_BUNGALOW_VERIFICATION.status}
                       </span>
                     </div>
                     <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
-                      {t("A worked example, not a client commission: a complete 180 m²")}
-                      {" "}
-                      {t("3-bedroom bungalow schedule priced line by line, so a quantity surveyor")}
-                      {" "}
-                      {t("can check it by hand. The fingerprint below is the SHA-256 of this schedule")}
-                      {" "}
-                      {t("and is recomputed by the test suite, so editing any rate or quantity breaks it.")}
-                      {" "}
+                      {t(
+                        "A worked example, not a client commission: a complete 180 m²",
+                      )}{" "}
+                      {t(
+                        "3-bedroom bungalow schedule priced line by line, so a quantity surveyor",
+                      )}{" "}
+                      {t(
+                        "can check it by hand. The fingerprint below is the SHA-256 of this schedule",
+                      )}{" "}
+                      {t(
+                        "and is recomputed by the test suite, so editing any rate or quantity breaks it.",
+                      )}{" "}
                       <span className="font-semibold">
                         {SAMPLE_VERIFIED_BUNGALOW_BOQ.market_code} ·{" "}
                         {SAMPLE_VERIFIED_BUNGALOW_BOQ.currency}
@@ -870,7 +927,9 @@ export default function BoqStudio() {
                 {t("Quote type")}
               </h2>
               <p className="mb-3 text-xs text-slate-500">
-                {t("The quantities are identical in both types. Only the price layer")}
+                {t(
+                  "The quantities are identical in both types. Only the price layer",
+                )}
                 differs.
               </p>
               <div className="grid gap-2 sm:grid-cols-2">
@@ -888,7 +947,9 @@ export default function BoqStudio() {
                     {t("Priced quote")}
                   </span>
                   <span className="mt-1 block text-xs text-slate-600">
-                    {t("Rates and a contract total, with your commercial build-up.")}
+                    {t(
+                      "Rates and a contract total, with your commercial build-up.",
+                    )}
                   </span>
                 </button>
                 <button
@@ -905,7 +966,9 @@ export default function BoqStudio() {
                     {t("Market survey quote")}
                   </span>
                   <span className="mt-1 block text-xs text-slate-600">
-                    {t("Exact quantities and units with no prices, ready to price in")}
+                    {t(
+                      "Exact quantities and units with no prices, ready to price in",
+                    )}
                     the market.
                   </span>
                 </button>
@@ -1071,7 +1134,9 @@ export default function BoqStudio() {
               </div>
               {importPreviews.length === 0 ? (
                 <p className="text-sm text-slate-500">
-                  {t("No saved calculator results found. Save a calculation, then")}
+                  {t(
+                    "No saved calculator results found. Save a calculation, then",
+                  )}
                   import its quantities here.
                 </p>
               ) : (
@@ -1338,7 +1403,9 @@ export default function BoqStudio() {
               {doc.mode === "market_survey" ? (
                 <>
                   <p className="text-sm text-slate-600">
-                    {t("Collect a rate for each line in the market and enter it")}
+                    {t(
+                      "Collect a rate for each line in the market and enter it",
+                    )}
                     against the item. Preliminaries, overhead, contingency,
                     retention and tax do not apply, so the total is the sum of
                     the collected prices.
@@ -1605,7 +1672,9 @@ export default function BoqStudio() {
                     }
                   />
                   <p className="mt-1 text-xs text-slate-500">
-                    {t("Naming a qualified reviewer switches the document off Preliminary. Leave blank to keep it marked preliminary.")}
+                    {t(
+                      "Naming a qualified reviewer switches the document off Preliminary. Leave blank to keep it marked preliminary.",
+                    )}
                   </p>
                 </div>
                 <div>
@@ -1636,7 +1705,9 @@ export default function BoqStudio() {
                 Export
               </h2>
               <p className="mb-3 text-xs text-slate-600">
-                {t("Free accounts can download a FRELUX-branded summary PDF. The")}
+                {t(
+                  "Free accounts can download a FRELUX-branded summary PDF. The",
+                )}
                 full FRELUX PDF without blockchain verification is also free;
                 the verified, contractor-branded PDF and editable tender
                 schedules are subscriber/admin exports.
@@ -1689,7 +1760,9 @@ export default function BoqStudio() {
                 </button>
               </div>
               <p className="mt-3 text-xs text-slate-500">
-                {t("The free summary omits item-level quantities and rates. Editable")}
+                {t(
+                  "The free summary omits item-level quantities and rates. Editable",
+                )}
                 schedules preserve numeric quantities and rates. Verified
                 exports include a FRELUX VERIFY seal and are anchored only when
                 the provider returns a verification ID.
@@ -1803,7 +1876,9 @@ export default function BoqStudio() {
                 ))}
               </ul>
               <p className="mt-3 text-xs text-slate-500">
-                {t("Administrators manage templates, standard sections and export")}
+                {t(
+                  "Administrators manage templates, standard sections and export",
+                )}
                 settings in Admin → BOQ templates. Supported imports:{" "}
                 {Object.values(CALCULATOR_SECTIONS)
                   .map((c) => c.label)
