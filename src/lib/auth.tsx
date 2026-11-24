@@ -57,6 +57,10 @@ interface AuthContextValue extends AuthState {
       phone?: string;
       country_code?: string;
       full_name?: string;
+      location?: string;
+      nin_number?: string;
+      government_id_type?: string;
+      government_id_number?: string;
       [key: string]: unknown;
     },
   ) => Promise<SignUpResult>;
@@ -183,6 +187,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       phone?: string;
       country_code?: string;
       full_name?: string;
+      location?: string;
+      nin_number?: string;
+      government_id_type?: string;
+      government_id_number?: string;
     },
   ) {
     const supabase = await getSupabase();
@@ -192,6 +200,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (extra?.phone) updatePayload.phone = extra.phone;
     if (extra?.country_code) updatePayload.country_code = extra.country_code;
     if (extra?.full_name) updatePayload.full_name = extra.full_name;
+    if (extra?.location) updatePayload.location = extra.location;
+    if (extra?.nin_number) updatePayload.nin_number = extra.nin_number;
+    if (extra?.government_id_type)
+      updatePayload.government_id_type = extra.government_id_type;
+    if (extra?.government_id_number)
+      updatePayload.government_id_number = extra.government_id_number;
 
     const { data: updated, error: updateError } = await supabase
       .from("profiles")
@@ -325,6 +339,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const phone = (metadata?.phone ?? "").trim();
         const countryCode = (metadata?.country_code ?? "").trim().toUpperCase();
         const fullName = (metadata?.full_name ?? "").trim();
+        const location = (
+          typeof metadata?.location === "string" ? metadata.location : ""
+        ).trim();
+        const ninNumber = (
+          typeof metadata?.nin_number === "string" ? metadata.nin_number : ""
+        ).trim();
+        const governmentIdType = (
+          typeof metadata?.government_id_type === "string"
+            ? metadata.government_id_type
+            : ""
+        ).trim();
+        const governmentIdNumber = (
+          typeof metadata?.government_id_number === "string"
+            ? metadata.government_id_number
+            : ""
+        ).trim();
+
         if (!/^\+\d{7,15}$/.test(phone)) {
           return {
             error: "A valid mobile number is required.",
@@ -348,6 +379,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               phone,
               country_code: countryCode,
               full_name: fullName,
+              location,
+              nin_number: ninNumber,
+              government_id_type: governmentIdType,
+              government_id_number: governmentIdNumber,
             },
           },
         });
@@ -360,6 +395,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               phone,
               country_code: countryCode,
               full_name: fullName,
+              location,
+              nin_number: ninNumber,
+              government_id_type: governmentIdType,
+              government_id_number: governmentIdNumber,
             });
           } catch (setupError) {
             if (import.meta.env.DEV)

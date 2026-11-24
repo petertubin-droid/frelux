@@ -23,6 +23,9 @@ import {
   ShieldOff,
   RotateCcw,
   Phone,
+  MapPin,
+  ShieldCheck,
+  CreditCard,
 } from "lucide-react";
 import {
   resolveUserCountry,
@@ -84,6 +87,10 @@ export default function AdminUsers() {
     full_name: "",
     phone: "",
     country_code: "",
+    location: "",
+    nin_number: "",
+    government_id_type: "national_id",
+    government_id_number: "",
     account_type: "client",
     display_name: "",
     business_name: "",
@@ -114,7 +121,7 @@ export default function AdminUsers() {
       .trim();
     if (safeSearch)
       profileQuery = profileQuery.or(
-        `email.ilike.%${safeSearch}%,full_name.ilike.%${safeSearch}%,phone.ilike.%${safeSearch}%`,
+        `email.ilike.%${safeSearch}%,full_name.ilike.%${safeSearch}%,phone.ilike.%${safeSearch}%,location.ilike.%${safeSearch}%,nin_number.ilike.%${safeSearch}%,government_id_number.ilike.%${safeSearch}%`,
       );
     if (kind !== "all")
       profileQuery = profileQuery.eq(
@@ -237,6 +244,10 @@ export default function AdminUsers() {
       full_name: "",
       phone: "",
       country_code: "",
+      location: "",
+      nin_number: "",
+      government_id_type: "national_id",
+      government_id_number: "",
       account_type: "client",
       display_name: "",
       business_name: "",
@@ -254,6 +265,10 @@ export default function AdminUsers() {
       full_name: user.full_name ?? "",
       phone: user.phone ?? "",
       country_code: user.country_code ?? resolveUserCountry(user).code ?? "",
+      location: user.location ?? "",
+      nin_number: user.nin_number ?? "",
+      government_id_type: user.government_id_type || "national_id",
+      government_id_number: user.government_id_number ?? "",
       account_type: user.account_type ?? "client",
       display_name: user.full_name ?? "",
       business_name: "",
@@ -520,6 +535,9 @@ export default function AdminUsers() {
                   {t("Country")}
                 </th>
                 <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
+                  {t("Govt ID / NIN")}
+                </th>
+                <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
                   {t("Role")}
                 </th>
                 <th className="py-3 pr-4 font-semibold text-muted-foreground dark:text-muted-foreground">
@@ -543,7 +561,7 @@ export default function AdminUsers() {
               {users.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={9}
                     className="py-8 text-center text-muted-foreground dark:text-muted-foreground"
                   >
                     {t("No users yet.")}
@@ -582,6 +600,27 @@ export default function AdminUsers() {
                             No phone
                           </div>
                         )}
+                        {u.location ? (
+                          <div
+                            className="mt-0.5 flex items-center gap-1 text-xs text-muted-foreground"
+                            data-testid={`user-location-${u.id}`}
+                          >
+                            <MapPin
+                              className="h-3 w-3 shrink-0 text-brand-purple"
+                              aria-hidden="true"
+                            />
+                            <span
+                              className="truncate max-w-[200px]"
+                              title={u.location}
+                            >
+                              {u.location}
+                            </span>
+                          </div>
+                        ) : (
+                          <div className="mt-0.5 text-[11px] text-muted-foreground/60 italic">
+                            No location
+                          </div>
+                        )}
                       </td>
                       <td className="py-3 pr-4 whitespace-nowrap">
                         {countryInfo.code ? (
@@ -612,6 +651,46 @@ export default function AdminUsers() {
                             title="Country not recorded"
                           >
                             —
+                          </span>
+                        )}
+                      </td>
+                      <td className="py-3 pr-4" data-testid={`user-id-${u.id}`}>
+                        {u.country_code === "NG" || u.nin_number ? (
+                          u.nin_number ? (
+                            <div className="inline-flex flex-col gap-0.5">
+                              <span className="inline-flex items-center gap-1 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                                <ShieldCheck className="h-3 w-3 shrink-0" />
+                                <span>NIN: {u.nin_number}</span>
+                              </span>
+                              <span className="text-[10px] text-muted-foreground">
+                                Nigeria (NIMC)
+                              </span>
+                            </div>
+                          ) : (
+                            <span className="text-xs text-amber-600 dark:text-amber-400 italic">
+                              Pending NIN
+                            </span>
+                          )
+                        ) : u.government_id_number ? (
+                          <div className="inline-flex flex-col gap-0.5">
+                            <span className="inline-flex items-center gap-1 rounded-md border border-brand-purple/30 bg-brand-purple/10 px-2 py-0.5 text-xs font-semibold text-brand-purple dark:text-brand-purple/90">
+                              <ShieldCheck className="h-3 w-3 shrink-0" />
+                              <span>
+                                {u.government_id_type
+                                  ? u.government_id_type
+                                      .replace(/_/g, " ")
+                                      .toUpperCase()
+                                  : "GOVT ID"}
+                                : {u.government_id_number}
+                              </span>
+                            </span>
+                            <span className="text-[10px] text-muted-foreground">
+                              International ID
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="text-xs text-muted-foreground/60 italic">
+                            No ID recorded
                           </span>
                         )}
                       </td>
@@ -913,6 +992,61 @@ export default function AdminUsers() {
               onChange={(e) => setForm({ ...form, phone: e.target.value })}
             />
           </AdminField>
+          <AdminField
+            label="Location (City, State / Region)"
+            hint="Required for both Client and Pro accounts to ensure localized pricing and contractor dispatch."
+          >
+            <AdminInput
+              value={form.location}
+              placeholder="e.g. Lagos, Nigeria or Austin, Texas"
+              onChange={(e) => setForm({ ...form, location: e.target.value })}
+            />
+          </AdminField>
+          {form.country_code === "NG" ? (
+            <AdminField
+              label="National Identification Number (NIN)"
+              hint="11-digit official Nigerian identity number (NIMC standard)."
+            >
+              <AdminInput
+                value={form.nin_number}
+                maxLength={11}
+                placeholder="11-digit NIN (e.g. 12345678901)"
+                onChange={(e) =>
+                  setForm({
+                    ...form,
+                    nin_number: e.target.value.replace(/\D/g, "").slice(0, 11),
+                  })
+                }
+              />
+            </AdminField>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <AdminField label="Government ID Type">
+                <AdminSelect
+                  value={form.government_id_type}
+                  onChange={(e) =>
+                    setForm({ ...form, government_id_type: e.target.value })
+                  }
+                >
+                  <option value="national_id">National ID Card</option>
+                  <option value="passport">International Passport</option>
+                  <option value="drivers_license">Driver's License</option>
+                  <option value="voters_card">Voter's Card</option>
+                  <option value="tax_id">Tax ID (TIN / SSN)</option>
+                </AdminSelect>
+              </AdminField>
+              <AdminField label="Government ID Number">
+                <AdminInput
+                  value={form.government_id_number}
+                  placeholder="e.g. P12345678 or DL-892301"
+                  maxLength={30}
+                  onChange={(e) =>
+                    setForm({ ...form, government_id_number: e.target.value })
+                  }
+                />
+              </AdminField>
+            </div>
+          )}
           <AdminField label="Account type">
             <AdminSelect
               value={form.account_type}

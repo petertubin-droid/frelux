@@ -75,6 +75,7 @@ const MarketLanding = lazy(() => import("@/pages/MarketLanding"));
 const Colors = lazy(() => import("@/pages/Colors"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Login = lazy(() => import("@/pages/Login"));
+const Register = lazy(() => import("@/pages/Register"));
 import ErrorBoundary from "@/components/ErrorBoundary";
 import { useWebVitals } from "@/lib/web-vitals";
 import { useTypography } from "@/lib/useTypography";
@@ -2445,6 +2446,18 @@ export default function App() {
                             <Login />
                           </Suspense>
                         }
+                      />
+                      <Route
+                        path="/register"
+                        element={
+                          <Suspense fallback={<PageLoader />}>
+                            <Register />
+                          </Suspense>
+                        }
+                      />
+                      <Route
+                        path="/signup"
+                        element={<Navigate to="/register" replace />}
                       />
 
                       {/* ─────────────────────────────────────────────────────── */}

@@ -89,13 +89,35 @@ serveWithCors(async (req: Request) => {
         .slice(0, 10);
       const account_type =
         body.account_type === "pro_worker" ? "pro_worker" : "client";
+      const location = String(body.location ?? "")
+        .trim()
+        .slice(0, 160);
+      const nin_number = String(body.nin_number ?? "")
+        .trim()
+        .slice(0, 30);
+      const government_id_type = String(body.government_id_type ?? "")
+        .trim()
+        .slice(0, 50);
+      const government_id_number = String(body.government_id_number ?? "")
+        .trim()
+        .slice(0, 50);
+
       if (!phone || phone.replace(/\D/g, "").length < 7)
         return errorResponse("A valid mobile number is required.", 400);
       const countryCodeValid = APPROVED_MARKET_CODES.has(country_code);
       if (!countryCodeValid)
         return errorResponse("A valid ISO country code is required.", 400);
       const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
-        data: { full_name, phone, account_type, country_code },
+        data: {
+          full_name,
+          phone,
+          account_type,
+          country_code,
+          location,
+          nin_number,
+          government_id_type,
+          government_id_number,
+        },
       });
       if (error) return errorResponse(error.message, 400);
       if (data.user?.id) {
@@ -103,6 +125,10 @@ serveWithCors(async (req: Request) => {
           full_name,
           phone,
           account_type,
+          location,
+          nin_number,
+          government_id_type,
+          government_id_number,
         };
         if (country_code) profilePayload.country_code = country_code;
         const { error: profileError } = await admin
@@ -203,6 +229,28 @@ serveWithCors(async (req: Request) => {
         if (!APPROVED_MARKET_CODES.has(country_code))
           return errorResponse("A valid ISO country code is required.", 400);
         updatePayload.country_code = country_code;
+      }
+      if (body.location !== undefined) {
+        updatePayload.location = String(body.location ?? "")
+          .trim()
+          .slice(0, 160);
+      }
+      if (body.nin_number !== undefined) {
+        updatePayload.nin_number = String(body.nin_number ?? "")
+          .trim()
+          .slice(0, 30);
+      }
+      if (body.government_id_type !== undefined) {
+        updatePayload.government_id_type = String(body.government_id_type ?? "")
+          .trim()
+          .slice(0, 50);
+      }
+      if (body.government_id_number !== undefined) {
+        updatePayload.government_id_number = String(
+          body.government_id_number ?? "",
+        )
+          .trim()
+          .slice(0, 50);
       }
       const { error: profileError } = await admin
         .from("profiles")

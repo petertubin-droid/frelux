@@ -170,3 +170,48 @@ describe("AdminUsers", () => {
     expect(body.pro).toBeTruthy();
   });
 });
+
+describe("AdminUsers Location and Identity Document Display", () => {
+  it("displays user location and Nigerian NIN badge in the table", async () => {
+    state.profiles = [
+      {
+        ...PRO_USER,
+        id: "22222222-2222-4222-8222-222222222222",
+        full_name: "Babajide Sanwo",
+        email: "babajide@lagos.example",
+        phone: "+2348011223344",
+        country_code: "NG",
+        location: "Ikeja, Lagos State",
+        nin_number: "98765432101",
+      },
+    ];
+    await renderPage();
+
+    expect(await screen.findByText("Ikeja, Lagos State")).toBeInTheDocument();
+    expect(screen.getByText(/NIN: 98765432101/i)).toBeInTheDocument();
+    expect(screen.getByText(/Nigeria \(NIMC\)/i)).toBeInTheDocument();
+  });
+
+  it("displays international government ID badge for non-Nigerian users", async () => {
+    state.profiles = [
+      {
+        ...PRO_USER,
+        id: "33333333-3333-4333-8333-333333333333",
+        full_name: "Sarah Jenkins",
+        email: "sarah@austin.example",
+        phone: "+15125550199",
+        country_code: "US",
+        location: "Austin, Texas",
+        government_id_type: "drivers_license",
+        government_id_number: "TX-DL-98213",
+      },
+    ];
+    await renderPage();
+
+    expect(await screen.findByText("Austin, Texas")).toBeInTheDocument();
+    expect(
+      screen.getByText(/DRIVERS LICENSE: TX-DL-98213/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText(/International ID/i)).toBeInTheDocument();
+  });
+});

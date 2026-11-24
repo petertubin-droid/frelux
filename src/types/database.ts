@@ -8,6 +8,10 @@ export interface DbProfile {
   full_name: string;
   phone: string;
   country_code?: string | null;
+  location?: string | null;
+  nin_number?: string | null;
+  government_id_type?: string | null;
+  government_id_number?: string | null;
   avatar_url: string;
   marketplace_id: string;
   onboarding_completed: boolean;

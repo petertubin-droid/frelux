@@ -412,7 +412,10 @@ export default function Navbar() {
 
   // Group children by section for premium dropdown rendering
   /** The section of the workspace that holds the current page, if any. */
-  function activeSectionKey(workspace: { label: string; children?: NavChild[] }) {
+  function activeSectionKey(workspace: {
+    label: string;
+    children?: NavChild[];
+  }) {
     const active = (workspace.children ?? []).find(
       (child) =>
         location.pathname === child.path ||
@@ -927,7 +930,7 @@ export default function Navbar() {
                         {t("Sign In")}
                       </Link>
                       <Link
-                        to="/login/?mode=signup"
+                        to="/register"
                         onClick={() => setOpenDropdown(null)}
                         className="mt-2 flex h-11 w-full items-center justify-center gap-2 rounded-xl border border-border/60 text-sm font-semibold text-card-foreground transition-colors hover:bg-muted/60 dark:border-white/10 dark:text-muted-foreground"
                       >
@@ -1304,11 +1307,11 @@ export default function Navbar() {
                                             )
                                               ? true
                                               : foldedSections.includes(
-                                                                    groupKey,
-                                                                  )
-                                                                ? false
-                                                                : groupKey ===
-                                                                  currentSectionKey;
+                                                    groupKey,
+                                                  )
+                                                ? false
+                                                : groupKey ===
+                                                  currentSectionKey;
                                             const SectionIcon = getSectionIcon(
                                               group.section,
                                             );
