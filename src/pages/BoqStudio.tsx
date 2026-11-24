@@ -796,6 +796,11 @@ export default function BoqStudio() {
                       {t("can check it by hand. The fingerprint below is the SHA-256 of this schedule")}
                       {" "}
                       {t("and is recomputed by the test suite, so editing any rate or quantity breaks it.")}
+                      {" "}
+                      <span className="font-semibold">
+                        {SAMPLE_VERIFIED_BUNGALOW_BOQ.market_code} ·{" "}
+                        {SAMPLE_VERIFIED_BUNGALOW_BOQ.currency}
+                      </span>
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1 text-xs">
                       <div className="rounded-lg bg-white/70 p-2 border border-emerald-200/60 dark:bg-black/20 dark:border-white/5">
@@ -808,11 +813,10 @@ export default function BoqStudio() {
                       </div>
                       <div className="rounded-lg bg-white/70 p-2 border border-emerald-200/60 dark:bg-black/20 dark:border-white/5">
                         <span className="text-muted-foreground block text-[11px]">
-                          {t("Market & currency")}
+                          {t("Calibrated By")}
                         </span>
                         <span className="font-semibold text-foreground">
-                          {SAMPLE_VERIFIED_BUNGALOW_BOQ.market_code} ·{" "}
-                          {SAMPLE_VERIFIED_BUNGALOW_BOQ.currency}
+                          {SAMPLE_BUNGALOW_VERIFICATION.reviewerName}
                         </span>
                       </div>
                       <div className="rounded-lg bg-white/70 p-2 border border-emerald-200/60 dark:bg-black/20 dark:border-white/5 sm:col-span-2 lg:col-span-1">

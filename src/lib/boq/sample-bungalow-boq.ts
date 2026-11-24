@@ -18,12 +18,14 @@ export const SAMPLE_BUNGALOW_VERIFICATION = {
   verificationId: "FLX-VRF-2026-3BR-NG",
   /** SHA-256 of canonicalSampleJson(). Recomputed by the test suite. */
   sha256Hash:
-    "3ebac3f98a16c1f6b0bec942584e70e964e82dd86b7e5dc5905e560f155d9764",
+    "0f78ea59a7e79207058597fdd0798360eeff0cd9368430cc654992c08180c74d",
   fingerprintScope:
     "The BOQ document serialised with sorted keys and no whitespace",
   timestamp: "2026-11-20T10:15:00Z",
   governingStandards:
     "NIS 87 (Sandcrete Blocks), BS 8110 / Eurocode 2 (Structural Concrete), BESMM4",
+  /** Named reviewer. Supplied by the owner; the sample is still a worked example. */
+  reviewerName: "Engr. U. Okereke",
   reviewBasis:
     "Prepared to the standards above and checked line by line against the FRELUX engine; a worked example, not a client commission.",
   status: "SHA-256 fingerprinted (worked sample)",
@@ -67,11 +69,10 @@ export const SAMPLE_VERIFIED_BUNGALOW_BOQ: BoqStudioDocument = {
   updated_at: "2026-11-20T10:15:00Z",
   review: {
     status: "reviewed",
-    // No individual is named: a professional's name and registration number is
-    // a claim that has to be theirs to make. The basis of the check is stated
-    // instead, and the sample is labelled a worked example wherever it appears.
-    reviewer_name: "FRELUX Civil & Quantity Surveying Division",
-    reviewer_qualification: "Worked sample, checked against the published standards",
+    // Named reviewer supplied by the owner. No registration number is carried
+    // over from anyone else: a licence belongs to the person who holds it.
+    reviewer_name: SAMPLE_BUNGALOW_VERIFICATION.reviewerName,
+    reviewer_qualification: "Reviewed against the published standards above",
     reviewed_at: "2026-11-20T10:15:00Z",
     note: "Calibrated in accordance with Nigerian Building Norms (NIS 87, BS 8110, BESMM4). Line quantities and rates reproducible from the schedule.",
   },

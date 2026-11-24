@@ -54,11 +54,20 @@ describe("sample BOQ fingerprint", () => {
   });
 
   it("makes no claim it cannot support", () => {
-    // No anchored block, no named professional, no "blockchain verified".
+    // No anchored block and no blockchain attribution, because no receipt
+    // exists for this sample. The reviewer is named, but carries no borrowed
+    // licence number.
     const claims = JSON.stringify(SAMPLE_BUNGALOW_VERIFICATION).toLowerCase();
     expect(claims).not.toMatch(/blockchain/);
     expect(claims).not.toMatch(/opentimestamp/);
-    expect(claims).not.toMatch(/fnse|qs #/);
+    expect(claims).not.toMatch(/qs #|fnse/);
     expect(SAMPLE_BUNGALOW_VERIFICATION.status).toMatch(/sample/i);
+  });
+
+  it("names the reviewer the owner supplied", () => {
+    expect(SAMPLE_BUNGALOW_VERIFICATION.reviewerName).toBe("Engr. U. Okereke");
+    expect(SAMPLE_VERIFIED_BUNGALOW_BOQ.review.reviewer_name).toBe(
+      "Engr. U. Okereke",
+    );
   });
 });
