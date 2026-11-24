@@ -22,6 +22,12 @@ import {
 import type { BoqStudioDocument } from "./types";
 import type { ResolvedBranding } from "@/lib/brand-studio";
 import { applyJspdfHeader, applyJspdfWatermark } from "@/lib/pdf-branding";
+import {
+  UnrenderableScriptError,
+  hasUnrenderableScript,
+  needsUnicodeFont,
+  registerUnicodeFont,
+} from "./fonts";
 
 const BRAND = { r: 15, g: 23, b: 42 };
 const ACCENT = { r: 37, g: 99, b: 235 };
@@ -95,6 +101,34 @@ export async function buildBoqPdf(
   const rateText = (value: number) =>
     isSurvey && !(value > 0) ? "TBC" : money(value, currency);
 
+  // One decision for the whole document: jsPDF cannot mix families per run
+  // without re-measuring every string, and a document is written in one script.
+  const documentText = [
+    studio.title,
+    studio.reference,
+    studio.description,
+    studio.client?.name,
+    studio.client?.address,
+    studio.contractor?.name,
+    ...(studio.assumptions ?? []),
+    ...(studio.exclusions ?? []),
+    ...standard.sections.flatMap((section) => [
+      section.code,
+      section.title,
+      ...section.subSections.flatMap((sub) => [
+        sub.title,
+        ...sub.items.flatMap((item) => [item.description, item.specificationRef]),
+      ]),
+    ]),
+  ]
+    .filter(Boolean)
+    .join(" ");
+
+  if (hasUnrenderableScript(documentText)) throw new UnrenderableScriptError();
+  const fontFamily = needsUnicodeFont(documentText)
+    ? await registerUnicodeFont(doc)
+    : "helvetica";
+
   let y = margin;
 
   const drawHeader = () => {
@@ -110,7 +144,7 @@ export async function buildBoqPdf(
         margin,
         4,
       );
-      doc.setFont("helvetica", "normal");
+      doc.setFont(fontFamily, "normal");
       doc.setFontSize(8);
       doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
       doc.text(
@@ -126,7 +160,7 @@ export async function buildBoqPdf(
       doc.setFillColor(BRAND.r, BRAND.g, BRAND.b);
       doc.rect(0, 0, pageWidth, 18, "F");
       doc.setTextColor(255, 255, 255);
-      doc.setFont("helvetica", "bold");
+      doc.setFont(fontFamily, "bold");
       doc.setFontSize(13);
       const headerBrand = options.customBranding
         ? fitHeaderBrand(
@@ -136,7 +170,7 @@ export async function buildBoqPdf(
           )
         : "FRELUX";
       doc.text(headerBrand, margin, 11);
-      doc.setFont("helvetica", "normal");
+      doc.setFont(fontFamily, "normal");
       doc.setFontSize(9);
       doc.text(
         isSurvey ? "Market survey schedule" : "Bill of Quantities",
@@ -189,7 +223,7 @@ export async function buildBoqPdf(
   drawHeader();
 
   // Project block
-  doc.setFont("helvetica", "bold");
+  doc.setFont(fontFamily, "bold");
   doc.setFontSize(14);
   doc.text(
     studio.title ||
@@ -198,7 +232,7 @@ export async function buildBoqPdf(
     y,
   );
   y += 6;
-  doc.setFont("helvetica", "normal");
+  doc.setFont(fontFamily, "normal");
   doc.setFontSize(9);
   if (studio.description) {
     const desc = doc.splitTextToSize(studio.description, contentWidth);
@@ -275,7 +309,7 @@ export async function buildBoqPdf(
     ensure(14);
     doc.setFillColor(241, 245, 249);
     doc.rect(margin, y - 4, contentWidth, 8, "F");
-    doc.setFont("helvetica", "bold");
+    doc.setFont(fontFamily, "bold");
     doc.setFontSize(7.5);
     doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
     let x = margin + 1;
@@ -286,7 +320,7 @@ export async function buildBoqPdf(
       x += c.width;
     });
     y += 7;
-    doc.setFont("helvetica", "normal");
+    doc.setFont(fontFamily, "normal");
     doc.setTextColor(0, 0, 0);
   };
 
@@ -306,7 +340,7 @@ export async function buildBoqPdf(
   for (const section of standard.sections) {
     ensure(12);
     if (!options.summaryOnly) {
-      doc.setFont("helvetica", "bold");
+      doc.setFont(fontFamily, "bold");
       doc.setFontSize(9);
       doc.setTextColor(ACCENT.r, ACCENT.g, ACCENT.b);
       doc.text(`${section.code}  ${section.title}`, margin, y);
@@ -324,11 +358,11 @@ export async function buildBoqPdf(
       doc.text(String(count), margin + contentWidth - 38, y, {
         align: "right",
       });
-      doc.setFont("helvetica", "bold");
+      doc.setFont(fontFamily, "bold");
       doc.text(rateText(section.sectionTotal), margin + contentWidth - 1, y, {
         align: "right",
       });
-      doc.setFont("helvetica", "normal");
+      doc.setFont(fontFamily, "normal");
       y += 7;
     } else {
       for (const sub of section.subSections) {
@@ -380,17 +414,17 @@ export async function buildBoqPdf(
             align: "right",
           });
           x += columns[ci].width;
-          doc.setFont("helvetica", "bold");
+          doc.setFont(fontFamily, "bold");
           doc.text(rateText(item.totalCost), x + columns[ci].width - 2, y, {
             align: "right",
           });
-          doc.setFont("helvetica", "normal");
+          doc.setFont(fontFamily, "normal");
           y += rowHeight;
         }
       }
 
       ensure(8);
-      doc.setFont("helvetica", "bold");
+      doc.setFont(fontFamily, "bold");
       doc.setFontSize(8);
       doc.text(`Section ${section.code} total`, margin + contentWidth - 40, y, {
         align: "right",
@@ -398,7 +432,7 @@ export async function buildBoqPdf(
       doc.text(rateText(section.sectionTotal), margin + contentWidth - 1, y, {
         align: "right",
       });
-      doc.setFont("helvetica", "normal");
+      doc.setFont(fontFamily, "normal");
       y += 6;
     }
   }
@@ -451,7 +485,7 @@ export async function buildBoqPdf(
 
   summaryRows.forEach(([label, value, strong]) => {
     ensure(7);
-    doc.setFont("helvetica", strong ? "bold" : "normal");
+    doc.setFont(fontFamily, strong ? "bold" : "normal");
     doc.setFontSize(strong ? 9 : 8.5);
     doc.text(label, margin + contentWidth - 70, y, { align: "right" });
     doc.text(money(value, currency), margin + contentWidth - 1, y, {
@@ -464,11 +498,11 @@ export async function buildBoqPdf(
     if (entries.length === 0) return;
     y += 4;
     ensure(12);
-    doc.setFont("helvetica", "bold");
+    doc.setFont(fontFamily, "bold");
     doc.setFontSize(9);
     doc.text(title, margin, y);
     y += 5;
-    doc.setFont("helvetica", "normal");
+    doc.setFont(fontFamily, "normal");
     doc.setFontSize(8);
     entries.forEach((entry, index) => {
       const lines = doc.splitTextToSize(
@@ -489,11 +523,11 @@ export async function buildBoqPdf(
   if (studio.review.status === "reviewed" && studio.review.reviewer_name) {
     y += 6;
     ensure(16);
-    doc.setFont("helvetica", "bold");
+    doc.setFont(fontFamily, "bold");
     doc.setFontSize(9);
     doc.text("Professional review", margin, y);
     y += 5;
-    doc.setFont("helvetica", "normal");
+    doc.setFont(fontFamily, "normal");
     doc.setFontSize(8);
     doc.text(
       `${studio.review.reviewer_name}${studio.review.reviewer_qualification ? `, ${studio.review.reviewer_qualification}` : ""}`,

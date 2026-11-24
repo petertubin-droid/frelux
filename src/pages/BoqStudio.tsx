@@ -60,6 +60,8 @@ import {
   canPrintDocument,
 } from "@/lib/documents/document-access";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
+import { useLanguage } from "@/lib/i18n";
+import { UnrenderableScriptError } from "@/lib/boq/fonts";
 import { downloadBoqPdf } from "@/lib/boq/pdf";
 import { openBoqPrint } from "@/lib/boq/print";
 import { NumericInput } from "@/components/ui/NumericInput";
@@ -97,6 +99,7 @@ export default function BoqStudio() {
   const navigate = useNavigate();
   const cur = useDisplayCurrency();
   const userCurrency = cur.code || "USD";
+  const { t } = useLanguage();
   const [showDocumentGate, setShowDocumentGate] = useState(false);
   const [showPrintPaywall, setShowPrintPaywall] = useState(false);
   const [printDocId, setPrintDocId] = useState("boq-studio");
@@ -365,7 +368,11 @@ export default function BoqStudio() {
       toast.success("BOQ saved.");
       void refreshLibrary();
     } catch (error) {
-      toast.error(getSafeError(error));
+      toast.error(
+        error instanceof UnrenderableScriptError
+          ? error.message
+          : getSafeError(error),
+      );
     } finally {
       setSaving(false);
     }
@@ -411,10 +418,14 @@ export default function BoqStudio() {
         stampOnBlockchain: false,
       });
       toast.success(
-        "Free FRELUX summary BOQ downloaded. Line-level details are excluded.",
+        t("Free FRELUX summary BOQ downloaded. Line-level details are excluded."),
       );
     } catch (error) {
-      toast.error(getSafeError(error));
+      toast.error(
+        error instanceof UnrenderableScriptError
+          ? error.message
+          : getSafeError(error),
+      );
     } finally {
       setBusy(false);
     }
@@ -459,7 +470,7 @@ export default function BoqStudio() {
       });
       if (verified && res?.stampError) {
         toast.error(
-          `Sealed, but not blockchain-verified: ${res.stampError}`,
+          `${t("Sealed, but not blockchain-verified:")} ${res.stampError}`,
         );
       } else if (res?.verificationId) {
         toast.success(
@@ -471,7 +482,11 @@ export default function BoqStudio() {
         );
       }
     } catch (error) {
-      toast.error(getSafeError(error));
+      toast.error(
+        error instanceof UnrenderableScriptError
+          ? error.message
+          : getSafeError(error),
+      );
     } finally {
       setBusy(false);
     }
@@ -548,7 +563,11 @@ export default function BoqStudio() {
       setShareSnapshot(snapshot);
       toast.success("Share link created.");
     } catch (error) {
-      toast.error(getSafeError(error));
+      toast.error(
+        error instanceof UnrenderableScriptError
+          ? error.message
+          : getSafeError(error),
+      );
     } finally {
       setShareBusy(false);
     }
