@@ -10,7 +10,8 @@
 //  1. Missing glyphs. Solved by embedding a Unicode TTF: Noto Sans covers
 //     Latin (extended), Greek and Cyrillic. It is fetched from /fonts/pdf on
 //     demand, so the 1.2 MB of font is downloaded only by an export that
-//     actually needs it, never by a page load.
+//     actually needs it, never by a page load. The fonts are SIL OFL 1.1 and
+//     ship with their licence and notice in public/fonts/pdf/OFL.txt.
 //  2. Missing shaping. Arabic and Indic scripts need contextual letter forms
 //     and reordering; jsPDF has no complex-text layout engine, and CJK needs a
 //     font of several megabytes. A font alone cannot fix those, so this module
