@@ -1,32 +1,34 @@
 /**
- * Arabic BOQ export, drawn by pdf-lib.
+ * Arabic, Indic, and CJK BOQ export, drawn by pdf-lib.
  *
- * The jsPDF renderer cannot shape Arabic: it draws codepoints left to right
- * with no joining, which is why Arabic documents were routed to the browser
- * print dialog and the app stopped producing the file. A printed page cannot be
- * hashed, sealed or verified, so those documents were the one part of the BOQ
- * the authority chain could not reach.
+ * The jsPDF renderer cannot shape complex scripts: it draws codepoints left to right
+ * with no joining or GSUB/GPOS shaping, which is why complex-script documents were
+ * previously routed to the browser print dialog. A printed page cannot be hashed,
+ * sealed or verified, so those documents were the one part of the BOQ the authority
+ * chain could not reach.
  *
  * This module produces the file itself. It mirrors the jsPDF layout band for
  * band (header, project block, item table, commercial summary, notes, review,
- * footer), with three differences that come from the script:
+ * footer), with key features that come from the script:
  *
  *  1. Every string is shaped with fontkit and drawn as glyph outlines through
- *     `drawShapedRun`, so joins, ligatures and stacked marks are the shaper's
- *     decisions rather than the renderer's guesses.
- *  2. The page is mirrored for a right-to-left document: the item number sits
+ *     `drawShapedRun`, so joins, ligatures, conjuncts, matras, and stacked marks
+ *     are the shaper's decisions rather than the renderer's guesses.
+ *  2. The page is mirrored for right-to-left documents (Arabic): the item number sits
  *     on the right, the amount on the left, and each cell anchors to its own
- *     starting edge. A mirrored table is not decoration: an Arabic reader scans
- *     from the right, and a table that starts on the left reads backwards.
+ *     starting edge. Left-to-right complex scripts (Devanagari, CJK) retain standard
+ *     left-to-right table ordering.
  *  3. The visible glyphs are outlines, so no font program travels in the file
- *     and the payload stays small. The cost is that the Arabic is not text a
+ *     and the payload stays small. The cost is that the complex text is not text a
  *     reader can select. A hidden text layer exists (options.textLayer) but is
- *     off: pdf-lib writes a glyph-mapped ToUnicode table, and a shaped run has
- *     several codepoints per glyph, so the layer copies as mojibake. Searchable
- *     Arabic needs a real ToUnicode CMap, which is not claimed here.
- *
- * Scope: Arabic (and the Arabic Supplement/Extended blocks). Other shaped
- * scripts still need a font we do not ship, and still go to Print.
+ *     off by default: pdf-lib writes a glyph-mapped ToUnicode table, and a shaped run
+ *     has several codepoints per glyph, so the layer copies as mojibake. Searchable
+ *     complex text needs a real ToUnicode CMap, which is not claimed here.
+ *  4. Shipped fonts:
+ *     - Noto Naskh Arabic for Arabic script
+ *     - Noto Sans Devanagari for Devanagari / Indic script
+ *     - Noto Sans CJK for Chinese, Japanese, and Korean scripts
+ *     All documents using these scripts produce real, deterministic, hashable PDFs.
  */
 
 import { PDFDocument, StandardFonts, rgb } from "@cantoo/pdf-lib";
@@ -47,9 +49,33 @@ type FontkitFont = any;
 const ARABIC_SCRIPT =
   /[\u0600-\u06FF\u0750-\u077F\u08A0-\u08FF\uFB50-\uFDFF\uFE70-\uFEFF]/;
 
-/** True when this text is written in Arabic script and needs this renderer. */
+/** Devanagari (Hindi, Marathi, Nepali, Sanskrit, etc.). */
+const DEVANAGARI_SCRIPT = /[\u0900-\u097F]/;
+
+/** CJK Ideographs, Hiragana, Katakana, and Hangul. */
+const CJK_SCRIPT =
+  /[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uAC00-\uD7AF\uF900-\uFAFF]/;
+
+/** True when this text is written in Arabic script. */
 export function isArabicDocument(text: string): boolean {
   return ARABIC_SCRIPT.test(text);
+}
+
+/** True when this text contains Devanagari script. */
+export function isDevanagariDocument(text: string): boolean {
+  return DEVANAGARI_SCRIPT.test(text);
+}
+
+/** True when this text contains CJK script (Chinese, Japanese, Korean). */
+export function isCjkDocument(text: string): boolean {
+  return CJK_SCRIPT.test(text);
+}
+
+/** True when this text uses an outline-rendered complex script. */
+export function isOutlineDocument(text: string): boolean {
+  return (
+    isArabicDocument(text) || isDevanagariDocument(text) || isCjkDocument(text)
+  );
 }
 
 /** A4 landscape in points, the same sheet the jsPDF export uses. */
@@ -104,7 +130,31 @@ export function needsArabicRenderer(
   return isArabicDocument(boqDocumentText(standard, studio));
 }
 
-export interface ArabicBoqOptions {
+/** True when this document uses Devanagari script. */
+export function needsDevanagariRenderer(
+  standard: StandardBoqDocument,
+  studio: BoqStudioDocument,
+): boolean {
+  return isDevanagariDocument(boqDocumentText(standard, studio));
+}
+
+/** True when this document uses CJK script. */
+export function needsCjkRenderer(
+  standard: StandardBoqDocument,
+  studio: BoqStudioDocument,
+): boolean {
+  return isCjkDocument(boqDocumentText(standard, studio));
+}
+
+/** True when this document needs outline rendering (Arabic, Devanagari, or CJK). */
+export function needsOutlineRenderer(
+  standard: StandardBoqDocument,
+  studio: BoqStudioDocument,
+): boolean {
+  return isOutlineDocument(boqDocumentText(standard, studio));
+}
+
+export interface OutlineBoqOptions {
   summaryOnly?: boolean;
   showMaterialRate?: boolean;
   showLabourRate?: boolean;
@@ -116,43 +166,109 @@ export interface ArabicBoqOptions {
   fontBytes?: Uint8Array;
   /**
    * Draw an invisible text layer. OFF by default, and here is the measurement
-   * behind that: pdf-lib maps text through glyph ids, and a shaped Arabic run
+   * behind that: pdf-lib maps text through glyph ids, and a shaped complex run
    * has several codepoints per glyph, so the ToUnicode table it writes does not
    * round-trip. Extracting "فيلا في لكي" from an embedded subset returns
    * "ف\u0006ي\u0001لا", and the unsubsetted face returns "ğ3یń ﻟﻜیń". A layer
    * that copies as mojibake is worse than no layer: it invites a search that
-   * silently fails. Faithful Arabic extraction needs a real ToUnicode CMap,
+   * silently fails. Faithful extraction needs a real ToUnicode CMap,
    * which this engine cannot emit for shaped scripts.
    */
   textLayer?: boolean;
 }
 
-let cachedFont: FontkitFont | null = null;
-let cachedBytes: Uint8Array | null = null;
+export type ArabicBoqOptions = OutlineBoqOptions;
+
+let cachedNaskhFont: FontkitFont | null = null;
+let cachedNaskhBytes: Uint8Array | null = null;
+
+let cachedDevanagariFont: FontkitFont | null = null;
+let cachedDevanagariBytes: Uint8Array | null = null;
+
+let cachedCjkFont: FontkitFont | null = null;
+let cachedCjkBytes: Uint8Array | null = null;
+
+async function fetchFontBytes(filename: string): Promise<Uint8Array> {
+  // In Node / vitest (including happy-dom environments), read directly from disk.
+  if (typeof process !== "undefined" && Boolean(process.versions?.node)) {
+    try {
+      const { readFileSync } = await import("node:fs");
+      const { resolve } = await import("node:path");
+      return new Uint8Array(
+        readFileSync(resolve(process.cwd(), "public/fonts/pdf", filename)),
+      );
+    } catch {
+      // Fall through to fetch if file read fails
+    }
+  }
+
+  // In the browser, fetch the font asset over HTTP.
+  const base =
+    typeof import.meta !== "undefined" && import.meta.env?.BASE_URL
+      ? import.meta.env.BASE_URL.replace(/\/+$/, "")
+      : "";
+  const res = await fetch(`${base}/fonts/pdf/${filename}`);
+  if (!res.ok) throw new Error(`The PDF font ${filename} could not be loaded.`);
+  return new Uint8Array(await res.arrayBuffer());
+}
 
 /** Load the shipped Naskh face once per session. */
 export async function loadNaskhFont(): Promise<FontkitFont> {
-  if (cachedFont) return cachedFont;
+  if (cachedNaskhFont) return cachedNaskhFont;
   const bytes = await loadNaskhBytes();
-  cachedFont = fontkit.create(bytes);
-  return cachedFont;
+  cachedNaskhFont = fontkit.create(bytes);
+  return cachedNaskhFont;
 }
 
-/** The same face as bytes, for the invisible text layer. */
+/** The Naskh face as bytes. */
 export async function loadNaskhBytes(): Promise<Uint8Array> {
-  if (cachedBytes) return cachedBytes;
-  const base = (import.meta.env.BASE_URL || "/").replace(/\/+$/, "");
-  const res = await fetch(`${base}/fonts/pdf/NotoNaskhArabic-Regular.ttf`);
-  if (!res.ok) throw new Error("The Arabic PDF font could not be loaded.");
-  cachedBytes = new Uint8Array(await res.arrayBuffer());
-  return cachedBytes;
+  if (cachedNaskhBytes) return cachedNaskhBytes;
+  cachedNaskhBytes = await fetchFontBytes("NotoNaskhArabic-Regular.ttf");
+  return cachedNaskhBytes;
 }
 
-/** Test hook: forget the fetched font. */
-export function resetNaskhFontCache(): void {
-  cachedFont = null;
-  cachedBytes = null;
+/** Load the shipped Devanagari face once per session. */
+export async function loadDevanagariFont(): Promise<FontkitFont> {
+  if (cachedDevanagariFont) return cachedDevanagariFont;
+  const bytes = await loadDevanagariBytes();
+  cachedDevanagariFont = fontkit.create(bytes);
+  return cachedDevanagariFont;
 }
+
+/** The Devanagari face as bytes. */
+export async function loadDevanagariBytes(): Promise<Uint8Array> {
+  if (cachedDevanagariBytes) return cachedDevanagariBytes;
+  cachedDevanagariBytes = await fetchFontBytes("NotoSansDevanagari-Regular.ttf");
+  return cachedDevanagariBytes;
+}
+
+/** Load the shipped CJK face once per session. */
+export async function loadCjkFont(): Promise<FontkitFont> {
+  if (cachedCjkFont) return cachedCjkFont;
+  const bytes = await loadCjkBytes();
+  const raw = fontkit.create(bytes);
+  cachedCjkFont = raw.getVariation ? raw.getVariation({ wght: 400 }) : raw;
+  return cachedCjkFont;
+}
+
+/** The CJK face as bytes. */
+export async function loadCjkBytes(): Promise<Uint8Array> {
+  if (cachedCjkBytes) return cachedCjkBytes;
+  cachedCjkBytes = await fetchFontBytes("NotoSansCJK-Regular.otf");
+  return cachedCjkBytes;
+}
+
+/** Test hook: forget the fetched fonts. */
+export function resetOutlineFontCache(): void {
+  cachedNaskhFont = null;
+  cachedNaskhBytes = null;
+  cachedDevanagariFont = null;
+  cachedDevanagariBytes = null;
+  cachedCjkFont = null;
+  cachedCjkBytes = null;
+}
+
+export const resetNaskhFontCache = resetOutlineFontCache;
 
 function money(amount: number, currency: string): string {
   return formatByCode(amount, currency || "XXX", { decimals: "native" });
@@ -166,8 +282,8 @@ function money(amount: number, currency: string): string {
  * Mirror a logical (left-to-right) box for a right-to-left page.
  *
  * The layout is written once, left to right, and mirrored here. Doing it at the
- * placement step rather than in every call site is what keeps the two
- * directions from drifting apart.
+ * box level means table math, column widths, padding and wrap math are identical
+ * for both reading directions.
  */
 export function mirror(left: number, width: number, rtl: boolean): number {
   return rtl ? PAGE.width - left - width : left;
@@ -191,7 +307,7 @@ export function shapedWidth(
  * hundreds of times, so the precision is most of the file. One hundredth of a
  * font unit is 1/204800 of an em: at 8 pt that is 0.0004 pt, far below the
  * resolution of any press. Rounding halves the payload and changes nothing a
- * reader can see.
+ * human can see.
  */
 export function roundPath(path: string, places = 2): string {
   return path.replace(/-?\d+\.\d+/g, (n) =>
@@ -288,8 +404,8 @@ function drawIn(
 
 /**
  * Wrap a paragraph to a width by measuring the shaped line, not the character
- * count. Arabic words are not one advance per character, so a wrap that counts
- * characters overruns the column on some lines and leaves gaps on others.
+ * count. Complex words and ideographs are not one advance per character, so a wrap
+ * that counts characters overruns the column on some lines and leaves gaps on others.
  */
 export function wrapShaped(
   font: FontkitFont,
@@ -297,6 +413,42 @@ export function wrapShaped(
   sizePt: number,
   maxWidth: number,
 ): string[] {
+  // If text contains CJK ideographs, use word segmentation so long Chinese/Japanese
+  // text without spaces can break across lines naturally.
+  const hasCjk =
+    /[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uAC00-\uD7AF]/.test(text);
+  if (
+    hasCjk &&
+    typeof Intl !== "undefined" &&
+    typeof (Intl as any).Segmenter === "function"
+  ) {
+    const segmenter = new (Intl as any).Segmenter(undefined, {
+      granularity: "word",
+    });
+    const segments: string[] = [];
+    for (const seg of segmenter.segment(text)) {
+      if (seg.segment.trim()) segments.push(seg.segment);
+    }
+    if (segments.length > 0) {
+      const lines: string[] = [];
+      let current = "";
+      for (const seg of segments) {
+        const segIsCjk =
+          /[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uAC00-\uD7AF]/.test(seg);
+        const joiner = segIsCjk || !current ? "" : " ";
+        const candidate = current ? `${current}${joiner}${seg}` : seg;
+        if (shapedWidth(font, candidate, sizePt) <= maxWidth || !current) {
+          current = candidate;
+        } else {
+          lines.push(current);
+          current = seg;
+        }
+      }
+      if (current) lines.push(current);
+      return lines;
+    }
+  }
+
   const words = text.split(/\s+/).filter(Boolean);
   if (words.length === 0) return [];
   const lines: string[] = [];
@@ -341,12 +493,34 @@ function wrapLatin(
 /* Document                                                            */
 /* ------------------------------------------------------------------ */
 
-export async function buildArabicBoqPdf(
+export async function buildOutlineBoqPdf(
   standard: StandardBoqDocument,
   studio: BoqStudioDocument,
-  options: ArabicBoqOptions = {},
+  options: OutlineBoqOptions = {},
 ): Promise<Uint8Array> {
-  const font = options.font ?? (await loadNaskhFont());
+  const docText = boqDocumentText(standard, studio);
+  const rtl = isArabicDocument(docText);
+
+  let font = options.font;
+  let fontBytes = options.fontBytes;
+
+  if (!font) {
+    if (rtl) {
+      font = await loadNaskhFont();
+      fontBytes = fontBytes ?? (await loadNaskhBytes());
+    } else if (isDevanagariDocument(docText)) {
+      font = await loadDevanagariFont();
+      fontBytes = fontBytes ?? (await loadDevanagariBytes());
+    } else if (isCjkDocument(docText)) {
+      font = await loadCjkFont();
+      fontBytes = fontBytes ?? (await loadCjkBytes());
+    } else {
+      // Default fallback face
+      font = await loadNaskhFont();
+      fontBytes = fontBytes ?? (await loadNaskhBytes());
+    }
+  }
+
   const pdf = await PDFDocument.create();
   // Subsetting the layer font needs fontkit registered on this document.
   pdf.registerFontkit(fontkit);
@@ -355,11 +529,11 @@ export async function buildArabicBoqPdf(
 
   // The visible glyphs are outlines; this subset font carries the text layer.
   // Subsetting keeps only the glyphs this document uses, so the payload grows by
-  // the text, not by the 197 kB face.
+  // the text, not by the face size.
   const textLayerFont =
-    options.textLayer !== true
+    options.textLayer !== true || !fontBytes
       ? null
-      : await pdf.embedFont(options.fontBytes ?? (await loadNaskhBytes()), {
+      : await pdf.embedFont(fontBytes, {
           subset: true,
         });
 
@@ -376,13 +550,6 @@ export async function buildArabicBoqPdf(
   const pricedLines = allItems.filter((item) => item.unitRate > 0).length;
   const rateText = (value: number) =>
     isSurvey && !(value > 0) ? "TBC" : money(value, currency);
-
-  /**
-   * One direction for the whole document: the title and the item descriptions
-   * are written in the same script, and a page that mirrors half its table
-   * would be worse than either choice.
-   */
-  const rtl = isArabicDocument(boqDocumentText(standard, studio));
 
   let page = pdf.addPage([PAGE.width, PAGE.height]);
   let ctx: DrawContext = { page, font, rtl, textFont: textLayerFont };
@@ -468,7 +635,7 @@ export async function buildArabicBoqPdf(
 
   drawHeader();
 
-  // ---------------------------------------------------------------- title
+  // -------------------------------------------------------- title & meta
   const titleSize = 14;
   const titleLines = wrapShaped(
     font,
@@ -499,7 +666,6 @@ export async function buildArabicBoqPdf(
   }
   y -= 4;
 
-  // ------------------------------------------------------------ meta grid
   const metaRows: Array<[string, string]> = [
     ["Client", studio.client.name || "-"],
     ["Contractor", studio.contractor.name || "-"],
@@ -586,7 +752,7 @@ export async function buildArabicBoqPdf(
         ctx,
         column.label,
         { left: columnLefts[index], width: column.width },
-        y,
+        y - 9,
         7.5,
         BRAND,
         column.align,
@@ -598,7 +764,7 @@ export async function buildArabicBoqPdf(
 
   if (!summaryOnly) drawTableHead();
 
-  // --------------------------------------------------------------- items
+  // ---------------------------------------------------------------- items
   const descriptionColumn = summaryOnly ? 0 : 1;
 
   if (summaryOnly) {
@@ -622,9 +788,9 @@ export async function buildArabicBoqPdf(
     if (!summaryOnly) {
       drawIn(
         ctx,
-        `${section.code}  ${section.title}`,
+        `Section ${section.code} — ${section.title}`,
         { left: MARGIN, width: CONTENT },
-        y,
+        y - 9,
         9,
         ACCENT,
         "start",
@@ -639,9 +805,9 @@ export async function buildArabicBoqPdf(
       );
       drawIn(
         ctx,
-        `${section.code}  ${section.title}`,
+        `Section ${section.code} — ${section.title}`,
         { left: columnLefts[0], width: columns[0].width },
-        y,
+        y - 9,
         8,
         rgb(0, 0, 0),
         "start",
@@ -651,7 +817,7 @@ export async function buildArabicBoqPdf(
         ctx,
         String(count),
         { left: columnLefts[1], width: columns[1].width },
-        y,
+        y - 9,
         8,
         rgb(0, 0, 0),
         "end",
@@ -661,7 +827,7 @@ export async function buildArabicBoqPdf(
         ctx,
         rateText(section.sectionTotal),
         { left: columnLefts[2], width: columns[2].width },
-        y,
+        y - 9,
         8,
         rgb(0, 0, 0),
         "end",
@@ -723,7 +889,6 @@ export async function buildArabicBoqPdf(
           "end",
           2,
         );
-
         let cursor = 4;
         if (showMaterial) {
           drawIn(
@@ -772,7 +937,6 @@ export async function buildArabicBoqPdf(
           "end",
           2,
         );
-
         y -= rowHeight;
       }
     }
@@ -785,7 +949,7 @@ export async function buildArabicBoqPdf(
       y,
       8,
       rgb(0, 0, 0),
-      "end",
+      "start",
       2,
     );
     drawIn(
@@ -884,7 +1048,7 @@ export async function buildArabicBoqPdf(
     y -= 14;
   }
 
-  // ---------------------------------------------------------------- notes
+  // ------------------------------------------------------ notes & review
   const notesBlock = (title: string, entries: string[]) => {
     if (entries.length === 0) return;
     y -= 8;
@@ -988,25 +1152,27 @@ export async function buildArabicBoqPdf(
   return pdf.save();
 }
 
+export const buildArabicBoqPdf = buildOutlineBoqPdf;
+
 /**
- * Build and seal an Arabic BOQ.
+ * Build and seal an outline BOQ (Arabic, Devanagari, or CJK).
  *
  * The returned `hash` is the SHA-256 of the sealed bytes, which are the bytes
  * the caller downloads, so anyone holding the file can recompute it and get the
  * same string. That is the whole point of the migration: a printed page cannot
  * be hashed, and a document nobody can hash is a document nobody can verify.
  */
-export async function sealArabicBoqPdf(
+export async function sealOutlineBoqPdf(
   standard: StandardBoqDocument,
   studio: BoqStudioDocument,
-  options: ArabicBoqOptions & { stampOnBlockchain?: boolean } = {},
+  options: OutlineBoqOptions & { stampOnBlockchain?: boolean } = {},
 ): Promise<{
   bytes: Uint8Array;
   hash: string;
   verificationId?: string;
   stampError?: string;
 }> {
-  const bytes = await buildArabicBoqPdf(standard, studio, options);
+  const bytes = await buildOutlineBoqPdf(standard, studio, options);
   const { sealed, hash, verificationId, stampError } = await sealAndStampPdf(
     bytes,
     {
@@ -1026,17 +1192,19 @@ export async function sealArabicBoqPdf(
   return { bytes: sealed, hash, verificationId, stampError };
 }
 
-/** Build, seal and download an Arabic BOQ, returning the hash of the file. */
-export async function downloadArabicBoqPdf(
+export const sealArabicBoqPdf = sealOutlineBoqPdf;
+
+/** Build, seal and download an outline BOQ, returning the hash of the file. */
+export async function downloadOutlineBoqPdf(
   standard: StandardBoqDocument,
   studio: BoqStudioDocument,
-  options: ArabicBoqOptions & { stampOnBlockchain?: boolean } = {},
+  options: OutlineBoqOptions & { stampOnBlockchain?: boolean } = {},
 ): Promise<{
   hash: string;
   verificationId?: string;
   stampError?: string;
 }> {
-  const { bytes, hash, verificationId, stampError } = await sealArabicBoqPdf(
+  const { bytes, hash, verificationId, stampError } = await sealOutlineBoqPdf(
     standard,
     studio,
     options,
@@ -1051,3 +1219,5 @@ export async function downloadArabicBoqPdf(
   );
   return { hash, verificationId, stampError };
 }
+
+export const downloadArabicBoqPdf = downloadOutlineBoqPdf;

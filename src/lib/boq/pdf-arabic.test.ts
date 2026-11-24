@@ -22,9 +22,15 @@ import { hasUnrenderableScript } from "./fonts";
 import {
   PAGE,
   buildArabicBoqPdf,
+  buildOutlineBoqPdf,
   needsArabicRenderer,
+  needsOutlineRenderer,
   sealArabicBoqPdf,
+  sealOutlineBoqPdf,
   isArabicDocument,
+  isDevanagariDocument,
+  isCjkDocument,
+  isOutlineDocument,
   mirror,
   shapedWidth,
   wrapShaped,
@@ -357,5 +363,160 @@ describe("routing between the two engines", () => {
     // still cannot shape it, so any caller that skips the routing above gets an
     // honest refusal instead of a document full of disconnected letters.
     expect(hasUnrenderableScript("فيلا")).toBe(true);
+  });
+  it("routes Devanagari and CJK to the outline renderer so all documents are hashable", () => {
+    const latinNotes = {
+      assumptions: ["Rates valid for 30 days."],
+      exclusions: ["External drainage excluded."],
+      client: { name: "A. Client", address: "Lagos" },
+      contractor: { name: "FRELUX Builders" },
+    };
+    const devanagari = compileBoq(
+      doc({
+        title: "मकान का बिल",
+        sections: [],
+        description: "",
+        ...latinNotes,
+      }),
+    );
+    const cjk = compileBoq(
+      doc({
+        title: "房屋工程量清单",
+        sections: [],
+        description: "",
+        ...latinNotes,
+      }),
+    );
+    expect(needsOutlineRenderer(devanagari.standard, devanagari.document)).toBe(
+      true,
+    );
+    expect(needsOutlineRenderer(cjk.standard, cjk.document)).toBe(true);
+    expect(isDevanagariDocument("मकान का बिल")).toBe(true);
+    expect(isCjkDocument("房屋工程量清单")).toBe(true);
+    expect(isOutlineDocument("मकान")).toBe(true);
+    expect(isOutlineDocument("房屋")).toBe(true);
+    expect(isOutlineDocument("فيلا")).toBe(true);
+  });
+});
+
+describe("Devanagari and CJK outline BOQ PDFs", () => {
+  it("renders a Devanagari document to a real hashable PDF", async () => {
+    const latinNotes = {
+      assumptions: ["दरें 30 दिनों के लिए मान्य हैं।"],
+      exclusions: ["बाहरी जल निकासी शामिल नहीं है।"],
+      client: { name: "राजेश कुमार", address: "नई दिल्ली" },
+      contractor: { name: "फ्रीलक्स बिल्डर्स" },
+    };
+    const devDoc = doc({
+      title: "मकान का बिल",
+      description: "दो मंजिला इमारत का कंक्रीट कार्य।",
+      ...latinNotes,
+      sections: [
+        {
+          id: "s1",
+          code: "05",
+          title: "कंक्रीट कार्य",
+          notes: "",
+          items: [
+            {
+              id: "i1",
+              item_number: "05.01",
+              description: "नींव में प्रबलित कंक्रीट ग्रेड 20",
+              specification: "Grade 20",
+              unit: "m³",
+              quantity: 15,
+              material_rate: 85000,
+              labour_rate: 20000,
+              plant_rate: 0,
+              notes: "",
+              rates_include_waste: false,
+                          },
+          ],
+        },
+      ],
+    });
+    const compiled = compileBoq(devDoc);
+    const bytes1 = await buildOutlineBoqPdf(compiled.standard, compiled.document, {
+      now: NOW,
+    });
+    const bytes2 = await buildOutlineBoqPdf(compiled.standard, compiled.document, {
+      now: NOW,
+    });
+
+    expect(Buffer.from(bytes1.slice(0, 5)).toString()).toBe("%PDF-");
+    const pdf = await PDFDocument.load(bytes1);
+    expect(pdf.getPageCount()).toBe(1);
+    expect(Math.round(pdf.getPages()[0].getWidth())).toBe(PAGE.width);
+    expect(Math.round(pdf.getPages()[0].getHeight())).toBe(PAGE.height);
+
+    // Deterministic hashing
+    expect(sha(bytes1)).toBe(sha(bytes2));
+
+    // Sealing produces exact matching SHA-256
+    const sealed = await sealOutlineBoqPdf(compiled.standard, compiled.document, {
+      now: NOW,
+    });
+    expect(sha(sealed.bytes)).toBe(sealed.hash);
+    expect(sealed.hash).toMatch(/^[0-9a-f]{64}$/);
+  });
+
+  it("renders a CJK document to a real hashable PDF", async () => {
+    const latinNotes = {
+      assumptions: ["报价有效期为30天。"],
+      exclusions: ["室外排水工程除外。"],
+      client: { name: "张三", address: "北京市朝阳区" },
+      contractor: { name: "FRELUX 建造" },
+    };
+    const cjkDoc = doc({
+      title: "房屋工程量清单",
+      description: "二层框架结构钢筋混凝土施工。",
+      ...latinNotes,
+      sections: [
+        {
+          id: "s1",
+          code: "05",
+          title: "钢筋混凝土工程",
+          notes: "",
+          items: [
+            {
+              id: "i1",
+              item_number: "05.01",
+              description: "基础钢筋混凝土 C30 浇筑及养护",
+              specification: "C30",
+              unit: "m³",
+              quantity: 20,
+              material_rate: 450,
+              labour_rate: 120,
+              plant_rate: 0,
+              notes: "",
+              rates_include_waste: false,
+                          },
+          ],
+        },
+      ],
+    });
+    const compiled = compileBoq(cjkDoc);
+    const bytes1 = await buildOutlineBoqPdf(compiled.standard, compiled.document, {
+      now: NOW,
+    });
+    const bytes2 = await buildOutlineBoqPdf(compiled.standard, compiled.document, {
+      now: NOW,
+    });
+
+    expect(Buffer.from(bytes1.slice(0, 5)).toString()).toBe("%PDF-");
+    const pdf = await PDFDocument.load(bytes1);
+    expect(pdf.getPageCount()).toBe(1);
+    expect(Math.round(pdf.getPages()[0].getWidth())).toBe(PAGE.width);
+    expect(Math.round(pdf.getPages()[0].getHeight())).toBe(PAGE.height);
+
+    // Deterministic hashing
+    expect(sha(bytes1)).toBe(sha(bytes2));
+
+    // Sealing produces exact matching SHA-256
+    const sealed = await sealOutlineBoqPdf(compiled.standard, compiled.document, {
+      now: NOW,
+    });
+    expect(sha(sealed.bytes)).toBe(sealed.hash);
+    expect(sealed.hash).toMatch(/^[0-9a-f]{64}$/);
   });
 });

@@ -65,8 +65,8 @@ import { UnrenderableScriptError } from "@/lib/boq/fonts";
 import { downloadBoqPdf } from "@/lib/boq/pdf";
 import { resolveReviewerCredential } from "@/lib/identity/credentials";
 import {
-  downloadArabicBoqPdf,
-  needsArabicRenderer,
+  downloadOutlineBoqPdf,
+  needsOutlineRenderer,
 } from "@/lib/boq/pdf-arabic";
 import {
   boqStudioPrintHtml,
@@ -424,10 +424,10 @@ export default function BoqStudio() {
     }
     setBusy(true);
     try {
-      // An Arabic document is drawn by the pdf-lib renderer: the jsPDF engine
-      // cannot shape it, and a printed page cannot be hashed or sealed.
-      if (needsArabicRenderer(compiled.standard, compiled.document)) {
-        await downloadArabicBoqPdf(compiled.standard, compiled.document, {
+      // Complex scripts (Arabic, Indic, CJK) are drawn by the outline renderer:
+      // the jsPDF engine cannot shape them, and a printed page cannot be hashed or sealed.
+      if (needsOutlineRenderer(compiled.standard, compiled.document)) {
+        await downloadOutlineBoqPdf(compiled.standard, compiled.document, {
           summaryOnly: true,
           stampOnBlockchain: false,
         });
@@ -501,8 +501,8 @@ export default function BoqStudio() {
           // The BOQ contractor identity remains the safe branded fallback.
         }
       }
-      if (needsArabicRenderer(compiled.standard, compiled.document)) {
-        const arabic = await downloadArabicBoqPdf(
+      if (needsOutlineRenderer(compiled.standard, compiled.document)) {
+        const outlineRes = await downloadOutlineBoqPdf(
           compiled.standard,
           compiled.document,
           {
@@ -511,18 +511,18 @@ export default function BoqStudio() {
             stampOnBlockchain: verified,
           },
         );
-        if (verified && arabic?.stampError) {
+        if (verified && outlineRes?.stampError) {
           toast.error(
-            `${t("Sealed, but not blockchain-verified:")} ${arabic.stampError}`,
+            `${t("Sealed, but not blockchain-verified:")} ${outlineRes.stampError}`,
           );
-        } else if (verified && arabic?.verificationId) {
+        } else if (verified && outlineRes?.verificationId) {
           toast.success(
-            `Verified BOQ PDF exported & anchored to Bitcoin blockchain (ID: ${arabic.verificationId})`,
+            `Verified BOQ PDF exported & anchored to Bitcoin blockchain (ID: ${outlineRes.verificationId})`,
           );
         } else if (verified) {
           toast.error(
             t(
-              "Arabic BOQ PDF exported, but the blockchain anchor was not created.",
+              "BOQ PDF exported, but the blockchain anchor was not created.",
             ),
           );
         } else {
