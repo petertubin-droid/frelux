@@ -55,6 +55,7 @@ describe("registry", () => {
   it("lists exactly the functions that run on the Worker", () => {
     expect(portedFunctionNames()).toEqual([
       "client-identity",
+      "document-print-pass",
       "ec3-epd-lookup",
       "grant-rewarded-unlock",
       "health",

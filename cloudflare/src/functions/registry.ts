@@ -25,6 +25,7 @@ import { priceIndexApiConfig } from "./price-index-api";
 import { verifyCopyGetConfig } from "./verify-copy-get";
 import { clientIdentityConfig } from "./client-identity";
 import { seoSearchConsoleConfig } from "./seo-search-console";
+import { documentPrintPassConfig } from "./document-print-pass";
 
 export interface PortedFunction {
   name: string;
@@ -43,6 +44,7 @@ const ENTRIES: readonly PortedFunction[] = [
   verifyCopyGetConfig,
   clientIdentityConfig,
   seoSearchConsoleConfig,
+  documentPrintPassConfig,
 ];
 
 /**
@@ -108,6 +110,7 @@ export const AWAITING_CPU_MEASUREMENT: readonly string[] = [
   "price-index-api",
   "client-identity",
   "seo-search-console",
+  "document-print-pass",
 ];
 
 export function needsCpuMeasurement(name: string): boolean {
