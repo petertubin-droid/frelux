@@ -41,6 +41,7 @@ export function checkPaymentProviderConfigured(
 }
 
 import { useLanguage } from "@/lib/i18n";
+import { CHARGEABLE_CURRENCIES } from "@/lib/payments/charges";
 import {
   AdminHeader,
   AdminCard,
@@ -130,7 +131,7 @@ export default function AdminAiMonetization() {
     // Issue #4 fix: Guard against saving paid mode without a provider
     if (settings.ai_access_mode === "paid" && !paymentProviderConfigured) {
       setError(
-        "Cannot enable Paid mode, no payment provider is configured. Connect a payment provider (Paystack, Flutterwave, or Stripe) first.",
+        "Cannot enable Paid mode, no payment provider is configured. Connect a payment provider (Paystack, Flutterwave, or Crypto) first.",
       );
       return;
     }
@@ -383,15 +384,26 @@ export default function AdminAiMonetization() {
             <div className="mt-3 rounded-lg border border-emerald-200 bg-emerald-50/80 p-3 text-xs text-emerald-800 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
               <div className="flex items-center gap-1.5 font-semibold">
                 <CheckCircle2 className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
-                <span>Payment providers configured and ready</span>
+                <span>
+                  {t("Payment providers configured and ready for global access")}
+                </span>
               </div>
               <p className="mt-1 text-emerald-700 dark:text-emerald-300">
-                Active gateway: <strong className="font-semibold uppercase">{settings.payment_gateway ?? "paystack"}</strong>. Paystack, Flutterwave, and FRELUX PAY (Crypto) rails are configured. Paid access can be enabled.
+                {t("Active gateway:")}{" "}
+                <strong className="font-semibold uppercase">
+                  {settings.payment_gateway ?? "paystack"}
+                </strong>
+                .{" "}
+                {t(
+                  "Flutterwave (international cards & global currencies), Paystack (African markets), and FRELUX PAY (Crypto) rails are configured. Paid access is operational for global users.",
+                )}
               </p>
             </div>
           ) : (
             <p className="mt-2 text-xs text-muted-foreground dark:text-muted-foreground">
-              No payment provider is connected yet. Connect a provider (Paystack, Flutterwave, or Crypto) before enabling paid mode, otherwise users will be locked out of AI features.
+              {t(
+                "No payment provider is connected yet. Connect a provider (Paystack, Flutterwave, or Crypto) before enabling paid mode, otherwise users will be locked out of AI features.",
+              )}
             </p>
           )}
           <div className="mt-3 flex items-center gap-3">
@@ -409,26 +421,25 @@ export default function AdminAiMonetization() {
               }}
             />
             <span className="text-sm text-muted-foreground">
-              Paid access{" "}
+              {t("Paid access")}{" "}
               {paymentProviderConfigured
-                ? "enabled"
-                : "(disabled, no provider)"}
+                ? t("enabled")
+                : t("(disabled, no provider)")}
             </span>
           </div>
           <div className="mt-4 grid gap-4 sm:grid-cols-3">
             <AdminField
-              label="Price"
+              label={t("Price")}
               hint={
                 paymentProviderConfigured
-                  ? "Price per AI access period."
-                  : "Placeholder, not active until a payment provider is connected."
+                  ? t("Price per AI access period.")
+                  : t("Placeholder, not active until a payment provider is connected.")
               }
             >
               <AdminInput
                 type="number"
                 min={0}
                 step="0.01"
-
                 value={settings.ai_paid_price}
                 onChange={(e) =>
                   update("ai_paid_price", Number(e.target.value))
@@ -436,16 +447,31 @@ export default function AdminAiMonetization() {
                 disabled={!paymentProviderConfigured}
               />
             </AdminField>
-            <AdminField label="Currency">
-              <AdminInput
-                value={settings.ai_paid_currency}
+            <AdminField
+              label={t("Currency")}
+              hint={t("Global settlement currency (settled via Paystack, Flutterwave, or Crypto)")}
+            >
+              <AdminSelect
+                value={settings.ai_paid_currency || "USD"}
                 onChange={(e) => update("ai_paid_currency", e.target.value)}
                 disabled={!paymentProviderConfigured}
-              />
+              >
+                {settings.ai_paid_currency &&
+                  !CHARGEABLE_CURRENCIES.includes(settings.ai_paid_currency) && (
+                    <option value={settings.ai_paid_currency}>
+                      {settings.ai_paid_currency} ({t("Custom")})
+                    </option>
+                  )}
+                {CHARGEABLE_CURRENCIES.map((code) => (
+                  <option key={code} value={code}>
+                    {code}
+                  </option>
+                ))}
+              </AdminSelect>
             </AdminField>
             <AdminField
-              label="Payment Gateway"
-              hint="Active gateway for AI monetization"
+              label={t("Payment Gateway")}
+              hint={t("Active gateway for AI monetization")}
             >
               <AdminSelect
                 value={settings.payment_gateway ?? "paystack"}
@@ -454,10 +480,18 @@ export default function AdminAiMonetization() {
                 }
                 disabled={!paymentProviderConfigured}
               >
-                <option value="paystack">Paystack</option>
-                <option value="flutterwave">Flutterwave</option>
-                <option value="nowpayments">FRELUX PAY (Crypto)</option>
-                <option value="btcpay">FRELUX PAY (Bitcoin)</option>
+                <option value="flutterwave">
+                  {t("Flutterwave (international cards & global currencies)")}
+                </option>
+                <option value="nowpayments">
+                  {t("FRELUX PAY - Crypto, multi-currency (NOWPayments)")}
+                </option>
+                <option value="paystack">
+                  {t("Paystack (Nigeria, Ghana, Kenya, South Africa)")}
+                </option>
+                <option value="btcpay" disabled>
+                  {t("FRELUX PAY - Bitcoin (BTCPay) - Coming Soon")}
+                </option>
               </AdminSelect>
             </AdminField>
           </div>

@@ -187,6 +187,35 @@ describe("AdminAiMonetization", () => {
 
     const saveBtn = screen.getByRole("button", { name: /save changes/i });
     expect(saveBtn).not.toBeDisabled();
-    expect(screen.getByText(/NOWPAYMENTS/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/NOWPAYMENTS/i).length).toBeGreaterThanOrEqual(1);
+  });
+  it("renders global chargeable currencies and international gateway options", async () => {
+    queryResult = {
+      data: {
+        ...mockSiteSettings,
+        payment_gateway: "flutterwave",
+        payment_provider_configured: true,
+        ai_paid_currency: "USD",
+      } as any,
+      error: null,
+    };
+    renderPage();
+
+    const currencySelect = await screen.findByLabelText(/Currency/i);
+    expect(currencySelect).toBeInTheDocument();
+    expect(currencySelect).toHaveValue("USD");
+
+    // Verify presence of global benchmark and regional currency options
+    expect(screen.getByRole("option", { name: "USD" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "EUR" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "GBP" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "NGN" })).toBeInTheDocument();
+
+    // Verify payment gateway selector options
+    const gatewaySelect = screen.getByLabelText(/Payment Gateway/i);
+    expect(gatewaySelect).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /Flutterwave \(international cards & global currencies\)/i })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /FRELUX PAY - Crypto, multi-currency \(NOWPayments\)/i })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: /Paystack \(Nigeria, Ghana, Kenya, South Africa\)/i })).toBeInTheDocument();
   });
 });
