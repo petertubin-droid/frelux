@@ -18,10 +18,12 @@
  *     on the right, the amount on the left, and each cell anchors to its own
  *     starting edge. A mirrored table is not decoration: an Arabic reader scans
  *     from the right, and a table that starts on the left reads backwards.
- *  3. Nothing is embedded. Glyphs arrive as paths, so no font program travels
- *     in the file and the payload stays smaller than a subset would be. The
- *     cost is that Arabic text is not selectable or searchable; a hidden text
- *     layer would restore that, and is not claimed here.
+ *  3. The visible glyphs are outlines, so no font program travels in the file
+ *     and the payload stays small. The cost is that the Arabic is not text a
+ *     reader can select. A hidden text layer exists (options.textLayer) but is
+ *     off: pdf-lib writes a glyph-mapped ToUnicode table, and a shaped run has
+ *     several codepoints per glyph, so the layer copies as mojibake. Searchable
+ *     Arabic needs a real ToUnicode CMap, which is not claimed here.
  *
  * Scope: Arabic (and the Arabic Supplement/Extended blocks). Other shaped
  * scripts still need a font we do not ship, and still go to Print.
@@ -110,23 +112,46 @@ export interface ArabicBoqOptions {
   now?: Date;
   /** Test seam: a fontkit font already loaded from disk. */
   font?: FontkitFont;
+  /** Test seam: the same face as bytes, for the invisible text layer. */
+  fontBytes?: Uint8Array;
+  /**
+   * Draw an invisible text layer. OFF by default, and here is the measurement
+   * behind that: pdf-lib maps text through glyph ids, and a shaped Arabic run
+   * has several codepoints per glyph, so the ToUnicode table it writes does not
+   * round-trip. Extracting "فيلا في لكي" from an embedded subset returns
+   * "ف\u0006ي\u0001لا", and the unsubsetted face returns "ğ3یń ﻟﻜیń". A layer
+   * that copies as mojibake is worse than no layer: it invites a search that
+   * silently fails. Faithful Arabic extraction needs a real ToUnicode CMap,
+   * which this engine cannot emit for shaped scripts.
+   */
+  textLayer?: boolean;
 }
 
 let cachedFont: FontkitFont | null = null;
+let cachedBytes: Uint8Array | null = null;
 
 /** Load the shipped Naskh face once per session. */
 export async function loadNaskhFont(): Promise<FontkitFont> {
   if (cachedFont) return cachedFont;
+  const bytes = await loadNaskhBytes();
+  cachedFont = fontkit.create(bytes);
+  return cachedFont;
+}
+
+/** The same face as bytes, for the invisible text layer. */
+export async function loadNaskhBytes(): Promise<Uint8Array> {
+  if (cachedBytes) return cachedBytes;
   const base = (import.meta.env.BASE_URL || "/").replace(/\/+$/, "");
   const res = await fetch(`${base}/fonts/pdf/NotoNaskhArabic-Regular.ttf`);
   if (!res.ok) throw new Error("The Arabic PDF font could not be loaded.");
-  cachedFont = fontkit.create(new Uint8Array(await res.arrayBuffer()));
-  return cachedFont;
+  cachedBytes = new Uint8Array(await res.arrayBuffer());
+  return cachedBytes;
 }
 
 /** Test hook: forget the fetched font. */
 export function resetNaskhFontCache(): void {
   cachedFont = null;
+  cachedBytes = null;
 }
 
 function money(amount: number, currency: string): string {
@@ -191,6 +216,10 @@ interface DrawContext {
   page: ReturnType<PDFDocument["addPage"]>;
   font: FontkitFont;
   rtl: boolean;
+  /** Invisible text for selection and search; null when the layer is off. */
+  textFont: {
+    widthOfTextAtSize: (text: string, size: number) => number;
+  } | null;
 }
 
 type Align = "start" | "end" | "center";
@@ -235,6 +264,25 @@ function drawIn(
       b: number;
     },
   });
+
+  // Invisible text at the same origin, in reading order. It carries no visual
+  // weight (opacity 0) and is what a reader selects or searches for.
+  if (ctx.textFont) {
+    const plain = ctx.textFont.widthOfTextAtSize(text, sizePt);
+    const textX = align === "start" ? x : x + width - plain;
+    try {
+      ctx.page.drawText(text, {
+        x: Math.max(0, textX),
+        y,
+        size: sizePt,
+        font: ctx.textFont as never,
+        opacity: 0,
+      });
+    } catch {
+      // A glyph the subset font cannot draw must not sink the document: the
+      // outlines above are the document, the layer is an aid.
+    }
+  }
   return width;
 }
 
@@ -300,8 +348,20 @@ export async function buildArabicBoqPdf(
 ): Promise<Uint8Array> {
   const font = options.font ?? (await loadNaskhFont());
   const pdf = await PDFDocument.create();
+  // Subsetting the layer font needs fontkit registered on this document.
+  pdf.registerFontkit(fontkit);
   const latin = await pdf.embedFont(StandardFonts.Helvetica);
   const latinBold = await pdf.embedFont(StandardFonts.HelveticaBold);
+
+  // The visible glyphs are outlines; this subset font carries the text layer.
+  // Subsetting keeps only the glyphs this document uses, so the payload grows by
+  // the text, not by the 197 kB face.
+  const textLayerFont =
+    options.textLayer !== true
+      ? null
+      : await pdf.embedFont(options.fontBytes ?? (await loadNaskhBytes()), {
+          subset: true,
+        });
 
   const currency = standard.metadata.currency;
   const status = documentStatusLabel(studio);
@@ -325,7 +385,7 @@ export async function buildArabicBoqPdf(
   const rtl = isArabicDocument(boqDocumentText(standard, studio));
 
   let page = pdf.addPage([PAGE.width, PAGE.height]);
-  let ctx: DrawContext = { page, font, rtl };
+  let ctx: DrawContext = { page, font, rtl, textFont: textLayerFont };
   let y = MARGIN;
   let pageIndex = 1;
   let totalPages = 1;
@@ -398,7 +458,7 @@ export async function buildArabicBoqPdf(
   const newPage = () => {
     page = pdf.addPage([PAGE.width, PAGE.height]);
     pageIndex += 1;
-    ctx = { page, font, rtl };
+    ctx = { page, font, rtl, textFont: textLayerFont };
     drawHeader();
   };
 

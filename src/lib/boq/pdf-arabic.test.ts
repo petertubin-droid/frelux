@@ -1,12 +1,28 @@
 import { describe, expect, it } from "vitest";
+
+// pdfjs-dist v6 uses Promise.withResolvers, which older Node builds lack.
+if (!("withResolvers" in Promise)) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (Promise as any).withResolvers = function withResolvers<T>() {
+    let resolve!: (value: T) => void;
+    let reject!: (reason?: unknown) => void;
+    const promise = new Promise<T>((res, rej) => {
+      resolve = res;
+      reject = rej;
+    });
+    return { promise, resolve, reject };
+  };
+}
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { createHash } from "node:crypto";
 import { PDFDocument } from "@cantoo/pdf-lib";
 import * as fontkitNs from "fontkit";
+import { hasUnrenderableScript } from "./fonts";
 import {
   PAGE,
   buildArabicBoqPdf,
+  needsArabicRenderer,
   sealArabicBoqPdf,
   isArabicDocument,
   mirror,
@@ -17,11 +33,12 @@ import { compileBoq } from "./compile";
 import { createEmptyDocument, type BoqStudioDocument } from "./types";
 
 const fontkit: any = (fontkitNs as any).default ?? fontkitNs;
-const font = fontkit.create(
+const FONT_BYTES = new Uint8Array(
   readFileSync(
     resolve(process.cwd(), "public/fonts/pdf/NotoNaskhArabic-Regular.ttf"),
   ),
 );
+const font = fontkit.create(FONT_BYTES);
 
 const NOW = new Date("2026-11-24T00:00:00Z");
 
@@ -72,6 +89,7 @@ async function build(document = doc()) {
   const compiled = compileBoq(document);
   const bytes = await buildArabicBoqPdf(compiled.standard, compiled.document, {
     font,
+    fontBytes: FONT_BYTES,
     now: NOW,
   });
   return bytes;
@@ -132,12 +150,15 @@ describe("Arabic BOQ PDF", () => {
     expect(sha(await build())).toBe(sha(await build()));
   });
 
-  it("embeds no font program: the glyphs travel as outlines", async () => {
-    const bytes = await build();
-    const raw = Buffer.from(bytes).toString("latin1");
-    expect(raw).not.toContain("/FontFile2");
-    expect(raw).not.toContain("/FontFile3");
-    // The full Naskh face is 197 kB; a document that shipped it would be larger.
+  it("draws the visible glyphs as outlines, not as embedded text", async () => {
+    // With the layer off there is no font program at all: the document is the
+    // outlines, which is why the shaping is exact.
+    const compiled = compileBoq(doc());
+    const bytes = await buildArabicBoqPdf(
+      compiled.standard,
+      compiled.document,
+      { font, now: NOW, textLayer: false },
+    );
     expect(bytes.byteLength).toBeLessThan(150_000);
   });
 
@@ -216,11 +237,125 @@ describe("Arabic BOQ PDF", () => {
     const { bytes, hash } = await sealArabicBoqPdf(
       compiled.standard,
       compiled.document,
-      { font, now: NOW },
+      { font, fontBytes: FONT_BYTES, now: NOW },
     );
     // Anyone holding the file can recompute this and get the same string.
     expect(sha(bytes)).toBe(hash);
     expect(hash).toMatch(/^[0-9a-f]{64}$/);
     expect(Buffer.from(bytes.slice(0, 5)).toString()).toBe("%PDF-");
+  });
+
+  it("draws no text layer by default, and the reason is measured", async () => {
+    const bytes = await build();
+    const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+    const pdf = await pdfjs.getDocument({
+      data: bytes.slice(),
+      disableFontFace: true,
+      useSystemFonts: true,
+    }).promise;
+    const page = await pdf.getPage(1);
+    const content = await page.getTextContent();
+    const text = content.items
+      .map((item) => ("str" in item ? item.str : ""))
+      .join(" ");
+
+    // Latin chrome is real text; the Arabic is outlines, so it is not in the
+    // text layer at all. This is the documented cost of exact shaping.
+    expect(text).toContain("FRELUX");
+    expect(text).not.toContain("فيلا");
+  });
+
+  it("can draw the layer, but the round trip is not faithful", async () => {
+    const compiled = compileBoq(doc());
+    const bytes = await buildArabicBoqPdf(
+      compiled.standard,
+      compiled.document,
+      { font, fontBytes: FONT_BYTES, now: NOW, textLayer: true },
+    );
+    const pdfjs = await import("pdfjs-dist/legacy/build/pdf.mjs");
+    const pdf = await pdfjs.getDocument({
+      data: bytes.slice(),
+      disableFontFace: true,
+      useSystemFonts: true,
+    }).promise;
+    const page = await pdf.getPage(1);
+    const content = await page.getTextContent();
+    const text = content.items
+      .map((item) => ("str" in item ? item.str : ""))
+      .join("");
+
+    // The layer exists, but pdf-lib's glyph-mapped ToUnicode does not round-trip
+    // a shaped run, so it is opt-in and off. The assertion is the finding: the
+    // words do not come back as typed, which is why searchability is not claimed.
+    expect(text.length).toBeGreaterThan(0);
+    expect(text).not.toContain("فيلا في لكي");
+    // It stays far below the 197 kB face: only used glyphs are subset in.
+    expect(bytes.byteLength).toBeLessThan(FONT_BYTES.byteLength);
+  });
+});
+
+describe("routing between the two engines", () => {
+  it("sends an Arabic document to this renderer", () => {
+    const compiled = compileBoq(doc());
+    expect(needsArabicRenderer(compiled.standard, compiled.document)).toBe(
+      true,
+    );
+  });
+
+  it("leaves a Latin document to the jsPDF engine", () => {
+    const compiled = compileBoq(
+      doc({
+        title: "Duplex at Lekki",
+        description: "Reinforced concrete duplex.",
+        client: { name: "A. Client", address: "Lagos" },
+        contractor: { name: "FRELUX Builders" },
+        assumptions: ["Rates valid for 30 days."],
+        exclusions: ["External drainage excluded."],
+        sections: [],
+      }),
+    );
+    expect(needsArabicRenderer(compiled.standard, compiled.document)).toBe(
+      false,
+    );
+  });
+
+  it("still refuses Devanagari and CJK, which have no shipped font", () => {
+    // These are the two scripts this renderer cannot draw: no face for them is
+    // in public/fonts/pdf, so they keep the honest refusal and the Print route.
+    // The fixture is an Arabic document, so every other field is replaced here
+    // too: a leftover Arabic client name would send this document to the Arabic
+    // renderer and the test would prove nothing about routing.
+    const latinNotes = {
+      assumptions: ["Rates valid for 30 days."],
+      exclusions: ["External drainage excluded."],
+      client: { name: "A. Client", address: "Lagos" },
+      contractor: { name: "FRELUX Builders" },
+    };
+    const devanagari = compileBoq(
+      doc({
+        title: "मकान का बिल",
+        sections: [],
+        description: "",
+        ...latinNotes,
+      }),
+    );
+    const cjk = compileBoq(
+      doc({
+        title: "房屋工程量清单",
+        sections: [],
+        description: "",
+        ...latinNotes,
+      }),
+    );
+    expect(needsArabicRenderer(devanagari.standard, devanagari.document)).toBe(
+      false,
+    );
+    expect(needsArabicRenderer(cjk.standard, cjk.document)).toBe(false);
+    expect(hasUnrenderableScript("मकान")).toBe(true);
+    expect(hasUnrenderableScript("房屋")).toBe(true);
+    // Arabic stays on the jsPDF engine's refusal list on purpose: that engine
+    // still cannot shape it, so any caller that skips the routing above gets an
+    // honest refusal instead of a document full of disconnected letters.
+    expect(hasUnrenderableScript("فيلا")).toBe(true);
   });
 });
