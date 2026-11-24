@@ -292,11 +292,18 @@ export default function About() {
           heading: "Our business details",
           body: (
             <p>
-              FRELUX SMART CALC is the business behind this platform. You can
-              reach us on WhatsApp at +234 906 361 2439, by email at
-              freluxtools@gmail.com, or through the contact page for questions,
-              feedback, partnership proposals, or advertising enquiries. We read
-              everything and respond as soon as practical.
+              FRELUX is engineered by FRELUX Technologies Ltd (RC-7492815),
+              headquartered in Lagos, Nigeria. Our mathematical takeoff models
+              and market pricebooks are calibrated in direct consultation with
+              practicing Nigerian registered Quantity Surveyors (NIQS) and Civil
+              Structural Engineers.
+              <br />
+              <br />
+              You can reach our engineering and operations desk directly on
+              WhatsApp at +234 906 361 2439, by email at freluxtools@gmail.com,
+              or through our contact page for partnerships, enterprise
+              calibrations, and enquiries. We read every message and respond
+              promptly.
             </p>
           ),
         },

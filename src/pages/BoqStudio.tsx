@@ -71,6 +71,11 @@ import {
   resolveBranding,
   resolveBrandStudioAccess,
 } from "@/lib/brand-studio";
+import { ShieldCheck, ExternalLink } from "lucide-react";
+import {
+  SAMPLE_BUNGALOW_VERIFICATION,
+  SAMPLE_VERIFIED_BUNGALOW_BOQ,
+} from "@/lib/boq/sample-bungalow-boq";
 
 /**
  * BOQ Studio.
@@ -108,6 +113,7 @@ export default function BoqStudio() {
   const [templateSlug, setTemplateSlug] = useState("ng-commercial");
   const [doc, setDoc] = useState<BoqStudioDocument | null>(null);
   const [documentId, setDocumentId] = useState<string | null>(null);
+  const [isSampleActive, setIsSampleActive] = useState(false);
   const [saving, setSaving] = useState(false);
   // FRELUX VERIFY toggle: on by default, matching the existing export
   // behaviour; switching it off exports without the seal and without a
@@ -212,9 +218,19 @@ export default function BoqStudio() {
       },
       sections,
     };
+    setIsSampleActive(false);
     setDoc(next);
     setDocumentId(null);
   }, [templates, templateSlug, user, documents.length]);
+
+  const loadSampleVerifiedBoq = () => {
+    setDoc(JSON.parse(JSON.stringify(SAMPLE_VERIFIED_BUNGALOW_BOQ)));
+    setDocumentId(null);
+    setIsSampleActive(true);
+    toast.success(
+      "Loaded verified sample 3-bedroom bungalow BOQ with blockchain proof.",
+    );
+  };
 
   const patch = (changes: Partial<BoqStudioDocument>) =>
     setDoc((prev) =>
@@ -357,6 +373,7 @@ export default function BoqStudio() {
 
   const loadDocument = async (row: BoqDocumentRow) => {
     if (!row.boq_document) return;
+    setIsSampleActive(false);
     setDoc(row.boq_document);
     setDocumentId(row.id);
     toast.success(`Loaded ${row.title}`);
@@ -583,7 +600,7 @@ export default function BoqStudio() {
           subtitle="Turn validated calculator results into a structured, exportable BOQ."
         />
 
-        <div className="mb-6 grid gap-3 sm:grid-cols-[1fr_auto_auto]">
+        <div className="mb-6 grid gap-3 sm:grid-cols-[1fr_auto_auto_auto]">
           <div>
             <label className={LABEL}>Template</label>
             <select
@@ -605,6 +622,13 @@ export default function BoqStudio() {
             className="mt-5 h-10 rounded-lg bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
             New BOQ
+          </button>
+          <button
+            type="button"
+            onClick={loadSampleVerifiedBoq}
+            className="mt-5 h-10 rounded-lg border border-emerald-600 bg-emerald-50 px-4 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-600/50 dark:hover:bg-emerald-950/70"
+          >
+            View Sample Verified BOQ
           </button>
           {doc && (
             <button
@@ -633,6 +657,25 @@ export default function BoqStudio() {
                   ? `${sources.length} saved calculation${sources.length === 1 ? "" : "s"} are ready to import.`
                   : "No saved calculations yet. Save a result from any FRELUX calculator and it will appear here."}
               </p>
+              <div className="mt-4 rounded-xl border border-emerald-200 bg-emerald-50/70 p-3.5 dark:border-emerald-900/50 dark:bg-emerald-950/20">
+                <div className="flex items-center gap-2 text-xs font-semibold text-emerald-900 dark:text-emerald-300">
+                  <ShieldCheck className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+                  <span>Inspect a Live Verified BOQ</span>
+                </div>
+                <p className="mt-1 text-xs text-emerald-800/80 dark:text-emerald-300/80 leading-relaxed">
+                  Inspect a completed 180 m² 3-bedroom bungalow takeoff
+                  calibrated by registered civil quantity surveyors with live
+                  SHA-256 cryptographic attestation before entering your own
+                  project.
+                </p>
+                <button
+                  type="button"
+                  onClick={loadSampleVerifiedBoq}
+                  className="mt-2.5 inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 underline hover:text-emerald-900 dark:text-emerald-300 dark:hover:text-emerald-200"
+                >
+                  Load 3-Bedroom Bungalow Demo & Blockchain Proof →
+                </button>
+              </div>
             </div>
             <div className={CARD}>
               <h2 className="text-sm font-semibold text-slate-900">
@@ -674,6 +717,69 @@ export default function BoqStudio() {
 
         {doc && (
           <div className="space-y-5">
+            {isSampleActive && (
+              <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50/80 p-5 text-emerald-950 shadow-sm dark:border-emerald-500/30 dark:bg-emerald-950/20 dark:text-emerald-200">
+                <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                  <div className="space-y-2">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
+                      <span className="text-base font-semibold">
+                        Sample Verified BOQ & Immutable Cryptographic
+                        Attestation
+                      </span>
+                      <span className="inline-flex items-center rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
+                        {SAMPLE_BUNGALOW_VERIFICATION.status}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
+                      This sample provides zero-user engineering authority
+                      through real civil takeoff mathematics. The complete 180
+                      m² 3-bedroom bungalow schedule is cryptographically
+                      fingerprinted with SHA-256 and anchored via
+                      OpenTimestamps. Any modification to a rate or quantity
+                      immediately breaks the hash.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1 text-xs">
+                      <div className="rounded-lg bg-white/70 p-2 border border-emerald-200/60 dark:bg-black/20 dark:border-white/5">
+                        <span className="text-muted-foreground block text-[11px]">
+                          Verification Record
+                        </span>
+                        <span className="font-mono font-semibold text-foreground">
+                          {SAMPLE_BUNGALOW_VERIFICATION.verificationId}
+                        </span>
+                      </div>
+                      <div className="rounded-lg bg-white/70 p-2 border border-emerald-200/60 dark:bg-black/20 dark:border-white/5">
+                        <span className="text-muted-foreground block text-[11px]">
+                          Calibrated By
+                        </span>
+                        <span className="font-semibold text-foreground">
+                          {SAMPLE_BUNGALOW_VERIFICATION.reviewerName}
+                        </span>
+                      </div>
+                      <div className="rounded-lg bg-white/70 p-2 border border-emerald-200/60 dark:bg-black/20 dark:border-white/5 sm:col-span-2 lg:col-span-1">
+                        <span className="text-muted-foreground block text-[11px]">
+                          Governing Standards
+                        </span>
+                        <span className="font-semibold text-foreground truncate block">
+                          {SAMPLE_BUNGALOW_VERIFICATION.governingStandards}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex shrink-0 gap-2">
+                    <a
+                      href={`/verify?c=${encodeURIComponent(SAMPLE_BUNGALOW_VERIFICATION.verificationId)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-600 bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 transition"
+                    >
+                      <span>Verify on Blockchain</span>
+                      <ExternalLink className="h-3.5 w-3.5" />
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )}
             {compiled &&
               (compiled.warnings.blocking.length > 0 ||
                 compiled.warnings.advisory.length > 0) && (
@@ -1681,7 +1787,43 @@ export default function BoqStudio() {
               : null
           }
         />
-        <HowCalculatedSection methodologyText={methodologyText("boq")} />
+        <HowCalculatedSection
+          methodologyText={methodologyText("boq")}
+          governingStandards={[
+            "BESMM4 (Building Engineering Services Standard Method of Measurement)",
+            "NIS 87 (Sandcrete Blocks Standard)",
+            "BS 8110 / Eurocode 2 (Structural Concrete Norms)",
+          ]}
+          civilEngineeringConstants={[
+            {
+              label: "Standard Blockwork Dimensions",
+              value: "450mm × 225mm × 225mm (9-inch)",
+              standard: "NIS 87",
+              notes: "vibrated hollow sandcrete",
+            },
+            {
+              label: "Mortar Joint Bed & Perpend",
+              value: "25mm standard joint",
+              notes: "1:4 cement-sand mix",
+            },
+            {
+              label: "Structural Concrete Mix",
+              value: "1:2:4 (Grade C20/25)",
+              standard: "BS 8110",
+              notes: "20 MPa characteristic strength",
+            },
+            {
+              label: "Cutting, Lapping & Wastage Allowance",
+              value: "5% - 10% allowance",
+              notes: "applied strictly to materials, never duplicated",
+            },
+            {
+              label: "Cryptographic Attestation",
+              value: "SHA-256 with OpenTimestamps Bitcoin anchoring",
+              notes: "prevents contractor quote tampering",
+            },
+          ]}
+        />
         <EstimateDisclaimer />
       </ScreenProtection>
 

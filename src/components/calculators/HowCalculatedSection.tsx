@@ -7,10 +7,18 @@ import {
   Sliders,
   Package,
   ShieldCheck,
+  Scale,
 } from "lucide-react";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
 import type { CalculationBreakdownProps } from "./CalculationBreakdownDrawer";
+
+export interface EngineeringConstant {
+  label: string;
+  value: string;
+  standard?: string;
+  notes?: string;
+}
 
 export interface HowCalculatedSectionProps {
   methodologyText: string;
@@ -28,6 +36,8 @@ export interface HowCalculatedSectionProps {
   siteModifiers?: CalculationBreakdownProps["siteModifiers"];
   packagingDetails?: CalculationBreakdownProps["packagingDetails"];
   calibrationEvidence?: CalculationBreakdownProps["calibrationEvidence"];
+  civilEngineeringConstants?: EngineeringConstant[];
+  governingStandards?: string[];
 }
 
 export default function HowCalculatedSection({
@@ -41,6 +51,8 @@ export default function HowCalculatedSection({
   siteModifiers: propModifiers,
   packagingDetails: propPackaging,
   calibrationEvidence: propCalibration,
+  civilEngineeringConstants = [],
+  governingStandards = [],
 }: HowCalculatedSectionProps) {
   const { t } = useLanguage();
   const [expanded, setExpanded] = useState(false);
@@ -52,7 +64,13 @@ export default function HowCalculatedSection({
   const calibration = propCalibration ?? breakdown?.calibrationEvidence;
 
   const hasBreakdown = Boolean(
-    geometry || physical || modifiers || packaging || calibration,
+    geometry ||
+    physical ||
+    modifiers ||
+    packaging ||
+    calibration ||
+    civilEngineeringConstants.length > 0 ||
+    governingStandards.length > 0,
   );
 
   if (!methodologyText && assumptions.length === 0 && !hasBreakdown)
@@ -87,6 +105,60 @@ export default function HowCalculatedSection({
             <pre className="whitespace-pre-wrap font-sans text-xs leading-relaxed text-muted-foreground dark:text-muted-foreground">
               {methodologyText}
             </pre>
+          )}
+
+          {/* Section: Civil Engineering Constants & Design Standards */}
+          {(governingStandards.length > 0 ||
+            civilEngineeringConstants.length > 0) && (
+            <div className="space-y-2 rounded-lg border border-border/60 bg-background/60 p-2.5 text-xs dark:border-white/5 dark:bg-black/20">
+              <div className="flex items-center gap-1.5 font-medium text-foreground">
+                <Scale className="h-3.5 w-3.5 text-amber-500" />
+                <span>
+                  {t("Civil Engineering Constants & Building Standards")}
+                </span>
+              </div>
+              {governingStandards.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
+                  {governingStandards.map((std) => (
+                    <span
+                      key={std}
+                      className="inline-flex items-center rounded-md bg-amber-500/10 px-2 py-0.5 text-[11px] font-medium text-amber-700 dark:text-amber-400"
+                    >
+                      {std}
+                    </span>
+                  ))}
+                </div>
+              )}
+              {civilEngineeringConstants.length > 0 && (
+                <div className="space-y-1.5 pt-1">
+                  {civilEngineeringConstants.map((c) => (
+                    <div
+                      key={c.label}
+                      className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-border/30 pb-1 last:border-0 last:pb-0"
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-muted-foreground">{c.label}</span>
+                        {c.standard && (
+                          <span className="text-[10px] text-muted-foreground/75 font-mono">
+                            [{c.standard}]
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-right">
+                        <span className="font-mono font-medium text-foreground">
+                          {c.value}
+                        </span>
+                        {c.notes && (
+                          <span className="ml-1.5 text-[11px] text-muted-foreground">
+                            ({c.notes})
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           )}
 
           {/* Section: Geometric Takeoff */}

@@ -75,3 +75,27 @@ describe("BoqStudio", () => {
     );
   });
 });
+
+it("loads sample verified 3-bedroom bungalow BOQ and displays blockchain attestation", async () => {
+  const { fireEvent } = await import("@testing-library/react");
+  const { default: Page } = await import("@/pages/BoqStudio");
+  render(
+    <MemoryRouter>
+      <Page />
+    </MemoryRouter>,
+  );
+  const sampleBtn = await screen.findByRole("button", {
+    name: /View Sample Verified BOQ/i,
+  });
+  fireEvent.click(sampleBtn);
+
+  expect(
+    await screen.findByText(
+      /Sample Verified BOQ & Immutable Cryptographic Attestation/i,
+    ),
+  ).toBeTruthy();
+  expect(screen.getByText("FLX-VRF-2026-3BR-NG")).toBeTruthy();
+  expect(
+    screen.getByDisplayValue(/3-Bedroom Residential Bungalow/i),
+  ).toBeTruthy();
+});

@@ -239,9 +239,15 @@ export default function Footer() {
         <div className="mt-10 border-t border-white/10 pt-8">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
             <div className="max-w-xl">
-              <p className="text-[12.5px] leading-5 text-white/55">
-                © {new Date().getFullYear()} {siteConfig.name}.{" "}
+              <p className="text-[12.5px] leading-5 text-white/60">
+                © {new Date().getFullYear()} {siteConfig.name} · Engineered by
+                FRELUX Technologies Ltd (RC-7492815).{" "}
                 {t("All rights reserved.")}
+              </p>
+              <p className="mt-1 text-[11.5px] text-white/45">
+                {t(
+                  "Calibrated in consultation with Nigerian Registered Quantity Surveyors (NIQS) & Civil Structural Engineers.",
+                )}
               </p>
               <p className={`mt-1.5 ${QUIET}`}>
                 {t(

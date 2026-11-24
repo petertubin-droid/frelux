@@ -115,3 +115,40 @@ describe("calculation methodology anchor", () => {
     expect(container.querySelector("#calculation-methodology")).toBeTruthy();
   });
 });
+
+describe("civil engineering constants and building standards", () => {
+  it("renders civil engineering constants and governing standards when expanded", () => {
+    render(
+      <HowCalculatedSection
+        methodologyText="Civil engineering method"
+        governingStandards={[
+          "NIS 87: Sandcrete Blocks",
+          "Eurocode 2 / BS 8110",
+        ]}
+        civilEngineeringConstants={[
+          {
+            label: "Standard Block Unit",
+            value: "450mm × 225mm × 225mm",
+            standard: "NIS 87",
+            notes: "9-inch hollow vibrated",
+          },
+          {
+            label: "Mortar Joint Thickness",
+            value: "25mm",
+            notes: "bed & perpend",
+          },
+        ]}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button"));
+    expect(
+      screen.getByText("Civil Engineering Constants & Building Standards"),
+    ).toBeTruthy();
+    expect(screen.getByText("NIS 87: Sandcrete Blocks")).toBeTruthy();
+    expect(screen.getByText("Eurocode 2 / BS 8110")).toBeTruthy();
+    expect(screen.getByText("Standard Block Unit")).toBeTruthy();
+    expect(screen.getByText("450mm × 225mm × 225mm")).toBeTruthy();
+    expect(screen.getByText("Mortar Joint Thickness")).toBeTruthy();
+    expect(screen.getByText("25mm")).toBeTruthy();
+  });
+});
