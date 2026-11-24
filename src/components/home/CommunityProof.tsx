@@ -98,58 +98,58 @@ export default function CommunityProof() {
       className="border-y border-border/60 bg-card/60 backdrop-blur-sm py-4 dark:border-white/5 dark:bg-slate-950/40"
     >
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4 lg:gap-6">
-          <div className="flex items-center gap-2.5 rounded-xl border border-border/50 bg-background/70 px-3 py-2.5 shadow-sm dark:border-white/5 dark:bg-white/[0.02]">
+        <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2 sm:gap-4 md:grid-cols-4 lg:gap-6">
+          <div className="flex items-center gap-2.5 rounded-xl border border-border/50 bg-background/70 px-3 py-2.5 shadow-sm dark:border-white/5 dark:bg-white/[0.02] overflow-hidden">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
               <Calculator className="h-4 w-4" aria-hidden="true" />
             </div>
-            <div className="min-w-0">
-              <div className="text-xs sm:text-sm font-semibold tracking-tight text-foreground truncate">
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <div className="text-xs sm:text-sm font-semibold tracking-tight text-foreground line-clamp-1 break-words">
                 77+ Calibrated Calculators
               </div>
-              <p className="text-[11px] text-muted-foreground truncate">
+              <p className="text-[11px] text-muted-foreground line-clamp-1 break-words">
                 Deterministic civil takeoffs
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 rounded-xl border border-border/50 bg-background/70 px-3 py-2.5 shadow-sm dark:border-white/5 dark:bg-white/[0.02]">
+          <div className="flex items-center gap-2.5 rounded-xl border border-border/50 bg-background/70 px-3 py-2.5 shadow-sm dark:border-white/5 dark:bg-white/[0.02] overflow-hidden">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
               <TrendingUp className="h-4 w-4" aria-hidden="true" />
             </div>
-            <div className="min-w-0">
-              <div className="text-xs sm:text-sm font-semibold tracking-tight text-foreground truncate">
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <div className="text-xs sm:text-sm font-semibold tracking-tight text-foreground line-clamp-1 break-words">
                 {t("630+ Live Material Prices")}
               </div>
-              <p className="text-[11px] text-muted-foreground truncate">
+              <p className="text-[11px] text-muted-foreground line-clamp-1 break-words">
                 {t("Weekly updated market rates")}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 rounded-xl border border-border/50 bg-background/70 px-3 py-2.5 shadow-sm dark:border-white/5 dark:bg-white/[0.02]">
+          <div className="flex items-center gap-2.5 rounded-xl border border-border/50 bg-background/70 px-3 py-2.5 shadow-sm dark:border-white/5 dark:bg-white/[0.02] overflow-hidden">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
               <Scale className="h-4 w-4" aria-hidden="true" />
             </div>
-            <div className="min-w-0">
-              <div className="text-xs sm:text-sm font-semibold tracking-tight text-foreground truncate">
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <div className="text-xs sm:text-sm font-semibold tracking-tight text-foreground line-clamp-1 break-words">
                 {t("Eurocode, ACI, BS & IS Norms")}
               </div>
-              <p className="text-[11px] text-muted-foreground truncate">
-                {t("Engineering constants from each code the engine implements")}
+              <p className="text-[11px] text-muted-foreground line-clamp-1 break-words">
+                {t("Calibrated building code constants")}
               </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2.5 rounded-xl border border-border/50 bg-background/70 px-3 py-2.5 shadow-sm dark:border-white/5 dark:bg-white/[0.02]">
+          <div className="flex items-center gap-2.5 rounded-xl border border-border/50 bg-background/70 px-3 py-2.5 shadow-sm dark:border-white/5 dark:bg-white/[0.02] overflow-hidden">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-purple-500/10 text-purple-600 dark:text-purple-400">
               <ShieldCheck className="h-4 w-4" aria-hidden="true" />
             </div>
-            <div className="min-w-0">
-              <div className="text-xs sm:text-sm font-semibold tracking-tight text-foreground truncate">
+            <div className="min-w-0 flex-1 overflow-hidden">
+              <div className="text-xs sm:text-sm font-semibold tracking-tight text-foreground line-clamp-1 break-words">
                 {t("Tamper-Evident Verification")}
               </div>
-              <p className="text-[11px] text-muted-foreground truncate">
+              <p className="text-[11px] text-muted-foreground line-clamp-1 break-words">
                 {t("SHA-256 receipts on exported documents")}
               </p>
             </div>

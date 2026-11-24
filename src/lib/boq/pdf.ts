@@ -29,6 +29,7 @@ import {
   needsUnicodeFont,
   registerUnicodeFont,
 } from "./fonts";
+import { boqDocumentText } from "./pdf-arabic";
 
 const BRAND = { r: 15, g: 23, b: 42 };
 const ACCENT = { r: 37, g: 99, b: 235 };
@@ -108,29 +109,7 @@ export async function buildBoqPdf(
 
   // One decision for the whole document: jsPDF cannot mix families per run
   // without re-measuring every string, and a document is written in one script.
-  const documentText = [
-    studio.title,
-    studio.reference,
-    studio.description,
-    studio.client?.name,
-    studio.client?.address,
-    studio.contractor?.name,
-    ...(studio.assumptions ?? []),
-    ...(studio.exclusions ?? []),
-    ...standard.sections.flatMap((section) => [
-      section.code,
-      section.title,
-      ...section.subSections.flatMap((sub) => [
-        sub.title,
-        ...sub.items.flatMap((item) => [
-          item.description,
-          item.specificationRef,
-        ]),
-      ]),
-    ]),
-  ]
-    .filter(Boolean)
-    .join(" ");
+  const documentText = boqDocumentText(standard, studio);
 
   if (hasUnrenderableScript(documentText)) throw new UnrenderableScriptError();
   const fontFamily = needsUnicodeFont(documentText)

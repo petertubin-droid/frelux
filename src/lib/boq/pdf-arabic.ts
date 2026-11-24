@@ -104,17 +104,43 @@ export function boqDocumentText(
 ): string {
   return [
     studio.title,
+    studio.reference,
     studio.description,
     studio.client?.name,
     studio.client?.address,
     studio.contractor?.name,
+    studio.contractor?.address,
+    studio.prepared_by,
+    studio.survey?.market_city,
+    studio.survey?.surveyed_by,
+    studio.survey?.notes,
+    studio.review?.reviewer_name,
+    studio.review?.reviewer_qualification,
+    studio.review?.note,
+    standard.metadata?.location,
+    standard.endorsement?.certifiedBy,
+    standard.endorsement?.practiceFirm,
+    standard.endorsement?.notes,
     ...(studio.assumptions ?? []),
     ...(studio.exclusions ?? []),
+    ...(studio.sections ?? []).flatMap((section) => [
+      section.title,
+      section.notes,
+      ...section.items.flatMap((item) => [
+        item.description,
+        item.specification,
+        item.notes,
+      ]),
+    ]),
     ...standard.sections.flatMap((section) => [
+      section.code,
       section.title,
       ...section.subSections.flatMap((sub) => [
         sub.title,
-        ...sub.items.flatMap((item) => [item.description]),
+        ...sub.items.flatMap((item) => [
+          item.description,
+          item.specificationRef,
+        ]),
       ]),
     ]),
   ]
@@ -328,9 +354,28 @@ function roundingPage<
   } as T;
 }
 
+export interface FontRegistry {
+  arabic?: FontkitFont;
+  devanagari?: FontkitFont;
+  cjk?: FontkitFont;
+}
+
+export function selectFont(
+  text: string,
+  defaultFont: FontkitFont,
+  registry?: FontRegistry,
+): FontkitFont {
+  if (!registry) return defaultFont;
+  if (isArabicDocument(text) && registry.arabic) return registry.arabic;
+  if (isDevanagariDocument(text) && registry.devanagari) return registry.devanagari;
+  if (isCjkDocument(text) && registry.cjk) return registry.cjk;
+  return defaultFont;
+}
+
 interface DrawContext {
   page: ReturnType<PDFDocument["addPage"]>;
   font: FontkitFont;
+  fonts?: FontRegistry;
   rtl: boolean;
   /** Invisible text for selection and search; null when the layer is off. */
   textFont: {
@@ -358,7 +403,8 @@ function drawIn(
   pad = 0,
 ): number {
   if (!text) return 0;
-  const width = shapedWidth(ctx.font, text, sizePt);
+  const activeFont = selectFont(text, ctx.font, ctx.fonts);
+  const width = shapedWidth(activeFont, text, sizePt);
   const left = mirror(box.left, box.width, ctx.rtl);
   let x: number;
   if (align === "center") {
@@ -367,8 +413,8 @@ function drawIn(
     const atStart = align === "start" ? !ctx.rtl : ctx.rtl;
     x = atStart ? left + pad : left + box.width - pad - width;
   }
-  const run: ShapedRun = shapeText(text, ctx.font);
-  drawShapedRun(roundingPage(ctx.page), run, ctx.font, {
+  const run: ShapedRun = shapeText(text, activeFont);
+  drawShapedRun(roundingPage(ctx.page), run, activeFont, {
     x,
     y,
     sizePt,
@@ -412,7 +458,10 @@ export function wrapShaped(
   text: string,
   sizePt: number,
   maxWidth: number,
+  fonts?: FontRegistry,
 ): string[] {
+  if (!text) return [];
+  const activeFont = selectFont(text, font, fonts);
   // If text contains CJK ideographs, use word segmentation so long Chinese/Japanese
   // text without spaces can break across lines naturally.
   const hasCjk =
@@ -437,7 +486,7 @@ export function wrapShaped(
           /[\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uAC00-\uD7AF]/.test(seg);
         const joiner = segIsCjk || !current ? "" : " ";
         const candidate = current ? `${current}${joiner}${seg}` : seg;
-        if (shapedWidth(font, candidate, sizePt) <= maxWidth || !current) {
+        if (shapedWidth(activeFont, candidate, sizePt) <= maxWidth || !current) {
           current = candidate;
         } else {
           lines.push(current);
@@ -455,7 +504,7 @@ export function wrapShaped(
   let current = "";
   for (const word of words) {
     const candidate = current ? `${current} ${word}` : word;
-    if (shapedWidth(font, candidate, sizePt) <= maxWidth || !current) {
+    if (shapedWidth(activeFont, candidate, sizePt) <= maxWidth || !current) {
       current = candidate;
     } else {
       lines.push(current);
@@ -504,22 +553,38 @@ export async function buildOutlineBoqPdf(
   let font = options.font;
   let fontBytes = options.fontBytes;
 
+  const needArabic = isArabicDocument(docText);
+  const needDevanagari = isDevanagariDocument(docText);
+  const needCjk = isCjkDocument(docText);
+
+  const [arabicLoaded, devanagariLoaded, cjkLoaded] = await Promise.all([
+    needArabic || rtl ? (options.font && rtl ? options.font : loadNaskhFont()) : null,
+    needDevanagari ? loadDevanagariFont() : null,
+    needCjk ? loadCjkFont() : null,
+  ]);
+
   if (!font) {
     if (rtl) {
-      font = await loadNaskhFont();
+      font = arabicLoaded!;
       fontBytes = fontBytes ?? (await loadNaskhBytes());
-    } else if (isDevanagariDocument(docText)) {
-      font = await loadDevanagariFont();
+    } else if (needDevanagari) {
+      font = devanagariLoaded!;
       fontBytes = fontBytes ?? (await loadDevanagariBytes());
-    } else if (isCjkDocument(docText)) {
-      font = await loadCjkFont();
+    } else if (needCjk) {
+      font = cjkLoaded!;
       fontBytes = fontBytes ?? (await loadCjkBytes());
     } else {
       // Default fallback face
-      font = await loadNaskhFont();
+      font = arabicLoaded ?? (await loadNaskhFont());
       fontBytes = fontBytes ?? (await loadNaskhBytes());
     }
   }
+
+  const fontRegistry: FontRegistry = {
+    arabic: arabicLoaded ?? undefined,
+    devanagari: devanagariLoaded ?? undefined,
+    cjk: cjkLoaded ?? undefined,
+  };
 
   const pdf = await PDFDocument.create();
   // Subsetting the layer font needs fontkit registered on this document.
@@ -552,7 +617,7 @@ export async function buildOutlineBoqPdf(
     isSurvey && !(value > 0) ? "TBC" : money(value, currency);
 
   let page = pdf.addPage([PAGE.width, PAGE.height]);
-  let ctx: DrawContext = { page, font, rtl, textFont: textLayerFont };
+  let ctx: DrawContext = { page, font, fonts: fontRegistry, rtl, textFont: textLayerFont };
   let y = MARGIN;
   let pageIndex = 1;
   let totalPages = 1;
@@ -625,7 +690,7 @@ export async function buildOutlineBoqPdf(
   const newPage = () => {
     page = pdf.addPage([PAGE.width, PAGE.height]);
     pageIndex += 1;
-    ctx = { page, font, rtl, textFont: textLayerFont };
+    ctx = { page, font, fonts: fontRegistry, rtl, textFont: textLayerFont };
     drawHeader();
   };
 
@@ -659,7 +724,7 @@ export async function buildOutlineBoqPdf(
   y -= 2;
 
   if (studio.description) {
-    for (const line of wrapShaped(font, studio.description, 9, CONTENT)) {
+    for (const line of wrapShaped(font, studio.description, 9, CONTENT, fontRegistry)) {
       drawIn(ctx, line, { left: MARGIN, width: CONTENT }, y, 9, MUTED, "start");
       y -= 11;
     }
@@ -840,7 +905,7 @@ export async function buildOutlineBoqPdf(
     for (const sub of section.subSections) {
       for (const item of sub.items) {
         const descWidth = columns[descriptionColumn].width - 4;
-        const descLines = wrapShaped(font, item.description, 8, descWidth);
+        const descLines = wrapShaped(font, item.description, 8, descWidth, fontRegistry);
         const rowHeight = Math.max(16, descLines.length * 10 + 6);
         if (y - rowHeight < MARGIN + FOOTER_RESERVE) {
           newPage();
@@ -1056,7 +1121,7 @@ export async function buildOutlineBoqPdf(
     drawIn(ctx, title, { left: MARGIN, width: CONTENT }, y, 9, BRAND, "start");
     y -= 13;
     entries.forEach((entry, index) => {
-      const lines = wrapShaped(font, `${index + 1}. ${entry}`, 8, CONTENT - 6);
+      const lines = wrapShaped(font, `${index + 1}. ${entry}`, 8, CONTENT - 6, fontRegistry);
       ensure(lines.length * 11 + 6);
       lines.forEach((line, lineIndex) => {
         drawIn(
@@ -1117,7 +1182,7 @@ export async function buildOutlineBoqPdf(
       y -= 11;
     }
     if (studio.review.note) {
-      for (const line of wrapShaped(font, studio.review.note, 8, CONTENT)) {
+      for (const line of wrapShaped(font, studio.review.note, 8, CONTENT, fontRegistry)) {
         drawIn(
           ctx,
           line,

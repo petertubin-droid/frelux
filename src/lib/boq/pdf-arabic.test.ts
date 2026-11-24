@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 // pdfjs-dist v6 uses Promise.withResolvers, which older Node builds lack.
 if (!("withResolvers" in Promise)) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (Promise as any).withResolvers = function withResolvers<T>() {
     let resolve!: (value: T) => void;
     let reject!: (reason?: unknown) => void;
@@ -513,6 +512,91 @@ describe("Devanagari and CJK outline BOQ PDFs", () => {
     expect(sha(bytes1)).toBe(sha(bytes2));
 
     // Sealing produces exact matching SHA-256
+    const sealed = await sealOutlineBoqPdf(compiled.standard, compiled.document, {
+      now: NOW,
+    });
+    expect(sha(sealed.bytes)).toBe(sealed.hash);
+    expect(sealed.hash).toMatch(/^[0-9a-f]{64}$/);
+  });
+  it("routes documents with non-Latin reviewer metadata to outline renderer", () => {
+    const docWithArabicReviewNote = compileBoq(
+      doc({
+        title: "Standard Commercial Warehouse",
+        description: "Steel frame warehouse with insulated cladding.",
+        client: { name: "Apex Logistics Ltd", address: "Dubai Industrial City" },
+        contractor: { name: "Global Contracting LLC" },
+        review: {
+          status: "reviewed",
+          reviewer_name: "John Smith",
+          note: "تمت مراجعة الكميات والمواصفات واعتمادها",
+        },
+        sections: [],
+      }),
+    );
+    expect(needsOutlineRenderer(docWithArabicReviewNote.standard, docWithArabicReviewNote.document)).toBe(true);
+
+    const docWithDevanagariReviewer = compileBoq(
+      doc({
+        title: "Residential Villa Project",
+        description: "Civil structural work.",
+        client: { name: "Sunil Kumar", address: "Gurgaon" },
+        contractor: { name: "Modern Infra" },
+        review: {
+          status: "reviewed",
+          reviewer_name: "राजेश शर्मा, मुख्य अभियंता",
+        },
+        sections: [],
+      }),
+    );
+    expect(needsOutlineRenderer(docWithDevanagariReviewer.standard, docWithDevanagariReviewer.document)).toBe(true);
+  });
+
+  it("renders a mixed-script document with Arabic, Devanagari, and CJK without collision or error", async () => {
+    const multiScriptDoc = doc({
+      title: "International Joint Venture BOQ",
+      description: "مشروع مشترك دولي للبناء والتشييد", // Arabic description
+      client: { name: "北京建工集团", address: "北京市朝阳区" }, // CJK client
+      contractor: { name: "शर्मा कंस्ट्रक्शन प्राइवेट लिमिटेड" }, // Devanagari contractor
+      review: {
+        status: "reviewed",
+        reviewer_name: "مهندس استشاري معتمد", // Arabic reviewer
+        note: "Approved per IS 456 & GB 50010 engineering standards.",
+      },
+      sections: [
+        {
+          id: "s1",
+          code: "01",
+          title: "Structural Works - 结构工程",
+          notes: "",
+          items: [
+            {
+              id: "i1",
+              item_number: "01.01",
+              description: "M25 ग्रेड कंक्रीट ढलाई कार्य (Reinforced concrete)",
+              specification: "Grade M25",
+              unit: "m³",
+              quantity: 50,
+              material_rate: 6500,
+              labour_rate: 1500,
+              plant_rate: 500,
+              notes: "صب خرسانة مسلحة",
+              rates_include_waste: false,
+            },
+          ],
+        },
+      ],
+    });
+
+    const compiled = compileBoq(multiScriptDoc);
+    expect(needsOutlineRenderer(compiled.standard, compiled.document)).toBe(true);
+
+    const bytes = await buildOutlineBoqPdf(compiled.standard, compiled.document, {
+      now: NOW,
+    });
+    expect(Buffer.from(bytes.slice(0, 5)).toString()).toBe("%PDF-");
+    const pdf = await PDFDocument.load(bytes);
+    expect(pdf.getPageCount()).toBeGreaterThanOrEqual(1);
+
     const sealed = await sealOutlineBoqPdf(compiled.standard, compiled.document, {
       now: NOW,
     });
