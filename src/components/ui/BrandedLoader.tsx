@@ -15,62 +15,149 @@ export const LOADER_STYLE_VALUES = [
   "dots",
   "progress",
   "ripple",
+  "conic_sweep",
+  "segmented_ring",
+  "slim_arc",
+  "soft_square",
+  "fade_dot",
+  "blades",
 ] as const;
+
+export type LoaderStyleCategory = "premium" | "simple" | "classic" | "standard";
+
+/** Category order and headings for the admin picker. */
+export const LOADER_CATEGORY_ORDER: {
+  value: LoaderStyleCategory;
+  label: string;
+  hint: string;
+}[] = [
+  {
+    value: "premium",
+    label: "Premium",
+    hint: "Brand-forward circles for the main app loader",
+  },
+  {
+    value: "simple",
+    label: "Simple",
+    hint: "Quiet shapes that stay out of the way",
+  },
+  {
+    value: "classic",
+    label: "Classic",
+    hint: "The familiar spinner, done cleanly",
+  },
+  {
+    value: "standard",
+    label: "Standard",
+    hint: "Linear and sequence indicators",
+  },
+];
 
 export const LOADER_STYLE_OPTIONS: {
   value: string;
   label: string;
   description: string;
+  category: LoaderStyleCategory;
 }[] = [
+  // Premium (5)
   {
     value: "gradient_ring",
     label: "Aurora Ring",
     description: "Hairline track with a brand sweep (default)",
+    category: "premium",
   },
   {
     value: "dual_rings",
     label: "Dual Rings",
     description: "Two arcs rotating in opposite directions",
-  },
-  {
-    value: "spinner",
-    label: "Minimal Spinner",
-    description: "Single thin arc, quiet and light",
-  },
-  {
-    value: "orbit",
-    label: "Orbiting Dots",
-    description: "Dots circling a soft core",
-  },
-  {
-    value: "pulse",
-    label: "Soft Pulse",
-    description: "Glowing disc breathing in and out",
+    category: "premium",
   },
   {
     value: "brand_beat",
     label: "Brand Beat",
     description: "Beating paintbrush mark, brand-forward",
+    category: "premium",
   },
   {
-    value: "bars",
-    label: "Equalizer Bars",
-    description: "Five bars rising and falling",
+    value: "conic_sweep",
+    label: "Conic Sweep",
+    description: "Conic gradient ring with a bright leading head",
+    category: "premium",
+  },
+  {
+    value: "segmented_ring",
+    label: "Segmented Ring",
+    description: "Two-tone dashes chasing round the ring",
+    category: "premium",
+  },
+  // Simple (6)
+  {
+    value: "orbit",
+    label: "Orbiting Dots",
+    description: "Dots circling a soft core",
+    category: "simple",
+  },
+  {
+    value: "pulse",
+    label: "Soft Pulse",
+    description: "Glowing disc breathing in and out",
+    category: "simple",
   },
   {
     value: "dots",
     label: "Bouncing Dots",
     description: "Three dots hopping in sequence",
+    category: "simple",
+  },
+  {
+    value: "slim_arc",
+    label: "Slim Arc",
+    description: "One hairline arc, nothing else",
+    category: "simple",
+  },
+  {
+    value: "soft_square",
+    label: "Soft Square",
+    description: "Rounded square outline turning slowly",
+    category: "simple",
+  },
+  {
+    value: "fade_dot",
+    label: "Fading Dot",
+    description: "A single dot fading in and out",
+    category: "simple",
+  },
+  // Classic (2)
+  {
+    value: "spinner",
+    label: "Minimal Spinner",
+    description: "Single thin arc, quiet and light",
+    category: "classic",
+  },
+  {
+    value: "blades",
+    label: "Classic Blades",
+    description: "Eight blades fading in sequence",
+    category: "classic",
+  },
+  // Standard (3)
+  {
+    value: "bars",
+    label: "Equalizer Bars",
+    description: "Five bars rising and falling",
+    category: "standard",
   },
   {
     value: "progress",
     label: "Progress Bar",
     description: "Indeterminate bar sliding across",
+    category: "standard",
   },
   {
     value: "ripple",
     label: "Ripple",
     description: "Concentric circles expanding outward",
+    category: "standard",
   },
 ];
 
@@ -388,6 +475,173 @@ export function LoaderVisual({
             }}
           />
         </div>
+      </div>
+    );
+  }
+
+  if (config.style === "conic_sweep") {
+    // A conic gradient is the whole ring; the mask cuts the middle out so it
+    // reads as a stroke rather than a pie. One element, no SVG.
+    const stroke = Math.max(3, Math.round(size * 0.055));
+    const ring = `radial-gradient(farthest-side, transparent calc(100% - ${stroke}px), #000 calc(100% - ${stroke}px))`;
+    return (
+      <div
+        role="progressbar"
+        aria-label="Loading"
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          background: `conic-gradient(from 0deg, ${secondary}00 0deg, ${secondary} 120deg, ${primary} 260deg, ${primary}00 360deg)`,
+          WebkitMask: ring,
+          mask: ring,
+          animation: `frelux-loader-orbit ${Math.round(1.5 * mult * 100) / 100}s linear infinite`,
+        }}
+      />
+    );
+  }
+
+  if (config.style === "segmented_ring") {
+    const segments = 12;
+    const gap = 100 / segments;
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 100 100"
+        role="progressbar"
+        aria-label="Loading"
+      >
+        {Array.from({ length: segments }, (_, i) => (
+          <circle
+            key={i}
+            cx="50"
+            cy="50"
+            r="41"
+            fill="none"
+            stroke={i % 2 === 0 ? primary : secondary}
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeDasharray={`${gap * 0.62} ${gap * 0.38}`}
+            strokeDashoffset={-(i * gap)}
+            opacity={0.25 + (0.75 * i) / segments}
+          />
+        ))}
+        <g
+          className="animate-spin"
+          style={{ animationDuration: `${dur}s`, transformOrigin: "50% 50%" }}
+        >
+          <circle
+            cx="50"
+            cy="50"
+            r="41"
+            fill="none"
+            stroke={`url(#${gradId})`}
+            strokeWidth="6"
+            strokeLinecap="round"
+            strokeDasharray="20 220"
+          />
+        </g>
+        <defs>
+          <linearGradient id={gradId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor={primary} />
+            <stop offset="100%" stopColor={secondary} />
+          </linearGradient>
+        </defs>
+      </svg>
+    );
+  }
+
+  if (config.style === "slim_arc") {
+    return (
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 100 100"
+        role="progressbar"
+        aria-label="Loading"
+      >
+        <circle
+          cx="50"
+          cy="50"
+          r="41"
+          fill="none"
+          stroke={primary}
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          strokeDasharray="120 140"
+          className="animate-spin"
+          style={{ animationDuration: `${dur}s`, transformOrigin: "50% 50%" }}
+        />
+      </svg>
+    );
+  }
+
+  if (config.style === "soft_square") {
+    return (
+      <div
+        role="progressbar"
+        aria-label="Loading"
+        style={{
+          width: size * 0.62,
+          height: size * 0.62,
+          borderRadius: size * 0.16,
+          border: `${Math.max(3, Math.round(size * 0.045))}px solid ${primary}`,
+          borderTopColor: "transparent",
+          borderRightColor: secondary,
+          animation: `frelux-loader-orbit ${Math.round(1.7 * mult * 100) / 100}s linear infinite`,
+        }}
+      />
+    );
+  }
+
+  if (config.style === "fade_dot") {
+    return (
+      <div
+        role="progressbar"
+        aria-label="Loading"
+        className="flex items-center justify-center"
+        style={{ width: size, height: size }}
+      >
+        <div
+          className="rounded-full"
+          style={{
+            width: size * 0.3,
+            height: size * 0.3,
+            background: `linear-gradient(135deg, ${primary}, ${secondary})`,
+            animation: `frelux-loader-pulse ${Math.round(1.5 * mult * 100) / 100}s ease-in-out infinite`,
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (config.style === "blades") {
+    // Eight blades on a static 45 degree grid, each fading on a stagger. That
+    // is the classic shape without a per-frame JS tick or a new keyframe.
+    return (
+      <div
+        role="progressbar"
+        aria-label="Loading"
+        className="relative"
+        style={{ width: size, height: size }}
+      >
+        {Array.from({ length: 8 }, (_, i) => (
+          <div
+            key={i}
+            className="absolute left-1/2 top-1/2 origin-top"
+            style={{
+              width: Math.max(3, Math.round(size * 0.06)),
+              height: size * 0.24,
+              marginLeft: -Math.max(3, Math.round(size * 0.06)) / 2,
+              borderRadius: 999,
+              backgroundColor: i % 2 === 0 ? primary : secondary,
+              transform: `rotate(${i * 45}deg) translateY(${-size * 0.46}px)`,
+              animation: `frelux-loader-pulse ${Math.round(1.1 * mult * 100) / 100}s linear infinite`,
+              animationDelay: `${(i * 0.11).toFixed(2)}s`,
+            }}
+          />
+        ))}
       </div>
     );
   }

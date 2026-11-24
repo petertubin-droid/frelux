@@ -21,6 +21,7 @@ import { MAINTENANCE_PRESETS } from "@/config/maintenance-presets";
 import { invalidateHeroContentCache } from "@/lib/useHeroContent";
 import {
   DEFAULT_LOADER_CONFIG,
+  LOADER_CATEGORY_ORDER,
   LOADER_STYLE_OPTIONS,
   LoaderVisual,
   invalidateLoaderConfigCache,
@@ -761,11 +762,21 @@ export default function AdminSettings() {
                   value={(loader ?? DEFAULT_LOADER_CONFIG).style}
                   onChange={(e) => updateLoader({ style: e.target.value })}
                 >
-                  {LOADER_STYLE_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>
-                      {o.label}
-                    </option>
-                  ))}
+                  {LOADER_CATEGORY_ORDER.map((group) => {
+                    const options = LOADER_STYLE_OPTIONS.filter(
+                      (o) => o.category === group.value,
+                    );
+                    if (options.length === 0) return null;
+                    return (
+                      <optgroup key={group.value} label={group.label}>
+                        {options.map((o) => (
+                          <option key={o.value} value={o.value}>
+                            {o.label}
+                          </option>
+                        ))}
+                      </optgroup>
+                    );
+                  })}
                 </AdminSelect>
               </AdminField>
 

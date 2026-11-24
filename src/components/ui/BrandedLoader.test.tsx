@@ -2,7 +2,9 @@ import { describe, it, expect, vi } from "vitest";
 import { render, screen } from "@testing-library/react";
 import BrandedLoader, {
   DEFAULT_LOADER_CONFIG,
+  LOADER_CATEGORY_ORDER,
   LOADER_STYLE_OPTIONS,
+  LOADER_STYLE_VALUES,
   LoaderVisual,
 } from "@/components/ui/BrandedLoader";
 
@@ -33,6 +35,32 @@ describe("BrandedLoader", () => {
   it("keeps the mark off unless an admin asks for it", () => {
     // The mark is available, but the premium default is the bare ring.
     expect(DEFAULT_LOADER_CONFIG.show_logo).toBe(false);
+  });
+
+  it("offers 16 styles, five or more of them premium circles", () => {
+    expect(LOADER_STYLE_OPTIONS).toHaveLength(16);
+    const count = (c: string) =>
+      LOADER_STYLE_OPTIONS.filter((o) => o.category === c).length;
+    // The admin picker groups by category, so every group needs a member and
+    // the totals must add up to the whole list.
+    expect(count("premium")).toBeGreaterThanOrEqual(5);
+    expect(count("simple")).toBeGreaterThanOrEqual(5);
+    expect(count("classic")).toBeGreaterThanOrEqual(2);
+    expect(count("standard")).toBeGreaterThanOrEqual(3);
+    expect(
+      count("premium") + count("simple") + count("classic") + count("standard"),
+    ).toBe(LOADER_STYLE_OPTIONS.length);
+    for (const group of LOADER_CATEGORY_ORDER) {
+      expect(count(group.value), group.label).toBeGreaterThan(0);
+    }
+  });
+
+  it("keeps every style value unique and inside the allowed set", () => {
+    const values = LOADER_STYLE_OPTIONS.map((o) => o.value);
+    expect(new Set(values).size).toBe(values.length);
+    for (const value of values) {
+      expect(LOADER_STYLE_VALUES).toContain(value);
+    }
   });
 
   it("renders every selectable loader style without crashing", () => {

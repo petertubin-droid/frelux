@@ -47,11 +47,15 @@ vi.mock("@/lib/useHeroContent", () => ({
 
 vi.mock("@/components/ui/BrandedLoader", () => ({
   DEFAULT_LOADER_CONFIG: {},
+  LOADER_CATEGORY_ORDER: [
+    { value: "premium", label: "Premium", hint: "Brand-forward circles" },
+  ],
   LOADER_STYLE_OPTIONS: [
     {
       value: "gradient_ring",
       label: "Aurora Ring",
       description: "Default ring",
+      category: "premium",
     },
   ],
   LoaderVisual: () => <div data-testid="loader-visual">Loader</div>,
