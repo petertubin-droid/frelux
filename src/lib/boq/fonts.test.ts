@@ -31,3 +31,50 @@ describe("BOQ font coverage", () => {
     expect(error.message).toMatch(/Print/);
   });
 });
+
+describe("print fallback for unshaped scripts", () => {
+  it("builds a summary view with the same figures and no line schedule", async () => {
+    const { boqSummaryPrintHtml } = await import("./print");
+    const { compileBoq } = await import("./compile");
+    const { createEmptyDocument } = await import("./types");
+    const base = createEmptyDocument({
+      currency: "SAR",
+      marketCode: "SA",
+      standard: "Commercial",
+      templateSlug: "sa-commercial",
+      preparedBy: "QS Team",
+    });
+    const studio = {
+      ...base,
+      title: "أعمال الخرسانة",
+      reference: "SA-001",
+      sections: [
+        {
+          id: "s1",
+          code: "05",
+          title: "أعمال الخرسانة",
+          notes: "",
+          items: [
+            {
+              id: "i1",
+              item_number: "05.01",
+              description: "خرسانة مسلحة",
+              specificationRef: "",
+              unit: "m3",
+              quantity: 10,
+              material_rate: 300,
+              labour_rate: 100,
+              plant_rate: 0,
+            },
+          ],
+        },
+      ],
+    } as never;
+    const compiled = compileBoq(studio);
+    const html = boqSummaryPrintHtml(compiled.standard, compiled.document);
+    expect(html).toContain("أعمال الخرسانة");
+    expect(html).toContain("Net payable");
+    expect(html).not.toContain("05.01");
+    expect(html).toContain("window.print()");
+  });
+});

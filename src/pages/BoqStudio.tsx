@@ -63,7 +63,12 @@ import { useDisplayCurrency } from "@/lib/international/currency-context";
 import { useLanguage } from "@/lib/i18n";
 import { UnrenderableScriptError } from "@/lib/boq/fonts";
 import { downloadBoqPdf } from "@/lib/boq/pdf";
-import { openBoqPrint } from "@/lib/boq/print";
+import {
+  boqStudioPrintHtml,
+  boqSummaryPrintHtml,
+  openBoqPrint,
+  openPrintHtml,
+} from "@/lib/boq/print";
 import { NumericInput } from "@/components/ui/NumericInput";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
@@ -143,8 +148,8 @@ export default function BoqStudio() {
     if (!doc) return;
     setDoc(convertSurveyToPriced(doc));
     toast.success(
-      "Converted to a priced quote. The captured market rates are kept as line rates.",
-    );
+        t("Converted to a priced quote. The captured market rates are kept as line rates."),
+      );
   };
 
   const refreshLibrary = useCallback(async () => {
@@ -231,8 +236,8 @@ export default function BoqStudio() {
     setDocumentId(null);
     setIsSampleActive(true);
     toast.success(
-      "Loaded verified sample 3-bedroom bungalow BOQ with blockchain proof.",
-    );
+        t("Loaded verified sample 3-bedroom bungalow BOQ with blockchain proof."),
+      );
   };
 
   const patch = (changes: Partial<BoqStudioDocument>) =>
@@ -325,7 +330,9 @@ export default function BoqStudio() {
     if (!doc) return;
     const chosen = importPreviews.filter((p) => selectedImports[p.record.ref]);
     if (chosen.length === 0) {
-      toast.error("Select at least one saved calculation to import.");
+      toast.error(
+        t("Select at least one saved calculation to import."),
+      );
       return;
     }
     const allLines = chosen.flatMap((p) => p.lines);
@@ -365,7 +372,9 @@ export default function BoqStudio() {
           document: doc,
           totals: compiled?.standard.summary ?? null,
         });
-      toast.success("BOQ saved.");
+      toast.success(
+        t("BOQ saved."),
+      );
       void refreshLibrary();
     } catch (error) {
       toast.error(
@@ -421,11 +430,22 @@ export default function BoqStudio() {
         t("Free FRELUX summary BOQ downloaded. Line-level details are excluded."),
       );
     } catch (error) {
-      toast.error(
-        error instanceof UnrenderableScriptError
-          ? error.message
-          : getSafeError(error),
-      );
+      if (error instanceof UnrenderableScriptError && compiled) {
+        // The PDF engine cannot draw this script; the browser can. Same
+        // figures, printed from HTML, with no claim that a PDF was produced.
+        const opened = openPrintHtml(
+          boqSummaryPrintHtml(compiled.standard, compiled.document),
+        );
+        toast.error(
+          opened
+            ? t(
+                "This script needs browser text shaping, so the summary opened in the print view. Choose Save as PDF there.",
+              )
+            : t("The print view was blocked. Allow pop-ups to print this document."),
+        );
+        return;
+      }
+      toast.error(getSafeError(error));
     } finally {
       setBusy(false);
     }
@@ -478,15 +498,27 @@ export default function BoqStudio() {
         );
       } else {
         toast.success(
-          "FRELUX-branded BOQ PDF downloaded without blockchain verification.",
-        );
+        t("FRELUX-branded BOQ PDF downloaded without blockchain verification."),
+      );
       }
     } catch (error) {
-      toast.error(
-        error instanceof UnrenderableScriptError
-          ? error.message
-          : getSafeError(error),
-      );
+      if (error instanceof UnrenderableScriptError && compiled) {
+        // A verified PDF cannot be produced for this script (the engine has no
+        // shaping), so the document is printed instead. Nothing is claimed
+        // about a blockchain anchor, because none was created.
+        const opened = openPrintHtml(
+          boqStudioPrintHtml(compiled.standard, compiled.document),
+        );
+        toast.error(
+          opened
+            ? t(
+                "This script needs browser text shaping, so the document opened in the print view and was not blockchain-verified. Choose Save as PDF there.",
+              )
+            : t("The print view was blocked. Allow pop-ups to print this document."),
+        );
+        return;
+      }
+      toast.error(getSafeError(error));
     } finally {
       setBusy(false);
     }
@@ -545,7 +577,7 @@ export default function BoqStudio() {
     if (!doc || !compiled || !guardExport()) return;
     if (!documentId) {
       toast.error(
-        "Save the document first, so the link points at a stored quotation.",
+        t("Save the document first, so the link points at a stored quotation."),
       );
       return;
     }
@@ -561,7 +593,9 @@ export default function BoqStudio() {
       }
       setShareToken(token);
       setShareSnapshot(snapshot);
-      toast.success("Share link created.");
+      toast.success(
+        t("Share link created."),
+      );
     } catch (error) {
       toast.error(
         error instanceof UnrenderableScriptError
@@ -576,9 +610,13 @@ export default function BoqStudio() {
   const copyShareLink = async (url: string) => {
     try {
       await navigator.clipboard.writeText(url);
-      toast.success("Link copied.");
+      toast.success(
+        t("Link copied."),
+      );
     } catch {
-      toast.error("Copy failed. Select the link and copy it manually.");
+      toast.error(
+        t("Copy failed. Select the link and copy it manually."),
+      );
     }
   };
 
@@ -591,7 +629,9 @@ export default function BoqStudio() {
     }
     setShareToken(null);
     setShareSnapshot(null);
-    toast.success("Share link revoked. The link no longer opens.");
+    toast.success(
+        t("Share link revoked. The link no longer opens."),
+      );
   };
 
   const money = (value: number) =>
@@ -615,15 +655,15 @@ export default function BoqStudio() {
         onPrintRequested={exportPrint}
       >
         <PageHeader
-          title="Bill of Quantities Studio"
-          subtitle="Turn validated calculator results into a structured, exportable BOQ."
+          title={t("Bill of Quantities Studio")}
+          subtitle={t("Turn validated calculator results into a structured, exportable BOQ.")}
         />
 
         <div className="mb-6 grid gap-3 sm:grid-cols-[1fr_auto_auto_auto]">
           <div>
             <label className={LABEL}>Template</label>
             <select
-              aria-label="Template"
+              aria-label={t("Template")}
               className={FIELD}
               value={templateSlug}
               onChange={(e) => setTemplateSlug(e.target.value)}
@@ -640,14 +680,14 @@ export default function BoqStudio() {
             onClick={startNewDocument}
             className="mt-5 h-10 rounded-lg bg-slate-900 px-4 text-sm font-semibold text-white transition hover:bg-slate-800"
           >
-            New BOQ
+            {t("New BOQ")}
           </button>
           <button
             type="button"
             onClick={loadSampleVerifiedBoq}
             className="mt-5 h-10 rounded-lg border border-emerald-600 bg-emerald-50 px-4 text-sm font-semibold text-emerald-800 transition hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-600/50 dark:hover:bg-emerald-950/70"
           >
-            View Sample Verified BOQ
+            {t("View Sample Verified BOQ")}
           </button>
           {doc && (
             <button
@@ -665,11 +705,10 @@ export default function BoqStudio() {
           <div className="grid gap-4 md:grid-cols-2">
             <div className={CARD}>
               <h2 className="text-sm font-semibold text-slate-900">
-                Start a bill of quantities
+                {t("Start a bill of quantities")}
               </h2>
               <p className="mt-2 text-sm text-slate-600">
-                Pick a template and create a document. Sections come from the
-                FRELUX standard library and stay editable.
+                {t("Pick a template and create a document. Sections come from the FRELUX standard library and stay editable.")}
               </p>
               <p className="mt-4 rounded-lg bg-amber-50 p-3 text-xs text-amber-800">
                 {sources.length > 0
@@ -684,7 +723,7 @@ export default function BoqStudio() {
                 <p className="mt-1 text-xs text-emerald-800/80 dark:text-emerald-300/80 leading-relaxed">
                   Inspect a completed 180 m² 3-bedroom bungalow takeoff
                   calibrated by registered civil quantity surveyors with live
-                  SHA-256 cryptographic attestation before entering your own
+                  {t("SHA-256 cryptographic attestation before entering your own")}
                   project.
                 </p>
                 <button
@@ -698,11 +737,11 @@ export default function BoqStudio() {
             </div>
             <div className={CARD}>
               <h2 className="text-sm font-semibold text-slate-900">
-                Your BOQ documents
+                {t("Your BOQ documents")}
               </h2>
               {documents.length === 0 ? (
                 <p className="mt-2 text-sm text-slate-500">
-                  Nothing saved yet.
+                  {t("Nothing saved yet.")}
                 </p>
               ) : (
                 <ul className="mt-3 divide-y divide-slate-100">
@@ -743,25 +782,24 @@ export default function BoqStudio() {
                     <div className="flex flex-wrap items-center gap-2">
                       <ShieldCheck className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
                       <span className="text-base font-semibold">
-                        Sample Verified BOQ & Immutable Cryptographic
-                        Attestation
+                        {t("Sample Verified BOQ & Immutable Cryptographic Attestation")}
                       </span>
                       <span className="inline-flex items-center rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:text-emerald-300">
                         {SAMPLE_BUNGALOW_VERIFICATION.status}
                       </span>
                     </div>
                     <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
-                      This sample provides zero-user engineering authority
+                      {t("This sample provides zero-user engineering authority")}
                       through real civil takeoff mathematics. The complete 180
                       m² 3-bedroom bungalow schedule is cryptographically
                       fingerprinted with SHA-256 and anchored via
-                      OpenTimestamps. Any modification to a rate or quantity
+                      {t("OpenTimestamps. Any modification to a rate or quantity")}
                       immediately breaks the hash.
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1 text-xs">
                       <div className="rounded-lg bg-white/70 p-2 border border-emerald-200/60 dark:bg-black/20 dark:border-white/5">
                         <span className="text-muted-foreground block text-[11px]">
-                          Verification Record
+                          {t("Verification Record")}
                         </span>
                         <span className="font-mono font-semibold text-foreground">
                           {SAMPLE_BUNGALOW_VERIFICATION.verificationId}
@@ -769,7 +807,7 @@ export default function BoqStudio() {
                       </div>
                       <div className="rounded-lg bg-white/70 p-2 border border-emerald-200/60 dark:bg-black/20 dark:border-white/5">
                         <span className="text-muted-foreground block text-[11px]">
-                          Calibrated By
+                          {t("Calibrated By")}
                         </span>
                         <span className="font-semibold text-foreground">
                           {SAMPLE_BUNGALOW_VERIFICATION.reviewerName}
@@ -777,7 +815,7 @@ export default function BoqStudio() {
                       </div>
                       <div className="rounded-lg bg-white/70 p-2 border border-emerald-200/60 dark:bg-black/20 dark:border-white/5 sm:col-span-2 lg:col-span-1">
                         <span className="text-muted-foreground block text-[11px]">
-                          Governing Standards
+                          {t("Governing Standards")}
                         </span>
                         <span className="font-semibold text-foreground truncate block">
                           {SAMPLE_BUNGALOW_VERIFICATION.governingStandards}
@@ -818,10 +856,10 @@ export default function BoqStudio() {
 
             <section className={CARD}>
               <h2 className="mb-1 text-sm font-semibold text-slate-900">
-                Quote type
+                {t("Quote type")}
               </h2>
               <p className="mb-3 text-xs text-slate-500">
-                The quantities are identical in both types. Only the price layer
+                {t("The quantities are identical in both types. Only the price layer")}
                 differs.
               </p>
               <div className="grid gap-2 sm:grid-cols-2">
@@ -836,10 +874,10 @@ export default function BoqStudio() {
                   }`}
                 >
                   <span className="block text-sm font-semibold text-slate-900">
-                    Priced quote
+                    {t("Priced quote")}
                   </span>
                   <span className="mt-1 block text-xs text-slate-600">
-                    Rates and a contract total, with your commercial build-up.
+                    {t("Rates and a contract total, with your commercial build-up.")}
                   </span>
                 </button>
                 <button
@@ -853,10 +891,10 @@ export default function BoqStudio() {
                   }`}
                 >
                   <span className="block text-sm font-semibold text-slate-900">
-                    Market survey quote
+                    {t("Market survey quote")}
                   </span>
                   <span className="mt-1 block text-xs text-slate-600">
-                    Exact quantities and units with no prices, ready to price in
+                    {t("Exact quantities and units with no prices, ready to price in")}
                     the market.
                   </span>
                 </button>
@@ -865,13 +903,13 @@ export default function BoqStudio() {
 
             <section className={CARD}>
               <h2 className="mb-4 text-sm font-semibold text-slate-900">
-                Project details
+                {t("Project details")}
               </h2>
               <div className="grid gap-3 md:grid-cols-3">
                 <div>
                   <label className={LABEL}>BOQ reference</label>
                   <input
-                    aria-label="BOQ reference"
+                    aria-label={t("BOQ reference")}
                     className={FIELD}
                     value={doc.reference}
                     onChange={(e) => patch({ reference: e.target.value })}
@@ -880,7 +918,7 @@ export default function BoqStudio() {
                 <div className="md:col-span-2">
                   <label className={LABEL}>Project title</label>
                   <input
-                    aria-label="Project title"
+                    aria-label={t("Project title")}
                     className={FIELD}
                     value={doc.title}
                     onChange={(e) => patch({ title: e.target.value })}
@@ -889,7 +927,7 @@ export default function BoqStudio() {
                 <div className="md:col-span-3">
                   <label className={LABEL}>Description</label>
                   <textarea
-                    aria-label="Description"
+                    aria-label={t("Description")}
                     className={`${FIELD} min-h-[70px]`}
                     value={doc.description}
                     onChange={(e) => patch({ description: e.target.value })}
@@ -898,7 +936,7 @@ export default function BoqStudio() {
                 <div>
                   <label className={LABEL}>Currency</label>
                   <input
-                    aria-label="Currency"
+                    aria-label={t("Currency")}
                     className={FIELD}
                     value={doc.currency}
                     onChange={(e) =>
@@ -909,7 +947,7 @@ export default function BoqStudio() {
                 <div>
                   <label className={LABEL}>Measurement system</label>
                   <select
-                    aria-label="Measurement system"
+                    aria-label={t("Measurement system")}
                     className={FIELD}
                     value={doc.measurement_system}
                     onChange={(e) =>
@@ -928,7 +966,7 @@ export default function BoqStudio() {
                 <div>
                   <label className={LABEL}>Market</label>
                   <input
-                    aria-label="Market"
+                    aria-label={t("Market")}
                     className={FIELD}
                     value={doc.market_code}
                     onChange={(e) =>
@@ -939,7 +977,7 @@ export default function BoqStudio() {
                 <div>
                   <label className={LABEL}>Client name</label>
                   <input
-                    aria-label="Client name"
+                    aria-label={t("Client name")}
                     className={FIELD}
                     value={doc.client.name}
                     onChange={(e) =>
@@ -949,10 +987,10 @@ export default function BoqStudio() {
                 </div>
                 <div>
                   <label className={LABEL}>
-                    Client address / site location
+                    {t("Client address / site location")}
                   </label>
                   <input
-                    aria-label="Client address / site location"
+                    aria-label={t("Client address / site location")}
                     className={FIELD}
                     value={doc.client.address ?? ""}
                     onChange={(e) =>
@@ -965,7 +1003,7 @@ export default function BoqStudio() {
                 <div>
                   <label className={LABEL}>Contractor</label>
                   <input
-                    aria-label="Contractor"
+                    aria-label={t("Contractor")}
                     className={FIELD}
                     value={doc.contractor.name}
                     onChange={(e) =>
@@ -978,7 +1016,7 @@ export default function BoqStudio() {
                 <div>
                   <label className={LABEL}>Prepared by</label>
                   <input
-                    aria-label="Prepared by"
+                    aria-label={t("Prepared by")}
                     className={FIELD}
                     value={doc.prepared_by}
                     onChange={(e) => patch({ prepared_by: e.target.value })}
@@ -987,7 +1025,7 @@ export default function BoqStudio() {
                 <div>
                   <label className={LABEL}>Prepared date</label>
                   <input
-                    aria-label="Prepared date"
+                    aria-label={t("Prepared date")}
                     type="date"
                     className={FIELD}
                     value={doc.prepared_date}
@@ -997,7 +1035,7 @@ export default function BoqStudio() {
                 <div>
                   <label className={LABEL}>Revision</label>
                   <NumericInput
-                    aria-label="Revision"
+                    aria-label={t("Revision")}
                     value={doc.revision}
                     min={0}
                     onValueChange={(n) => patch({ revision: n })}
@@ -1010,19 +1048,19 @@ export default function BoqStudio() {
             <section className={CARD}>
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-slate-900">
-                  Import from calculators
+                  {t("Import from calculators")}
                 </h2>
                 <button
                   type="button"
                   onClick={runImport}
                   className="rounded-lg bg-slate-900 px-3 py-1.5 text-xs font-semibold text-white hover:bg-slate-800"
                 >
-                  Import selected
+                  {t("Import selected")}
                 </button>
               </div>
               {importPreviews.length === 0 ? (
                 <p className="text-sm text-slate-500">
-                  No saved calculator results found. Save a calculation, then
+                  {t("No saved calculator results found. Save a calculation, then")}
                   import its quantities here.
                 </p>
               ) : (
@@ -1068,14 +1106,14 @@ export default function BoqStudio() {
             <section className={CARD}>
               <div className="mb-3 flex items-center justify-between">
                 <h2 className="text-sm font-semibold text-slate-900">
-                  Measured works
+                  {t("Measured works")}
                 </h2>
                 <button
                   type="button"
                   onClick={addSection}
                   className="rounded-lg border border-slate-200 px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
                 >
-                  Add section
+                  {t("Add section")}
                 </button>
               </div>
 
@@ -1121,13 +1159,13 @@ export default function BoqStudio() {
                         onClick={() => addItem(section.id)}
                         className="rounded border border-slate-200 px-2 py-1 text-xs text-slate-700 hover:bg-slate-50"
                       >
-                        Add item
+                        {t("Add item")}
                       </button>
                     </div>
 
                     {section.items.length === 0 ? (
                       <p className="py-2 text-xs text-slate-400">
-                        No items in this section.
+                        {t("No items in this section.")}
                       </p>
                     ) : (
                       <div className="overflow-x-auto">
@@ -1289,7 +1327,7 @@ export default function BoqStudio() {
               {doc.mode === "market_survey" ? (
                 <>
                   <p className="text-sm text-slate-600">
-                    Collect a rate for each line in the market and enter it
+                    {t("Collect a rate for each line in the market and enter it")}
                     against the item. Preliminaries, overhead, contingency,
                     retention and tax do not apply, so the total is the sum of
                     the collected prices.
@@ -1298,7 +1336,7 @@ export default function BoqStudio() {
                     <div>
                       <label className={LABEL}>Market or city</label>
                       <input
-                        aria-label="Market or city"
+                        aria-label={t("Market or city")}
                         className={FIELD}
                         value={doc.survey.market_city}
                         onChange={(e) =>
@@ -1314,7 +1352,7 @@ export default function BoqStudio() {
                     <div>
                       <label className={LABEL}>Survey date</label>
                       <input
-                        aria-label="Survey date"
+                        aria-label={t("Survey date")}
                         type="date"
                         className={FIELD}
                         value={doc.survey.survey_date}
@@ -1331,7 +1369,7 @@ export default function BoqStudio() {
                     <div>
                       <label className={LABEL}>Surveyed by</label>
                       <input
-                        aria-label="Surveyed by"
+                        aria-label={t("Surveyed by")}
                         className={FIELD}
                         value={doc.survey.surveyed_by}
                         onChange={(e) =>
@@ -1375,7 +1413,7 @@ export default function BoqStudio() {
                     </div>
                     <div className="flex justify-between py-1">
                       <span className="font-semibold text-slate-900">
-                        Market total
+                        {t("Market total")}
                       </span>
                       <span className="font-semibold text-slate-900">
                         {money(compiled ? compiled.survey.market_total : 0)}
@@ -1388,7 +1426,7 @@ export default function BoqStudio() {
                       onClick={handleConvertToPriced}
                       className="mt-3 h-9 rounded-lg bg-slate-900 px-3 text-xs font-semibold text-white transition hover:bg-slate-800"
                     >
-                      Convert to priced quote
+                      {t("Convert to priced quote")}
                     </button>
                   )}
                 </>
@@ -1425,7 +1463,7 @@ export default function BoqStudio() {
                     <div>
                       <label className={LABEL}>Tax % (blank = none)</label>
                       <input
-                        aria-label="Tax % (blank = none)"
+                        aria-label={t("Tax % (blank = none)")}
                         type="number"
                         step="0.1"
                         className={FIELD}
@@ -1501,13 +1539,13 @@ export default function BoqStudio() {
 
             <section className={CARD}>
               <h2 className="mb-4 text-sm font-semibold text-slate-900">
-                Assumptions, exclusions and review
+                {t("Assumptions, exclusions and review")}
               </h2>
               <div className="grid gap-4 md:grid-cols-2">
                 <div>
                   <label className={LABEL}>Assumptions (one per line)</label>
                   <textarea
-                    aria-label="Assumptions (one per line)"
+                    aria-label={t("Assumptions (one per line)")}
                     className={`${FIELD} min-h-[90px]`}
                     value={doc.assumptions.join("\n")}
                     onChange={(e) =>
@@ -1522,7 +1560,7 @@ export default function BoqStudio() {
                 <div>
                   <label className={LABEL}>Exclusions (one per line)</label>
                   <textarea
-                    aria-label="Exclusions (one per line)"
+                    aria-label={t("Exclusions (one per line)")}
                     className={`${FIELD} min-h-[90px]`}
                     value={doc.exclusions.join("\n")}
                     onChange={(e) =>
@@ -1537,7 +1575,7 @@ export default function BoqStudio() {
                 <div>
                   <label className={LABEL}>Reviewer name</label>
                   <input
-                    aria-label="Reviewer name"
+                    aria-label={t("Reviewer name")}
                     className={FIELD}
                     value={doc.review.reviewer_name ?? ""}
                     onChange={(e) =>
@@ -1556,14 +1594,13 @@ export default function BoqStudio() {
                     }
                   />
                   <p className="mt-1 text-xs text-slate-500">
-                    Naming a qualified reviewer switches the document off
-                    Preliminary. Leave blank to keep it marked preliminary.
+                    {t("Naming a qualified reviewer switches the document off Preliminary. Leave blank to keep it marked preliminary.")}
                   </p>
                 </div>
                 <div>
                   <label className={LABEL}>Reviewer qualification</label>
                   <input
-                    aria-label="Reviewer qualification"
+                    aria-label={t("Reviewer qualification")}
                     className={FIELD}
                     value={doc.review.reviewer_qualification ?? ""}
                     onChange={(e) =>
@@ -1574,7 +1611,7 @@ export default function BoqStudio() {
                         },
                       })
                     }
-                    placeholder="e.g. QS, MNIQS"
+                    placeholder={t("e.g. QS, MNIQS")}
                   />
                 </div>
               </div>
@@ -1588,7 +1625,7 @@ export default function BoqStudio() {
                 Export
               </h2>
               <p className="mb-3 text-xs text-slate-600">
-                Free accounts can download a FRELUX-branded summary PDF. The
+                {t("Free accounts can download a FRELUX-branded summary PDF. The")}
                 full FRELUX PDF without blockchain verification is also free;
                 the verified, contractor-branded PDF and editable tender
                 schedules are subscriber/admin exports.
@@ -1600,7 +1637,7 @@ export default function BoqStudio() {
                   disabled={busy}
                   className="rounded-lg border border-blue-300 bg-blue-50 px-4 py-2 text-sm font-semibold text-blue-900 hover:bg-blue-100 disabled:opacity-60"
                 >
-                  Download free summary PDF
+                  {t("Download free summary PDF")}
                 </button>
                 <button
                   type="button"
@@ -1637,11 +1674,11 @@ export default function BoqStudio() {
                   onClick={exportPrint}
                   className="rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 hover:bg-slate-50"
                 >
-                  Print view
+                  {t("Print view")}
                 </button>
               </div>
               <p className="mt-3 text-xs text-slate-500">
-                The free summary omits item-level quantities and rates. Editable
+                {t("The free summary omits item-level quantities and rates. Editable")}
                 schedules preserve numeric quantities and rates. Verified
                 exports include a FRELUX VERIFY seal and are anchored only when
                 the provider returns a verification ID.
@@ -1650,13 +1687,13 @@ export default function BoqStudio() {
 
             <section className={CARD}>
               <h2 className="mb-2 text-sm font-semibold text-slate-900">
-                Share as quotation
+                {t("Share as quotation")}
               </h2>
               <p className="text-xs text-slate-600">
                 {doc.mode === "market_survey"
                   ? "Sends the measured quantities with the rate columns blank, so the recipient can price them in the market and total them."
                   : "Sends the priced quotation with its totals, sealed as a snapshot that later edits cannot change."}{" "}
-                The link can be revoked at any time.
+                {t("The link can be revoked at any time.")}
               </p>
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <button
@@ -1673,7 +1710,7 @@ export default function BoqStudio() {
                 </button>
                 {!documentId && (
                   <span className="text-xs text-amber-700">
-                    Save the document to enable sharing.
+                    {t("Save the document to enable sharing.")}
                   </span>
                 )}
               </div>
@@ -1684,7 +1721,7 @@ export default function BoqStudio() {
                     value={quoteShareUrl(shareToken)}
                     onFocus={(event) => event.currentTarget.select()}
                     className={FIELD}
-                    aria-label="Share link"
+                    aria-label={t("Share link")}
                   />
                   <div className="flex flex-wrap gap-2">
                     <button
@@ -1694,7 +1731,7 @@ export default function BoqStudio() {
                       }
                       className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50"
                     >
-                      Copy link
+                      {t("Copy link")}
                     </button>
                     <a
                       href={`https://wa.me/?text=${encodeURIComponent(
@@ -1707,7 +1744,7 @@ export default function BoqStudio() {
                       rel="noopener noreferrer"
                       className="rounded-lg border border-slate-300 px-3 py-1.5 text-xs font-semibold text-slate-800 hover:bg-slate-50"
                     >
-                      WhatsApp
+                      {t("WhatsApp")}
                     </a>
                     <a
                       href={`mailto:?subject=${encodeURIComponent(
@@ -1727,7 +1764,7 @@ export default function BoqStudio() {
                       onClick={() => void revokeShareLink()}
                       className="rounded-lg border border-rose-300 px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-50"
                     >
-                      Revoke link
+                      {t("Revoke link")}
                     </button>
                   </div>
                 </div>
@@ -1736,7 +1773,7 @@ export default function BoqStudio() {
 
             <section className={CARD}>
               <h2 className="mb-2 text-sm font-semibold text-slate-900">
-                Templates available
+                {t("Templates available")}
               </h2>
               <ul className="grid gap-2 sm:grid-cols-2">
                 {templates.map((t) => (
@@ -1755,7 +1792,7 @@ export default function BoqStudio() {
                 ))}
               </ul>
               <p className="mt-3 text-xs text-slate-500">
-                Administrators manage templates, standard sections and export
+                {t("Administrators manage templates, standard sections and export")}
                 settings in Admin → BOQ templates. Supported imports:{" "}
                 {Object.values(CALCULATOR_SECTIONS)
                   .map((c) => c.label)

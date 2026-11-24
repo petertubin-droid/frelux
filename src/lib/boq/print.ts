@@ -11,6 +11,7 @@ import {
   exportBoqToPrintHtml,
   type StandardBoqDocument,
 } from "@/lib/finance/boq-standard";
+import { formatByCode } from "@/lib/international/currency-format";
 import { documentStatusLabel } from "./compile";
 import type { BoqStudioDocument } from "./types";
 import { verifyPageUrl, verifySealCopy } from "@/lib/blockchain/verify-seal";
@@ -191,4 +192,80 @@ export async function openBoqPrint(
   win.document.write(html);
   win.document.close();
   win.focus();
+}
+
+
+/**
+ * Summary print view: the same figures as the free PDF, rendered by the browser.
+ *
+ * It exists because jsPDF cannot shape Arabic or Indic text and has no CJK
+ * glyphs. The browser can do all three, so a document whose script the PDF
+ * engine cannot draw is printed from HTML instead of being refused.
+ */
+export function boqSummaryPrintHtml(
+  standard: StandardBoqDocument,
+  studio: BoqStudioDocument,
+): string {
+  const { metadata, summary } = standard;
+  const cur = metadata.currency || "XXX";
+  const fmt = (n: number) => formatByCode(n, cur, { decimals: "native" });
+  const row = (label: string, value: number, strong = false) =>
+    `<tr${strong ? ' class="strong"' : ""}><td>${escapeHtml(label)}</td><td>${escapeHtml(fmt(value))}</td></tr>`;
+
+  const rows = [
+    row("Measured works", summary.measuredWorksTotal),
+    summary.preliminariesAmount ? row("Preliminaries", summary.preliminariesAmount) : "",
+    summary.contingencyAmount ? row("Contingency", summary.contingencyAmount) : "",
+    summary.taxAmount ? row("Tax", summary.taxAmount) : "",
+    summary.retentionAmount ? row("Retention / holdback", summary.retentionAmount) : "",
+    row("Net payable", summary.netPayableTotal, true),
+  ].join("");
+
+  const title = escapeHtml(studio.title || "Bill of Quantities");
+  const reference = escapeHtml(studio.reference || "No reference");
+  const client = escapeHtml(studio.client?.name || "");
+
+  return `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>${title}</title>
+<style>
+  @page { size: A4; margin: 16mm; }
+  body { font-family: system-ui, -apple-system, "Segoe UI", sans-serif; color: #0f172a; margin: 0; }
+  header { border-bottom: 2px solid #0f172a; padding-bottom: 10px; margin-bottom: 16px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .meta { font-size: 12px; color: #475569; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  td { padding: 6px 4px; border-bottom: 1px solid #e2e8f0; }
+  td:last-child { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.strong td { font-weight: 700; border-top: 2px solid #0f172a; }
+  .note { margin-top: 18px; font-size: 11px; color: #64748b; line-height: 1.5; }
+</style>
+</head>
+<body>
+<header>
+  <h1>${title}</h1>
+  <p class="meta">${reference} &middot; R${studio.revision}${client ? ` &middot; ${client}` : ""}</p>
+</header>
+<table>${rows}</table>
+<p class="note">Summary preview: line-level quantities, specifications, and rates are omitted. This preliminary estimate is not a tender schedule or professional certification.</p>
+<script>window.addEventListener("load", function () { window.print(); });</script>
+</body>
+</html>`;
+}
+
+/**
+ * Open an HTML document in a new tab and let the browser print it.
+ *
+ * Returns false when the popup was blocked, so the caller can say so instead
+ * of pretending a window opened.
+ */
+export function openPrintHtml(html: string): boolean {
+  const win = window.open("", "_blank");
+  if (!win) return false;
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+  return true;
 }
