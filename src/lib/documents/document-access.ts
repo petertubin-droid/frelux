@@ -213,8 +213,7 @@ export async function startPrintCheckout(params: {
 
   const { data: auth } = await supabase.auth.getUser();
   const user = auth?.user;
-  if (!user)
-    return { ok: false, error: "Sign in to print this document." };
+  if (!user) return { ok: false, error: "Sign in to print this document." };
 
   const fn =
     params.gateway === "nowpayments"
@@ -330,6 +329,13 @@ export function canExportDocuments(
 ): boolean {
   if (!auth) return false;
   return Boolean(auth.isAdmin || auth.isPaid);
+}
+
+/** A signed-up account may download the non-verified BOQ summary preview. */
+export function canExportBoqSummary(
+  auth?: { isRegistered?: boolean } | null,
+): boolean {
+  return Boolean(auth?.isRegistered);
 }
 
 /**

@@ -23,6 +23,7 @@ const {
   isDocumentPrintUnlocked,
   purchasePrintPass,
   canExportDocuments,
+  canExportBoqSummary,
   canPrintDocument,
 } = await import("./document-access");
 
@@ -130,6 +131,12 @@ describe("purchase is server verified", () => {
 });
 
 describe("gate rules", () => {
+  it("allows BOQ summary downloads to signed-up free accounts only", () => {
+    expect(canExportBoqSummary(null)).toBe(false);
+    expect(canExportBoqSummary({ isRegistered: false })).toBe(false);
+    expect(canExportBoqSummary({ isRegistered: true })).toBe(true);
+  });
+
   it("lets subscribers and admins export", () => {
     expect(canExportDocuments(null)).toBe(false);
     expect(canExportDocuments({ isPaid: true })).toBe(true);

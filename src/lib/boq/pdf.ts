@@ -20,6 +20,8 @@ import {
   verifySealBottomY,
 } from "@/lib/blockchain/verify-seal";
 import type { BoqStudioDocument } from "./types";
+import type { ResolvedBranding } from "@/lib/brand-studio";
+import { applyJspdfHeader, applyJspdfWatermark } from "@/lib/pdf-branding";
 
 const BRAND = { r: 15, g: 23, b: 42 };
 const ACCENT = { r: 37, g: 99, b: 235 };
@@ -38,6 +40,12 @@ export interface BoqPdfOptions {
   verify?: boolean;
   /** Token printed in the QR; when set, the export also hosts a copy. */
   copyToken?: string;
+  /** Summary preview hides line-level quantities, rates, and specifications. */
+  summaryOnly?: boolean;
+  /** Use the BOQ contractor identity as the paid export header brand. */
+  customBranding?: boolean;
+  /** User brand profile, when Brand Studio access is enabled. */
+  branding?: ResolvedBranding;
 }
 
 function money(amount: number, currency: string): string {
@@ -70,38 +78,63 @@ export async function buildBoqPdf(
   let y = margin;
 
   const drawHeader = () => {
-    // Faint mark first, so it always sits under the table content.
-    drawFreluxWatermark(doc, { pageWidth, pageHeight, opacity: 0.05 });
-    doc.setFillColor(BRAND.r, BRAND.g, BRAND.b);
-    doc.rect(0, 0, pageWidth, 18, "F");
-    doc.setTextColor(255, 255, 255);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(13);
-    doc.text("FRELUX", margin, 11);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(9);
-    doc.text(
-      isSurvey ? "Market survey schedule" : "Bill of Quantities",
-      margin + 26,
-      11,
-    );
-    const mark = drawFreluxMark(doc, {
-      pageWidth,
-      margin,
-      heightMm: 7.5,
-      top: 5.2,
-      plate: true,
-    });
-    doc.text(
-      `${studio.reference || "No reference"}  ·  R${studio.revision}`,
-      pageWidth - margin - (mark ? mark.width + 6 : 0),
-      11,
-      {
-        align: "right",
-      },
-    );
-    y = 26;
-    doc.setTextColor(0, 0, 0);
+    if (options.branding) {
+      if (options.branding.watermark.enabled) {
+        applyJspdfWatermark(doc, options.branding, pageWidth, pageHeight);
+      }
+      y = applyJspdfHeader(
+        doc,
+        options.branding,
+        options.branding.templateConfig,
+        pageWidth,
+        margin,
+        4,
+      );
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8);
+      doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
+      doc.text(
+        `${isSurvey ? "Market survey schedule" : "Bill of Quantities"}  ·  ${studio.reference || "No reference"}  ·  R${studio.revision}`,
+        margin,
+        y,
+      );
+      y += 8;
+      doc.setTextColor(0, 0, 0);
+    } else {
+      // Faint FRELUX mark first, so it always sits under table content.
+      drawFreluxWatermark(doc, { pageWidth, pageHeight, opacity: 0.05 });
+      doc.setFillColor(BRAND.r, BRAND.g, BRAND.b);
+      doc.rect(0, 0, pageWidth, 18, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(13);
+      const headerBrand = options.customBranding
+        ? studio.contractor.name.trim() || "FRELUX"
+        : "FRELUX";
+      doc.text(headerBrand, margin, 11);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9);
+      doc.text(
+        isSurvey ? "Market survey schedule" : "Bill of Quantities",
+        margin + 26,
+        11,
+      );
+      const mark = drawFreluxMark(doc, {
+        pageWidth,
+        margin,
+        heightMm: 7.5,
+        top: 5.2,
+        plate: true,
+      });
+      doc.text(
+        `${studio.reference || "No reference"}  ·  R${studio.revision}`,
+        pageWidth - margin - (mark ? mark.width + 6 : 0),
+        11,
+        { align: "right" },
+      );
+      y = 26;
+      doc.setTextColor(0, 0, 0);
+    }
   };
 
   const drawFooter = () => {
@@ -186,6 +219,13 @@ export async function buildBoqPdf(
   const showLabour = options.showLabourRate !== false;
 
   const columns = (() => {
+    if (options.summaryOnly) {
+      return [
+        { label: "Section", width: contentWidth - 54, align: "left" as const },
+        { label: "Items", width: 18, align: "right" as const },
+        { label: "Section total", width: 36, align: "right" as const },
+      ];
+    }
     const cols: Array<{
       label: string;
       width: number;
@@ -228,79 +268,115 @@ export async function buildBoqPdf(
 
   drawTableHead();
 
+  if (options.summaryOnly) {
+    const note =
+      "Summary preview: line-level quantities, specifications, and rates are omitted. This preliminary estimate is not a tender schedule or professional certification.";
+    const noteLines = doc.splitTextToSize(note, contentWidth) as string[];
+    doc.setFontSize(8);
+    doc.setTextColor(MUTED.r, MUTED.g, MUTED.b);
+    doc.text(noteLines, margin, y);
+    doc.setTextColor(0, 0, 0);
+    y += noteLines.length * 3.6 + 4;
+  }
+
   for (const section of standard.sections) {
     ensure(12);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(9);
-    doc.setTextColor(ACCENT.r, ACCENT.g, ACCENT.b);
-    doc.text(`${section.code}  ${section.title}`, margin, y);
-    doc.setTextColor(0, 0, 0);
-    y += 5;
-
-    for (const sub of section.subSections) {
-      for (const item of sub.items) {
-        const descLines = doc.splitTextToSize(
-          item.description,
-          columns[1].width - 2,
-        ) as string[];
-        const rowHeight = Math.max(6, descLines.length * 3.6 + 2.4);
-        if (y + rowHeight > pageHeight - 20) {
-          drawFooter();
-          doc.addPage();
-          drawHeader();
-          drawTableHead();
-        }
-        doc.setFontSize(8);
-        let x = margin + 1;
-        doc.text(item.itemNumber, x, y);
-        x += columns[0].width;
-        doc.text(descLines, x, y);
-        x += columns[1].width;
-        doc.text(item.unit, x, y);
-        x += columns[2].width;
-        doc.text(String(item.quantity), x + columns[3].width - 2, y, {
-          align: "right",
-        });
-        x += columns[3].width;
-        let ci = 4;
-        if (showMaterial) {
-          doc.text(rateText(item.materialRate), x + columns[ci].width - 2, y, {
-            align: "right",
-          });
-          x += columns[ci].width;
-          ci += 1;
-        }
-        if (showLabour) {
-          doc.text(rateText(item.laborRate), x + columns[ci].width - 2, y, {
-            align: "right",
-          });
-          x += columns[ci].width;
-          ci += 1;
-        }
-        doc.text(rateText(item.unitRate), x + columns[ci].width - 2, y, {
-          align: "right",
-        });
-        x += columns[ci].width;
-        doc.setFont("helvetica", "bold");
-        doc.text(rateText(item.totalCost), x + columns[ci].width - 2, y, {
-          align: "right",
-        });
-        doc.setFont("helvetica", "normal");
-        y += rowHeight;
-      }
+    if (!options.summaryOnly) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9);
+      doc.setTextColor(ACCENT.r, ACCENT.g, ACCENT.b);
+      doc.text(`${section.code}  ${section.title}`, margin, y);
+      doc.setTextColor(0, 0, 0);
+      y += 5;
     }
 
-    ensure(8);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(8);
-    doc.text(`Section ${section.code} total`, margin + contentWidth - 40, y, {
-      align: "right",
-    });
-    doc.text(rateText(section.sectionTotal), margin + contentWidth - 1, y, {
-      align: "right",
-    });
-    doc.setFont("helvetica", "normal");
-    y += 6;
+    if (options.summaryOnly) {
+      const count = section.subSections.reduce(
+        (sum, sub) => sum + sub.items.length,
+        0,
+      );
+      doc.setFontSize(8);
+      doc.text(`${section.code}  ${section.title}`, margin + 1, y);
+      doc.text(String(count), margin + contentWidth - 38, y, {
+        align: "right",
+      });
+      doc.setFont("helvetica", "bold");
+      doc.text(rateText(section.sectionTotal), margin + contentWidth - 1, y, {
+        align: "right",
+      });
+      doc.setFont("helvetica", "normal");
+      y += 7;
+    } else {
+      for (const sub of section.subSections) {
+        for (const item of sub.items) {
+          const descLines = doc.splitTextToSize(
+            item.description,
+            columns[1].width - 2,
+          ) as string[];
+          const rowHeight = Math.max(6, descLines.length * 3.6 + 2.4);
+          if (y + rowHeight > pageHeight - 20) {
+            drawFooter();
+            doc.addPage();
+            drawHeader();
+            drawTableHead();
+          }
+          doc.setFontSize(8);
+          let x = margin + 1;
+          doc.text(item.itemNumber, x, y);
+          x += columns[0].width;
+          doc.text(descLines, x, y);
+          x += columns[1].width;
+          doc.text(item.unit, x, y);
+          x += columns[2].width;
+          doc.text(String(item.quantity), x + columns[3].width - 2, y, {
+            align: "right",
+          });
+          x += columns[3].width;
+          let ci = 4;
+          if (showMaterial) {
+            doc.text(
+              rateText(item.materialRate),
+              x + columns[ci].width - 2,
+              y,
+              {
+                align: "right",
+              },
+            );
+            x += columns[ci].width;
+            ci += 1;
+          }
+          if (showLabour) {
+            doc.text(rateText(item.laborRate), x + columns[ci].width - 2, y, {
+              align: "right",
+            });
+            x += columns[ci].width;
+            ci += 1;
+          }
+          doc.text(rateText(item.unitRate), x + columns[ci].width - 2, y, {
+            align: "right",
+          });
+          x += columns[ci].width;
+          doc.setFont("helvetica", "bold");
+          doc.text(rateText(item.totalCost), x + columns[ci].width - 2, y, {
+            align: "right",
+          });
+          doc.setFont("helvetica", "normal");
+          y += rowHeight;
+        }
+      }
+
+      ensure(8);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(8);
+      doc.text(`Section ${section.code} total`, margin + contentWidth - 40, y, {
+        align: "right",
+      });
+      doc.text(rateText(section.sectionTotal), margin + contentWidth - 1, y, {
+        align: "right",
+      });
+      doc.setFont("helvetica", "normal");
+      y += 6;
+    }
   }
 
   // Commercial summary
@@ -381,8 +457,10 @@ export async function buildBoqPdf(
     });
   };
 
-  notesBlock("Assumptions", studio.assumptions);
-  notesBlock("Exclusions", studio.exclusions);
+  if (!options.summaryOnly) {
+    notesBlock("Assumptions", studio.assumptions);
+    notesBlock("Exclusions", studio.exclusions);
+  }
 
   if (studio.review.status === "reviewed" && studio.review.reviewer_name) {
     y += 6;
@@ -414,7 +492,7 @@ export async function buildBoqPdf(
   // FRELUX VERIFY seal (toggle-gated): printed only when the user turned it
   // on, anchored to the bottom of the last page above the footer so it closes
   // the document instead of trailing the last line of content.
-  if (options.verify === true) {
+  if (options.verify === true && !options.summaryOnly) {
     ensure(VERIFY_BLOCK_HEIGHT + 6);
     const sealY = verifySealBottomY({ pageHeight, margin, footerReserve: 10 });
     await drawVerifySeal(doc, margin, sealY, contentWidth, {
@@ -436,7 +514,7 @@ export async function downloadBoqPdf(
   // It is created before the PDF is drawn because the QR must carry it.
   const copyToken =
     options.verify === true
-      ? options.copyToken ?? createVerifyCopyToken()
+      ? (options.copyToken ?? createVerifyCopyToken())
       : undefined;
   const doc = await buildBoqPdf(standard, studio, {
     ...options,
@@ -455,7 +533,9 @@ export async function downloadBoqPdf(
       reference: studio.reference,
     },
     {
-      stampOnBlockchain: options.stampOnBlockchain ?? options.verify === true,
+      stampOnBlockchain: options.summaryOnly
+        ? false
+        : (options.stampOnBlockchain ?? options.verify === true),
       copyToken,
       documentTitle: studio.title || `BOQ ${studio.reference || "Document"}`,
       documentReference: studio.reference,

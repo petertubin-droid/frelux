@@ -56,6 +56,18 @@ describe("buildBoqPdf", () => {
     expect(bytes.byteLength).toBeGreaterThan(2000);
   });
 
+  it("creates a compact summary PDF without line-level schedule details", async () => {
+    const compiled = compileBoq(doc());
+    const pdf = await buildBoqPdf(compiled.standard, compiled.document, {
+      summaryOnly: true,
+      verify: false,
+      stampOnBlockchain: false,
+    });
+    expect(pdf.getNumberOfPages()).toBe(1);
+    expect(pdf.output("arraybuffer").byteLength).toBeGreaterThan(1000);
+    expect(pdf.output()).not.toContain("Reinforced concrete item 1");
+  });
+
   it("stamps the FRELUX mark on the PDF it produces", async () => {
     const compiled = compileBoq(doc());
     const pdf = await buildBoqPdf(compiled.standard, compiled.document);
