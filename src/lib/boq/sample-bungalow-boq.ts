@@ -1,23 +1,32 @@
 import type { BoqStudioDocument } from "./types";
 
 /**
- * Live, verified sample Bill of Quantities for a 3-Bedroom Residential Bungalow.
+ * Worked sample Bill of Quantities for a 3-Bedroom Residential Bungalow.
  *
- * This provides zero-user social proof through civil engineering depth,
- * transparent mathematical line items, and verifiable cryptographic anchoring
- * rather than fake user counts.
+ * This is zero-user proof through engineering depth rather than invented user
+ * counts: a complete schedule, priced line by line, that a quantity surveyor
+ * can check by hand.
+ *
+ * The fingerprint is real and it is checked. `sha256Hash` is the SHA-256 of
+ * `canonicalSampleJson()` below, and a test recomputes it from the document on
+ * every run, so editing any rate or quantity turns the suite red instead of
+ * leaving a stale hash on a page that calls itself verified. It is a
+ * fingerprint of this document, not a blockchain anchor: no OpenTimestamps
+ * receipt exists for it, and the page says so.
  */
 export const SAMPLE_BUNGALOW_VERIFICATION = {
   verificationId: "FLX-VRF-2026-3BR-NG",
+  /** SHA-256 of canonicalSampleJson(). Recomputed by the test suite. */
   sha256Hash:
-    "6c2e36780c884c56e3b567d264f3366a337e7534431e67049539ecb0058b73ad",
-  anchoredBlock: 894210,
+    "3ebac3f98a16c1f6b0bec942584e70e964e82dd86b7e5dc5905e560f155d9764",
+  fingerprintScope:
+    "The BOQ document serialised with sorted keys and no whitespace",
   timestamp: "2026-11-20T10:15:00Z",
-  proofProvider: "OpenTimestamps (Bitcoin Blockchain)",
   governingStandards:
     "NIS 87 (Sandcrete Blocks), BS 8110 / Eurocode 2 (Structural Concrete), BESMM4",
-  reviewerName: "Engr. D. Adeleke (FNSE, Reg. QS #2841)",
-  status: "Blockchain Verified (Immutable)",
+  reviewBasis:
+    "Prepared to the standards above and checked line by line against the FRELUX engine; a worked example, not a client commission.",
+  status: "SHA-256 fingerprinted (worked sample)",
 } as const;
 
 export const SAMPLE_VERIFIED_BUNGALOW_BOQ: BoqStudioDocument = {
@@ -58,11 +67,13 @@ export const SAMPLE_VERIFIED_BUNGALOW_BOQ: BoqStudioDocument = {
   updated_at: "2026-11-20T10:15:00Z",
   review: {
     status: "reviewed",
-    reviewer_name: SAMPLE_BUNGALOW_VERIFICATION.reviewerName,
-    reviewer_qualification:
-      "Registered Quantity Surveyor / Civil Structural Engineer",
+    // No individual is named: a professional's name and registration number is
+    // a claim that has to be theirs to make. The basis of the check is stated
+    // instead, and the sample is labelled a worked example wherever it appears.
+    reviewer_name: "FRELUX Civil & Quantity Surveying Division",
+    reviewer_qualification: "Worked sample, checked against the published standards",
     reviewed_at: "2026-11-20T10:15:00Z",
-    note: "Calibrated in accordance with Nigerian Building Norms (NIS 87, BS 8110, BESMM4). Mathematical takeoffs independently verified.",
+    note: "Calibrated in accordance with Nigerian Building Norms (NIS 87, BS 8110, BESMM4). Line quantities and rates reproducible from the schedule.",
   },
   assumptions: [
     "Ground bearing capacity assumed at 150 kN/m² on firm sandy clay.",
@@ -419,3 +430,25 @@ export const SAMPLE_VERIFIED_BUNGALOW_BOQ: BoqStudioDocument = {
     },
   ],
 };
+
+/**
+ * Canonical serialisation the fingerprint is taken over: keys sorted at every
+ * level, arrays in document order, no whitespace. Kept here rather than in the
+ * test so the browser and the test hash exactly the same bytes.
+ */
+export function canonicalSampleJson(
+  value: unknown = SAMPLE_VERIFIED_BUNGALOW_BOQ,
+): string {
+  const sort = (node: unknown): unknown => {
+    if (Array.isArray(node)) return node.map(sort);
+    if (node && typeof node === "object") {
+      return Object.fromEntries(
+        Object.keys(node as Record<string, unknown>)
+          .sort()
+          .map((key) => [key, sort((node as Record<string, unknown>)[key])]),
+      );
+    }
+    return node;
+  };
+  return JSON.stringify(sort(value));
+}

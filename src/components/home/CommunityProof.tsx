@@ -119,10 +119,10 @@ export default function CommunityProof() {
             </div>
             <div className="min-w-0">
               <div className="text-xs sm:text-sm font-semibold tracking-tight text-foreground truncate">
-                630+ Live Material Prices
+                {t("630+ Live Material Prices")}
               </div>
               <p className="text-[11px] text-muted-foreground truncate">
-                Weekly updated market rates
+                {t("Weekly updated market rates")}
               </p>
             </div>
           </div>
@@ -133,10 +133,10 @@ export default function CommunityProof() {
             </div>
             <div className="min-w-0">
               <div className="text-xs sm:text-sm font-semibold tracking-tight text-foreground truncate">
-                Eurocode, ISO & NIS Norms
+                {t("Eurocode, ACI, BS & IS Norms")}
               </div>
               <p className="text-[11px] text-muted-foreground truncate">
-                Engineering constants verified
+                {t("Engineering constants from each code the engine implements")}
               </p>
             </div>
           </div>
@@ -147,10 +147,10 @@ export default function CommunityProof() {
             </div>
             <div className="min-w-0">
               <div className="text-xs sm:text-sm font-semibold tracking-tight text-foreground truncate">
-                Tamper-Proof Verification
+                {t("Tamper-Evident Verification")}
               </div>
               <p className="text-[11px] text-muted-foreground truncate">
-                SHA-256 blockchain receipts
+                {t("SHA-256 receipts on exported documents")}
               </p>
             </div>
           </div>

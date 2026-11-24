@@ -789,12 +789,13 @@ export default function BoqStudio() {
                       </span>
                     </div>
                     <p className="text-xs text-slate-600 dark:text-slate-300 leading-relaxed max-w-3xl">
-                      {t("This sample provides zero-user engineering authority")}
-                      through real civil takeoff mathematics. The complete 180
-                      m² 3-bedroom bungalow schedule is cryptographically
-                      fingerprinted with SHA-256 and anchored via
-                      {t("OpenTimestamps. Any modification to a rate or quantity")}
-                      immediately breaks the hash.
+                      {t("A worked example, not a client commission: a complete 180 m²")}
+                      {" "}
+                      {t("3-bedroom bungalow schedule priced line by line, so a quantity surveyor")}
+                      {" "}
+                      {t("can check it by hand. The fingerprint below is the SHA-256 of this schedule")}
+                      {" "}
+                      {t("and is recomputed by the test suite, so editing any rate or quantity breaks it.")}
                     </p>
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 pt-1 text-xs">
                       <div className="rounded-lg bg-white/70 p-2 border border-emerald-200/60 dark:bg-black/20 dark:border-white/5">
@@ -807,10 +808,11 @@ export default function BoqStudio() {
                       </div>
                       <div className="rounded-lg bg-white/70 p-2 border border-emerald-200/60 dark:bg-black/20 dark:border-white/5">
                         <span className="text-muted-foreground block text-[11px]">
-                          {t("Calibrated By")}
+                          {t("Market & currency")}
                         </span>
                         <span className="font-semibold text-foreground">
-                          {SAMPLE_BUNGALOW_VERIFICATION.reviewerName}
+                          {SAMPLE_VERIFIED_BUNGALOW_BOQ.market_code} ·{" "}
+                          {SAMPLE_VERIFIED_BUNGALOW_BOQ.currency}
                         </span>
                       </div>
                       <div className="rounded-lg bg-white/70 p-2 border border-emerald-200/60 dark:bg-black/20 dark:border-white/5 sm:col-span-2 lg:col-span-1">
@@ -823,16 +825,21 @@ export default function BoqStudio() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex shrink-0 gap-2">
+                  <div className="flex shrink-0 flex-col items-start gap-2">
+                    {/* This sample has no anchored record, so the old button
+                        promised a lookup that could only return "not found".
+                        It points at the mechanism instead, and the fingerprint
+                        is shown for anyone who wants to recompute it. */}
                     <a
-                      href={`/verify?c=${encodeURIComponent(SAMPLE_BUNGALOW_VERIFICATION.verificationId)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                      href="/verify"
                       className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-600 bg-emerald-600 px-3.5 py-2 text-xs font-semibold text-white shadow-sm hover:bg-emerald-700 transition"
                     >
-                      <span>Verify on Blockchain</span>
+                      <span>{t("How verification works")}</span>
                       <ExternalLink className="h-3.5 w-3.5" />
                     </a>
+                    <code className="max-w-[220px] break-all rounded bg-white/70 px-2 py-1 font-mono text-[10px] leading-tight text-slate-600 dark:bg-black/20 dark:text-slate-300">
+                      {SAMPLE_BUNGALOW_VERIFICATION.sha256Hash}
+                    </code>
                   </div>
                 </div>
               </div>

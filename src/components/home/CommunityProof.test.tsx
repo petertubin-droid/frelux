@@ -27,8 +27,8 @@ describe("CommunityProof", () => {
     await Promise.resolve();
     expect(container.textContent).toContain("77+ Calibrated Calculators");
     expect(container.textContent).toContain("630+ Live Material Prices");
-    expect(container.textContent).toContain("Eurocode, ISO & NIS Norms");
-    expect(container.textContent).toContain("Tamper-Proof Verification");
+    expect(container.textContent).toContain("Eurocode, ACI, BS & IS Norms");
+    expect(container.textContent).toContain("Tamper-Evident Verification");
   });
 
   it("shows the real count once the community reaches 100 verified users", async () => {
