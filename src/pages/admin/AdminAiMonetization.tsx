@@ -476,7 +476,10 @@ export default function AdminAiMonetization() {
               <AdminSelect
                 value={settings.payment_gateway ?? "paystack"}
                 onChange={(e) =>
-                  update("payment_gateway", e.target.value as any)
+                  update(
+                    "payment_gateway",
+                    e.target.value as DbSiteSettings["payment_gateway"],
+                  )
                 }
                 disabled={!paymentProviderConfigured}
               >

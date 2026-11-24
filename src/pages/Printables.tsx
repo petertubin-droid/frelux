@@ -12,7 +12,7 @@ import { useSeo } from "@/lib/seo";
 import { SITE_URL } from "@/lib/seo";
 import { useLanguage } from "@/lib/i18n";
 import { useEscapeKey } from "@/lib/use-escape-key";
-import { useAuth } from "@/lib/auth";
+import { useAuthSafe } from "@/lib/auth";
 import { useDisplayCurrency } from "@/lib/international/currency-context";
 import ScreenProtection from "@/components/documents/ScreenProtection";
 import PrintPaywallModal from "@/components/documents/PrintPaywallModal";
@@ -86,20 +86,14 @@ export default function Printables() {
     },
   });
 
-  let auth: { isPaid?: boolean; isAdmin?: boolean } | null = null;
-  try {
-    auth = useAuth();
-  } catch {
-    auth = null;
-  }
-
-  let userCurrency = "USD";
-  try {
-    const displayCur = useDisplayCurrency();
-    userCurrency = displayCur.code || "USD";
-  } catch {
-    userCurrency = "USD";
-  }
+  // Both hooks are called unconditionally: a hook inside try/catch changes the
+  // call order between renders, which React forbids and which would break the
+  // page the moment auth resolved after a first render. useAuthSafe already
+  // returns an honest no-op context outside AuthProvider, and
+  // useDisplayCurrency falls back to the active currency when no provider is
+  // mounted, so neither needs a guard.
+  const auth = useAuthSafe();
+  const userCurrency = useDisplayCurrency().code || "USD";
 
   const [preview, setPreview] = useState<string | null>(null);
   const [paywallSheet, setPaywallSheet] = useState<SheetDef | null>(null);
