@@ -25,6 +25,7 @@ const COVERED = /[\u0370-\u03FF\u0400-\u04FF\u1E00-\u1EFF\u2000-\u206F\u20A0-\u2
 
 /** Scripts that need shaping or a font we do not ship. */
 const UNSUPPORTED_SCRIPTS =
+  // eslint-disable-next-line no-misleading-character-class
   /[\u0590-\u05FF\u0600-\u06FF\u0750-\u077F\u0900-\u097F\u0980-\u09FF\u0A00-\u0AFF\u0B80-\u0BFF\u0C00-\u0C7F\u0D00-\u0D7F\u0E00-\u0E7F\u3040-\u30FF\u3400-\u4DBF\u4E00-\u9FFF\uAC00-\uD7AF\uF900-\uFAFF]/;
 
 export class UnrenderableScriptError extends Error {

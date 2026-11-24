@@ -464,7 +464,7 @@ describe("free-tier rule", () => {
   it("keeps the AI exclusion separate from the CPU exclusion", () => {
     const ai = [...SUPABASE_ONLY].filter(([, r]) => r.startsWith("AI:"));
     const cpu = [...SUPABASE_ONLY].filter(([, r]) => r.startsWith("CPU-heavy:"));
-    expect(ai.length).toBe(19);
+    expect(ai.length).toBe(20);
     expect(cpu.length).toBe(8);
   });
 });
