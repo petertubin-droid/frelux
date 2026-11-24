@@ -1854,6 +1854,67 @@ function PlacementForm({
                           </option>
                         </AdminSelect>
                       )}
+                      {prov.slug === "monetag" && (
+                        <AdminSelect
+                          aria-label="Monetag unit format"
+                          className="mt-1.5 text-xs"
+                          value={
+                            adUnitIds[prov.id] &&
+                            adUnitIds[prov.id] ===
+                              getProviderCredential(
+                                prov,
+                                "native_banner_zone_id",
+                              )
+                              ? "native_banner"
+                              : adUnitIds[prov.id] &&
+                                  adUnitIds[prov.id] ===
+                                    getProviderCredential(
+                                      prov,
+                                      "inpage_push_zone_id",
+                                    )
+                                ? "inpage_push"
+                                : "display"
+                          }
+                          onChange={(e) => {
+                            const creds = prov.credentials as Record<
+                              string,
+                              unknown
+                            > | null;
+                            const zone =
+                              typeof creds?.zone_id === "string"
+                                ? creds.zone_id
+                                : "";
+                            const native =
+                              typeof creds?.native_banner_zone_id === "string"
+                                ? (creds.native_banner_zone_id as string)
+                                : "";
+                            const push =
+                              typeof creds?.inpage_push_zone_id === "string"
+                                ? (creds.inpage_push_zone_id as string)
+                                : "";
+                            const chosen =
+                              e.target.value === "native_banner"
+                                ? native
+                                : e.target.value === "inpage_push"
+                                  ? push
+                                  : zone;
+                            setAdUnitIds({
+                              ...adUnitIds,
+                              [prov.id]: chosen,
+                            });
+                          }}
+                        >
+                          <option value="display">
+                            {t("Standard Display Zone")}
+                          </option>
+                          <option value="native_banner">
+                            {t("Native Banner Zone")}
+                          </option>
+                          <option value="inpage_push">
+                            {t("In-Page Push Zone")}
+                          </option>
+                        </AdminSelect>
+                      )}
                       <AdminInput
                         type="text"
                         className="mt-1.5 text-xs"

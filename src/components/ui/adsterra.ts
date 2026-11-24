@@ -107,7 +107,9 @@ export function resolveAdsterraSize(
       ? custom[slotKey]
       : typeof custom.default === "string"
         ? custom.default
-        : "";
+        : typeof settings.banner_size === "string"
+          ? (settings.banner_size as string)
+          : "";
   const m = raw.match(/^(\d{2,4})\s*[x×]\s*(\d{2,4})$/);
   if (m) return { width: Number(m[1]), height: Number(m[2]) };
 
@@ -116,7 +118,11 @@ export function resolveAdsterraSize(
   // zone requested at the wrong size silently never fills - so the
   // admin-confirmed zone size beats the device-family heuristics below.
   const rawDefault =
-    typeof custom.default === "string" ? custom.default.trim() : "";
+    typeof custom.default === "string"
+      ? custom.default.trim()
+      : typeof settings.banner_size === "string"
+        ? (settings.banner_size as string).trim()
+        : "";
   const md = rawDefault.match(/^(\d{2,4})\s*[x×]\s*(\d{2,4})$/);
   if (md) return { width: Number(md[1]), height: Number(md[2]) };
 

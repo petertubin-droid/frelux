@@ -57,6 +57,10 @@ export const ADSTERRA_SERVE_HOSTS = [
   "profitablecpmrate.com",
   "profitableratecpmnetwork.com",
   "adsterrapremium.com",
+  "effectivecreativeformat.com",
+  "effectivecreativeformats.com",
+  "displaynetworkprofit.com",
+  "profitabledisplayformat.com",
 ];
 
 /** Default Adsterra serve host when none is configured/valid. */
@@ -140,7 +144,7 @@ export function resolveAdsterraScriptUrl(
     // Path must be /<key>/<script>.js, or the hashed /xx/xx/xx/<hash>.js
     // shape newer Adsterra Social Bar snippets use (no query, no fragment)
     const cleanPath =
-      /^\/[a-z0-9-]{4,64}\/[a-z0-9-]+\.js$/i.test(url.pathname) ||
+      /^\/[a-z0-9_.-]{4,64}\/[a-z0-9_.-]+\.js$/i.test(url.pathname) ||
       /^\/([0-9a-f]{2}\/){2,3}[0-9a-f]{16,}\.js$/i.test(url.pathname);
     if (!cleanPath) return null;
     if (url.search || url.hash) return null;
@@ -272,10 +276,12 @@ export function getMonetagFormatScriptUrl(
   format: string,
 ): string {
   const creds = (provider.credentials ?? {}) as Record<string, unknown>;
-  const override = creds[`${format}_script_url`];
+  const override =
+    creds[`${format}_script_url`] ??
+    (format !== "vignette" ? (creds.tag_url ?? creds.script_url) : undefined);
   if (typeof override === "string") {
     const url = override.trim();
-    if (/^https:\/\/[a-z0-9.-]+\/[a-z0-9.-]+\.js$/i.test(url)) return url;
+    if (/^https:\/\/[a-z0-9.-]+(?:\/[a-z0-9._-]+)+\.js$/i.test(url)) return url;
   }
   return format === "vignette" ? MONETAG_VIGNETTE_URL : MONETAG_TAG_URL;
 }

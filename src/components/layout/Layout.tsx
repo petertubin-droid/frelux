@@ -332,8 +332,11 @@ export default function Layout() {
             const mc = (monetag.credentials ?? {}) as Record<string, unknown>;
             const sdkUrl =
               typeof mc.sdk_url === "string" ? mc.sdk_url.trim() : "";
-            // Monetag SDK tag shape: https://<host>/<route>/<zone-id>
-            if (/^https:\/\/[a-z0-9.-]+\/\d+\/\d{5,10}$/i.test(sdkUrl)) {
+            // Monetag SDK tag shape: https://<host>/<route>/<zone-id> or valid https script URL
+            if (
+              /^https:\/\/[a-z0-9.-]+\/\d+\/\d{5,10}$/i.test(sdkUrl) ||
+              /^https:\/\/[a-z0-9.-]+(?:\/[a-z0-9._-]+)+\.js$/i.test(sdkUrl)
+            ) {
               monetagSdkUrl = sdkUrl;
             }
           }
