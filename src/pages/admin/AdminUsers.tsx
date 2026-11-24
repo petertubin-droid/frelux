@@ -1,5 +1,6 @@
 import { useEffect, useState, useCallback, type FormEvent } from "react";
 import { supabase, getFunctionErrorMessage } from "@/lib/supabase";
+import { maskIdentityNumber } from "@/lib/identity/mask";
 import {
   AdminHeader,
   AdminCard,
@@ -660,7 +661,9 @@ export default function AdminUsers() {
                             <div className="inline-flex flex-col gap-0.5">
                               <span className="inline-flex items-center gap-1 rounded-md border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                                 <ShieldCheck className="h-3 w-3 shrink-0" />
-                                <span>NIN: {u.nin_number}</span>
+                                <span title="Masked. Open the editor to see the full NIN.">
+                                  NIN: {maskIdentityNumber(u.nin_number)}
+                                </span>
                               </span>
                               <span className="text-[10px] text-muted-foreground">
                                 Nigeria (NIMC)
@@ -681,7 +684,7 @@ export default function AdminUsers() {
                                       .replace(/_/g, " ")
                                       .toUpperCase()
                                   : "GOVT ID"}
-                                : {u.government_id_number}
+                                : {maskIdentityNumber(u.government_id_number)}
                               </span>
                             </span>
                             <span className="text-[10px] text-muted-foreground">

@@ -46,19 +46,35 @@ describe("handle_new_user trigger definition", () => {
     expect(latest.sql).not.toMatch(/NEW\.app_metadata/);
   });
 
-  it("only allows country codes the registration form offers", () => {
-    const latest = latestTriggerDefinition();
-    // The guard reads: COALESCE(UPPER(BTRIM(...country_code)), '') NOT IN ('NG', ...).
-    const allowlist = latest.sql.match(/NOT IN \(([^)]+)\)/);
-    expect(allowlist, "no country allowlist in the trigger").toBeTruthy();
-    const allowed = new Set(
-      [...allowlist![1].matchAll(/'([A-Z]{2})'/g)].map((m) => m[1]),
+  it("keeps its supported-country seed identical to the form's list", () => {
+    // The trigger asks public.registration_countries rather than carrying a
+    // literal list, so the risk moved from the function body to the seed. This
+    // compares the seed a fresh database would insert with the codes the form
+    // actually offers: a country offered but not seeded is a signup that dies
+    // on submit, and a seeded country nobody offers is dead weight.
+    const seeding = migrationFiles().filter((m) =>
+      /INSERT INTO public\.registration_countries/i.test(m.sql),
+    );
+    expect(seeding.length, "no migration seeds registration_countries").toBeGreaterThan(0);
+    const latest = seeding[seeding.length - 1];
+    const block = latest.sql.slice(
+      latest.sql.search(/INSERT INTO public\.registration_countries/i),
+    );
+    const seeded = new Set(
+      [...block.matchAll(/\('([A-Z]{2})'\)/g)].map((m) => m[1]),
     );
     const offered = new Set(APPROVED_MARKET_CODES);
-    // A code the form offers but the trigger rejects is a signup that dies on
-    // submit; a code the trigger allows but the form never offers is dead weight.
-    expect([...offered].filter((c) => !allowed.has(c))).toEqual([]);
-    expect([...allowed].filter((c) => !offered.has(c))).toEqual([]);
+    expect([...offered].filter((c) => !seeded.has(c))).toEqual([]);
+    expect([...seeded].filter((c) => !offered.has(c))).toEqual([]);
+  });
+
+  it("enforces the Nigerian NIN rule in the database, not only the form", () => {
+    const latest = latestTriggerDefinition();
+    // The trigger is the one path every signup passes through, including a
+    // direct call to the auth API that never renders the form.
+    expect(latest.sql).toMatch(/requested_nin !~ '\^\[0-9\]\{11\}\$'/);
+    expect(latest.sql).toContain("A Nigerian NIN must be exactly 11 digits.");
+    expect(latest.sql).toContain("Unsupported government ID type.");
   });
 
   it("still writes the identity and location columns it was extended for", () => {

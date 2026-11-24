@@ -188,7 +188,10 @@ describe("AdminUsers Location and Identity Document Display", () => {
     await renderPage();
 
     expect(await screen.findByText("Ikeja, Lagos State")).toBeInTheDocument();
-    expect(screen.getByText(/NIN: 98765432101/i)).toBeInTheDocument();
+    // The table masks the number: last four only, and the full NIN must not
+    // appear in the list at all. The editor is where an admin sees it whole.
+    expect(screen.getByText(/NIN: •••••••2101/)).toBeInTheDocument();
+    expect(screen.queryByText(/98765432101/)).not.toBeInTheDocument();
     expect(screen.getByText(/Nigeria \(NIMC\)/i)).toBeInTheDocument();
   });
 
@@ -210,8 +213,9 @@ describe("AdminUsers Location and Identity Document Display", () => {
 
     expect(await screen.findByText("Austin, Texas")).toBeInTheDocument();
     expect(
-      screen.getByText(/DRIVERS LICENSE: TX-DL-98213/i),
+      screen.getByText(/DRIVERS LICENSE: •••••••8213/i),
     ).toBeInTheDocument();
+    expect(screen.queryByText(/TX-DL-98213/)).not.toBeInTheDocument();
     expect(screen.getByText(/International ID/i)).toBeInTheDocument();
   });
 });

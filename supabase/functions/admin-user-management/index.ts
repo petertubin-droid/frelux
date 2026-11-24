@@ -1,6 +1,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { errorResponse, handleCors, jsonResponse } from "../_shared/cors.ts";
 import { serveWithCors } from "../_shared/serve.ts";
+import { validateIdentity } from "../_shared/identity-validation.ts";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const UUID_RE =
@@ -92,21 +93,28 @@ serveWithCors(async (req: Request) => {
       const location = String(body.location ?? "")
         .trim()
         .slice(0, 160);
-      const nin_number = String(body.nin_number ?? "")
-        .trim()
-        .slice(0, 30);
-      const government_id_type = String(body.government_id_type ?? "")
-        .trim()
-        .slice(0, 50);
-      const government_id_number = String(body.government_id_number ?? "")
-        .trim()
-        .slice(0, 50);
-
       if (!phone || phone.replace(/\D/g, "").length < 7)
         return errorResponse("A valid mobile number is required.", 400);
       const countryCodeValid = APPROVED_MARKET_CODES.has(country_code);
       if (!countryCodeValid)
         return errorResponse("A valid ISO country code is required.", 400);
+
+      // Validated server-side: an admin invitation never passes through the
+      // registration form, so this is the only place the rules can run.
+      const identity = validateIdentity({
+        country_code,
+        nin_number: body.nin_number,
+        government_id_type: body.government_id_type,
+        government_id_number: body.government_id_number,
+      });
+      if (!identity.ok) {
+        return errorResponse(
+          Object.values(identity.errors).join(" "),
+          400,
+        );
+      }
+      const { nin_number, government_id_type, government_id_number } =
+        identity.normalized;
       const { data, error } = await admin.auth.admin.inviteUserByEmail(email, {
         data: {
           full_name,
@@ -192,7 +200,9 @@ serveWithCors(async (req: Request) => {
       );
     const { data: target, error: targetError } = await admin
       .from("profiles")
-      .select("id, role")
+      .select(
+        "id, role, country_code, nin_number, government_id_type, government_id_number",
+      )
       .eq("id", userId)
       .single();
     if (targetError || !target) return errorResponse("User not found.", 404);
@@ -235,22 +245,37 @@ serveWithCors(async (req: Request) => {
           .trim()
           .slice(0, 160);
       }
-      if (body.nin_number !== undefined) {
-        updatePayload.nin_number = String(body.nin_number ?? "")
-          .trim()
-          .slice(0, 30);
-      }
-      if (body.government_id_type !== undefined) {
-        updatePayload.government_id_type = String(body.government_id_type ?? "")
-          .trim()
-          .slice(0, 50);
-      }
-      if (body.government_id_number !== undefined) {
-        updatePayload.government_id_number = String(
-          body.government_id_number ?? "",
-        )
-          .trim()
-          .slice(0, 50);
+      // Identity is validated as a whole, merged with the stored row, so an
+      // edit that changes only the country is still checked against the NIN on
+      // file, and a partial patch cannot slip a malformed value past the rules.
+      const touchesIdentity =
+        body.nin_number !== undefined ||
+        body.government_id_type !== undefined ||
+        body.government_id_number !== undefined ||
+        country_code !== undefined;
+      if (touchesIdentity) {
+        const identity = validateIdentity({
+          country_code: country_code ?? target.country_code,
+          nin_number:
+            body.nin_number !== undefined
+              ? body.nin_number
+              : target.nin_number,
+          government_id_type:
+            body.government_id_type !== undefined
+              ? body.government_id_type
+              : target.government_id_type,
+          government_id_number:
+            body.government_id_number !== undefined
+              ? body.government_id_number
+              : target.government_id_number,
+        });
+        if (!identity.ok) {
+          return errorResponse(Object.values(identity.errors).join(" "), 400);
+        }
+        updatePayload.nin_number = identity.normalized.nin_number;
+        updatePayload.government_id_type = identity.normalized.government_id_type;
+        updatePayload.government_id_number =
+          identity.normalized.government_id_number;
       }
       const { error: profileError } = await admin
         .from("profiles")

@@ -96,6 +96,47 @@ outside tests. That single change took the console from 10 engines to 26. Before
 writing any new adapter, check whether the engine is already registered by one
 of those three modules; the answer is yes more often than not.
 
+## Identity hardening (24 November 2026)
+
+The b82d2f3b review left three gaps in the registration identity work. All three
+are closed except the last, which is a decision rather than a task.
+
+**1. NIN was validated in the browser only.** The form checked eleven digits;
+an admin invitation, an admin edit and a direct call to the auth API never
+touched the form. The rule now lives in three places, each doing a different
+job: `supabase/functions/_shared/identity-validation.ts` for the admin edge
+function (a 400 naming the field), `handle_new_user` for every signup path
+including the API (an exception), and the form for immediate feedback.
+`identity-validation.test.ts` covers the shared module; the trigger rules were
+proven against production with rolled-back inserts: a short NIN and an unknown
+government ID type both raise, a spaced NIN is normalised and accepted.
+
+**2. The country list was duplicated and would drift.** It was a literal inside
+the trigger, so adding a market to `countries.ts` and forgetting the SQL gave a
+form that offers a country the trigger rejects. The list is now
+`public.registration_countries`, seeded by
+`20261124160000_identity_rules_and_country_source.sql`, and the trigger asks it.
+`auth-signup-trigger.test.ts` compares that seed with `APPROVED_MARKET_CODES`,
+so a country added on one side fails the suite until the other follows. Adding a
+market is now one row plus one entry in `countries.ts`.
+
+**3. NIN and government ID numbers are still stored in plaintext.** Not done,
+deliberately. Masking shipped instead: the admin table shows the last four
+digits (`src/lib/identity/mask.ts`) and the full value is only in the editor.
+That stops a number being read off a shared screen, but it changes nothing at
+rest: anyone with database or backup access still reads the value.
+
+Encrypting at rest is a decision, not a patch, because it needs a key that no
+browser holds and a read path that decrypts for the owner and for admins only.
+The shape it would take: `pgcrypto` over a key in Supabase Vault, the trigger
+and the admin edge function encrypting on write, a `SECURITY DEFINER` function
+returning plaintext to `is_admin()` or the owner, the admin editor reading
+through it, and a backfill that re-encrypts existing rows in one transaction.
+The open questions are where the key lives, who may rotate it, and whether the
+product should keep the full number at all rather than a hash plus last four.
+Those are the owner's calls, and half-building this would break the editor
+without protecting anything.
+
 ## Things that are not engine work but are open
 
 These are tracked in conversation memory and are unrelated to the batches:
