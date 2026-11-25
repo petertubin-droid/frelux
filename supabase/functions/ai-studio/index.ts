@@ -251,6 +251,7 @@ async function createConversation(
     const res = await fetch(`${SUPERAGENT_BASE}/${agentId}/conversations`, {
       method: "POST",
       headers: { "Content-Type": "application/json", api_key: apiKey },
+      signal: AbortSignal.timeout(20_000),
       body: JSON.stringify({}),
     });
     if (!res.ok) {
@@ -283,6 +284,7 @@ async function sendAgentMessage(
       {
         method: "POST",
         headers: { "Content-Type": "application/json", api_key: apiKey },
+        signal: AbortSignal.timeout(30_000),
         body: JSON.stringify({ message }),
       },
     );

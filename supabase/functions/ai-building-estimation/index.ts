@@ -578,6 +578,10 @@ serveWithCors(async (req: Request) => {
   }
   const _rlHeaders = rateLimitHeaders(rl.remaining, rl.resetAt);
 
+  if (req.method !== "POST") {
+    return jsonResponse({ error: "Method not allowed" }, 405);
+  }
+
   const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
   const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
   const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY") ?? "";

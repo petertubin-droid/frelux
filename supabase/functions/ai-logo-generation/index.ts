@@ -130,39 +130,57 @@ serveAi(async (req: Request) => {
       .filter(Boolean)
       .join(". ");
 
-    // Call Google AI API (Gemini) for image generation
-    // Using the Gemini image generation endpoint
-    const geminiModel = "gemini-3.1-flash-image"; // GA image generation model
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${geminiModel}:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [{ text: fullPrompt }],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 8192,
-            responseModalities: ["IMAGE", "TEXT"],
-          },
-        }),
-      },
-    );
+    // Call Google AI API (Gemini) for image generation with sequential model fallback
+    const candidateModels = [
+      Deno.env.get("GEMINI_IMAGE_MODEL") || "gemini-3.1-flash-image",
+      "gemini-2.5-flash-image",
+      "gemini-2.0-flash-exp",
+    ];
+    const uniqueModels = [...new Set(candidateModels)];
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error("Gemini API error:", errText);
+    let geminiData: Record<string, any> | null = null;
+    let lastErrorText = "";
+
+    for (const model of uniqueModels) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            signal: AbortSignal.timeout(25_000),
+            body: JSON.stringify({
+              contents: [{ parts: [{ text: fullPrompt }] }],
+              generationConfig: {
+                temperature: 0.7,
+                maxOutputTokens: 8192,
+                responseModalities: ["IMAGE", "TEXT"],
+              },
+            }),
+          },
+        );
+
+        if (!response.ok) {
+          lastErrorText = await response.text();
+          console.warn(`[ai-logo-generation] Model ${model} returned ${response.status}:`, lastErrorText.slice(0, 200));
+          continue;
+        }
+
+        geminiData = await response.json();
+        break;
+      } catch (reqErr) {
+        lastErrorText = reqErr instanceof Error ? reqErr.message : String(reqErr);
+        console.warn(`[ai-logo-generation] Model ${model} request error:`, lastErrorText);
+      }
+    }
+
+    if (!geminiData) {
+      console.error("All Gemini logo image generation models failed. Last error:", lastErrorText);
       return jsonResponse(
-        { error: "AI logo generation failed. Please try again." },
+        { error: "AI logo generation is temporarily unavailable. Please try again." },
         502,
       );
     }
-
-    const geminiData = await response.json();
 
     // Extract image from response
     let imageUrl: string | null = null;
@@ -178,16 +196,24 @@ serveAi(async (req: Request) => {
             c.charCodeAt(0),
           );
           const path = `${userId}/ai_logo_${Date.now()}.png`;
-          const { error: uploadError } = await supabase.storage
-            .from("brand-assets")
-            .upload(path, buffer, { contentType: mimeType });
+          let uploadedUrl: string | null = null;
+          if (supabase.storage) {
+            try {
+              const { error: uploadError } = await supabase.storage
+                .from("brand-assets")
+                .upload(path, buffer, { contentType: mimeType, upsert: false });
 
-          if (!uploadError) {
-            const { data } = supabase.storage
-              .from("brand-assets")
-              .getPublicUrl(path);
-            imageUrl = data.publicUrl;
+              if (!uploadError) {
+                const { data } = supabase.storage
+                  .from("brand-assets")
+                  .getPublicUrl(path);
+                if (data?.publicUrl) uploadedUrl = data.publicUrl;
+              }
+            } catch (storageErr) {
+              console.warn("[ai-logo-generation] Storage error, falling back to data URL:", storageErr);
+            }
           }
+          imageUrl = uploadedUrl || `data:${mimeType};base64,${base64Data}`;
           break;
         }
       }

@@ -90,7 +90,7 @@ serveWithCors(async (req: Request) => {
     overallStatus = "degraded";
   }
 
-  checks.ai_providers = Deno.env.get("GEMINI_API_KEY") ? "up" : "unknown";
+  checks.ai_providers = (Deno.env.get("GEMINI_API_KEY") || Deno.env.get("GOOGLE_AI_API_KEY")) ? "up" : "unknown";
   checks.payment = Deno.env.get("PAYSTACK_SECRET_KEY") ? "up" : "unknown";
 
   const health: HealthStatus = {

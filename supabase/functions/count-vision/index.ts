@@ -193,11 +193,18 @@ Respond with ONLY valid JSON, no markdown fences:
 
   for (const model of candidateModels) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-    response = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: reqBody,
-    });
+    try {
+      response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(20_000),
+        body: reqBody,
+      });
+    } catch (netErr) {
+      console.warn(`[count-vision] Network/timeout error on model ${model}:`, netErr);
+      response = null;
+      continue;
+    }
     if (response.ok) break;
     if (response.status === 404) continue;
     break;

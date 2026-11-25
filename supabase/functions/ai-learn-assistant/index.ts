@@ -153,11 +153,18 @@ async function callGemini(
   let res: Response | null = null;
   for (const model of candidateModels) {
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-    res = await fetch(url, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
+    try {
+      res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(25_000),
+        body: JSON.stringify(body),
+      });
+    } catch (netErr) {
+      console.warn(`[ai-learn-assistant] Network/timeout error on model ${model}:`, netErr);
+      res = null;
+      continue;
+    }
     if (res.ok) break;
     if (res.status === 404) continue;
     break;

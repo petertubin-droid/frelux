@@ -76,6 +76,7 @@ async function createConversation(
         "Content-Type": "application/json",
         api_key: apiKey,
       },
+      signal: AbortSignal.timeout(20_000),
       body: JSON.stringify({}),
     });
 
@@ -114,6 +115,7 @@ async function sendMessage(
           "Content-Type": "application/json",
           api_key: apiKey,
         },
+        signal: AbortSignal.timeout(30_000),
         body: JSON.stringify({ message }),
       },
     );
