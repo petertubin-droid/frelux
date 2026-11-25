@@ -29,7 +29,6 @@ import { isLocalePrefixed } from "./lib/locale-paths.mjs";
  * anyone remembering to add it twice.
  */
 const EXCLUDED_SITEMAP_ROUTES = new Set([
-  "/color-preview",
   "/tools/offline-sync",
 ]);
 

@@ -2157,22 +2157,244 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/learn/build-in-nigeria-from-abroad/</loc>
-    <lastmod>2026-11-19</lastmod>
+    <loc>https://freluxtools.com/calculators/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/cost-estimator/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/engineering-standards/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/price-index/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/prices/regional-indices/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/learn/glossary/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/intelligence/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/document-studio/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/suppliers/register/</loc>
-    <lastmod>2026-11-19</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
+    <loc>https://freluxtools.com/compliance/data-residency/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>yearly</changefreq>
+    <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/suppliers/compare/</loc>
-    <lastmod>2026-11-19</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://freluxtools.com/borehole-estimator/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/eifs-calculator/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/etics-calculator/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/icf-calculator/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/painting-estimator/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/pop-ceiling-cost-estimator/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/color-preview/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/ai/color-assistant/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/ai/defects/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/ai/photo-estimator/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/components/doors-windows/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/finishes/flooring/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/finishes/paint/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/finishes/pop/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/finishes/screeding/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/finishes/tiles/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/finishes/waterproofing/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/project/boq/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/project/cash-flow/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/project/labour/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/project/margin/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/project/timeline/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/services/comfort/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/services/electrical/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/services/plumbing/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/services/solar/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/structure/build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/structure/concrete/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/structure/foundation/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/tools/structure/rebar/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
   </url>
   <url>
     <loc>https://freluxtools.com/learn/a-practical-quality-control-checklist-for-reinforcement-estimates/</loc>
@@ -5613,7 +5835,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ng/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/ng/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ng/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -5625,8 +5853,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ng/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/ng/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ng/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ng/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -5883,7 +6123,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/us/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/us/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/us/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -5895,8 +6141,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/us/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/us/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/us/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/us/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -6153,7 +6411,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/gb/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/gb/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/gb/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -6165,8 +6429,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/gb/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/gb/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/gb/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/gb/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -6423,7 +6699,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ca/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/ca/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ca/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -6435,8 +6717,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ca/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/ca/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ca/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ca/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -6693,7 +6987,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/au/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/au/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/au/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -6705,8 +7005,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/au/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/au/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/au/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/au/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -6963,7 +7275,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/de/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/de/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/de/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -6975,8 +7293,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/de/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/de/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/de/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/de/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -7233,7 +7563,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/in/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/in/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/in/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -7245,8 +7581,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/in/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/in/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/in/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/in/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -7503,7 +7851,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/gh/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/gh/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/gh/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -7515,8 +7869,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/gh/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/gh/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/gh/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/gh/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -7773,7 +8139,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ke/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/ke/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ke/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -7785,8 +8157,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ke/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/ke/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ke/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ke/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -8043,7 +8427,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/za/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/za/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/za/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -8055,8 +8445,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/za/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/za/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/za/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/za/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -8313,7 +8715,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/jp/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/jp/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/jp/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -8325,8 +8733,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/jp/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/jp/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/jp/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/jp/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -8583,7 +9003,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/fr/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/fr/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/fr/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -8595,8 +9021,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/fr/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/fr/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/fr/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/fr/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -8853,7 +9291,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/br/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/br/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/br/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -8865,8 +9309,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/br/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/br/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/br/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/br/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -9123,7 +9579,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/sa/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/sa/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/sa/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -9135,8 +9597,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/sa/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/sa/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/sa/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/sa/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -9393,7 +9867,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ae/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/ae/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ae/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -9405,8 +9885,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ae/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/ae/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ae/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ae/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -9663,7 +10155,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/cn/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/cn/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/cn/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -9675,8 +10173,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/cn/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/cn/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/cn/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/cn/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -9933,7 +10443,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/id/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/id/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/id/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -9945,8 +10461,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/id/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/id/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/id/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/id/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -10203,7 +10731,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/mx/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/mx/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/mx/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -10215,8 +10749,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/mx/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/mx/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/mx/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/mx/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -10473,7 +11019,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/kr/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/kr/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/kr/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -10485,8 +11037,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/kr/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/kr/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/kr/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/kr/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -10743,7 +11307,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/it/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/it/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/it/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -10755,8 +11325,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/it/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/it/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/it/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/it/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -11013,7 +11595,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/et/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/et/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/et/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -11025,8 +11613,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/et/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/et/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/et/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/et/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -11283,7 +11883,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/eg/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/eg/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/eg/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -11295,8 +11901,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/eg/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/eg/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/eg/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/eg/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -11553,7 +12171,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/tz/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/tz/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/tz/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -11565,8 +12189,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/tz/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/tz/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/tz/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/tz/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -11823,7 +12459,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ci/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/ci/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ci/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -11835,8 +12477,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ci/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/ci/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ci/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ci/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -12093,7 +12747,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/es/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/es/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/es/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -12105,8 +12765,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/es/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/es/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/es/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/es/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -12363,7 +13035,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/nl/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/nl/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/nl/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -12375,8 +13053,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/nl/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/nl/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/nl/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/nl/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -12633,7 +13323,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/pl/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/pl/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/pl/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -12645,8 +13341,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/pl/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/pl/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/pl/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/pl/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -12903,7 +13611,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/se/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/se/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/se/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -12915,8 +13629,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/se/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/se/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/se/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/se/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -13173,7 +13899,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ch/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/ch/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ch/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -13185,8 +13917,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/ch/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/ch/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ch/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/ch/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -13443,7 +14187,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/sg/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/sg/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/sg/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -13455,8 +14205,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/sg/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/sg/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/sg/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/sg/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -13713,7 +14475,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/tr/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/tr/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/tr/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -13725,8 +14493,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/tr/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/tr/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/tr/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/tr/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -13983,7 +14763,13 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/nz/templates/icf-200mm-basement-wall/</loc>
+    <loc>https://freluxtools.com/market/nz/templates/icf-200mm-basement-wall-north-america/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/nz/templates/eifs-50mm-drainable-framing/</loc>
     <lastmod>2026-11-20</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -13995,8 +14781,20 @@
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://freluxtools.com/market/nz/templates/eifs-50mm-drainable-framing/</loc>
-    <lastmod>2026-11-20</lastmod>
+    <loc>https://freluxtools.com/market/nz/templates/three-bedroom-bungalow-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/nz/templates/two-storey-duplex-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://freluxtools.com/market/nz/templates/us-single-family-build-to-roof/</loc>
+    <lastmod>2026-11-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

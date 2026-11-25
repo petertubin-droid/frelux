@@ -48,46 +48,42 @@ describe("CalculatorGuideBlock structure", () => {
   it.each(allGuides)("renders headings and content sections for $slug", (guide) => {
     const { unmount } = render(<CalculatorGuideBlock guide={guide} />);
     expect(
-      screen.getByRole("heading", { name: guide.heading, level: 2 }),
-    ).toBeInTheDocument();
-    expect(
       screen.getByRole("heading", {
-        name: "How this takeoff is calculated",
-        level: 3,
+        level: 2,
+        name: new RegExp(guide.heading, "i"),
       }),
-    ).toBeInTheDocument();
+    ).toBeTruthy();
     expect(
-      screen.getByRole("heading", { name: "Worked example", level: 3 }),
-    ).toBeInTheDocument();
+      screen.getByRole("heading", { level: 3, name: /How it works/i }),
+    ).toBeTruthy();
     expect(
-      screen.getByRole("heading", {
-        name: "Frequently asked questions",
-        level: 3,
-      }),
-    ).toBeInTheDocument();
+      screen.getByRole("heading", { level: 3, name: /Worked example/i }),
+    ).toBeTruthy();
+    expect(
+      screen.getByRole("heading", { level: 3, name: /Questions people ask/i }),
+    ).toBeTruthy();
     unmount();
   });
 
   it.each(allGuides)(
-    "renders an HTML table with caption and column headers for $slug",
+    "puts ratio/coverage figures in a table with caption and headers for $slug",
     (guide) => {
       const { unmount } = render(<CalculatorGuideBlock guide={guide} />);
-      const table = screen.getByRole("table");
-      expect(table).toBeInTheDocument();
-      expect(
-        screen.getByText(guide.ratioTable.caption, { selector: "caption" }),
-      ).toBeInTheDocument();
-      guide.ratioTable.columns.forEach((col) => {
-        expect(
-          screen.getByRole("columnheader", { name: col }),
-        ).toBeInTheDocument();
-      });
+      const tables = screen.getAllByRole("table");
+      expect(tables.length).toBeGreaterThanOrEqual(2);
+      const ratioTable = tables[1];
+      expect(ratioTable.querySelector("caption")?.textContent).toMatch(
+        new RegExp(guide.ratioTable.caption.slice(0, 20), "i"),
+      );
+      const headers = Array.from(ratioTable.querySelectorAll("th"));
+      expect(headers.length).toBe(guide.ratioTable.columns.length);
+      headers.forEach((th) => expect(th.getAttribute("scope")).toBe("col"));
       unmount();
     },
   );
 
   it.each(allGuides)(
-    "renders openable details/summary FAQs without script for $slug",
+    "renders every question as a details element for $slug",
     (guide) => {
       const { container, unmount } = render(
         <CalculatorGuideBlock guide={guide} />,

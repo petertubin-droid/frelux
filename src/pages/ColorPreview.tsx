@@ -416,7 +416,7 @@ export default function ColorPreview() {
                     href={result.previewImageUrl}
                     download="frelux-room-color-preview.png"
                     target="_blank"
-                    rel="noreferrer"
+                    rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
                   >
                     <Download aria-hidden="true" className="h-4 w-4" />

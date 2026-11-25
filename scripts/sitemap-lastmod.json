@@ -31,6 +31,10 @@
     "lastmod": "2026-11-19",
     "hash": "e0f2c8467d6fed03"
   },
+  "/borehole-estimator": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/borehole-water-system-estimator": {
     "lastmod": "2026-11-19",
     "hash": "7a4ceb6f5dfb7b4e"
@@ -219,6 +223,10 @@
     "lastmod": "2026-11-19",
     "hash": "e977a0e2c762a8da"
   },
+  "/calculators": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/carbon-footprint": {
     "lastmod": "2026-11-20",
     "hash": "9697d7644da2911f"
@@ -240,8 +248,8 @@
     "hash": "f72c5d7ffe4cf310"
   },
   "/color-preview": {
-    "lastmod": "2026-11-19",
-    "hash": "1bd297d04550177d"
+    "lastmod": "2026-11-25",
+    "hash": null
   },
   "/colors": {
     "lastmod": "2026-11-20",
@@ -250,6 +258,10 @@
   "/colors/compare": {
     "lastmod": "2026-11-20",
     "hash": "892f9770d7b9a612"
+  },
+  "/compliance/data-residency": {
+    "lastmod": "2026-11-25",
+    "hash": null
   },
   "/concrete-takeoff-calculator": {
     "lastmod": "2026-11-19",
@@ -278,6 +290,10 @@
   "/cookie-policy": {
     "lastmod": "2026-11-20",
     "hash": "34a7a82f93309973"
+  },
+  "/cost-estimator": {
+    "lastmod": "2026-11-25",
+    "hash": null
   },
   "/count-vision": {
     "lastmod": "2026-11-20",
@@ -323,6 +339,10 @@
     "lastmod": "2026-11-20",
     "hash": "5e7a9101bb01312d"
   },
+  "/document-studio": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/doors-windows": {
     "lastmod": "2026-11-20",
     "hash": "d131d066c066841e"
@@ -339,6 +359,10 @@
     "lastmod": "2026-11-19",
     "hash": "3e08bd61385ba49e"
   },
+  "/eifs-calculator": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/eifs-wall-estimator": {
     "lastmod": "2026-11-19",
     "hash": "195bfbbf9b74060e"
@@ -350,6 +374,10 @@
   "/electrical-conduit-wiring-estimator": {
     "lastmod": "2026-11-19",
     "hash": "c2ce69e2aaf71257"
+  },
+  "/engineering-standards": {
+    "lastmod": "2026-11-25",
+    "hash": null
   },
   "/es/learn/achieving-textured-finishes-techniques-tools": {
     "lastmod": "2026-11-10",
@@ -959,6 +987,10 @@
     "lastmod": "2026-11-20",
     "hash": "8ae2bd96848c2c41"
   },
+  "/etics-calculator": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/faq": {
     "lastmod": "2026-11-19",
     "hash": "06db751d1203d900"
@@ -1411,6 +1443,10 @@
     "lastmod": "2026-11-20",
     "hash": "f211d74e8f46a0e3"
   },
+  "/icf-calculator": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/icf-wall-estimator": {
     "lastmod": "2026-11-19",
     "hash": "098f203cff5b2fee"
@@ -1426,6 +1462,10 @@
   "/insulation-calculator": {
     "lastmod": "2026-11-19",
     "hash": "cb9398523553aaf6"
+  },
+  "/intelligence": {
+    "lastmod": "2026-11-25",
+    "hash": null
   },
   "/labour-estimator": {
     "lastmod": "2026-11-20",
@@ -1702,6 +1742,10 @@
   "/learn/from-preliminary-concrete-estimate-to-a-verified-mix-submittal": {
     "lastmod": "2026-11-10",
     "hash": "73dbf75ab99090bc"
+  },
+  "/learn/glossary": {
+    "lastmod": "2026-11-25",
+    "hash": null
   },
   "/learn/how-natural-light-changes-paint-colour": {
     "lastmod": "2026-11-10",
@@ -3391,8 +3435,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ae/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/ae/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/ae/templates/kitchen-backsplash-tiling": {
@@ -3487,6 +3531,18 @@
     "lastmod": "2026-11-19",
     "hash": "64e19c5a828f98b3"
   },
+  "/market/ae/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/ae/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/ae/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/ae/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "76dbc6724226c1b7"
@@ -3575,8 +3631,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/au/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/au/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/au/templates/kitchen-backsplash-tiling": {
@@ -3671,6 +3727,18 @@
     "lastmod": "2026-11-19",
     "hash": "5751cfc4f231ac4c"
   },
+  "/market/au/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/au/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/au/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/au/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "38d5d24000b8db57"
@@ -3759,8 +3827,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/br/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/br/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/br/templates/kitchen-backsplash-tiling": {
@@ -3855,6 +3923,18 @@
     "lastmod": "2026-11-19",
     "hash": "4ce2246ab7130858"
   },
+  "/market/br/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/br/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/br/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/br/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "34165db2b2775da2"
@@ -3943,8 +4023,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ca/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/ca/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/ca/templates/kitchen-backsplash-tiling": {
@@ -4039,6 +4119,18 @@
     "lastmod": "2026-11-19",
     "hash": "2424a80549e73ea2"
   },
+  "/market/ca/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/ca/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/ca/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/ca/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "0c89e85adcd01c5b"
@@ -4127,8 +4219,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ch/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/ch/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/ch/templates/kitchen-backsplash-tiling": {
@@ -4223,6 +4315,18 @@
     "lastmod": "2026-11-19",
     "hash": "6ee721af91891e17"
   },
+  "/market/ch/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/ch/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/ch/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/ch/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "e2e1f367c329a537"
@@ -4311,8 +4415,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ci/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/ci/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/ci/templates/kitchen-backsplash-tiling": {
@@ -4407,6 +4511,18 @@
     "lastmod": "2026-11-19",
     "hash": "006096b782793ca7"
   },
+  "/market/ci/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/ci/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/ci/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/ci/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "2f5403566763d8c2"
@@ -4495,8 +4611,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/cn/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/cn/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/cn/templates/kitchen-backsplash-tiling": {
@@ -4591,6 +4707,18 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
+  "/market/cn/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/cn/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/cn/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/cn/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-20",
     "hash": null
@@ -4679,8 +4807,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/de/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/de/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/de/templates/kitchen-backsplash-tiling": {
@@ -4775,6 +4903,18 @@
     "lastmod": "2026-11-19",
     "hash": "2a880afb8d14e547"
   },
+  "/market/de/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/de/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/de/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/de/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "77e12530414caac1"
@@ -4863,8 +5003,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/eg/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/eg/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/eg/templates/kitchen-backsplash-tiling": {
@@ -4959,6 +5099,18 @@
     "lastmod": "2026-11-19",
     "hash": "cd48e256e590463e"
   },
+  "/market/eg/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/eg/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/eg/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/eg/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "bc579370ca07962e"
@@ -5047,8 +5199,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/es/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/es/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/es/templates/kitchen-backsplash-tiling": {
@@ -5143,6 +5295,18 @@
     "lastmod": "2026-11-19",
     "hash": "67768b5d22b04322"
   },
+  "/market/es/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/es/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/es/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/es/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "7231268f88e2d367"
@@ -5231,8 +5395,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/et/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/et/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/et/templates/kitchen-backsplash-tiling": {
@@ -5327,6 +5491,18 @@
     "lastmod": "2026-11-19",
     "hash": "2d4921c4fd849790"
   },
+  "/market/et/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/et/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/et/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/et/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "85b74fa62933b41e"
@@ -5415,8 +5591,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/fr/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/fr/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/fr/templates/kitchen-backsplash-tiling": {
@@ -5511,6 +5687,18 @@
     "lastmod": "2026-11-19",
     "hash": "986ec7ddb15ea330"
   },
+  "/market/fr/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/fr/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/fr/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/fr/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "0fbbbf6564e2e949"
@@ -5599,8 +5787,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/gb/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/gb/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/gb/templates/kitchen-backsplash-tiling": {
@@ -5695,6 +5883,18 @@
     "lastmod": "2026-11-19",
     "hash": "1a5c049c92b090a2"
   },
+  "/market/gb/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/gb/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/gb/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/gb/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "54527f090ee13c3d"
@@ -5783,8 +5983,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/gh/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/gh/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/gh/templates/kitchen-backsplash-tiling": {
@@ -5879,6 +6079,18 @@
     "lastmod": "2026-11-19",
     "hash": "3257e922377bfa30"
   },
+  "/market/gh/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/gh/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/gh/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/gh/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "08a4b1e994b8e22d"
@@ -5967,8 +6179,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/id/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/id/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/id/templates/kitchen-backsplash-tiling": {
@@ -6063,6 +6275,18 @@
     "lastmod": "2026-11-19",
     "hash": "a2691cde6a327e69"
   },
+  "/market/id/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/id/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/id/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/id/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "6136a67ee490ac75"
@@ -6151,8 +6375,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/in/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/in/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/in/templates/kitchen-backsplash-tiling": {
@@ -6247,6 +6471,18 @@
     "lastmod": "2026-11-19",
     "hash": "6209c7a579d4e1e7"
   },
+  "/market/in/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/in/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/in/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/in/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "8b848991d031a49d"
@@ -6335,8 +6571,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/it/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/it/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/it/templates/kitchen-backsplash-tiling": {
@@ -6431,6 +6667,18 @@
     "lastmod": "2026-11-19",
     "hash": "dc8b324b90a51717"
   },
+  "/market/it/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/it/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/it/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/it/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "51635f115c875cda"
@@ -6519,8 +6767,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/jp/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/jp/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/jp/templates/kitchen-backsplash-tiling": {
@@ -6615,6 +6863,18 @@
     "lastmod": "2026-11-19",
     "hash": "773d06fdb01df7e3"
   },
+  "/market/jp/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/jp/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/jp/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/jp/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "9cb94885c22236e3"
@@ -6703,8 +6963,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ke/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/ke/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/ke/templates/kitchen-backsplash-tiling": {
@@ -6799,6 +7059,18 @@
     "lastmod": "2026-11-19",
     "hash": "7472b02449734172"
   },
+  "/market/ke/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/ke/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/ke/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/ke/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "926db48ee2254e10"
@@ -6887,8 +7159,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/kr/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/kr/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/kr/templates/kitchen-backsplash-tiling": {
@@ -6983,6 +7255,18 @@
     "lastmod": "2026-11-19",
     "hash": "bd585f688cf8e173"
   },
+  "/market/kr/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/kr/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/kr/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/kr/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "c4400012d40bfa92"
@@ -7071,8 +7355,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/mx/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/mx/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/mx/templates/kitchen-backsplash-tiling": {
@@ -7167,6 +7451,18 @@
     "lastmod": "2026-11-19",
     "hash": "752b27322827fbfa"
   },
+  "/market/mx/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/mx/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/mx/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/mx/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "76d16de3c2fb501b"
@@ -7255,8 +7551,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/ng/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/ng/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/ng/templates/kitchen-backsplash-tiling": {
@@ -7351,6 +7647,18 @@
     "lastmod": "2026-11-19",
     "hash": "133a735ae4257832"
   },
+  "/market/ng/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/ng/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/ng/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/ng/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "30b3fd314cdbf706"
@@ -7439,8 +7747,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/nl/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/nl/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/nl/templates/kitchen-backsplash-tiling": {
@@ -7535,6 +7843,18 @@
     "lastmod": "2026-11-19",
     "hash": "552bfbc2ba1e87b8"
   },
+  "/market/nl/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/nl/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/nl/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/nl/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "5e08efe60c8df067"
@@ -7623,8 +7943,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/nz/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/nz/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/nz/templates/kitchen-backsplash-tiling": {
@@ -7719,6 +8039,18 @@
     "lastmod": "2026-11-19",
     "hash": "7bb0c1fcf58e81bc"
   },
+  "/market/nz/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/nz/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/nz/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/nz/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "e19466ca8369ca63"
@@ -7807,8 +8139,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/pl/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/pl/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/pl/templates/kitchen-backsplash-tiling": {
@@ -7903,6 +8235,18 @@
     "lastmod": "2026-11-19",
     "hash": "c9b5bf89bdc4279d"
   },
+  "/market/pl/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/pl/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/pl/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/pl/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "478ecd0c1cf03425"
@@ -7991,8 +8335,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/sa/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/sa/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/sa/templates/kitchen-backsplash-tiling": {
@@ -8087,6 +8431,18 @@
     "lastmod": "2026-11-19",
     "hash": "07f901713a807ee9"
   },
+  "/market/sa/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/sa/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/sa/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/sa/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "ba14f8fc8e1f84d1"
@@ -8175,8 +8531,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/se/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/se/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/se/templates/kitchen-backsplash-tiling": {
@@ -8271,6 +8627,18 @@
     "lastmod": "2026-11-19",
     "hash": "5a85d4276704a20b"
   },
+  "/market/se/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/se/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/se/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/se/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "0f32de611b15ad27"
@@ -8359,8 +8727,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/sg/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/sg/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/sg/templates/kitchen-backsplash-tiling": {
@@ -8455,6 +8823,18 @@
     "lastmod": "2026-11-19",
     "hash": "a2506d05c96ebd0f"
   },
+  "/market/sg/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/sg/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/sg/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/sg/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "ea9bf7cb3bf2e816"
@@ -8543,8 +8923,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/tr/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/tr/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/tr/templates/kitchen-backsplash-tiling": {
@@ -8639,6 +9019,18 @@
     "lastmod": "2026-11-19",
     "hash": "459b50a9bc5fcd6d"
   },
+  "/market/tr/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/tr/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/tr/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/tr/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "f7179f11a1d71af8"
@@ -8727,8 +9119,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/tz/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/tz/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/tz/templates/kitchen-backsplash-tiling": {
@@ -8823,6 +9215,18 @@
     "lastmod": "2026-11-19",
     "hash": "fa3adbfb6550aaba"
   },
+  "/market/tz/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/tz/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/tz/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/tz/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "9190ce197361baad"
@@ -8911,8 +9315,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/us/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/us/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/us/templates/kitchen-backsplash-tiling": {
@@ -9007,6 +9411,18 @@
     "lastmod": "2026-11-19",
     "hash": "7e0a2258621435cd"
   },
+  "/market/us/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/us/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/us/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/us/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "46fd2c0726a4f4e0"
@@ -9095,8 +9511,8 @@
     "lastmod": "2026-11-20",
     "hash": null
   },
-  "/market/za/templates/icf-200mm-basement-wall": {
-    "lastmod": "2026-11-20",
+  "/market/za/templates/icf-200mm-basement-wall-north-america": {
+    "lastmod": "2026-11-25",
     "hash": null
   },
   "/market/za/templates/kitchen-backsplash-tiling": {
@@ -9191,6 +9607,18 @@
     "lastmod": "2026-11-19",
     "hash": "6a31502609abe0ba"
   },
+  "/market/za/templates/three-bedroom-bungalow-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/za/templates/two-storey-duplex-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/market/za/templates/us-single-family-build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/market/za/templates/wall-feature-strip-tiling": {
     "lastmod": "2026-11-19",
     "hash": "020a3459bcd20ab3"
@@ -9231,6 +9659,10 @@
     "lastmod": "2026-11-20",
     "hash": "a24e638e3c550bd3"
   },
+  "/painting-estimator": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/partners": {
     "lastmod": "2026-11-20",
     "hash": "e151b74bc378a6eb"
@@ -9259,9 +9691,21 @@
     "lastmod": "2026-11-20",
     "hash": "0b7c6e6b148431cc"
   },
+  "/pop-ceiling-cost-estimator": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/price-index": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/prices": {
     "lastmod": "2026-11-20",
     "hash": "00372acd219dc1cd"
+  },
+  "/prices/regional-indices": {
+    "lastmod": "2026-11-25",
+    "hash": null
   },
   "/pricing": {
     "lastmod": "2026-11-20",
@@ -9551,17 +9995,61 @@
     "lastmod": "2026-11-20",
     "hash": "26167f7bcddee23f"
   },
+  "/tools": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/tools/ai": {
     "lastmod": "2026-11-19",
     "hash": "19759536e29d2756"
+  },
+  "/tools/ai/color-assistant": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/ai/defects": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/ai/photo-estimator": {
+    "lastmod": "2026-11-25",
+    "hash": null
   },
   "/tools/components": {
     "lastmod": "2026-11-19",
     "hash": "75fa0db88c8d8755"
   },
+  "/tools/components/doors-windows": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/tools/finishes": {
     "lastmod": "2026-11-19",
     "hash": "825931ae146c8ce1"
+  },
+  "/tools/finishes/flooring": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/finishes/paint": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/finishes/pop": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/finishes/screeding": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/finishes/tiles": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/finishes/waterproofing": {
+    "lastmod": "2026-11-25",
+    "hash": null
   },
   "/tools/interiors": {
     "lastmod": "2026-11-19",
@@ -9575,13 +10063,65 @@
     "lastmod": "2026-11-19",
     "hash": "464f1c9992b38949"
   },
+  "/tools/project/boq": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/project/cash-flow": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/project/labour": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/project/margin": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/project/timeline": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/tools/services": {
     "lastmod": "2026-11-19",
     "hash": "ed7d0724652a6a2b"
   },
+  "/tools/services/comfort": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/services/electrical": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/services/plumbing": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/services/solar": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
   "/tools/structure": {
     "lastmod": "2026-11-19",
     "hash": "f1ba3e41356b0b43"
+  },
+  "/tools/structure/build-to-roof": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/structure/concrete": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/structure/foundation": {
+    "lastmod": "2026-11-25",
+    "hash": null
+  },
+  "/tools/structure/rebar": {
+    "lastmod": "2026-11-25",
+    "hash": null
   },
   "/tools/visual-finishing-estimator": {
     "lastmod": "2026-11-19",
