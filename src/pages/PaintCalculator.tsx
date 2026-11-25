@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { paintCalculatorGuide } from "@/content/calculator-guides/paint-calculator";
 import DeviceRoomsBar from "@/components/rooms/DeviceRoomsBar";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { useNavigate } from "react-router-dom";
@@ -1446,6 +1448,8 @@ ${result.primerContainers.length > 0 ? `- Primer: ${result.primerContainers.map(
 
       {/* Ad slot, placement "calculator_mid" */}
       <RecommendedProducts category="paint" />
+
+      <CalculatorGuideBlock guide={paintCalculatorGuide} />
 
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       {/* Native banner slot, placement "calculator_native" */}

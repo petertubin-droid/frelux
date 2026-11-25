@@ -163,7 +163,7 @@ export default function CalculatorGuideBlock({
               className="rounded-lg border border-border p-3"
             >
               <summary className="cursor-pointer text-sm font-medium">
-                {faq.question}
+                <h3 className="inline text-inherit font-medium">{faq.question}</h3>
               </summary>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {faq.answer}

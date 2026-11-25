@@ -11,73 +11,106 @@ import { render, screen } from "@testing-library/react";
 
 import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
 import { paintCalculatorGuide } from "@/content/calculator-guides/paint-calculator";
+import { screedingCalculatorGuide } from "@/content/calculator-guides/screeding-calculator";
+import { foundationCalculatorGuide } from "@/content/calculator-guides/foundation-calculator";
+import { tileCalculatorGuide } from "@/content/calculator-guides/tile-calculator";
+import { fenceBlockCalculatorGuide } from "@/content/calculator-guides/fence-block-calculator";
 
-const renderGuide = () =>
-  render(<CalculatorGuideBlock guide={paintCalculatorGuide} />);
+const allGuides = [
+  paintCalculatorGuide,
+  screedingCalculatorGuide,
+  foundationCalculatorGuide,
+  tileCalculatorGuide,
+  fenceBlockCalculatorGuide,
+];
 
 describe("CalculatorGuideBlock structure", () => {
-  it("renders a heading and the three content sections as real headings", () => {
-    renderGuide();
-    expect(
-      screen.getByRole("heading", {
-        level: 2,
-        name: /How the painting calculator works/i,
-      }),
-    ).toBeTruthy();
-    expect(
-      screen.getByRole("heading", { level: 3, name: /How it works/i }),
-    ).toBeTruthy();
-    expect(
-      screen.getByRole("heading", { level: 3, name: /Worked example/i }),
-    ).toBeTruthy();
-    expect(
-      screen.getByRole("heading", { level: 3, name: /Questions people ask/i }),
-    ).toBeTruthy();
-  });
-
-  it("puts the ratio figures in a table with a caption and column headers", () => {
-    renderGuide();
-    const table = screen
-      .getAllByRole("table")
-      .find((t) => t.textContent?.includes("Coverage per litre"));
-    expect(table).toBeTruthy();
-    expect(table?.querySelector("caption")?.textContent).toMatch(
-      /Typical coverage per litre/i,
-    );
-    const headers = Array.from(table?.querySelectorAll("th") ?? []);
-    expect(headers.length).toBe(3);
-    headers.forEach((th) => expect(th.getAttribute("scope")).toBe("col"));
-  });
-
-  it("renders every question as a details element, so it opens without script", () => {
-    const { container } = renderGuide();
-    const details = Array.from(container.querySelectorAll("details"));
-    expect(details).toHaveLength(paintCalculatorGuide.faqs.length);
-    details.forEach((d) => {
+  it.each(allGuides)(
+    "renders headings and content sections for ",
+    (guide) => {
+      const { unmount } = render(<CalculatorGuideBlock guide={guide} />);
       expect(
-        d.querySelector("summary")?.textContent?.trim().length,
-      ).toBeGreaterThan(10);
-    });
-  });
+        screen.getByRole("heading", {
+          level: 2,
+          name: new RegExp(guide.heading, "i"),
+        }),
+      ).toBeTruthy();
+      expect(
+        screen.getByRole("heading", { level: 3, name: /How it works/i }),
+      ).toBeTruthy();
+      expect(
+        screen.getByRole("heading", { level: 3, name: /Worked example/i }),
+      ).toBeTruthy();
+      expect(
+        screen.getByRole("heading", { level: 3, name: /Questions people ask/i }),
+      ).toBeTruthy();
+      unmount();
+    },
+  );
+
+  it.each(allGuides)(
+    "puts ratio/coverage figures in a table with caption and headers for ",
+    (guide) => {
+      const { unmount } = render(<CalculatorGuideBlock guide={guide} />);
+      const tables = screen.getAllByRole("table");
+      expect(tables.length).toBeGreaterThanOrEqual(2);
+      const ratioTable = tables[1];
+      expect(ratioTable.querySelector("caption")?.textContent).toMatch(
+        new RegExp(guide.ratioTable.caption.slice(0, 20), "i"),
+      );
+      const headers = Array.from(ratioTable.querySelectorAll("th"));
+      expect(headers.length).toBe(guide.ratioTable.columns.length);
+      headers.forEach((th) => expect(th.getAttribute("scope")).toBe("col"));
+      unmount();
+    },
+  );
+
+  it.each(allGuides)(
+    "renders every question as a details element for ",
+    (guide) => {
+      const { container, unmount } = render(<CalculatorGuideBlock guide={guide} />);
+      const details = Array.from(container.querySelectorAll("details"));
+      expect(details).toHaveLength(guide.faqs.length);
+      details.forEach((d) => {
+        expect(
+          d.querySelector("summary")?.textContent?.trim().length,
+        ).toBeGreaterThan(10);
+      });
+      unmount();
+    },
+  );
 });
 
 describe("CalculatorGuideBlock content volume", () => {
-  it("carries at least 500 words of real text", () => {
-    const { container } = renderGuide();
-    const words = (container.textContent ?? "")
-      .split(/\s+/)
-      .filter((w) => /[a-z0-9]/i.test(w));
-    expect(words.length).toBeGreaterThanOrEqual(500);
-  });
+  it.each(allGuides)(
+    "carries at least 500 words of real text for ",
+    (guide) => {
+      const { container, unmount } = render(<CalculatorGuideBlock guide={guide} />);
+      const words = (container.textContent ?? "")
+        .split(/\s+/)
+        .filter((w) => /[a-z0-9]/i.test(w));
+      expect(words.length).toBeGreaterThanOrEqual(500);
+      unmount();
+    },
+  );
 
-  it("uses no em dashes, per the house style", () => {
-    const { container } = renderGuide();
-    expect(container.textContent ?? "").not.toContain("\u2014");
-    expect(container.textContent ?? "").not.toContain("--");
-  });
+  it.each(allGuides)(
+    "uses no em dashes per the house style for ",
+    (guide) => {
+      const { container, unmount } = render(<CalculatorGuideBlock guide={guide} />);
+      expect(container.textContent ?? "").not.toContain("—");
+      expect(container.textContent ?? "").not.toContain("--");
+      unmount();
+    },
+  );
 
-  it("states what the tool does not do", () => {
-    renderGuide();
-    expect(screen.getByText(/does not price labour or access/i)).toBeTruthy();
-  });
+  it.each(allGuides)(
+    "states what the tool does not do in limits for ",
+    (guide) => {
+      const { container, unmount } = render(<CalculatorGuideBlock guide={guide} />);
+      expect(guide.limits).toBeTruthy();
+      expect(container.textContent).toContain(guide.limits!);
+      unmount();
+    },
+  );
 });

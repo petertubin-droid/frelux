@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { foundationCalculatorGuide } from "@/content/calculator-guides/foundation-calculator";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -1074,6 +1076,8 @@ export default function FoundationCalculator() {
         </div>
         {/* Ad slot, placement "calculator_mid" */}
         <RecommendedProducts category="cement" />
+
+        <CalculatorGuideBlock guide={foundationCalculatorGuide} />
 
         <AdSlot slotKey="calculator_mid" className="mt-8" />
         {/* Native banner slot, placement "calculator_native" */}

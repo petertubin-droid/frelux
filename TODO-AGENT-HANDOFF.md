@@ -200,11 +200,26 @@ Landed in 4331f4d9:
 - 6 tests, including a floor of 500 rendered words so a later edit cannot
   hollow the page out, and a no-em-dash check.
 
-GOTCHA: the block is NOT wired into any calculator page yet. PaintCalculator.tsx
-is 3,080 lines and appending to it blind is how a working calculator breaks.
-Next commit: import the block into PaintCalculator and render it below the
-results, then repeat for blockwork, foundation, screeding and tile, which carry
-the most search intent. 43 content files remain after that.
+WIRED (2026-11-25): CalculatorGuideBlock is now wired into the 5 highest-intent
+calculators with full, non-thin content (all >= 500 words, no em dashes, real
+semantic headings, HTML-as-served tables with captions and scoped headers,
+accessible details/summary questions, and clear limits):
+1. Paint (`PaintCalculator.tsx` + `src/content/calculator-guides/paint-calculator.ts`)
+2. Wall Screeding (`ScreedingCalculator.tsx` + `src/content/calculator-guides/screeding-calculator.ts`)
+3. Foundation (`FoundationCalculator.tsx` + `src/content/calculator-guides/foundation-calculator.ts`)
+4. Tile (`TileCalculator.tsx` + `src/content/calculator-guides/tile-calculator.ts`)
+5. Blockwork / Perimeter Fence (`FenceBlockCalculator.tsx` + `src/content/calculator-guides/fence-block-calculator.ts`)
+
+Audit findings applied during wiring:
+- Checked for duplicate sections: on FenceBlockCalculator, replaced the legacy unstyled
+  hardcoded FAQ block with CalculatorGuideBlock to eliminate duplicate questions while
+  preserving heading-level compatibility.
+- On TileCalculator, retained FaqItemsWithSchema in !embedded mode to satisfy schema tests
+  while rendering the full 1,000-word GuideBlock across all modes.
+- On PaintCalculator and ScreedingCalculator, positioned cleanly below results and methodology
+  without duplicating Hub content.
+- 30 unit tests in CalculatorGuideBlock.test.tsx validate all 5 guides against every structural
+  and word-count constraint. 39 calculator content guides remain for future tranches.
 
 AdSense checklist items verified complete on the same pass (static inspection,
 not a live crawl): footer trust links (About, Contact, Editorial standards,

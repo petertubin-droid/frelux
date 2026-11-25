@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { fenceBlockCalculatorGuide } from "@/content/calculator-guides/fence-block-calculator";
 import { supabase } from "@/lib/supabase";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
@@ -981,59 +983,7 @@ export default function FenceBlockCalculator() {
 
           <AdSlot slotKey="calculator_mid" />
 
-          <section aria-labelledby="fence-faq" className="space-y-4">
-            <h2
-              id="fence-faq"
-              className="font-heading text-2xl font-bold text-foreground"
-            >
-              {t("Frequently asked questions")}
-            </h2>
-
-            <h3 className="font-heading text-lg font-semibold text-foreground">
-              {t("How many 6 inch blocks do I need for a 1 plot fence?")}
-            </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {t(
-                "A full plot measures 100 ft by 50 ft, which is 30.48 m by 15.24 m and gives a perimeter of 91.44 m. A 6 inch block and a 9 inch block have the same face, 450 mm long and 225 mm high, so both take the same count: about 9.25 blocks per square metre of wall once the 10 mm joint is included. At five coaches high, roughly 1.18 m, the wall area is about 107 m² and you need just over 1,000 blocks before breakage. The 6 inch block is thinner, so it uses less mortar, not fewer blocks.",
-              )}
-            </p>
-
-            <h3 className="font-heading text-lg font-semibold text-foreground">
-              {t("How many coaches high should a fence wall be?")}
-            </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {t(
-                "Most residential perimeter walls in Nigeria are built between four and seven coaches high, which is 0.94 m to 1.65 m. Check the height your local authority or estate allows before you buy materials: a wall that has to be cut down wastes both blocks and mortar.",
-              )}
-            </p>
-
-            <h3 className="font-heading text-lg font-semibold text-foreground">
-              {t("How many bags of cement will plaster a fence wall?")}
-            </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {t(
-                "Plaster is a separate calculation from blockwork. This page returns the cement and sand in the mortar between the blocks only. A 12 mm to 15 mm plaster on both faces of a wall of about 107 m² commonly takes 12 to 16 bags of 50 kg cement in a 1:4 mix, and you should confirm the thickness and mix your mason intends to use before ordering.",
-              )}
-            </p>
-
-            <h3 className="font-heading text-lg font-semibold text-foreground">
-              {t("How many trips of sand does a fence need?")}
-            </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {t(
-                "Trips depend on the lorry, not just the volume, so the result shows every tipper size this market sells sand in. A 10 tonne tipper carries about 6.25 m³, a 5 tonne tipper about 3.1 m³, and you should pay for the size you actually receive. The same sand is also shown in wheelbarrows and head pans, which is how the gang will measure it out on site.",
-              )}
-            </p>
-
-            <h3 className="font-heading text-lg font-semibold text-foreground">
-              {t("Does this calculator include pillars and a gate?")}
-            </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {t(
-                "No. It counts a continuous wall around the perimeter. Pillars are usually built in the thicker 9 inch block and add material, and a gate opening reduces the wall area. Work those two out as separate quantities and add them, rather than accepting a single figure that quietly leaves them out.",
-              )}
-            </p>
-          </section>
+          <CalculatorGuideBlock guide={fenceBlockCalculatorGuide} />
         </Container>
       </>{" "}
     </ToolShell>

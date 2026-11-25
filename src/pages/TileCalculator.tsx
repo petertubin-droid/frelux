@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { tileCalculatorGuide } from "@/content/calculator-guides/tile-calculator";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import {
   useEffect,
@@ -1611,6 +1613,8 @@ export default function TileCalculator({
           <ProConnectCTA calculatorType="tile" />
         </>
       )}
+
+      <CalculatorGuideBlock guide={tileCalculatorGuide} />
 
       {/* Ad slot, placement "calculator_mid" */}
       <AdSlot slotKey="calculator_mid" className="mt-8" />
