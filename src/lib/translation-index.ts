@@ -33,6 +33,10 @@ export function isLocalePathIndexable(locale: string, path: string): boolean {
   if (!locale || locale === "en") return true;
   const clean = normalisePath(path);
   if (indexable.has(clean)) return true;
+  // Spanish learn articles are reviewed, published translations with dedicated index, follow headers
+  if (locale === "es" && clean.startsWith("/es/learn/")) {
+    return true;
+  }
   // If the prerendered HTML was already stamped as indexable by prerender.mjs
   // (which verified the reviewed translation at build time), do not flip it
   // to noindex while the client-side translation query is in flight.

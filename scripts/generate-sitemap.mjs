@@ -28,6 +28,11 @@ import { isLocalePrefixed } from "./lib/locale-paths.mjs";
  * the sitemap never saw them. A tool added to the registry is now listed without
  * anyone remembering to add it twice.
  */
+const EXCLUDED_SITEMAP_ROUTES = new Set([
+  "/color-preview",
+  "/tools/offline-sync",
+]);
+
 function toolRegistryRoutes() {
   let source = "";
   try {
@@ -42,7 +47,7 @@ function toolRegistryRoutes() {
   for (const match of source.matchAll(/to:\s*"(\/[a-z0-9\-/]*)"/g)) {
     const path = match[1].replace(/\/+$/, "") || "/";
     // Public, in-app routes only: no admin surface, no external URLs.
-    if (path.startsWith("/") && !path.startsWith("/admin") && path !== "/color-preview") paths.add(path);
+    if (path.startsWith("/") && !path.startsWith("/admin") && !EXCLUDED_SITEMAP_ROUTES.has(path)) paths.add(path);
   }
   return [...paths].sort();
 }
@@ -66,7 +71,7 @@ function appToolSubtreeRoutes() {
   const paths = new Set();
   for (const match of source.matchAll(/path="(\/tools[^"]*)"/g)) {
     const path = match[1].replace(/\/+$/, "") || "/tools";
-    if (!path.includes(":") && !path.startsWith("/admin")) paths.add(path);
+    if (!path.includes(":") && !path.startsWith("/admin") && !EXCLUDED_SITEMAP_ROUTES.has(path)) paths.add(path);
   }
   return [...paths].sort();
 }
@@ -964,15 +969,32 @@ if (droppedLocaleRoutes > 0) {
 // A page the prerenderer marked noindex must never be advertised here. The
 // manifest is written from the files actually emitted, so this is the one place
 // that keeps the sitemap and the robots meta from disagreeing.
-const indexableRoutes = allRoutes.filter((r) => {
+// We also deduplicate routes by normalized path and exclude private/noindex tools.
+const seenPaths = new Set();
+const indexableRoutes = [];
+let droppedNoindexCount = 0;
+let droppedDupCount = 0;
+
+for (const r of allRoutes) {
   const clean = r.path.replace(/\/$/, "") || "/";
-  if (clean === "/color-preview") return false;
-  return !manifestNoindex.has(clean) && !manifestNoindex.has(`${clean}/`);
-});
-if (indexableRoutes.length !== allRoutes.length) {
-  console.log(
-    `  ℹ️  sitemap dropped ${allRoutes.length - indexableRoutes.length} noindex URL(s)`,
-  );
+  if (EXCLUDED_SITEMAP_ROUTES.has(clean) || manifestNoindex.has(clean) || manifestNoindex.has(`${clean}/`)) {
+    droppedNoindexCount++;
+    continue;
+  }
+  if (seenPaths.has(clean)) {
+    droppedDupCount++;
+    continue;
+  }
+  seenPaths.add(clean);
+  indexableRoutes.push(r);
+}
+
+if (droppedNoindexCount > 0) {
+  console.log(`  ℹ️  sitemap dropped ${droppedNoindexCount} noindex URL(s)`);
+}
+if (droppedDupCount > 0) {
+  console.log(`  ℹ️  sitemap deduplicated ${droppedDupCount} duplicate URL(s)`);
+}
 }
 
 // ── Learn article hreflang ───────────────────────────────────────────

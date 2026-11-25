@@ -1,7 +1,8 @@
 /**
- * Determines whether a hostname is a staging, deploy preview, or non-canonical domain.
- * Production canonical host is freluxtools.com. Local hosts (localhost, 127.0.0.1) are excluded.
- * All *.netlify.app domains and staging environments must never be indexed.
+ * Determines whether a hostname is a staging or deploy preview environment.
+ * Production canonical hosts are freluxtools.com and the primary freluxtools.netlify.app host.
+ * Only ephemeral deploy previews (deploy-preview-*, branch deploys) and staging subdomains
+ * enforce client-side noindex.
  */
 import { listingCopyFor } from "../../scripts/lib/listing-copy.mjs";
 export function isStagingHostname(hostname?: string): boolean {
@@ -12,11 +13,22 @@ export function isStagingHostname(hostname?: string): boolean {
     h === "127.0.0.1" ||
     h.endsWith(".localhost") ||
     h === "freluxtools.com" ||
-    h === "www.freluxtools.com"
+    h === "www.freluxtools.com" ||
+    h === "freluxtools.netlify.app"
   ) {
     return false;
   }
-  return true;
+  // Deploy previews, branch previews, and staging subdomains
+  if (
+    h.includes("deploy-preview") ||
+    h.includes("--") ||
+    h.startsWith("staging.") ||
+    h.startsWith("dev.") ||
+    h.startsWith("test.")
+  ) {
+    return true;
+  }
+  return false;
 }
 
 import { isLocalePathIndexable } from "@/lib/translation-index";

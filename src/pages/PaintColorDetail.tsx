@@ -4,7 +4,6 @@ import { SITE_URL } from "@/lib/site-config";
 import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import {
-  ArrowLeft,
   Copy,
   Check,
   AlertCircle,
@@ -103,7 +102,7 @@ export default function PaintColorDetail() {
       "View this professional paint color with full color codes and recommendations.",
     canonicalPath: color ? `/colors/paint/${color.slug}` : "/colors",
     ogType: "article",
-    noIndex: !color,
+    noIndex: status !== "loading" && !color,
     structuredData: color
       ? {
           "@context": "https://schema.org",

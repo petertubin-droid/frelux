@@ -2,7 +2,7 @@ import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { ArrowLeft, Copy, Check, AlertCircle, Loader2 } from "lucide-react";
+import { Copy, Check, AlertCircle, Loader2 } from "lucide-react";
 import {
   fetchColorBySlug,
   fetchRelatedColors,
@@ -42,7 +42,7 @@ export default function ColorDetail() {
     canonicalPath: color ? `/colors/${color.slug}` : "/colors",
     ogType: "article",
     ogImage: color?.image_url,
-    noIndex: !color || !color.is_published,
+    noIndex: status !== "loading" && (!color || !color.is_published),
   });
 
   useEffect(() => {

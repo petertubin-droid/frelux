@@ -3,16 +3,13 @@ import { render } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { ToastProvider } from "@/components/ui/Toast";
 
-const pageMocks = vi.hoisted(() => ({
-  seoCalls: [] as Array<Record<string, unknown>>,
-}));
-
+const seoCalls: Array<Record<string, unknown>> = [];
 vi.mock("@/lib/seo", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/lib/seo")>();
   return {
     ...actual,
     useSeo: (config: Record<string, unknown> | null) => {
-      if (config) pageMocks.seoCalls.push(config);
+      if (config) seoCalls.push(config);
       return actual.useSeo(config as never);
     },
   };
@@ -30,7 +27,7 @@ vi.mock("@/lib/credits", () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
-  pageMocks.seoCalls.length = 0;
+  seoCalls.length = 0;
 });
 
 async function renderPage() {
@@ -50,14 +47,12 @@ describe("MaterialPriceTracker", () => {
     expect(container.innerHTML).not.toBe("");
   });
 
-  it("is indexable and does not set noIndex robots directives", async () => {
-    pageMocks.seoCalls.length = 0;
+  it("is indexable by search engines and does not enforce noIndex", async () => {
     await renderPage();
-
-    const call = pageMocks.seoCalls.find(
+    const trackerCall = seoCalls.find(
       (c) => c.canonicalPath === "/material-prices",
     );
-    expect(call).toBeTruthy();
-    expect(call?.noIndex).toBeFalsy();
+    expect(trackerCall).toBeTruthy();
+    expect(trackerCall?.noIndex).toBeFalsy();
   });
 });

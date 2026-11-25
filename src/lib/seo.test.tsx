@@ -348,21 +348,49 @@ describe("useSeo", () => {
 
   describe("isStagingHostname & staging robots guard", () => {
     it("correctly classifies staging and production hostnames", () => {
-      expect(isStagingHostname("freluxtools.netlify.app")).toBe(true);
-      expect(
-        isStagingHostname("deploy-preview-42--freluxtools.netlify.app"),
-      ).toBe(true);
-      expect(isStagingHostname("staging.freluxtools.com")).toBe(true);
-
-      // Production & local development
+      // Production hosts (must not be blocked by noindex)
+      expect(isStagingHostname("freluxtools.netlify.app")).toBe(false);
       expect(isStagingHostname("freluxtools.com")).toBe(false);
       expect(isStagingHostname("www.freluxtools.com")).toBe(false);
       expect(isStagingHostname("localhost")).toBe(false);
       expect(isStagingHostname("127.0.0.1")).toBe(false);
       expect(isStagingHostname("dev.localhost")).toBe(false);
+
+      // Ephemeral staging and deploy preview hosts
+      expect(
+        isStagingHostname("deploy-preview-42--freluxtools.netlify.app"),
+      ).toBe(true);
+      expect(isStagingHostname("staging.freluxtools.com")).toBe(true);
+      expect(isStagingHostname("dev.freluxtools.com")).toBe(true);
     });
 
-    it("enforces noindex, nofollow on Netlify staging host", () => {
+    it("enforces noindex, nofollow on Netlify deploy preview host", () => {
+      const origLocation = window.location;
+      try {
+        // @ts-expect-error test mock
+        delete window.location;
+        // @ts-expect-error test mock
+        window.location = new URL(
+          "https://deploy-preview-42--freluxtools.netlify.app/paint-calculator/",
+        );
+
+        renderSeo({
+          title: "Paint Calculator",
+          description: "Estimate paint",
+          canonicalPath: "/paint-calculator",
+        });
+
+        expect(getMetaContent("name", "robots")).toBe("noindex, nofollow");
+        // Canonical still strictly points to production canonical freluxtools.com
+        expect(getLink("canonical")!.getAttribute("href")).toBe(
+          `${SITE_URL}/paint-calculator/`,
+        );
+      } finally {
+        window.location = origLocation;
+      }
+    });
+
+    it("allows index, follow on freluxtools.netlify.app production host with canonical link", () => {
       const origLocation = window.location;
       try {
         // @ts-expect-error test mock
@@ -378,8 +406,9 @@ describe("useSeo", () => {
           canonicalPath: "/paint-calculator",
         });
 
-        expect(getMetaContent("name", "robots")).toBe("noindex, nofollow");
-        // Canonical still strictly points to production canonical freluxtools.com
+        expect(getMetaContent("name", "robots")).toBe(
+          "index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1",
+        );
         expect(getLink("canonical")!.getAttribute("href")).toBe(
           `${SITE_URL}/paint-calculator/`,
         );
