@@ -108,7 +108,14 @@
     <script>
       (function () {
         window.adsbygoogle = window.adsbygoogle || [];
-        window.adsbygoogle.pauseAdRequests = 1;
+        // Requests are NOT paused by default. AdSense's verification crawler
+        // cannot answer the cookie banner, so a permanent pause reads as "ad
+        // code missing or incomplete" and the site never verifies. The default
+        // is non-personalised ads instead: no storage, no profile, no consent
+        // needed, and the loader stays verifiable. Only a visitor who has
+        // explicitly declined advertising pauses requests, and accepting lifts
+        // non-personalised mode.
+        window.adsbygoogle.requestNonPersonalizedAds = 1;
         try {
           var raw = localStorage.getItem("frelux_cookie_consent");
           if (!raw) return;
@@ -119,10 +126,13 @@
             Date.now() - stored.timestamp < 180 * 24 * 60 * 60 * 1000;
           if (!stored || stored.version !== 2 || !fresh || !stored.categories)
             return;
-          window.adsbygoogle.requestNonPersonalizedAds =
-            stored.categories.advertising === true ? 0 : 1;
+          if (stored.categories.advertising === true) {
+            window.adsbygoogle.requestNonPersonalizedAds = 0;
+          } else {
+            window.adsbygoogle.pauseAdRequests = 1;
+          }
         } catch (error) {
-          /* private mode: the page code pauses requests again on mount */
+          /* private mode: non-personalised ads remain the safe default */
         }
       })();
     </script>
@@ -132,12 +142,12 @@
          banner, so an unanswered visit downloads the loader and receives no
          ad. Deferring the download looked cheaper on paper but would have
          traded the whole verification for one request. -->
-    <!-- Primary account: the one being verified and serving. The AdSense crawler
-         reads this loader and the meta tag below, so both must name it. -->
+    <!-- Exactly one loader: the account being verified and serving. The AdSense
+         crawler reads this loader and the meta tag below, so both name it. A
+         second publisher tag on the same page is a duplicate-account signal and
+         a documented cause of tag-evaluation failures during review, so there is
+         no second tag here. src/lib/adsense-account.test.ts fails if one returns. -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4906239537212380" crossorigin="anonymous"></script>
-    <!-- Authorised second account. Kept live so its inventory history and ads.txt
-         authorisation stay intact. Remove neither without checking ads.txt. -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3404100134534192" crossorigin="anonymous"></script>
     <!-- Tab icon: cut from public/brand/frelux-icon.png by
          scripts/generate-brand-icons.mjs. Served from /brand so a browser
          holding an older tab icon fetches a URL it has never cached. -->

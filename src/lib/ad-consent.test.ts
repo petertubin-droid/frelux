@@ -1,3 +1,4 @@
+import { setThirdPartyNetworksForTests } from "@/lib/ad-consent";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   hasAnyConsentChoice,
@@ -44,7 +45,11 @@ describe("ad-consent gate", () => {
     expect(hasAdvertisingConsent()).toBe(false);
   });
 
-  it("serves every network after accept-all", () => {
+  it("serves every network after accept-all, once the review switch is open", () => {
+    // While AdSense reviews the site, third-party networks are off regardless
+    // of consent (siteConfig.ads.thirdPartyNetworksEnabled = false), because
+    // their pop-unders can sink the application on their own.
+    setThirdPartyNetworksForTests(true);
     saveConsent(
       { essential: true, analytics: true, advertising: true },
       "banner",
@@ -54,6 +59,19 @@ describe("ad-consent gate", () => {
     expect(canServeProviderAds("adsterra")).toBe(true);
     expect(canServeProviderAds("propellerads")).toBe(true);
     expect(hasAdvertisingConsent()).toBe(true);
+  });
+
+  it("keeps third-party networks off during review even with full consent", () => {
+    setThirdPartyNetworksForTests(null);
+    saveConsent(
+      { essential: true, analytics: true, advertising: true },
+      "banner",
+    );
+    expect(canServeProviderAds("google_adsense")).toBe(true);
+    expect(canServeProviderAds("media_net")).toBe(true);
+    expect(canServeProviderAds("monetag")).toBe(false);
+    expect(canServeProviderAds("adsterra")).toBe(false);
+    expect(canServeProviderAds("propellerads")).toBe(false);
   });
 
   it("requests NPA for AdSense exactly when advertising consent is absent", () => {

@@ -43,19 +43,25 @@ describe("AdSense tag in the served HTML", () => {
     for (const record of records) expect(adsTxt).toContain(record);
   });
 
-  it("loads the auto ads library for the FRELUX publisher", () => {
+  it("loads the auto ads library once, for the account under review", () => {
+    const loaders = html.match(/adsbygoogle\.js\?client=ca-pub-\d+/g) ?? [];
+    expect(loaders).toHaveLength(1);
     expect(html).toContain(
-      "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3404100134534192",
+      "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4906239537212380",
     );
     expect(html).toContain('crossorigin="anonymous"');
   });
 
-  it("boots paused so nothing is requested before a consent choice", () => {
-    const pauseIndex = html.indexOf("pauseAdRequests = 1");
-    const tagIndex = html.indexOf("adsbygoogle.js?client=");
-    expect(pauseIndex).toBeGreaterThan(-1);
-    expect(tagIndex).toBeGreaterThan(-1);
-    expect(pauseIndex).toBeLessThan(tagIndex);
+  it("requests nothing personal before a choice, without blocking verification", () => {
+    // A permanent pauseAdRequests blocks the AdSense crawler, which cannot
+    // answer the cookie banner. Non-personalised ads are the consent-free
+    // default; a pause is only applied to a stored refusal.
+    expect(html).toContain("window.adsbygoogle.requestNonPersonalizedAds = 1");
+    const boot = html.indexOf("window.adsbygoogle = window.adsbygoogle");
+    const pauseAt = html.indexOf("pauseAdRequests = 1");
+    const refusalAt = html.indexOf("stored.categories.advertising === true");
+    expect(refusalAt).toBeGreaterThan(boot);
+    expect(pauseAt).toBeGreaterThan(refusalAt);
   });
 
   it("reads the stored choice from the same key the banner writes", () => {

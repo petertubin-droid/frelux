@@ -25,10 +25,24 @@ export const siteConfig = {
     // the runtime slots use this one. It is the account being verified, so it has
     // to be the ID the AdSense crawler finds first on the page.
     publisherId: "ca-pub-4906239537212380",
-    // Additional authorised accounts. These do not replace the primary; they are
-    // listed alongside it in ads.txt and app-ads.txt so both can bid.
-    additionalPublisherIds: ["ca-pub-3404100134534192"],
+    // No second account. Google treats two publisher tags on one site as a
+    // duplicate-account signal and warns that the extra tag breaks tag
+    // evaluation during review, which is a known cause of "site couldn't be
+    // verified". One site, one publisher: the field stays so ads.txt and the
+    // tag tests keep a single source of truth, and it must stay empty while
+    // this account is under review.
+    additionalPublisherIds: [] as string[],
     adSlots: {} as Record<string, string>,
+  },
+  // Third-party ad networks (Adsterra, Monetag/PropellerAds).
+  //
+  // Google's review looks at the whole page, not just its own tag: a site that
+  // also runs pop-unders or push notifications from another network can be
+  // rejected for the other network's behaviour. While the AdSense account is
+  // under review this stays false, which makes canServeProviderAds() refuse
+  // every non-Google provider. Flip it to true only after approval.
+  ads: {
+    thirdPartyNetworksEnabled: false,
   },
   // Meta Pixel, leave empty until real ID is provided.
   metaPixel: {

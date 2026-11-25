@@ -19,14 +19,15 @@ describe("ads.txt & app-ads.txt integrity and crawlability", () => {
     expect(buffer[0] === 0xef && buffer[1] === 0xbb && buffer[2] === 0xbf).toBe(false);
 
     const content = buffer.toString("utf8");
-    expect(content).toContain("google.com, pub-3404100134534192, DIRECT, f08c47fec0942fa0");
+    expect(content).toContain("google.com, pub-4906239537212380, DIRECT, f08c47fec0942fa0");
     expect(content.endsWith("\n")).toBe(true);
   });
 
   it("ensures public/app-ads.txt exists and matches the publisher ID", () => {
     expect(existsSync(appAdsTxtPath)).toBe(true);
     const content = readFileSync(appAdsTxtPath, "utf8");
-    expect(content).toContain("google.com, pub-3404100134534192, DIRECT, f08c47fec0942fa0");
+    expect(content).toContain("google.com, pub-4906239537212380, DIRECT, f08c47fec0942fa0");
+    expect(content).not.toContain("pub-3404100134534192");
   });
 
   it("ensures public/_headers allows cross-origin reading and sets proper Content-Type", () => {

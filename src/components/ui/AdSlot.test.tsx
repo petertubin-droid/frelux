@@ -48,6 +48,11 @@ beforeEach(async () => {
   // Ad serving is consent-gated (Heartsyncx pattern, see ad-consent.ts):
   // grant full consent so every test exercises the serving path.
   const { acceptAll, withdrawConsent } = await import("@/lib/cookie-consent");
+  // Third-party networks are switched off in production while AdSense reviews
+  // the site (siteConfig.ads.thirdPartyNetworksEnabled). These tests exercise
+  // the Adsterra/Monetag serving paths themselves, so they opt back in.
+  const { setThirdPartyNetworksForTests } = await import("@/lib/ad-consent");
+  setThirdPartyNetworksForTests(true);
   withdrawConsent();
   acceptAll("settings");
   // Reset the auth mock, individual tests may override isPaid

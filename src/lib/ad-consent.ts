@@ -1,3 +1,4 @@
+import { siteConfig } from "@/config/site";
 import {
   getStoredConsent,
   hasConsent,
@@ -51,7 +52,34 @@ export function hasAdvertisingConsent(): boolean {
  * - Every other network (monetag, adsterra, propellerads, ezoic, …) →
  *   requires the advertising category.
  */
+/**
+ * Test-only override for the third-party review switch.
+ *
+ * Production reads siteConfig. Provider component tests exercise Adsterra and
+ * Monetag behaviour that the switch deliberately disables while AdSense is
+ * reviewing the site, so they flip this in a beforeEach and reset it after.
+ */
+let thirdPartyOverride: boolean | null = null;
+
+export function setThirdPartyNetworksForTests(value: boolean | null): void {
+  thirdPartyOverride = value;
+}
+
+function thirdPartyNetworksEnabled(): boolean {
+  return thirdPartyOverride ?? siteConfig.ads.thirdPartyNetworksEnabled;
+}
+
 export function canServeProviderAds(slug: string): boolean {
+  // Google's review sees the whole page: another network's pop-unders or push
+  // ads can sink an AdSense application on their own. Google's own providers
+  // stay available; every third-party network is off while the switch is off.
+  if (
+    slug !== "google_adsense" &&
+    slug !== "media_net" &&
+    !thirdPartyNetworksEnabled()
+  ) {
+    return false;
+  }
   if (!hasAnyConsentChoice()) return false;
   if (slug === "google_adsense" || slug === "media_net") return true;
   return hasAdvertisingConsent();

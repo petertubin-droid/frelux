@@ -52,6 +52,11 @@ const pushScript = () =>
   document.querySelector("script[data-frelux-monetag-push]");
 
 describe("MonetagInPagePush", () => {
+  beforeEach(async () => {
+    const { setThirdPartyNetworksForTests } = await import("@/lib/ad-consent");
+    setThirdPartyNetworksForTests(true);
+  });
+
   beforeEach(() => {
     authState.isPaid = false;
     authState.loading = false;

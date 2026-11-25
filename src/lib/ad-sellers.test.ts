@@ -79,15 +79,16 @@ describe("the served ads.txt files", () => {
     }
   });
 
-  it("still authorises the account that was already approved", () => {
+  it("authorises only the account under review, and never the retired one", () => {
+    // Two google.com records for one site is a duplicate-account signal, and
+    // Google treats a second publisher tag as a tag-evaluation error during
+    // review. The retired account must not come back into either file.
     for (const file of files) {
       const body = readFileSync(join(process.cwd(), file), "utf8");
       expect(body).toContain(
-        "google.com, pub-3404100134534192, DIRECT, f08c47fec0942fa0",
-      );
-      expect(body).toContain(
         "google.com, pub-4906239537212380, DIRECT, f08c47fec0942fa0",
       );
+      expect(body).not.toContain("pub-3404100134534192");
     }
   });
 
