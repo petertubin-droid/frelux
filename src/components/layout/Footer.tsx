@@ -92,6 +92,7 @@ const companyLinks = [
   { label: "My Projects", path: "/my-projects" },
   { label: "Contact", path: "/contact" },
   { label: "About", path: "/about" },
+  { label: "Editorial standards", path: "/editorial" },
   { label: "Partners", path: "/partners" },
 ];
 

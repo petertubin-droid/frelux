@@ -11,6 +11,8 @@ import Container from "@/components/ui/Container";
 import PageHeader from "@/components/ui/PageHeader";
 import AdSlot from "@/components/ui/AdSlot";
 import { Badge } from "@/components/ui/shadcn/badge";
+import { useSeo, SITE_URL } from "@/lib/seo";
+import { authorSchema, publisherSchema } from "@/lib/editorial";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
 import {
@@ -22,6 +24,27 @@ import {
 const filters = ["All", ...ENGINEERING_DOMAINS.map((domain) => domain.title)];
 
 export default function EngineeringStandards() {
+  // E-E-A-T: the standards library is the evidence behind every calculator's
+  // method, so it names its author (the editorial desk) and its publisher, and
+  // links to the page that explains how it is reviewed.
+  useSeo({
+    title: "Engineering standards library: methods behind every FRELUX estimate",
+    description:
+      "The engineering standards and methods each FRELUX calculator follows, listed so a reader can check the arithmetic against the published code.",
+    canonicalPath: "/engineering-standards",
+    ogType: "website",
+    structuredData: {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: "Engineering standards library",
+      url: `${SITE_URL}/engineering-standards`,
+      description:
+        "Standards and methods referenced by FRELUX calculators, with the author and publisher of record.",
+      author: authorSchema(),
+      publisher: publisherSchema(),
+      isPartOf: { "@id": `${SITE_URL}/#organization` },
+    },
+  });
   const [filter, setFilter] = useState("All");
   const [query, setQuery] = useState("");
   const [selectedStandard, setSelectedStandard] = useState("All standards");

@@ -31,6 +31,14 @@ export default function About() {
         // registry; availability of verified data varies per market and is
         // disclosed per tool, not claimed globally.
         areaServed: "International",
+        // E-E-A-T: the Organization names the page that states who writes and
+        // reviews its content, so a reviewer can follow the claim.
+        publishingPrinciples: `${SITE_URL}/editorial`,
+        identifier: {
+          "@type": "PropertyValue",
+          name: "Company registration",
+          value: "RC-7492815",
+        },
         knowsAbout: [
           "Paint calculation",
           "Construction cost estimation",

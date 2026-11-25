@@ -110,6 +110,7 @@ const Contact = lazy(() => import("@/pages/Contact"));
 const Partners = lazy(() => import("@/pages/Partners"));
 const EngineeringStandards = lazy(() => import("@/pages/EngineeringStandards"));
 const About = lazy(() => import("@/pages/legal/About"));
+const Editorial = lazy(() => import("@/pages/Editorial"));
 const PrivacyPolicy = lazy(() => import("@/pages/legal/PrivacyPolicy"));
 const Terms = lazy(() => import("@/pages/legal/Terms"));
 const CookiePolicy = lazy(() => import("@/pages/legal/CookiePolicy"));
@@ -1674,6 +1675,15 @@ export default function App() {
                           element={
                             <Suspense fallback={<PageLoader />}>
                               <EngineeringStandards />
+                            </Suspense>
+                          }
+                        />
+
+                        <Route
+                          path="/editorial"
+                          element={
+                            <Suspense fallback={<PageLoader />}>
+                              <Editorial />
                             </Suspense>
                           }
                         />
