@@ -179,6 +179,45 @@ GROUP BY scan_confidence;
 
 - 2026-11 UI & Theme Configuration update: added administrative toggle switches for the mobile bottom navigation bar and the floating AI live chat assistant widget in Admin Settings and Admin AI Settings (both defaulted to toggled off). Updated website default visual mode from dark to light mode across theme provider, pre-paint inline script in index.html, and admin theme unmount restoration.
 
+## Calculator guide block for AdSense thin content (2026-11-25)
+
+AdSense rejects calculator sites as low value because the maths runs in
+JavaScript and the crawler sees an input, a button and two sentences. Measured
+on main: 6 of 50 `*Calculator*.tsx` pages carry any How it works, worked
+example or FAQ text. The other 44 are thin as served.
+
+Landed in 4331f4d9:
+
+- `src/components/calculators/CalculatorGuideBlock.tsx` renders How it works, a
+  worked example, a coverage table and an FAQ, all in the HTML as served: real
+  h2/h3, a real table with caption and `scope="col"` headers, and
+  `<details>`/`<summary>` questions that open without script. No prices, and
+  coverage is a range, because the figure belongs to the tin the reader holds.
+- `src/content/calculator-guides/paint-calculator.ts` is the first content file:
+  a 3-bedroom flat from 120 m2 gross wall area to 102 m2 paintable, two coats,
+  20.4 litres, bought as a 20 L plus a 4 L tin. Limits stated (material only, no
+  labour, no access).
+- 6 tests, including a floor of 500 rendered words so a later edit cannot
+  hollow the page out, and a no-em-dash check.
+
+GOTCHA: the block is NOT wired into any calculator page yet. PaintCalculator.tsx
+is 3,080 lines and appending to it blind is how a working calculator breaks.
+Next commit: import the block into PaintCalculator and render it below the
+results, then repeat for blockwork, foundation, screeding and tile, which carry
+the most search intent. 43 content files remain after that.
+
+AdSense checklist items verified complete on the same pass (static inspection,
+not a live crawl): footer trust links (About, Contact, Editorial standards,
+Privacy Policy, Terms of Service, Cookie Policy, Disclaimer, AI Disclaimer, with
+Footer.test.tsx enforcing one destination per link); PrivacyPolicy has "Cookies
+and local storage" and "Advertising and Google AdSense" sections; CookiePolicy
+names Google AdSense and other advertising partners; noindex mechanism in
+`src/lib/seo.ts` plus server-side `X-Robots-Tag` in `netlify.toml`; sitemap
+carries 2,408 URLs including 60 calculator routes; `scripts/prerender.mjs`
+emits static HTML per route, so the crawler does not depend on JavaScript for
+the shell. Not verified: whether any marketplace category currently renders
+empty, which needs a live data look rather than source reading.
+
 ## Admin access audit remediated (2026-11-23)
 
 Full findings in `docs/ADMIN_ACCESS_AUDIT.md`. What changed:
