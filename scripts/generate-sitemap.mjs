@@ -995,7 +995,6 @@ if (droppedNoindexCount > 0) {
 if (droppedDupCount > 0) {
   console.log(`  ℹ️  sitemap deduplicated ${droppedDupCount} duplicate URL(s)`);
 }
-}
 
 // ── Learn article hreflang ───────────────────────────────────────────
 // Pair every English article with its published translations, and add the

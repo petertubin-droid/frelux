@@ -138,7 +138,14 @@ serveAi(async (req: Request) => {
     ];
     const uniqueModels = [...new Set(candidateModels)];
 
-    let geminiData: Record<string, any> | null = null;
+    interface GeminiPart {
+      text?: string;
+      inlineData?: { mimeType?: string; data?: string };
+    }
+    interface GeminiResponse {
+      candidates?: Array<{ content?: { parts?: GeminiPart[] } }>;
+    }
+    let geminiData: GeminiResponse | null = null;
     let lastErrorText = "";
 
     for (const model of uniqueModels) {
