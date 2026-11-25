@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { roofFramingEstimatorGuide } from "@/content/calculator-guides/roof-framing-estimator";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -1208,6 +1210,10 @@ export default function RoofFramingEstimator() {
           )}
 
           {/* Ad slot, placement "calculator_mid" */}
+          <div className="mt-8">
+            <CalculatorGuideBlock guide={roofFramingEstimatorGuide} />
+          </div>
+
           <RecommendedProducts category="roofing" />
 
           <AdSlot slotKey="calculator_mid" className="mt-8" />

@@ -227,4 +227,13 @@ describe("TV console page", () => {
     });
     expect(screen.queryByTestId("tv-console-reason")).not.toBeInTheDocument();
   });
+  it("renders the TV console and cabinetry joinery guide block", () => {
+    renderPage();
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: /TV console, custom media unit, and cabinetry joinery calculation guide/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });

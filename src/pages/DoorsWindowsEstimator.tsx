@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { doorsWindowsEstimatorGuide } from "@/content/calculator-guides/doors-windows-estimator";
 /**
  * FRELUX Doors & Windows Estimator (Tier 2, Engine 7)
  *
@@ -986,6 +988,10 @@ export default function DoorsWindowsEstimator() {
             </div>
           </>
         )}
+
+        <div className="mt-8">
+          <CalculatorGuideBlock guide={doorsWindowsEstimatorGuide} />
+        </div>
 
         <AdSlot slotKey="calculator_native" className="mt-8" />
 

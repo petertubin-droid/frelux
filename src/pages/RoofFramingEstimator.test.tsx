@@ -316,4 +316,13 @@ describe("RoofFramingEstimator reading a roof plan", () => {
     ).toBeInTheDocument();
     expect(screen.queryByText(/Enter actual section dimensions/i)).toBeNull();
   });
+  it("renders the roof framing and truss calculation guide block", () => {
+    renderPage();
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: /Roof framing, timber truss, and roofing sheet calculation guide/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });

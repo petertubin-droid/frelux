@@ -1,3 +1,4 @@
+import CalculatorGuideBlock, { CalculatorGuide } from "@/components/calculators/CalculatorGuideBlock";
 /**
  * Shared layout for the specialty takeoff calculators.
  *
@@ -81,6 +82,8 @@ export interface SpecialtyCalculatorShellProps {
   extraActions?: ReactNode;
   /** Extra panels below the result, such as products matched to the takeoff. */
   afterResults?: ReactNode;
+  /** Comprehensive AdSense and educational guide block. */
+  guide?: CalculatorGuide;
 }
 
 function fmt(v: number | null, symbol: string): string {
@@ -108,6 +111,7 @@ export function SpecialtyCalculatorShell({
   methodology,
   extraActions,
   afterResults,
+  guide,
 }: SpecialtyCalculatorShellProps) {
   const { market, marketCode } = useMarket();
   const quoteCurrencyCode = useQuoteCurrencyCode();
@@ -679,6 +683,12 @@ export function SpecialtyCalculatorShell({
             </li>
           </ul>
         </section>
+
+        {guide && (
+          <div className="mt-8">
+            <CalculatorGuideBlock guide={guide} />
+          </div>
+        )}
 
         <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>

@@ -72,4 +72,18 @@ describe("ConduitWiringEstimator", () => {
     await screen.findAllByRole("heading");
     expect(normalise(document.body.textContent || "")).toContain("Conduit");
   });
+  it("renders the conduit and wiring calculation guide block", async () => {
+    const { default: Page } = await import("@/pages/ConduitWiringEstimator");
+    render(
+      <MemoryRouter>
+        <Page />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: /Electrical conduit piping, wiring coils, and circuit drop calculation guide/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });

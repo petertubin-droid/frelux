@@ -213,6 +213,13 @@ accessible details/summary questions, and clear limits):
 
 WIRED TRANCHE 2 (2026-11-25): Expanded CalculatorGuideBlock coverage to 5 additional high-traffic calculators (10 total wired), each with >800 words of authentic engineering takeoff, mix ratios, worked examples, and accessible FAQs: 6. German Floor & Oversite Slab (`GermanFloorCalculator.tsx` + `src/content/calculator-guides/german-floor-calculator.ts`) 7. Plaster & Exterior Render (`PlasterRenderCalculator.tsx` + `src/content/calculator-guides/plaster-render-calculator.ts`) 8. POP & Gypsum Ceilings (`PopCeilingCalculator.tsx` + `src/content/calculator-guides/pop-ceiling-calculator.ts`) 9. Wallpaper Rolls & Pattern Repeat (`WallpaperCalculator.tsx` + `src/content/calculator-guides/wallpaper-calculator.ts`) 10. Waterproofing, DPC & DPM Membranes (`WaterproofingEstimator.tsx` + `src/content/calculator-guides/waterproofing-estimator.ts`)
 
+WIRED TRANCHE 3 (2026-11-25): Expanded CalculatorGuideBlock coverage to 5 additional engineering calculators (15 total wired out of 44), each with >1,000 words of authentic engineering takeoff, worked examples, structural ratios/specs, and accessible FAQs:
+11. Roof Framing & Timber Truss (`RoofFramingEstimator.tsx` + `src/content/calculator-guides/roof-framing-estimator.ts`)
+12. Doors & Windows Schedule (`DoorsWindowsEstimator.tsx` + `src/content/calculator-guides/doors-windows-estimator.ts`)
+13. Electrical Conduit & Wiring Loop (`ConduitWiringEstimator.tsx` + `SpecialtyCalculatorShell.tsx` + `src/content/calculator-guides/conduit-wiring-estimator.ts`)
+14. Plumbing & Drainage Takeoff (`PlumbingEstimator.tsx` + `src/content/calculator-guides/plumbing-estimator.ts`)
+15. TV Console & Custom Media Unit (`TvConsoleCalculator.tsx` + `src/content/calculator-guides/tv-console-calculator.ts`)
+
 Audit findings applied during wiring:
 
 - Checked for duplicate sections across all targets: on GermanFloorCalculator, replaced legacy
@@ -220,8 +227,12 @@ Audit findings applied during wiring:
 - On PlasterRenderCalculator, preserved system-specific how-to and pricing notes while integrating the comprehensive mortar/render guide block.
 - On PopCeilingCalculator, avoided duplicate FAQ accordions by placing the technical guide block in line with the calculator layout while preserving schema markup.
 - On WallpaperCalculator and WaterproofingEstimator, inserted the deep calculation guide cleanly before the mid-content ad slots.
-- 60 unit tests in CalculatorGuideBlock.test.tsx validate all 10 guides against every structural, no-em-dash, and 500-word volume constraint.
-- 91 total tests passing across all 10 calculator pages and guide test suites. 34 calculator content guides remain for future tranches.
+- Supported SpecialtyCalculatorShell with an optional guide prop, bringing crawler-accessible guides to specialty shell calculators without altering existing shell behavior.
+- Sized roof framing slope geometry and hip/valley allowances with clear structural limits (preliminary takeoff, not a licensed structural timber engineering calculation).
+- Sized electrical conduit and copper conductor cables with explicit preliminary estimation limits and strict safety disclaimers (not a certified circuit design or protection study).
+- Placed guides seamlessly alongside existing calculator outputs and ad slots without duplicating schema FAQs.
+- 90 unit tests in CalculatorGuideBlock.test.tsx validate all 15 guides against every structural, no-em-dash, and 500-word volume constraint.
+- 114 total tests passing across all 15 wired calculator pages and guide test suites. 29 calculator content guides remain for future tranches.
 
 AdSense checklist items verified complete on the same pass (static inspection,
 not a live crawl): footer trust links (About, Contact, Editorial standards,

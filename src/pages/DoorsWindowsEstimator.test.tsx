@@ -333,4 +333,17 @@ describe("DoorsWindowsEstimator", () => {
     );
     expect(rows.some((r) => r.item === "Missing")).toBe(true);
   });
+  it("renders the doors and windows calculation guide block", () => {
+    render(
+      <MemoryRouter>
+        <DoorsWindowsEstimator />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: /Doors, windows, architectural frames, and ironmongery schedule guide/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });

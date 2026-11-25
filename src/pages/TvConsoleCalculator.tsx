@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { tvConsoleCalculatorGuide } from "@/content/calculator-guides/tv-console-calculator";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
@@ -1266,6 +1268,9 @@ export default function TvConsoleCalculator() {
         <div className="flex items-center gap-2 rounded-xl border bg-muted/30 p-4 text-sm text-muted-foreground">
           Template mode is available without sign-in. Only AI image parsing
           requires an active Pro or higher subscription.
+        </div>
+        <div className="mt-8">
+          <CalculatorGuideBlock guide={tvConsoleCalculatorGuide} />
         </div>
         <FaqItemsWithSchema
           faqs={CONSOLE_FAQS}

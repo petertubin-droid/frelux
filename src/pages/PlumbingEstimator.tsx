@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { plumbingEstimatorGuide } from "@/content/calculator-guides/plumbing-estimator";
 /**
  * FRELUX Plumbing Estimator (Tier 2, Engine 2)
  *
@@ -941,6 +943,10 @@ export default function PlumbingEstimator() {
 
         <PipeSizingPanel />
         <RegionalDrainageCheck marketCode={marketCode} />
+
+        <div className="mt-8">
+          <CalculatorGuideBlock guide={plumbingEstimatorGuide} />
+        </div>
 
         <AdSlot slotKey="calculator_native" className="mt-8" />
 

@@ -1,3 +1,4 @@
+import { conduitWiringEstimatorGuide } from "@/content/calculator-guides/conduit-wiring-estimator";
 /**
  * Electrical Conduit & Wiring Loop Estimator page.
  *
@@ -257,6 +258,7 @@ export default function ConduitWiringEstimator() {
 
   return (
     <SpecialtyCalculatorShell
+      guide={conduitWiringEstimatorGuide}
       calculatorType="conduit_wiring"
       routePath="/electrical-conduit-wiring-estimator"
       limitations={[

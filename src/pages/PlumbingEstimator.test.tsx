@@ -81,4 +81,17 @@ describe("PlumbingEstimator", () => {
       ).toBeNull();
     });
   });
+  it("renders the plumbing calculation guide block", () => {
+    render(
+      <MemoryRouter>
+        <PlumbingEstimator />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: /Plumbing pipework, drainage networks, and sanitary takeoff guide/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });
