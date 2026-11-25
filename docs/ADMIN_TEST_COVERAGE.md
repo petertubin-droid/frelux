@@ -66,6 +66,14 @@ Tier 1 is money and destructive actions, where a wrong argument costs a user or
 the business real amounts. Tier 2 is engine wiring, where a wrong setting
 silently changes calculated output. Tier 3 is content CRUD.
 
+**Read this table with the date in mind.** The counts below are the snapshot
+taken on 2026-11-23, before Tranche 1 was executed. Five of the Tier 1 rows
+(`AdminMarketPrices`, `AdminFinance`, `AdminExpenseLedger`,
+`AdminEstimationEstimates`, `AdminMarginPresets`) have since been upgraded and
+their current state is recorded in the Tranche 1 section further down, which is
+authoritative. Refreshing the numbers here instead of duplicating them would
+have meant two places to drift apart.
+
 | file                          | tests | assertions | tier     |
 | ----------------------------- | ----- | ---------- | -------- |
 | `AdminBoqTemplates`           | 4     | 8          | 1 money  |
