@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useAuth } from "@/lib/auth";
 import ToolShell from "@/components/tools/ToolShell";
 import { aiColorPreview, type ColorPreviewResult } from "@/lib/ai-project";
-import { Loader2, Upload, X, Eye } from "lucide-react";
+import { Loader2, Upload, X, Eye, Download } from "lucide-react";
 import { isValidHexColor, normalizeHex } from "@/lib/colors";
 import { getSafeError } from "@/lib/safeError";
 import { Button } from "@/components/ui/shadcn/button";
@@ -27,17 +27,47 @@ export default function ColorPreview() {
     { name: "Accent", hex: "#4a5568" },
   ]);
 
-  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+    setError(null);
+    if (!("image/jpeg" === file.type || "image/png" === file.type || "image/webp" === file.type)) {
+      setError("Please choose a JPEG, PNG or WebP room photo.");
+      return;
+    }
     if (file.size > 4 * 1024 * 1024) {
       setError("Image must be under 4MB");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => setImagePreview(reader.result as string);
-    reader.onerror = () => setError("Failed to read file");
-    reader.readAsDataURL(file);
+
+    const objectUrl = URL.createObjectURL(file);
+    try {
+      const image = new Image();
+      image.src = objectUrl;
+      await new Promise<void>((resolve, reject) => {
+        image.onload = () => resolve();
+        image.onerror = () => reject(new Error("Could not read this image."));
+      });
+      const maxDimension = 1600;
+      const scale = Math.min(1, maxDimension / Math.max(image.naturalWidth, image.naturalHeight));
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Could not prepare this image in the browser.");
+      context.drawImage(image, 0, 0, canvas.width, canvas.height);
+      // Normalize uploads to a compact JPEG so the image plus JSON stays safely
+      // within the Edge Function request size, even for large phone photos.
+      let normalized = canvas.toDataURL("image/jpeg", 0.82);
+      if (normalized.length > 4 * 1024 * 1024) {
+        normalized = canvas.toDataURL("image/jpeg", 0.68);
+      }
+      setImagePreview(normalized);
+    } catch (readError) {
+      setError(readError instanceof Error ? readError.message : "Failed to read file");
+    } finally {
+      URL.revokeObjectURL(objectUrl);
+    }
   }
 
   function updateColor(index: number, field: "name" | "hex", value: string) {
@@ -126,7 +156,10 @@ export default function ColorPreview() {
                   <Button
                     variant="ghost"
                     type="button"
-                    onClick={() => setImagePreview(null)}
+                    onClick={() => {
+                      setImagePreview(null);
+                      if (fileRef.current) fileRef.current.value = "";
+                    }}
                     className="absolute right-2 top-2 rounded-full bg-black/60 p-1.5 text-primary-foreground"
                   >
                     <X aria-hidden="true" className="h-4 w-4" />
@@ -150,13 +183,13 @@ export default function ColorPreview() {
                     {t("Click to upload a room photo")}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    {t("JPG, PNG up to 4MB")}
+                    {t("JPG, PNG or WebP up to 4MB")}
                   </p>
                   <input
                     aria-label={t("Room photo upload")}
                     ref={fileRef}
                     type="file"
-                    accept="image/jpeg,image/png"
+                    accept="image/jpeg,image/png,image/webp"
                     onChange={handleFileChange}
                     className="hidden"
                   />
@@ -371,56 +404,44 @@ export default function ColorPreview() {
         {/* Result */}
         {result && (
           <div className="mt-8 space-y-6">
-            {/* Before / After visual comparison */}
-            {imagePreview && (
-              <div>
-                <h3 className="mb-3 flex items-center gap-2 text-lg font-semibold text-foreground">
-                  <Eye
-                    aria-hidden="true"
-                    className="h-5 w-5 text-brand-purple"
-                  />{" "}
-                  Before & After
-                </h3>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div>
-                    <p className="mb-2 text-xs font-medium text-muted-foreground">
-                      {t("Before")}
-                    </p>
-                    <img
-                      src={imagePreview}
-                      alt={t("Before")}
-                      className="w-full rounded-lg border"
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </div>
-                  <div>
-                    <p className="mb-2 text-xs font-medium text-muted-foreground">
-                      {t("AI Color Suggestions")}
-                    </p>
-                    <div className="flex h-full min-h-[200px] flex-col rounded-lg border">
-                      {result.colorSuggestions.map((c, i) => (
-                        <div
-                          key={i}
-                          className="flex items-center gap-3 border-b p-3 last:border-0"
-                        >
-                          <div
-                            className="h-12 w-12 rounded border"
-                            style={{ backgroundColor: c.hex }}
-                          />
-                          <div>
-                            <p className="text-sm font-medium text-foreground">
-                              {c.name}
-                            </p>
-                            <p className="text-xs text-muted-foreground">
-                              {c.coverageArea}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
+            {/* Generated room image, using the uploaded photo when provided */}
+            {result.previewImageUrl ? (
+              <section aria-labelledby="cp-generated-image-heading">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <h3 id="cp-generated-image-heading" className="flex items-center gap-2 text-lg font-semibold text-foreground">
+                    <Eye aria-hidden="true" className="h-5 w-5 text-brand-purple" />
+                    {imagePreview ? t("Your Room, Reimagined") : t("Generated Room Design")}
+                  </h3>
+                  <a
+                    href={result.previewImageUrl}
+                    download="frelux-room-color-preview.png"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-lg border px-3 py-2 text-sm font-medium text-foreground hover:bg-muted"
+                  >
+                    <Download aria-hidden="true" className="h-4 w-4" />
+                    {t("Open or download image")}
+                  </a>
+                </div>
+                {imagePreview ? (
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div>
+                      <p className="mb-2 text-xs font-medium text-muted-foreground">{t("Before")}</p>
+                      <img src={imagePreview} alt={t("Original room photo")} className="w-full rounded-lg border" loading="lazy" decoding="async" />
+                    </div>
+                    <div>
+                      <p className="mb-2 text-xs font-medium text-muted-foreground">{t("AI-decorated preview")}</p>
+                      <img src={result.previewImageUrl} alt={t("AI decorated room preview")} className="w-full rounded-lg border" loading="lazy" decoding="async" />
                     </div>
                   </div>
-                </div>
+                ) : (
+                  <img src={result.previewImageUrl} alt={t("AI generated room design preview")} className="w-full rounded-lg border" loading="lazy" decoding="async" />
+                )}
+                <p className="mt-2 text-xs text-muted-foreground">{t("AI-generated visualization. Paint color and room details may vary; test paint samples before purchase.")}</p>
+              </section>
+            ) : (
+              <div role="status" className="rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-700 dark:bg-amber-950/30 dark:text-amber-100">
+                {t("The design analysis is ready, but the image generator did not return an image this time. You can still use the practical color and decorating recommendations below.")}
               </div>
             )}
 
@@ -434,6 +455,13 @@ export default function ColorPreview() {
                   {result.previewDescription}
                 </p>
               </div>
+            )}
+
+            {result.decorAdvice && (
+              <section className="rounded-lg border p-6">
+                <h3 className="text-lg font-semibold text-foreground">{t("Practical Decorating Plan")}</h3>
+                <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">{result.decorAdvice}</p>
+              </section>
             )}
 
             {/* Color Suggestions */}

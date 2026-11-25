@@ -155,7 +155,9 @@ export async function aiProjectQa(
 // =========================================================
 
 export interface ColorPreviewResult {
+  previewImageUrl?: string;
   previewDescription: string;
+  decorAdvice?: string;
   colorSuggestions: Array<{
     hex: string;
     name: string;

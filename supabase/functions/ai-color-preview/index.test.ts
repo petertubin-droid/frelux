@@ -34,7 +34,7 @@ function adminUser() {
 }
 
 function stubGemini(text: string, status = 200) {
-  const fetchMock = vi.fn().mockImplementation((url: string | URL) => {
+  const fetchMock = vi.fn().mockImplementation((url: string | URL, init?: RequestInit) => {
     if (String(url).includes("/auth/v1/user")) {
       return Promise.resolve(
         new Response(
@@ -46,10 +46,18 @@ function stubGemini(text: string, status = 200) {
         ),
       );
     }
+    const requestBody = JSON.parse(String(init?.body ?? "{}"));
+    const isImageRequest = requestBody?.generationConfig?.responseModalities?.includes("IMAGE");
     return Promise.resolve(
       new Response(
         JSON.stringify({
-          candidates: [{ content: { parts: [{ text }] } }],
+          candidates: [{
+            content: {
+              parts: isImageRequest
+                ? [{ inlineData: { mimeType: "image/png", data: "AQID" } }]
+                : [{ text }],
+            },
+          }],
         }),
         { status, headers: { "Content-Type": "application/json" } },
       ),
@@ -61,15 +69,18 @@ function stubGemini(text: string, status = 200) {
 
 const GOOD_RESPONSE = JSON.stringify({
   previewDescription: "The warm terracotta brings a cozy feel to the space.",
+  decorAdvice: "Pair the slate accent wall with natural oak furniture and linen curtains.",
   colorSuggestions: [
     {
       hex: "#E07A5F",
       name: "Terracotta Warmth",
       reasoning: "Complements natural light",
       coverageArea: "Accent wall",
+      finish: "Eggshell",
     },
   ],
   applicationTips: ["Use 2 coats of satin finish."],
+  imagePrompt: "Photorealistic living room with the terracotta accent wall.",
 });
 
 beforeEach(() => {
@@ -124,6 +135,53 @@ describe("ai-color-preview edge function", () => {
     expect((await json(res)).code).toBe("NO_API_KEY");
   });
 
+  it("passes the uploaded room photo to Gemini as multimodal image input", async () => {
+    adminUser();
+    const fetchMock = stubGemini(GOOD_RESPONSE);
+    const imageDataUrl = "data:image/jpeg;base64,MTIzNDU2Nzg=";
+    const res = await handler(
+      req(
+        "POST",
+        "",
+        {
+          imageDataUrl,
+          targetColors: [{ name: "Terracotta", hex: "#E07A5F" }],
+        },
+        OWNER_AUTH,
+      ),
+    );
+    expect(res.status).toBe(200);
+    const geminiRequest = fetchMock.mock.calls.find(([url]) =>
+      String(url).includes("generateContent"),
+    );
+    expect(geminiRequest).toBeTruthy();
+    const requestBody = JSON.parse(String(geminiRequest?.[1]?.body));
+    expect(requestBody.contents[0].parts).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ inlineData: { mimeType: "image/jpeg", data: "MTIzNDU2Nzg=" } }),
+      ]),
+    );
+  });
+
+  it("rejects unsupported image data before calling the provider", async () => {
+    adminUser();
+    const fetchMock = stubGemini(GOOD_RESPONSE);
+    const res = await handler(
+      req(
+        "POST",
+        "",
+        {
+          imageDataUrl: "data:text/html;base64,PHNjcmlwdD4=",
+          targetColors: [{ name: "Terracotta", hex: "#E07A5F" }],
+        },
+        OWNER_AUTH,
+      ),
+    );
+    expect(res.status).toBe(400);
+    expect((await json(res)).code).toBe("BAD_IMAGE");
+    expect(fetchMock.mock.calls.some(([url]) => String(url).includes("generativelanguage.googleapis.com"))).toBe(false);
+  });
+
   it("successfully generates preview for admin user", async () => {
     adminUser();
     const fetchMock = stubGemini(GOOD_RESPONSE);
@@ -143,6 +201,11 @@ describe("ai-color-preview edge function", () => {
     const data = await json(res);
     expect(data.result.previewDescription).toContain("terracotta");
     expect(data.result.colorSuggestions).toHaveLength(1);
-    expect(fetchMock).toHaveBeenCalled();
+    expect(data.result.decorAdvice).toContain("natural oak");
+    expect(data.result.previewImageUrl).toMatch(/^data:image\/png;base64,AQID$/);
+    expect(fetchMock.mock.calls.some(([url, init]) =>
+      String(url).includes("generateContent") &&
+      String(init?.body).includes("responseModalities"),
+    )).toBe(true);
   });
 });
