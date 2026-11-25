@@ -19,9 +19,9 @@ import { MemoryRouter } from "react-router-dom";
 import AdminCountVision from "./AdminCountVision";
 
 const rulesData = [
-  { rule_key: "max_image_mb", rule_value: { value: 6 } },
-  { rule_key: "max_count", rule_value: { value: 2000 } },
-  { rule_key: "min_confidence", rule_value: { value: 0.75 } },
+  { id: "count-rule-1", rule_key: "max_image_mb", rule_value: { value: 6 } },
+  { id: "count-rule-2", rule_key: "max_count", rule_value: { value: 2000 } },
+  { id: "count-rule-3", rule_key: "min_confidence", rule_value: { value: 0.75 } },
 ];
 
 const logRows = [
@@ -71,18 +71,24 @@ const logRows = [
 
 const fetchRulesMock = vi.fn();
 const fetchLogMock = vi.fn();
+const createRuleMock = vi.fn();
+const updateRuleMock = vi.fn();
 
 vi.mock("@/lib/estimation/queries", () => ({
   // Forward the arguments: a wrapper that drops them cannot prove the pane asks
   // for the page it claims to ask for.
   fetchCountVisionRules: (...args: unknown[]) => fetchRulesMock(...args),
   fetchCountVisionLog: (...args: unknown[]) => fetchLogMock(...args),
+  createCalcRule: (...args: unknown[]) => createRuleMock(...args),
+  updateCalcRule: (...args: unknown[]) => updateRuleMock(...args),
 }));
 
 beforeEach(() => {
   vi.clearAllMocks();
   fetchRulesMock.mockResolvedValue({ data: rulesData, error: null });
   fetchLogMock.mockResolvedValue({ data: logRows, error: null });
+  createRuleMock.mockResolvedValue({ data: null, error: null });
+  updateRuleMock.mockResolvedValue({ data: null, error: null });
 });
 
 function renderPane() {
@@ -94,14 +100,20 @@ function renderPane() {
 }
 
 describe("AdminCountVision pane", () => {
-  it("shows the current rules and where to edit them", async () => {
+  it("shows editable counting rules with bounded inputs", async () => {
     renderPane();
-    await waitFor(() => screen.getByText(/current counting rules/i));
-    expect(screen.getByText(/6 MB/)).toBeInTheDocument();
-    expect(screen.getByText(/2,000 units/)).toBeInTheDocument();
-    expect(screen.getByText(/75%/)).toBeInTheDocument();
-    expect(screen.getAllByText(/count_vision/).length).toBeGreaterThan(0);
-    expect(screen.getByText(/GOOGLE_AI_API_KEY/)).toBeInTheDocument();
+    await waitFor(() => screen.getByText(/counting rules/i));
+    expect(screen.getByLabelText(/maximum photo size/i)).toHaveValue(6);
+    expect(screen.getByLabelText(/maximum count/i)).toHaveValue(2000);
+    expect(screen.getByLabelText(/minimum confidence/i)).toHaveValue(75);
+    expect(screen.getByRole("button", { name: /save rules/i })).toBeInTheDocument();
+  });
+
+  it("saves all three count-vision rules", async () => {
+    renderPane();
+    fireEvent.click(await screen.findByRole("button", { name: /save rules/i }));
+    await waitFor(() => expect(updateRuleMock).toHaveBeenCalledTimes(3));
+    expect(updateRuleMock).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ rule_value: expect.objectContaining({ value: expect.any(Number) }) }));
   });
 
   it("lists count requests with verdicts, counts and diagnostics", async () => {

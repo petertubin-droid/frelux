@@ -8,16 +8,18 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { render, screen, waitFor, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import AdminFieldSync from "./AdminFieldSync";
 
-const { rulesFixture, capturesFixture } = vi.hoisted(() => ({
+const { rulesFixture, capturesFixture, createRuleMock, updateRuleMock } = vi.hoisted(() => ({
+  createRuleMock: vi.fn().mockResolvedValue({ data: null, error: null }),
+  updateRuleMock: vi.fn().mockResolvedValue({ data: null, error: null }),
   rulesFixture: [
-    { rule_key: "auto_sync", rule_value: { value: true }, is_active: true },
-    { rule_key: "max_queue", rule_value: { value: 50 }, is_active: true },
-    { rule_key: "retention_days", rule_value: { value: 60 }, is_active: true },
-    { rule_key: "sync_batch", rule_value: { value: 10 }, is_active: true },
+    { id: "rule-1", rule_key: "auto_sync", rule_value: { value: true }, is_active: true },
+    { id: "rule-2", rule_key: "max_queue", rule_value: { value: 50 }, is_active: true },
+    { id: "rule-3", rule_key: "retention_days", rule_value: { value: 60 }, is_active: true },
+    { id: "rule-4", rule_key: "sync_batch", rule_value: { value: 10 }, is_active: true },
   ],
   capturesFixture: [
     {
@@ -54,10 +56,14 @@ vi.mock("@/lib/estimation/queries", () => ({
   fetchFieldCaptureLog: vi
     .fn()
     .mockResolvedValue({ data: capturesFixture, error: null }),
+  createCalcRule: createRuleMock,
+  updateCalcRule: updateRuleMock,
 }));
 
 beforeEach(() => {
   vi.clearAllMocks();
+  createRuleMock.mockResolvedValue({ data: null, error: null });
+  updateRuleMock.mockResolvedValue({ data: null, error: null });
 });
 
 function renderPane() {
@@ -69,15 +75,22 @@ function renderPane() {
 }
 
 describe("AdminFieldSync pane", () => {
-  it("shows the current admin-configured rules and where to edit them", async () => {
+  it("shows editable sync rules and validates the batch against capacity", async () => {
     renderPane();
-    await waitFor(() => screen.getByText(/current sync rules/i));
-    expect(screen.getByText(/50 captures/i)).toBeInTheDocument();
-    expect(screen.getByText(/60 days/i)).toBeInTheDocument();
-    expect(screen.getByText(/10 per run/i)).toBeInTheDocument();
-    expect(screen.getByText(/auto-sync on reconnect/i)).toBeInTheDocument();
-    // The edit pointer names the exact calculator type
-    expect(screen.getByText(/offline_field/i)).toBeInTheDocument();
+    await waitFor(() => screen.getByText(/field sync rules/i));
+    expect(screen.getByLabelText(/device queue capacity/i)).toHaveValue(50);
+    expect(screen.getByLabelText(/retention/i)).toHaveValue(60);
+    expect(screen.getByLabelText(/sync batch size/i)).toHaveValue(10);
+    expect(screen.getByRole("button", { name: /save rules/i })).toBeInTheDocument();
+    expect(screen.getByRole("switch", { name: /auto-sync on reconnect/i })).toBeInTheDocument();
+  });
+
+  it("saves the four configured sync rules", async () => {
+    renderPane();
+    const button = await screen.findByRole("button", { name: /save rules/i });
+    fireEvent.click(button);
+    await waitFor(() => expect(updateRuleMock).toHaveBeenCalledTimes(4));
+    expect(updateRuleMock).toHaveBeenCalledWith(expect.any(String), expect.objectContaining({ rule_value: expect.objectContaining({ value: expect.anything() }) }));
   });
 
   it("lists synced captures with kind, job and device", async () => {

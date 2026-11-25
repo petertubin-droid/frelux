@@ -16,10 +16,12 @@
  */
 
 import { useEffect, useState } from "react";
-import { CloudOff } from "lucide-react";
+import { CheckCircle2, CloudOff, Save } from "lucide-react";
 import {
   fetchOfflineFieldRules,
   fetchFieldCaptureLog,
+  updateCalcRule,
+  createCalcRule,
   type FieldCaptureLogRow,
 } from "@/lib/estimation/queries";
 import {
@@ -28,7 +30,8 @@ import {
   type FieldSyncRules,
 } from "@/lib/estimation/offline-field-engine";
 import { getSafeError } from "@/lib/safeError";
-import { AdminHeader, StateMessage } from "@/components/admin/AdminUi";
+import { AdminButton, AdminField, AdminHeader, AdminInput, StateMessage, Toggle } from "@/components/admin/AdminUi";
+import type { EstimationCalcRule } from "@/types/estimation";
 import { useLanguage } from "@/lib/i18n";
 
 const KIND_LABEL: Record<FieldCaptureLogRow["entry_kind"], string> = {
@@ -53,6 +56,9 @@ export default function AdminFieldSync() {
   const { t } = useLanguage();
   const [rules, setRules] = useState<FieldSyncRules>(DEFAULT_FIELD_SYNC_RULES);
   const [captures, setCaptures] = useState<FieldCaptureLogRow[]>([]);
+  const [ruleRows, setRuleRows] = useState<EstimationCalcRule[]>([]);
+  const [savingRules, setSavingRules] = useState(false);
+  const [savedRules, setSavedRules] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -69,8 +75,10 @@ export default function AdminFieldSync() {
       if (rulesRes.error || capturesRes.error) {
         setError(getSafeError(rulesRes.error ?? capturesRes.error));
       } else {
-        if (rulesRes.data)
+        if (rulesRes.data) {
+          setRuleRows(rulesRes.data);
           setRules(parseFieldSyncRules(rulesRes.data as never));
+        }
         setCaptures(capturesRes.data ?? []);
       }
       setLoading(false);
@@ -79,6 +87,35 @@ export default function AdminFieldSync() {
       alive = false;
     };
   }, []);
+
+  async function saveRules() {
+    setSavingRules(true);
+    setError(null);
+    setSavedRules(false);
+    const values: Record<string, unknown> = {
+      auto_sync: rules.auto_sync,
+      max_queue: rules.max_queue,
+      retention_days: rules.retention_days,
+      sync_batch: rules.sync_batch,
+    };
+    for (const [rule_key, value] of Object.entries(values)) {
+      const existing = ruleRows.find((row) => row.rule_key === rule_key);
+      const result = existing
+        ? await updateCalcRule(existing.id, { rule_value: { ...existing.rule_value, value } })
+        : await createCalcRule({ rule_key, calculator_type: "offline_field", rule_value: { value }, rule_status: "admin_configured", is_active: true });
+      if (result.error) {
+        setError(getSafeError(result.error));
+        setSavingRules(false);
+        return;
+      }
+      if (result.data) {
+        setRuleRows((rows) => [...rows.filter((row) => row.id !== result.data!.id), result.data!]);
+      }
+    }
+    setSavingRules(false);
+    setSavedRules(true);
+    window.setTimeout(() => setSavedRules(false), 3000);
+  }
 
   const byKind = captures.reduce<Record<string, number>>((acc, c) => {
     acc[c.entry_kind] = (acc[c.entry_kind] ?? 0) + 1;
@@ -105,37 +142,36 @@ export default function AdminFieldSync() {
       )}
       {!loading && !error && (
         <>
-          {/* Current behaviour rules: editable in Calc Rules */}
+          {/* Field sync rules are editable here and saved to the shared calculation rules table. */}
           <div className="rounded-lg border bg-card p-4">
-            <h3 className="mb-2 font-semibold">{t("Current sync rules")}</h3>
-            <div className="grid gap-3 text-sm sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-muted-foreground">
-                  {t("Auto-sync on reconnect")}
-                </p>
-                <p className="font-medium">
-                  {rules.auto_sync ? "Yes" : "No: manual only"}
-                </p>
+                <h3 className="font-semibold">{t("Field sync rules")}</h3>
+                <p className="text-xs text-muted-foreground">Changes apply to the shared offline_field configuration.</p>
               </div>
-              <div>
-                <p className="text-muted-foreground">
-                  {t("Device queue capacity")}
-                </p>
-                <p className="font-medium">{rules.max_queue} captures</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">{t("Retention")}</p>
-                <p className="font-medium">{rules.retention_days} days</p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">{t("Sync batch size")}</p>
-                <p className="font-medium">{rules.sync_batch} per run</p>
+              <div className="flex items-center gap-2">
+                {savedRules && <span className="text-sm text-emerald-600"><CheckCircle2 className="mr-1 inline h-4 w-4" />Saved</span>}
+                <AdminButton onClick={saveRules} disabled={savingRules || rules.sync_batch > rules.max_queue}>
+                  <Save className="h-4 w-4" />{savingRules ? "Saving…" : "Save rules"}
+                </AdminButton>
               </div>
             </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Edit these in Estimation Config → Calc Rules, calculator type{" "}
-              <code className="rounded bg-muted px-1">offline_field</code>.
-            </p>
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="flex items-center gap-3 rounded-md border p-3">
+                <Toggle srLabel="Auto-sync on reconnect" checked={rules.auto_sync} onChange={(v) => setRules((r) => ({ ...r, auto_sync: v }))} />
+                <span className="text-sm">Auto-sync on reconnect</span>
+              </div>
+              <AdminField label="Device queue capacity" hint="1–10,000 captures">
+                <AdminInput type="number" min={1} max={10000} step={1} value={rules.max_queue} onChange={(e) => setRules((r) => ({ ...r, max_queue: Math.max(1, Math.min(10000, Math.floor(Number(e.target.value) || 1))) }))} />
+              </AdminField>
+              <AdminField label="Retention" hint="1–3,650 days">
+                <AdminInput type="number" min={1} max={3650} step={1} value={rules.retention_days} onChange={(e) => setRules((r) => ({ ...r, retention_days: Math.max(1, Math.min(3650, Math.floor(Number(e.target.value) || 1))) }))} />
+              </AdminField>
+              <AdminField label="Sync batch size" hint="Cannot exceed queue capacity">
+                <AdminInput type="number" min={1} max={rules.max_queue} step={1} value={rules.sync_batch} onChange={(e) => setRules((r) => ({ ...r, sync_batch: Math.max(1, Math.min(r.max_queue, Math.floor(Number(e.target.value) || 1))) }))} />
+              </AdminField>
+            </div>
+            {rules.sync_batch > rules.max_queue && <p role="alert" className="mt-2 text-sm text-destructive">Batch size cannot exceed queue capacity.</p>}
           </div>
 
           {/* Summary */}

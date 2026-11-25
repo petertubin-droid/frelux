@@ -16,11 +16,12 @@
  */
 
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { ScanLine } from "lucide-react";
+import { CheckCircle2, Save, ScanLine } from "lucide-react";
 import {
   fetchCountVisionRules,
   fetchCountVisionLog,
+  updateCalcRule,
+  createCalcRule,
   type CountVisionLogRow,
 } from "@/lib/estimation/queries";
 import {
@@ -29,7 +30,8 @@ import {
   type CountVisionRules,
 } from "@/lib/estimation/count-vision-engine";
 import { getSafeError } from "@/lib/safeError";
-import { AdminHeader, StateMessage } from "@/components/admin/AdminUi";
+import { AdminButton, AdminField, AdminHeader, AdminInput, StateMessage } from "@/components/admin/AdminUi";
+import type { EstimationCalcRule } from "@/types/estimation";
 import AdminPagination from "@/components/admin/AdminPagination";
 import { useLanguage } from "@/lib/i18n";
 
@@ -57,6 +59,9 @@ export default function AdminCountVision() {
     DEFAULT_COUNT_VISION_RULES,
   );
   const [logs, setLogs] = useState<CountVisionLogRow[]>([]);
+  const [ruleRows, setRuleRows] = useState<EstimationCalcRule[]>([]);
+  const [savingRules, setSavingRules] = useState(false);
+  const [savedRules, setSavedRules] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
@@ -76,8 +81,10 @@ export default function AdminCountVision() {
       if (rulesRes.error || logsRes.error) {
         setError(getSafeError(rulesRes.error ?? logsRes.error));
       } else {
-        if (rulesRes.data)
+        if (rulesRes.data) {
+          setRuleRows(rulesRes.data);
           setRules(parseCountVisionRules(rulesRes.data as never));
+        }
         setLogs(logsRes.data ?? []);
         setTotal(logsRes.count ?? 0);
       }
@@ -87,6 +94,34 @@ export default function AdminCountVision() {
       alive = false;
     };
   }, [page, pageSize]);
+
+  async function saveRules() {
+    setSavingRules(true);
+    setError(null);
+    setSavedRules(false);
+    const values: Record<string, number> = {
+      max_image_mb: rules.max_image_mb,
+      max_count: rules.max_count,
+      min_confidence: rules.min_confidence,
+    };
+    for (const [rule_key, value] of Object.entries(values)) {
+      const existing = ruleRows.find((row) => row.rule_key === rule_key);
+      const result = existing
+        ? await updateCalcRule(existing.id, { rule_value: { ...existing.rule_value, value } })
+        : await createCalcRule({ rule_key, calculator_type: "count_vision", rule_value: { value }, rule_status: "admin_configured", is_active: true });
+      if (result.error) {
+        setError(getSafeError(result.error));
+        setSavingRules(false);
+        return;
+      }
+      if (result.data) {
+        setRuleRows((rows) => [...rows.filter((row) => row.id !== result.data!.id), result.data!]);
+      }
+    }
+    setSavingRules(false);
+    setSavedRules(true);
+    window.setTimeout(() => setSavedRules(false), 3000);
+  }
 
   const byVerdict = logs.reduce<Record<string, number>>((acc, l) => {
     acc[l.verdict] = (acc[l.verdict] ?? 0) + 1;
@@ -121,45 +156,32 @@ export default function AdminCountVision() {
       )}
       {!loading && !error && (
         <>
-          {/* Current behaviour rules: editable in Calc Rules */}
+          {/* Counting rules are editable here and saved to the shared calculation rules table. */}
           <div className="rounded-lg border bg-card p-4">
-            <div className="mb-2 flex items-center justify-between">
-              <h3 className="font-semibold">{t("Current counting rules")}</h3>
-              <Link
-                to="/admin/estimation-config"
-                className="text-xs font-medium text-brand-purple hover:underline"
-              >
-                Edit in Calc Rules →
-              </Link>
-            </div>
-            <div className="grid gap-3 text-sm sm:grid-cols-3">
+            <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <p className="text-muted-foreground">{t("Max photo size")}</p>
-                <p className="font-medium">{rules.max_image_mb} MB</p>
+                <h3 className="font-semibold">{t("Counting rules")}</h3>
+                <p className="text-xs text-muted-foreground">Changes apply to the shared count_vision configuration. Lower confidence floors may increase uncertain results.</p>
               </div>
-              <div>
-                <p className="text-muted-foreground">
-                  {t("Reliable count bound")}
-                </p>
-                <p className="font-medium">
-                  {rules.max_count.toLocaleString()} units
-                </p>
-              </div>
-              <div>
-                <p className="text-muted-foreground">{t("Confidence floor")}</p>
-                <p className="font-medium">
-                  {(rules.min_confidence * 100).toFixed(0)}%
-                </p>
+              <div className="flex items-center gap-2">
+                {savedRules && <span className="text-sm text-emerald-600"><CheckCircle2 className="mr-1 inline h-4 w-4" />Saved</span>}
+                <AdminButton onClick={saveRules} disabled={savingRules}>
+                  <Save className="h-4 w-4" />{savingRules ? "Saving…" : "Save rules"}
+                </AdminButton>
               </div>
             </div>
-            <p className="mt-3 text-xs text-muted-foreground">
-              Edit these in Estimation Config → Calc Rules, calculator type{" "}
-              <code className="rounded bg-muted px-1">count_vision</code>. The
-              AI switch lives in AI Settings (site_settings:{" "}
-              <code className="rounded bg-muted px-1">ai_enabled</code>); the
-              Gemini key is the project edge secret{" "}
-              <code className="rounded bg-muted px-1">GOOGLE_AI_API_KEY</code>.
-            </p>
+            <div className="grid gap-4 sm:grid-cols-3">
+              <AdminField label="Maximum photo size" hint="1–50 MB">
+                <AdminInput type="number" min={1} max={50} step="0.5" value={rules.max_image_mb} onChange={(e) => setRules((r) => ({ ...r, max_image_mb: Math.max(1, Math.min(50, Number(e.target.value) || 1)) }))} />
+              </AdminField>
+              <AdminField label="Maximum count" hint="Positive whole number">
+                <AdminInput type="number" min={1} step={1} value={rules.max_count} onChange={(e) => setRules((r) => ({ ...r, max_count: Math.max(1, Math.floor(Number(e.target.value) || 1)) }))} />
+              </AdminField>
+              <AdminField label="Minimum confidence" hint="0–100%">
+                <AdminInput type="number" min={0} max={100} step={1} value={Math.round(rules.min_confidence * 100)} onChange={(e) => setRules((r) => ({ ...r, min_confidence: Math.max(0, Math.min(100, Number(e.target.value) || 0)) / 100 }))} />
+              </AdminField>
+            </div>
+            <p className="mt-3 text-xs text-muted-foreground">AI counting uses image interpretation and can be uncertain. Keep a suitably conservative confidence threshold and review important quantities manually.</p>
           </div>
 
           {/* Summary */}
