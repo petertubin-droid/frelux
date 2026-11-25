@@ -19,6 +19,59 @@ import { publicHubRoutes } from "./lib/public-hub-routes.mjs";
 import { isLocalePrefixed } from "./lib/locale-paths.mjs";
 
 /**
+ * Every tool and calculator the app itself renders.
+ *
+ * Read from the tool registry rather than hand-listed, because hand-listing is
+ * how twenty-five of them went missing: /tools and its whole nested family
+ * (/tools/finishes/paint, /tools/structure/concrete, /tools/project/boq and the
+ * rest) were live, public and absent from sitemap.xml, so a crawler working from
+ * the sitemap never saw them. A tool added to the registry is now listed without
+ * anyone remembering to add it twice.
+ */
+function toolRegistryRoutes() {
+  let source = "";
+  try {
+    source = readFileSync(
+      new URL("../src/config/construction-tools.ts", import.meta.url),
+      "utf8",
+    );
+  } catch {
+    return [];
+  }
+  const paths = new Set();
+  for (const match of source.matchAll(/to:\s*"(\/[a-z0-9\-/]*)"/g)) {
+    const path = match[1].replace(/\/+$/, "") || "/";
+    // Public, in-app routes only: no admin surface, no external URLs.
+    if (path.startsWith("/") && !path.startsWith("/admin")) paths.add(path);
+  }
+  return [...paths].sort();
+}
+
+/**
+ * The /tools subtree, read from the router.
+ *
+ * These twenty-five pages are the tool hub and its nested family: /tools,
+ * /tools/finishes/paint, /tools/structure/concrete, /tools/project/boq and the
+ * rest. They are public routes in App.tsx, but they live in neither the tool
+ * registry nor the hand-written list, so they were never in the sitemap. Reading
+ * the router keeps them listed as the tree grows.
+ */
+function appToolSubtreeRoutes() {
+  let source = "";
+  try {
+    source = readFileSync(new URL("../src/App.tsx", import.meta.url), "utf8");
+  } catch {
+    return [];
+  }
+  const paths = new Set();
+  for (const match of source.matchAll(/path="(\/tools[^"]*)"/g)) {
+    const path = match[1].replace(/\/+$/, "") || "/tools";
+    if (!path.includes(":") && !path.startsWith("/admin")) paths.add(path);
+  }
+  return [...paths].sort();
+}
+
+/**
  * FAQ article slugs, read from the registries so a new answer page is indexed
  * the moment it ships without a second list to maintain.
  */
@@ -572,6 +625,16 @@ const routes = [
 for (const hub of publicHubRoutes) {
   if (!routes.some((route) => route.path === hub.path)) {
     routes.push({ path: hub.path, priority: hub.priority, changefreq: hub.changefreq });
+  }
+}
+// The tool hub and every tool page the registry declares.
+for (const path of [
+  "/tools",
+  ...toolRegistryRoutes(),
+  ...appToolSubtreeRoutes(),
+]) {
+  if (!routes.some((route) => route.path === path)) {
+    routes.push({ path, priority: "0.8", changefreq: "monthly" });
   }
 }
 
