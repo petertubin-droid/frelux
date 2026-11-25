@@ -15,6 +15,7 @@ import { marketLandingRoutes } from "./market-landing-data.mjs";
 import { TEMPLATE_CATALOG } from "./lib/template-catalog.mjs";
 import { buildingTypeRoutes } from "./generated/building-types.mjs";
 import { SITE_URL } from "./lib/site-url.mjs";
+import { publicHubRoutes } from "./lib/public-hub-routes.mjs";
 import { isLocalePrefixed } from "./lib/locale-paths.mjs";
 
 /**
@@ -566,6 +567,13 @@ const routes = [
     changefreq: r.changefreq ?? "monthly",
   })),
 ];
+// Hub pages. Kept in one shared list with the prerenderer so a page cannot be
+// prerendered but unlisted, or listed but never prerendered.
+for (const hub of publicHubRoutes) {
+  if (!routes.some((route) => route.path === hub.path)) {
+    routes.push({ path: hub.path, priority: hub.priority, changefreq: hub.changefreq });
+  }
+}
 
 
 function fallbackLearnRoutesFromSitemap() {

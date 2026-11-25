@@ -22,6 +22,7 @@ import {
   loadMarketBookDepth,
 } from "./lib/market-publishing.mjs";
 import { marketLandingDescription } from "./lib/market-description.mjs";
+import { publicHubRoutes } from "./lib/public-hub-routes.mjs";
 import { marketHreflang } from "./lib/market-hreflang.mjs";
 import {
   fetchAll,
@@ -3395,6 +3396,12 @@ const routes = [
       "Estimate paint, tile, screed and cladding finishes from measured areas, with quantities, waste and cost at your own market rates.",
   },
 ];
+// Hub pages: same shared list the sitemap uses. Only added when absent, so a
+// route that is already declared above keeps its hand-written copy and
+// structured data.
+for (const hub of publicHubRoutes) {
+  if (!routes.some((route) => route.path === hub.path)) routes.push(hub);
+}
 
 // Locales whose reviewed translations are live. A locale page is only
 // indexable when a published content_translations row exists for it; every
