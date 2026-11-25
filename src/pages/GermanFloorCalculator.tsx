@@ -1,4 +1,6 @@
-import { supabase } from '@/lib/supabase';
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { germanFloorCalculatorGuide } from "@/content/calculator-guides/german-floor-calculator";
+import { supabase } from "@/lib/supabase";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
@@ -72,9 +74,18 @@ export default function GermanFloorCalculator() {
           const lower = (item.name || "").toLowerCase();
           const price = Number(item.unit_price) || 0;
           if (price <= 0) continue;
-          if (lower.includes("cement") && !lower.includes("white")) prices.cement = price;
-          else if (lower.includes("sand") && (lower.includes("trip") || lower.includes("tipper"))) prices.sand = price;
-          else if (lower.includes("granite") && (lower.includes("trip") || lower.includes("tipper"))) prices.granite = price;
+          if (lower.includes("cement") && !lower.includes("white"))
+            prices.cement = price;
+          else if (
+            lower.includes("sand") &&
+            (lower.includes("trip") || lower.includes("tipper"))
+          )
+            prices.sand = price;
+          else if (
+            lower.includes("granite") &&
+            (lower.includes("trip") || lower.includes("tipper"))
+          )
+            prices.granite = price;
         }
         setMaterialPrices(prices);
       } catch {
@@ -503,7 +514,9 @@ export default function GermanFloorCalculator() {
                     </li>
                   </ul>
 
-                  {(materialPrices.cement || materialPrices.sand || materialPrices.granite) && (
+                  {(materialPrices.cement ||
+                    materialPrices.sand ||
+                    materialPrices.granite) && (
                     <div className="rounded-xl border border-primary/20 bg-primary/5 p-4 text-sm">
                       <p className="font-semibold text-foreground">
                         {t("Estimated Concrete Materials (Admin Price Book)")}
@@ -513,7 +526,10 @@ export default function GermanFloorCalculator() {
                           <div>
                             <span className="block">{t("Cement")}</span>
                             <span className="font-medium text-foreground">
-                              ₦{(Math.round(result.cement.bags * materialPrices.cement)).toLocaleString()}
+                              ₦
+                              {Math.round(
+                                result.cement.bags * materialPrices.cement,
+                              ).toLocaleString()}
                             </span>
                           </div>
                         )}
@@ -521,7 +537,12 @@ export default function GermanFloorCalculator() {
                           <div>
                             <span className="block">{t("Sharp Sand")}</span>
                             <span className="font-medium text-foreground">
-                              ₦{(Math.round((result.sand.trips.length > 0 ? result.sand.trips[0].count : 1) * materialPrices.sand)).toLocaleString()}
+                              ₦
+                              {Math.round(
+                                (result.sand.trips.length > 0
+                                  ? result.sand.trips[0].count
+                                  : 1) * materialPrices.sand,
+                              ).toLocaleString()}
                             </span>
                           </div>
                         )}
@@ -529,17 +550,35 @@ export default function GermanFloorCalculator() {
                           <div>
                             <span className="block">{t("Granite")}</span>
                             <span className="font-medium text-foreground">
-                              ₦{(Math.round((result.aggregate.trips.length > 0 ? result.aggregate.trips[0].count : 1) * materialPrices.granite)).toLocaleString()}
+                              ₦
+                              {Math.round(
+                                (result.aggregate.trips.length > 0
+                                  ? result.aggregate.trips[0].count
+                                  : 1) * materialPrices.granite,
+                              ).toLocaleString()}
                             </span>
                           </div>
                         )}
                         <div>
-                          <span className="block font-semibold text-foreground">{t("Total Est.")}</span>
+                          <span className="block font-semibold text-foreground">
+                            {t("Total Est.")}
+                          </span>
                           <span className="font-bold text-primary">
-                            ₦{(
-                              (materialPrices.cement ? result.cement.bags * materialPrices.cement : 0) +
-                              (materialPrices.sand ? (result.sand.trips.length > 0 ? result.sand.trips[0].count : 1) * materialPrices.sand : 0) +
-                              (materialPrices.granite ? (result.aggregate.trips.length > 0 ? result.aggregate.trips[0].count : 1) * materialPrices.granite : 0)
+                            ₦
+                            {(
+                              (materialPrices.cement
+                                ? result.cement.bags * materialPrices.cement
+                                : 0) +
+                              (materialPrices.sand
+                                ? (result.sand.trips.length > 0
+                                    ? result.sand.trips[0].count
+                                    : 1) * materialPrices.sand
+                                : 0) +
+                              (materialPrices.granite
+                                ? (result.aggregate.trips.length > 0
+                                    ? result.aggregate.trips[0].count
+                                    : 1) * materialPrices.granite
+                                : 0)
                             ).toLocaleString()}
                           </span>
                         </div>
@@ -564,59 +603,7 @@ export default function GermanFloorCalculator() {
 
           <AdSlot slotKey="calculator_mid" />
 
-          <section aria-labelledby="floor-faq" className="space-y-4">
-            <h2
-              id="floor-faq"
-              className="font-heading text-2xl font-bold text-foreground"
-            >
-              {t("Frequently asked questions")}
-            </h2>
-
-            <h3 className="font-heading text-lg font-semibold text-foreground">
-              {t("What is a German floor?")}
-            </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {t(
-                "A German floor is the ground bearing slab a Nigerian building sits on. The build up is compacted hardcore, a thin sand blinding, a damp proof membrane, and a reinforced concrete slab. It is called a German floor on site, but the same floor is a ground bearing slab in the UK and a slab on grade in the US, and the quantities come from the same geometry wherever it is built.",
-              )}
-            </p>
-
-            <h3 className="font-heading text-lg font-semibold text-foreground">
-              {t("How many bags of cement for a German floor of 1 plot?")}
-            </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {t(
-                "A full plot is about 465 m². At a 100 mm slab in a 1:2:4 mix, the wet slab is 46.5 m³, which with a 5 percent allowance and a 1.54 dry factor is about 75 m³ of dry concrete. One part of seven is cement, so roughly 10.7 m³, and at 1440 kg per cubic metre in 50 kg bags that is about 310 bags. Read the figure off the calculator for your own slab thickness and mix before you order.",
-              )}
-            </p>
-
-            <h3 className="font-heading text-lg font-semibold text-foreground">
-              {t("How thick should a German floor slab be?")}
-            </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {t(
-                "Residential work is usually 100 mm to 150 mm over a well compacted fill, with reinforcement placed in the lower third of the slab. Anything thinner is hard to keep level and cracks under a loaded wheelbarrow. Confirm the thickness and reinforcement with the engineer on your job, because the slab also carries any internal blockwork that lands on it.",
-              )}
-            </p>
-
-            <h3 className="font-heading text-lg font-semibold text-foreground">
-              {t("How many trips of granite does a German floor need?")}
-            </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {t(
-                "Granite is counted from the same mix as the cement, and the calculator shows the count for each tipper size this market sells, because a 5 tonne and a 20 tonne tipper give very different trip counts for the same volume. Buy the aggregate against the cubic metres, not only against the trips, so a short load does not leave the gang standing.",
-              )}
-            </p>
-
-            <h3 className="font-heading text-lg font-semibold text-foreground">
-              {t("Does the hardcore depth change the concrete quantity?")}
-            </h3>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              {t(
-                "No. Hardcore and blinding sit under the slab and are counted in their own volumes, so deepening the fill adds trips of laterite and blinding sand but leaves the slab concrete unchanged. What the fill must achieve is a level, well compacted surface, because the slab spans the ground rather than bridging soft spots.",
-              )}
-            </p>
-          </section>
+          <CalculatorGuideBlock guide={germanFloorCalculatorGuide} />
         </Container>
 
         <HowCalculatedSection

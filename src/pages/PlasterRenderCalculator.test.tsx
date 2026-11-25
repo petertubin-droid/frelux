@@ -34,4 +34,14 @@ describe("PlasterRenderCalculator", () => {
     expect(screen.getByText(/How much does plastering cost/i)).toBeTruthy();
     expect(screen.getByTestId("about-this-tool")).toBeTruthy();
   });
+
+  it("renders the plaster and render calculation guide block", () => {
+    renderPage();
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: /Plaster and exterior render material calculation guide/i,
+      }),
+    ).toBeTruthy();
+  });
 });

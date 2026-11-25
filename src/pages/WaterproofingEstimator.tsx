@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { waterproofingEstimatorGuide } from "@/content/calculator-guides/waterproofing-estimator";
 /**
  * FRELUX Waterproofing Estimator (Tier 2, Engine 3)
  *
@@ -565,6 +567,10 @@ export default function WaterproofingEstimator() {
         </div>
 
         <RecommendedProducts category="waterproofing" />
+
+        <div className="mt-8">
+          <CalculatorGuideBlock guide={waterproofingEstimatorGuide} />
+        </div>
 
         <AdSlot slotKey="calculator_mid" className="mt-8" />
 

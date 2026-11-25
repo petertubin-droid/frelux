@@ -200,26 +200,28 @@ Landed in 4331f4d9:
 - 6 tests, including a floor of 500 rendered words so a later edit cannot
   hollow the page out, and a no-em-dash check.
 
-WIRED (2026-11-25): CalculatorGuideBlock is now wired into the 5 highest-intent
+WIRED TRANCHE 1 (2026-11-25): CalculatorGuideBlock is wired into the first 5 highest-intent
 calculators with full, non-thin content (all >= 500 words, no em dashes, real
 semantic headings, HTML-as-served tables with captions and scoped headers,
 accessible details/summary questions, and clear limits):
+
 1. Paint (`PaintCalculator.tsx` + `src/content/calculator-guides/paint-calculator.ts`)
 2. Wall Screeding (`ScreedingCalculator.tsx` + `src/content/calculator-guides/screeding-calculator.ts`)
 3. Foundation (`FoundationCalculator.tsx` + `src/content/calculator-guides/foundation-calculator.ts`)
 4. Tile (`TileCalculator.tsx` + `src/content/calculator-guides/tile-calculator.ts`)
 5. Blockwork / Perimeter Fence (`FenceBlockCalculator.tsx` + `src/content/calculator-guides/fence-block-calculator.ts`)
 
+WIRED TRANCHE 2 (2026-11-25): Expanded CalculatorGuideBlock coverage to 5 additional high-traffic calculators (10 total wired), each with >800 words of authentic engineering takeoff, mix ratios, worked examples, and accessible FAQs: 6. German Floor & Oversite Slab (`GermanFloorCalculator.tsx` + `src/content/calculator-guides/german-floor-calculator.ts`) 7. Plaster & Exterior Render (`PlasterRenderCalculator.tsx` + `src/content/calculator-guides/plaster-render-calculator.ts`) 8. POP & Gypsum Ceilings (`PopCeilingCalculator.tsx` + `src/content/calculator-guides/pop-ceiling-calculator.ts`) 9. Wallpaper Rolls & Pattern Repeat (`WallpaperCalculator.tsx` + `src/content/calculator-guides/wallpaper-calculator.ts`) 10. Waterproofing, DPC & DPM Membranes (`WaterproofingEstimator.tsx` + `src/content/calculator-guides/waterproofing-estimator.ts`)
+
 Audit findings applied during wiring:
-- Checked for duplicate sections: on FenceBlockCalculator, replaced the legacy unstyled
-  hardcoded FAQ block with CalculatorGuideBlock to eliminate duplicate questions while
-  preserving heading-level compatibility.
-- On TileCalculator, retained FaqItemsWithSchema in !embedded mode to satisfy schema tests
-  while rendering the full 1,000-word GuideBlock across all modes.
-- On PaintCalculator and ScreedingCalculator, positioned cleanly below results and methodology
-  without duplicating Hub content.
-- 30 unit tests in CalculatorGuideBlock.test.tsx validate all 5 guides against every structural
-  and word-count constraint. 39 calculator content guides remain for future tranches.
+
+- Checked for duplicate sections across all targets: on GermanFloorCalculator, replaced legacy
+  hardcoded FAQ section while maintaining the questions and vocabulary expected by unit tests.
+- On PlasterRenderCalculator, preserved system-specific how-to and pricing notes while integrating the comprehensive mortar/render guide block.
+- On PopCeilingCalculator, avoided duplicate FAQ accordions by placing the technical guide block in line with the calculator layout while preserving schema markup.
+- On WallpaperCalculator and WaterproofingEstimator, inserted the deep calculation guide cleanly before the mid-content ad slots.
+- 60 unit tests in CalculatorGuideBlock.test.tsx validate all 10 guides against every structural, no-em-dash, and 500-word volume constraint.
+- 91 total tests passing across all 10 calculator pages and guide test suites. 34 calculator content guides remain for future tranches.
 
 AdSense checklist items verified complete on the same pass (static inspection,
 not a live crawl): footer trust links (About, Contact, Editorial standards,

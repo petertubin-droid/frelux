@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { popCeilingCalculatorGuide } from "@/content/calculator-guides/pop-ceiling-calculator";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import {
   useEffect,
@@ -764,6 +766,8 @@ export default function PopCeilingCalculator({
           <ProConnectCTA calculatorType="pop-ceiling" />
         </>
       )}
+      <CalculatorGuideBlock guide={popCeilingCalculatorGuide} />
+
       {/* Ad slot, placement "calculator_mid" */}
       <RecommendedProducts category="plaster" />
 

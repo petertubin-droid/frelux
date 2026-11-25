@@ -213,4 +213,18 @@ describe("WallpaperCalculator page", () => {
     ).toBe("");
     expect(screen.queryAllByLabelText(/identical rooms/i)).toHaveLength(0);
   });
+
+  it("renders the wallpaper calculation guide block", () => {
+    render(
+      <MemoryRouter>
+        <WallpaperCalculator />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: /Wallpaper rolls, pattern matching and adhesive calculation guide/i,
+      }),
+    ).toBeTruthy();
+  });
 });

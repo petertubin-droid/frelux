@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { plasterRenderCalculatorGuide } from "@/content/calculator-guides/plaster-render-calculator";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Layers, Info, AlertTriangle, Ruler } from "lucide-react";
@@ -501,6 +503,10 @@ export default function PlasterRenderCalculator() {
             </li>
           </ol>
         </section>
+
+        <div className="mt-8">
+          <CalculatorGuideBlock guide={plasterRenderCalculatorGuide} />
+        </div>
 
         <div className="mt-6">
           <AdSlot slotKey="calculator_mid" />

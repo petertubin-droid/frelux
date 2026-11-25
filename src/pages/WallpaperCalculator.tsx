@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { wallpaperCalculatorGuide } from "@/content/calculator-guides/wallpaper-calculator";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { BuildingTemplatePanel } from "@/components/measurement/BuildingTemplatePanel";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
@@ -1314,6 +1316,10 @@ Drops per roll are worked out from the cut length, and rolls are rounded up to w
             </ol>
           </section>
         </main>
+        <div className="mt-8">
+          <CalculatorGuideBlock guide={wallpaperCalculatorGuide} />
+        </div>
+
         {/* FRELUX calculator pages use two ad placements: mid-content and native. */}
         <AdSlot slotKey="calculator_mid" className="mt-8" />
         <AdSlot slotKey="calculator_native" className="mt-8" />
