@@ -24,6 +24,7 @@
 // =========================================================
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { serveWithCors } from "../_shared/serve.ts";
+import { getGeminiApiKey, GEMINI_MODELS } from "../_shared/gemini.ts";
 import {
   checkRateLimit,
   getRateLimitKey,
@@ -233,53 +234,67 @@ serveWithCors(async (req: Request) => {
   // decision. Gemini unavailability never blocks ingestion.
   let geminiNote = "";
   try {
-    const geminiKey = Deno.env.get("GEMINI_API_KEY");
+    const geminiKey = getGeminiApiKey();
     if (geminiKey) {
       const r = validated.record;
-      const geminiRes = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=" +
-          geminiKey,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            systemInstruction: {
-              parts: [
-                {
-                  text: "You review AI reference material submitted to a construction platform's learning pipeline. Answer in ONE short sentence (max 25 words): a quality assessment and one flag, e.g. evidence gaps, vagueness, scope mismatch. No preamble.",
+      const candidateModels = [
+        "gemini-2.5-flash",
+        "gemini-2.0-flash",
+        "gemini-1.5-flash",
+        "gemini-3.6-flash",
+      ];
+      for (const model of candidateModels) {
+        try {
+          const geminiRes = await fetch(
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                systemInstruction: {
+                  parts: [
+                    {
+                      text: "You review AI reference material submitted to a construction platform's learning pipeline. Answer in ONE short sentence (max 25 words): a quality assessment and one flag, e.g. evidence gaps, vagueness, scope mismatch. No preamble.",
+                    },
+                  ],
                 },
-              ],
-            },
-            contents: [
-              {
-                role: "user",
-                parts: [
+                contents: [
                   {
-                    text: JSON.stringify({
-                      topic: r.topic,
-                      capability: r.capability,
-                      recommendation: r.recommendation,
-                      conclusion: r.conclusion,
-                      evidence: r.evidence,
-                      proposed_scope: r.proposed_scope,
-                      confidence: r.confidence,
-                    }),
+                    role: "user",
+                    parts: [
+                      {
+                        text: JSON.stringify({
+                          topic: r.topic,
+                          capability: r.capability,
+                          recommendation: r.recommendation,
+                          conclusion: r.conclusion,
+                          evidence: r.evidence,
+                          proposed_scope: r.proposed_scope,
+                          confidence: r.confidence,
+                        }),
+                      },
+                    ],
                   },
                 ],
-              },
-            ],
-            generationConfig: { temperature: 0.2, maxOutputTokens: 80 },
-          }),
-        },
-      );
-      if (geminiRes.ok) {
-        const gem = await geminiRes.json();
-        geminiNote = (gem?.candidates?.[0]?.content?.parts ?? [])
-          .map((part: { text?: string }) => part?.text ?? "")
-          .filter(Boolean)
-          .join(" ")
-          .trim()
-          .slice(0, 300);
+                generationConfig: { temperature: 0.2, maxOutputTokens: 80 },
+              }),
+            },
+          );
+          if (geminiRes.ok) {
+            const gem = await geminiRes.json();
+            geminiNote = (gem?.candidates?.[0]?.content?.parts ?? [])
+              .map((part: { text?: string }) => part?.text ?? "")
+              .filter(Boolean)
+              .join(" ")
+              .trim()
+              .slice(0, 300);
+            if (geminiNote) break;
+          } else if (geminiRes.status === 404) {
+            continue;
+          }
+        } catch {
+          continue;
+        }
       }
     }
   } catch (geminiErr) {

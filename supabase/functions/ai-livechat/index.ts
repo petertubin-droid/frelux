@@ -18,6 +18,7 @@ import {
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
 import { serveWithCors } from "../_shared/serve.ts";
+import { getGeminiApiKey } from "../_shared/gemini.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
@@ -203,13 +204,13 @@ serveWithCors(async (req: Request) => {
     ).replace("{{KNOWLEDGE_BASE}}", kb);
 
     // ---- Gemini inference (frelux AI provider) ----
-    const geminiKey = Deno.env.get("GEMINI_API_KEY");
+    const geminiKey = getGeminiApiKey();
     if (!geminiKey) {
       await logAiRequest(
         supabase,
         clientHash,
         "error",
-        "GEMINI_API_KEY not configured",
+        "GEMINI_API_KEY / GOOGLE_AI_API_KEY not configured",
       );
       return jsonResponse(
         {
@@ -221,34 +222,53 @@ serveWithCors(async (req: Request) => {
     }
 
     let text = "";
-    try {
-      const geminiRes = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=" +
-          geminiKey,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            systemInstruction: { parts: [{ text: systemPrompt }] },
-            contents: [
-              { role: "user", parts: [{ text: question.slice(0, 4000) }] },
-            ],
-            generationConfig: { temperature: 0.5, maxOutputTokens: 1024 },
-          }),
-        },
-      );
-      if (geminiRes.ok) {
-        const gem = await geminiRes.json();
-        text = (gem?.candidates?.[0]?.content?.parts ?? [])
-          .map((part: { text?: string }) => part?.text ?? "")
-          .filter(Boolean)
-          .join("")
-          .trim();
-      } else {
-        console.error("[ai-livechat] Gemini HTTP " + geminiRes.status);
+    let usedEngine = "gemini-2.5-flash";
+    const candidateModels = [
+      "gemini-2.5-flash",
+      "gemini-2.0-flash",
+      "gemini-1.5-flash",
+      "gemini-3.6-flash",
+    ];
+
+    for (const model of candidateModels) {
+      try {
+        const geminiRes = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              systemInstruction: { parts: [{ text: systemPrompt }] },
+              contents: [
+                { role: "user", parts: [{ text: question.slice(0, 4000) }] },
+              ],
+              generationConfig: { temperature: 0.5, maxOutputTokens: 1024 },
+            }),
+          },
+        );
+        if (geminiRes.ok) {
+          const gem = await geminiRes.json();
+          text = (gem?.candidates?.[0]?.content?.parts ?? [])
+            .map((part: { text?: string }) => part?.text ?? "")
+            .filter(Boolean)
+            .join("")
+            .trim();
+          if (text) {
+            usedEngine = model;
+            break;
+          }
+        } else {
+          console.error(
+            `[ai-livechat] Gemini HTTP ${geminiRes.status} on ${model}`,
+          );
+          if (geminiRes.status === 404) continue;
+        }
+      } catch (geminiErr) {
+        console.error(
+          `[ai-livechat] Gemini call failed on ${model}:`,
+          geminiErr,
+        );
       }
-    } catch (geminiErr) {
-      console.error("[ai-livechat] Gemini call failed:", geminiErr);
     }
 
     if (!text) {
@@ -261,7 +281,7 @@ serveWithCors(async (req: Request) => {
 
     await logAiRequest(supabase, clientHash, "success");
 
-    return jsonResponse({ result: text, engine: "gemini-3.6-flash" });
+    return jsonResponse({ result: text, engine: usedEngine });
   } catch (error) {
     const errorMsg = error instanceof Error ? error.message : String(error);
     console.error("Live chat error:", errorMsg);

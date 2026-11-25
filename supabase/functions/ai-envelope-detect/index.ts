@@ -25,6 +25,7 @@ import {
   RATE_LIMITS,
 } from "../_shared/rate-limit.ts";
 import { serveWithCors } from "../_shared/serve.ts";
+import { GEMINI_MODELS, getGeminiApiKey } from "../_shared/gemini.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -239,39 +240,76 @@ Respond with ONLY valid JSON, no markdown fences:
   "reason": "<one short sentence: what you traced, or exactly why you cannot>"
 }`;
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKey}`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      contents: [
-        {
-          parts: [
-            { text: prompt },
-            { inlineData: { mimeType: image.mimeType, data: image.data } },
-          ],
-        },
-      ],
-      generationConfig: {
-        temperature: 0,
-        // Tracing is a single answer, not reasoning: without this the model
-        // spends the budget on thoughts and returns no JSON text at all.
-        thinkingConfig: { thinkingBudget: 0 },
-        maxOutputTokens: 1024,
-        responseMimeType: "application/json",
-      },
-    }),
-  });
+  const candidateModels = [
+    GEMINI_MODEL,
+    ...GEMINI_MODELS.filter((m) => m !== GEMINI_MODEL),
+  ];
+  let response: Response | null = null;
+  let lastError: Error | null = null;
+  let text = "";
 
-  if (!response.ok) {
-    const detail = await response.text().catch(() => "");
-    throw new Error(
-      `Gemini request failed (${response.status}): ${detail.slice(0, 200)}`,
-    );
+  for (const model of candidateModels) {
+    try {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          contents: [
+            {
+              parts: [
+                { text: prompt },
+                { inlineData: { mimeType: image.mimeType, data: image.data } },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 0,
+            thinkingConfig: { thinkingBudget: 0 },
+            maxOutputTokens: 1024,
+            responseMimeType: "application/json",
+          },
+        }),
+      });
+
+      if (!res.ok) {
+        const detail = await res.text().catch(() => "");
+        if (
+          res.status === 404 ||
+          detail.includes("not found") ||
+          detail.includes("is not supported")
+        ) {
+          lastError = new Error(
+            `Gemini request failed (${res.status}): ${detail.slice(0, 200)}`,
+          );
+          continue;
+        }
+        throw new Error(
+          `Gemini request failed (${res.status}): ${detail.slice(0, 200)}`,
+        );
+      }
+
+      const body = await res.json();
+      text = body?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+      if (text) {
+        response = res;
+        break;
+      }
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      if (
+        lastError.message.includes("404") ||
+        lastError.message.includes("not found")
+      ) {
+        continue;
+      }
+      throw lastError;
+    }
   }
 
-  const body = await response.json();
-  const text = body?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  if (!text) {
+    throw lastError ?? new Error("No response returned from Gemini models");
+  }
   let parsed: Record<string, unknown>;
   try {
     parsed = JSON.parse(text);

@@ -17,6 +17,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { serveWithCors } from "../_shared/serve.ts";
+import { cleanJsonFence } from "../_shared/gemini.ts";
 import { serveAi } from "../_shared/serve-ai.ts";
 
 async function getVerifiedUserId(req: Request): Promise<string | null> {
@@ -639,40 +640,55 @@ export async function handler(req: Request): Promise<Response> {
     }
   }
 
-  let response: Response;
-  try {
-    response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${apiKeySafe(geminiApiKey)}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts }],
-          generationConfig: {
-            temperature: 0.2,
-            responseMimeType: "application/json",
-          },
-        }),
-      },
-    );
-  } catch (e) {
-    console.error("[ai-visual-finishing] fetch error:", e);
-    return jsonResponse(
-      {
-        error: "The AI service is temporarily unavailable.",
-        code: "PROVIDER_ERROR",
-      },
-      502,
-      rlHeaders,
-    );
+  const candidateModels = [
+    GEMINI_MODEL,
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+  ];
+  let response: Response | null = null;
+  let lastErrText = "";
+
+  for (const model of candidateModels) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKeySafe(geminiApiKey)}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts }],
+            generationConfig: {
+              temperature: 0.2,
+              responseMimeType: "application/json",
+            },
+          }),
+        },
+      );
+      if (res.ok) {
+        response = res;
+        break;
+      }
+      lastErrText = await res.text();
+      if (
+        res.status === 404 ||
+        lastErrText.includes("not found") ||
+        lastErrText.includes("is not supported")
+      ) {
+        continue;
+      }
+      response = res;
+      break;
+    } catch (e) {
+      console.error(`[ai-visual-finishing] fetch error on ${model}:`, e);
+    }
   }
 
-  if (!response.ok) {
-    const errText = await response.text();
+  if (!response || !response.ok) {
     console.error(
       "[ai-visual-finishing] Gemini API error:",
-      response.status,
-      errText,
+      response?.status,
+      lastErrText,
     );
     return jsonResponse(
       {
@@ -693,7 +709,7 @@ export async function handler(req: Request): Promise<Response> {
     const geminiData = await response.json();
     const textContent = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!textContent) throw new Error("No response text from Gemini");
-    const parsed = JSON.parse(textContent);
+    const parsed = JSON.parse(cleanJsonFence(textContent));
 
     sanitizedSurfaces = sanitizeSurfaces(parsed?.detected_surfaces);
     if (typeof parsed?.detected_room_type === "string") {

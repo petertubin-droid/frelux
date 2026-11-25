@@ -74,7 +74,8 @@ const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
 const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
 const OPENAI_API_MODEL = Deno.env.get("OPENAI_API_MODEL") ?? "gpt-4o-mini";
-const GEMINI_API_KEY = Deno.env.get("GOOGLE_AI_API_KEY");
+const GEMINI_API_KEY =
+  Deno.env.get("GEMINI_API_KEY") || Deno.env.get("GOOGLE_AI_API_KEY");
 const GEMINI_MODEL = Deno.env.get("GOOGLE_AI_MODEL") ?? "gemini-3.6-flash";
 
 const API_VERSION = "v1";
@@ -640,30 +641,47 @@ function resolveProvider(
     };
   }
   if (GEMINI_API_KEY) {
+    const candidateModels = [
+      GEMINI_MODEL,
+      "gemini-2.5-flash",
+      "gemini-2.0-flash",
+      "gemini-1.5-flash",
+    ];
     return {
       provider: "gemini",
       model: GEMINI_MODEL,
       call: async () => {
-        const res = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              contents: [
-                { parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] },
-              ],
-              generationConfig: {
-                temperature: 0,
-                responseMimeType: "application/json",
+        for (const m of candidateModels) {
+          try {
+            const res = await fetch(
+              `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${GEMINI_API_KEY}`,
+              {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  contents: [
+                    { parts: [{ text: `${systemPrompt}\n\n${userPrompt}` }] },
+                  ],
+                  generationConfig: {
+                    temperature: 0,
+                    responseMimeType: "application/json",
+                  },
+                }),
+                signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
               },
-            }),
-            signal: AbortSignal.timeout(PROVIDER_TIMEOUT_MS),
-          },
-        );
-        if (!res.ok) return null;
-        const data = await res.json();
-        return data?.candidates?.[0]?.content?.parts?.[0]?.text ?? null;
+            );
+            if (res.ok) {
+              const data = await res.json();
+              const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (text) return text;
+            } else if (res.status === 404) {
+              continue;
+            }
+          } catch {
+            continue;
+          }
+        }
+        return null;
       },
     };
   }

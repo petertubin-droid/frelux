@@ -148,32 +148,52 @@ serveWithCors(async (req: Request) => {
 
   const started = Date.now();
   try {
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${encodeURIComponent(apiKey)}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [
-            {
-              parts: [
-                { inlineData: { mimeType: match[1], data: match[2] } },
+    const candidateModels = [
+      "gemini-3.6-flash",
+      "gemini-2.5-flash",
+      "gemini-2.0-flash",
+      "gemini-1.5-flash",
+    ];
+    let response: Response | null = null;
+    for (const model of candidateModels) {
+      try {
+        const res = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(apiKey)}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              contents: [
                 {
-                  text: `You are only an information extractor, not a designer or engineer. Inspect this image for a TV/media console and estimate visible external cabinet dimensions in millimetres. Do not infer hidden structure, material strength, safe loads, or code compliance. Return JSON only: {"consoleVisible": boolean, "widthMm": number|null, "heightMm": number|null, "depthMm": number|null, "confidence": "low"|"medium"|"high", "notes": string[]}. Dimensions inferred from a photo are rough visual estimates; if scale is unavailable, use null rather than inventing a precise measurement. No BOM or design recommendation.`,
+                  parts: [
+                    { inlineData: { mimeType: match[1], data: match[2] } },
+                    {
+                      text: `You are only an information extractor, not a designer or engineer. Inspect this image for a TV/media console and estimate visible external cabinet dimensions in millimetres. Do not infer hidden structure, material strength, safe loads, or code compliance. Return JSON only: {"consoleVisible": boolean, "widthMm": number|null, "heightMm": number|null, "depthMm": number|null, "confidence": "low"|"medium"|"high", "notes": string[]}. Dimensions inferred from a photo are rough visual estimates; if scale is unavailable, use null rather than inventing a precise measurement. No BOM or design recommendation.`,
+                    },
+                  ],
                 },
               ],
-            },
-          ],
-          generationConfig: {
-            temperature: 0.1,
-            maxOutputTokens: 500,
-            responseMimeType: "application/json",
+              generationConfig: {
+                temperature: 0.1,
+                maxOutputTokens: 500,
+                responseMimeType: "application/json",
+              },
+            }),
           },
-        }),
-      },
-    );
-    if (!response.ok)
-      throw new Error(`Vision provider returned ${response.status}`);
+        );
+        if (res.ok) {
+          response = res;
+          break;
+        }
+        if (res.status === 404) continue;
+        response = res;
+        break;
+      } catch {
+        continue;
+      }
+    }
+    if (!response || !response.ok)
+      throw new Error(`Vision provider returned ${response?.status ?? 502}`);
     const payload = await response.json();
     const text =
       payload?.candidates?.[0]?.content?.parts

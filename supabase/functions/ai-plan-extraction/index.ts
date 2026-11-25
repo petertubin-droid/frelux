@@ -23,6 +23,7 @@
 
 import { createClient } from "npm:@supabase/supabase-js@2.45.4";
 import { serveWithCors } from "../_shared/serve.ts";
+import { cleanJsonFence } from "../_shared/gemini.ts";
 import { serveAi } from "../_shared/serve-ai.ts";
 
 // ── Rate limiting (inlined mirror of _shared/rate-limit.ts) ──
@@ -309,40 +310,55 @@ serveAi(async (req: Request) => {
     { inline_data: { mime_type: mimeType, data: base64 } },
   ];
 
-  let response: Response;
-  try {
-    response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${encodeURIComponent(geminiApiKey)}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ parts }],
-          generationConfig: {
-            temperature: 0.2,
-            responseMimeType: "application/json",
-          },
-        }),
-      },
-    );
-  } catch (e) {
-    console.error("[ai-plan-extraction] fetch error:", e);
-    return jsonResponse(
-      {
-        error: "The AI service is temporarily unavailable.",
-        code: "PROVIDER_ERROR",
-      },
-      502,
-      rlH,
-    );
+  const candidateModels = [
+    GEMINI_MODEL,
+    "gemini-2.5-flash",
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+  ];
+  let response: Response | null = null;
+  let lastErrText = "";
+
+  for (const model of candidateModels) {
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(geminiApiKey)}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            contents: [{ parts }],
+            generationConfig: {
+              temperature: 0.2,
+              responseMimeType: "application/json",
+            },
+          }),
+        },
+      );
+      if (res.ok) {
+        response = res;
+        break;
+      }
+      lastErrText = await res.text();
+      if (
+        res.status === 404 ||
+        lastErrText.includes("not found") ||
+        lastErrText.includes("is not supported")
+      ) {
+        continue;
+      }
+      response = res;
+      break;
+    } catch (e) {
+      console.error(`[ai-plan-extraction] fetch error on ${model}:`, e);
+    }
   }
 
-  if (!response.ok) {
-    const errText = await response.text();
+  if (!response || !response.ok) {
     console.error(
       "[ai-plan-extraction] Gemini error:",
-      response.status,
-      errText.slice(0, 500),
+      response?.status,
+      lastErrText.slice(0, 500),
     );
     return jsonResponse(
       {
@@ -359,7 +375,7 @@ serveAi(async (req: Request) => {
     const geminiData = await response.json();
     const textContent = geminiData?.candidates?.[0]?.content?.parts?.[0]?.text;
     if (!textContent) throw new Error("No response text");
-    parsed = JSON.parse(textContent);
+    parsed = JSON.parse(cleanJsonFence(textContent));
   } catch (e) {
     console.error("[ai-plan-extraction] parse error:", e);
     return jsonResponse(
