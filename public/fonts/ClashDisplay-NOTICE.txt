@@ -1,0 +1,23 @@
+Clash Display
+=============
+
+Copyright (c) Indian Type Foundry (ITF), distributed by Fontshare.
+https://www.fontshare.com/fonts/clash-display
+
+Licensed under the ITF Free Font License (FFL). The full licence text is
+published by the foundry at:
+
+  https://www.fontshare.com/licenses/itf-ffl
+
+The licence text is not reproduced here because it is the foundry's document and
+may be revised; the canonical copy lives at the URL above.
+
+Summary of what this site relies on:
+
+- Desktop, web and app use, including commercial projects, are permitted.
+- The files may be self-hosted as part of a product or website.
+- The font files themselves may not be sold or redistributed as font software,
+  and the fonts may not be offered for download as a font package.
+
+If FRELUX ever offers the font files for download, or bundles them into a
+distributable template, the licence must be re-checked first.

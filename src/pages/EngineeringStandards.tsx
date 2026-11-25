@@ -13,6 +13,7 @@ import AdSlot from "@/components/ui/AdSlot";
 import { Badge } from "@/components/ui/shadcn/badge";
 import { useSeo, SITE_URL } from "@/lib/seo";
 import { authorSchema, publisherSchema } from "@/lib/editorial";
+import AuthorByline from "@/components/AuthorByline";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
 import {
@@ -92,6 +93,9 @@ export default function EngineeringStandards() {
         slotKey="content_native"
         className="mx-auto mt-8 max-w-5xl px-4 sm:px-6"
       />
+      <Container className="pt-4">
+        <AuthorByline />
+      </Container>
       <Container className="py-8 md:py-12">
         <section
           className="mb-10 rounded-2xl border border-primary/20 bg-primary/5 p-5 md:p-7"
