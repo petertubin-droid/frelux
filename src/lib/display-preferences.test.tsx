@@ -563,4 +563,36 @@ describe("a phone after signing in", () => {
     expect(deviceCssShortEdge()).toBe(390);
     expect(defaultScaleForDevice()).toBe(DEFAULT_MOBILE_SCALE);
   });
+
+  it("maintains mobile 80% on destination page after OAuth login even if HTML meta is neutral and transient markers were cleared", () => {
+    const html = readFileSync("index.html", "utf8");
+    const inline = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)]
+      .map((m) => m[1])
+      .find((body) => body.includes("frelux_display_preferences_v1"));
+    expect(inline, "pre-paint display script").toBeTruthy();
+
+    // User was on mobile iPhone:
+    localStorage.setItem(DEVICE_SHORT_EDGE_KEY, "390");
+    localStorage.removeItem(OAUTH_MOBILE_KEY);
+    localStorage.removeItem(DISPLAY_PREFERENCE_KEY);
+    delete (window as any).location;
+    (window as any).location = new URL("https://freluxtools.com/dashboard");
+    Object.defineProperty(window.navigator, "userAgent", {
+      configurable: true,
+      value:
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1",
+    });
+
+    // The browser reports widened screen due to previous zoom/scaling:
+    setDevice(780, 1690);
+    document.head.innerHTML =
+      '<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">';
+    new Function(inline!)();
+
+    expect(document.documentElement.dataset.freluxScale).toBe(
+      String(DEFAULT_MOBILE_SCALE),
+    );
+    expect(deviceCssShortEdge()).toBe(390);
+    expect(defaultScaleForDevice()).toBe(DEFAULT_MOBILE_SCALE);
+  });
 });

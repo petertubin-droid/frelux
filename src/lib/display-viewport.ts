@@ -125,11 +125,30 @@ export function viewportContent({
 export function isPhoneDevice(input: {
   deviceShortEdge?: number;
   touch?: boolean;
+  win?: Window;
 }): boolean {
-  const { deviceShortEdge = 0, touch = false } = input;
-  return (
-    touch && deviceShortEdge > 0 && deviceShortEdge <= PHONE_MAX_SHORT_EDGE
-  );
+  const {
+    deviceShortEdge = 0,
+    touch = false,
+    win = typeof window !== "undefined" ? window : undefined,
+  } = input;
+  if (!touch) return false;
+  if (deviceShortEdge > 0 && deviceShortEdge <= PHONE_MAX_SHORT_EDGE) {
+    return true;
+  }
+  if (win) {
+    const stored = readStoredShortEdge(win);
+    if (stored > 0 && stored <= PHONE_MAX_SHORT_EDGE) {
+      if (
+        isAuthRedirect(win) ||
+        !viewportIsUntouched(win.document) ||
+        (isMobileUserAgent(win) && deviceShortEdge <= 860)
+      ) {
+        return true;
+      }
+    }
+  }
+  return false;
 }
 
 /**
@@ -139,7 +158,10 @@ export function isPhoneDevice(input: {
 export function deviceTakesTouch(win: Window = window): boolean {
   const navigatorWithTouch = win.navigator as Navigator | undefined;
   if ((navigatorWithTouch?.maxTouchPoints ?? 0) > 0) return true;
-  return win.matchMedia?.("(pointer: coarse)")?.matches ?? false;
+  if (win.matchMedia?.("(pointer: coarse)")?.matches ?? false) return true;
+  if (typeof win === "object" && win !== null && "ontouchstart" in win)
+    return true;
+  return isMobileUserAgent(win);
 }
 
 /**
@@ -154,6 +176,35 @@ export function deviceTakesTouch(win: Window = window): boolean {
  */
 export const DEVICE_SHORT_EDGE_KEY = "frelux_device_short_edge_v1";
 export const OAUTH_MOBILE_KEY = "frelux_oauth_mobile_v1";
+export const DEVICE_IS_MOBILE_KEY = "frelux_device_is_mobile_v1";
+
+export function isMobileUserAgent(win: Window = window): boolean {
+  try {
+    const ua = win.navigator?.userAgent || "";
+    return /iPhone|iPod|Android.*Mobile|Windows Phone|IEMobile/i.test(ua);
+  } catch {
+    return false;
+  }
+}
+
+export function readStoredIsMobile(win: Window = window): boolean {
+  try {
+    return (
+      win.localStorage?.getItem(DEVICE_IS_MOBILE_KEY) === "1" ||
+      win.localStorage?.getItem(OAUTH_MOBILE_KEY) === "1"
+    );
+  } catch {
+    return false;
+  }
+}
+
+export function rememberIsMobile(win: Window = window): void {
+  try {
+    win.localStorage?.setItem(DEVICE_IS_MOBILE_KEY, "1");
+  } catch {
+    // Storage can be unavailable
+  }
+}
 
 export function readStoredShortEdge(win: Window = window): number {
   try {
@@ -167,11 +218,15 @@ export function readStoredShortEdge(win: Window = window): number {
 
 function rememberShortEdge(value: number, win: Window = window): void {
   try {
-    if (value > 0 && value <= PHONE_MAX_SHORT_EDGE)
+    if (value > 0 && value <= PHONE_MAX_SHORT_EDGE) {
       win.localStorage?.setItem(
         DEVICE_SHORT_EDGE_KEY,
         String(Math.round(value)),
       );
+      if (deviceTakesTouch(win) || isMobileUserAgent(win)) {
+        rememberIsMobile(win);
+      }
+    }
   } catch {
     // Storage can be unavailable; the live measurement still works this load.
   }
@@ -220,26 +275,26 @@ export function deviceCssShortEdge(win: Window = window): number {
   }
 
   const stored = readStoredShortEdge(win);
+  const isAuth = isAuthRedirect(win);
+  const untouched = viewportIsUntouched(win.document);
+  const isMobile = isMobileUserAgent(win);
 
-  // If returning from an auth redirect or carrying an OAuth mobile marker,
-  // or if the viewport has already been widened/scaled, prefer the stored phone edge.
-  if (
-    stored > 0 &&
-    stored <= PHONE_MAX_SHORT_EDGE &&
-    (isAuthRedirect(win) || !viewportIsUntouched(win.document))
-  ) {
-    return stored;
+  // Prefer stored edge when:
+  // 1. Returning from auth redirect, OR
+  // 2. Viewport was already scaled (!untouched), OR
+  // 3. User agent is confirmed mobile phone AND short is within widened bounds (<= 860)
+  if (stored > 0 && stored <= PHONE_MAX_SHORT_EDGE) {
+    if (isAuth || !untouched || (isMobile && short <= 860)) {
+      return stored;
+    }
   }
 
-  if (viewportIsUntouched(win.document)) {
-    if (short <= PHONE_MAX_SHORT_EDGE) {
-      rememberShortEdge(short, win);
-      return short;
-    }
+  if (short <= PHONE_MAX_SHORT_EDGE && short > 0) {
+    rememberShortEdge(short, win);
     return short;
   }
 
-  return stored > 0 && stored <= PHONE_MAX_SHORT_EDGE ? stored : short;
+  return short;
 }
 
 /** The width to lay out for at 100%, in the current orientation. */

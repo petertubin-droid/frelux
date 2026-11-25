@@ -10,7 +10,7 @@
          width (what a browser's page zoom changes), so it must be set before layout. -->
     <script>
       (function(){
-        var KEY='frelux_display_preferences_v1',EDGE='frelux_device_short_edge_v1',OAUTH_M='frelux_oauth_mobile_v1';
+        var KEY='frelux_display_preferences_v1',EDGE='frelux_device_short_edge_v1',OAUTH_M='frelux_oauth_mobile_v1',IS_MOBILE='frelux_device_is_mobile_v1';
         var apply=function(){
           var d=document.documentElement,scale=50,compact=true,wide=true;
           var m=document.querySelector('meta[name="viewport"]');
@@ -19,16 +19,25 @@
           var dpr=window.devicePixelRatio||1;
           if(short>600&&dpr>1&&short/dpr<=600){short=Math.round(short/dpr);}
           var stored=0;try{stored=Number(localStorage.getItem(EDGE))||0;}catch(e){}
+          var storedIsMobile=false;try{storedIsMobile=localStorage.getItem(IS_MOBILE)==='1';}catch(e){}
           var isAuth=false;
           try{
             var l=window.location||{};
             var h=l.hash||"",s=l.search||"";
             isAuth=localStorage.getItem(OAUTH_M)==='1'||h.indexOf('access_token')!==-1||s.indexOf('code=')!==-1||s.indexOf('redirect=')!==-1;
           }catch(e){}
-          if(short>0&&short<=600){try{localStorage.setItem(EDGE,String(Math.round(short)));}catch(e){}}
-          else if(isAuth&&stored>0&&stored<=600){short=stored;}
-          else if(!neutral&&stored>0&&stored<=600){short=stored;}
-          var touch=(navigator.maxTouchPoints||0)>0||(window.matchMedia&&matchMedia('(pointer: coarse)').matches);
+          var ua=navigator.userAgent||'';
+          var isMobileUA=/iPhone|iPod|Android.*Mobile|Windows Phone|IEMobile/i.test(ua);
+          var touch=(navigator.maxTouchPoints||0)>0||(window.matchMedia&&window.matchMedia('(pointer: coarse)').matches)||('ontouchstart' in window);
+          
+          if(short>0&&short<=600){
+            try{localStorage.setItem(EDGE,String(Math.round(short)));localStorage.setItem(IS_MOBILE,'1');}catch(e){}
+          } else if(stored>0&&stored<=600){
+            if(isAuth||!neutral||(isMobileUA&&short<=860)){
+              short=stored;
+            }
+          }
+          
           var phone=touch&&short>0&&short<=600;
           if(phone)scale=80;
           // Saved values only win when the visitor chose them. A record without

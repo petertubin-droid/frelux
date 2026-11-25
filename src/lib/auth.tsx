@@ -13,11 +13,12 @@ import { APPROVED_MARKET_CODES } from "@/lib/international/countries";
 import { publishEntitlement } from "@/lib/entitlement-store";
 import {
   DEVICE_SHORT_EDGE_KEY,
+  DEVICE_IS_MOBILE_KEY,
   OAUTH_MOBILE_KEY,
   PHONE_MAX_SHORT_EDGE,
   deviceCssShortEdge,
   readStoredShortEdge,
-  deviceTakesTouch,
+  isMobileUserAgent,
 } from "@/lib/display-viewport";
 
 export type AccountType = "client" | "pro_worker";
@@ -445,15 +446,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
               ? edge
               : stored > 0 && stored <= PHONE_MAX_SHORT_EDGE
                 ? stored
-                : 0;
-          if (phoneEdge > 0 || deviceTakesTouch()) {
+                : isMobileUserAgent()
+                  ? 390
+                  : 0;
+          if (phoneEdge > 0 || isMobileUserAgent()) {
             localStorage.setItem(OAUTH_MOBILE_KEY, "1");
-            if (phoneEdge > 0) {
-              localStorage.setItem(
-                DEVICE_SHORT_EDGE_KEY,
-                String(Math.round(phoneEdge)),
-              );
-            }
+            localStorage.setItem(DEVICE_IS_MOBILE_KEY, "1");
+            localStorage.setItem(
+              DEVICE_SHORT_EDGE_KEY,
+              String(Math.round(phoneEdge > 0 ? phoneEdge : 390)),
+            );
           }
         } catch {
           /* ignore storage error */

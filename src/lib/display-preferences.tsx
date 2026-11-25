@@ -67,6 +67,7 @@ export function defaultScaleForDevice(win: Window = window): DisplayScale {
   const isPhone = isPhoneDevice({
     deviceShortEdge: deviceCssShortEdge(win),
     touch,
+    win,
   });
   return isPhone ? DEFAULT_MOBILE_SCALE : DEFAULT_DESKTOP_SCALE;
 }
@@ -81,6 +82,7 @@ export function defaultPreferencesForDevice(
 function parsePreferences(
   value: unknown,
   fallback: DisplayPreferences = defaultPreferencesForDevice(),
+  win: Window = window,
 ): DisplayPreferences {
   if (!value || typeof value !== "object") return fallback;
   const input = value as Partial<DisplayPreferences>;
@@ -88,6 +90,17 @@ function parsePreferences(
   // build. It cannot be distinguished from a desktop default that a phone was
   // handed by mistake, so the device's own default wins.
   if (input.chosen !== true) return fallback;
+
+  // Guard: if device is a phone, never allow a 50% desktop default to crush it
+  const isPhone = isPhoneDevice({
+    deviceShortEdge: deviceCssShortEdge(win),
+    touch: deviceTakesTouch(win),
+    win,
+  });
+  if (isPhone && input.scale === DEFAULT_DESKTOP_SCALE) {
+    return fallback;
+  }
+
   return {
     chosen: true,
     scale: DISPLAY_SCALE_OPTIONS.includes(input.scale as DisplayScale)
@@ -106,7 +119,7 @@ export function readDisplayPreferences(
   const fallback = defaultPreferencesForDevice(win);
   try {
     const raw = win.localStorage?.getItem(DISPLAY_PREFERENCE_KEY);
-    return raw ? parsePreferences(JSON.parse(raw), fallback) : fallback;
+    return raw ? parsePreferences(JSON.parse(raw), fallback, win) : fallback;
   } catch {
     return fallback;
   }

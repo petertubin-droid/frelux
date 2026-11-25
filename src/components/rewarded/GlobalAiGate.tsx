@@ -18,7 +18,7 @@ import {
   PlayCircle,
   AlertCircle,
 } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useLanguage } from "@/lib/i18n";
 
 interface GlobalAiGateProps {
@@ -40,6 +40,8 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
   const [adWatching, setAdWatching] = useState(false);
   const [adError, setAdError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const currentPath = location.pathname + location.search;
 
   const checkStatus = async () => {
     setLoading(true);
@@ -91,7 +93,11 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <button
-              onClick={() => navigate("/login?mode=signup")}
+              onClick={() =>
+                navigate(
+                  `/login?mode=signup&redirect=${encodeURIComponent(currentPath)}`,
+                )
+              }
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
             >
               <UserPlus className="w-4 h-4" />
@@ -99,7 +105,9 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
             </button>
 
             <button
-              onClick={() => navigate("/login")}
+              onClick={() =>
+                navigate(`/login?redirect=${encodeURIComponent(currentPath)}`)
+              }
               className="inline-flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors"
             >
               <LogIn className="w-4 h-4" />
@@ -156,13 +164,19 @@ export const GlobalAiGate: React.FC<GlobalAiGateProps> = ({
           </p>
           <div className="flex flex-col sm:flex-row gap-2 justify-center">
             <button
-              onClick={() => navigate("/login?mode=signup")}
+              onClick={() =>
+                navigate(
+                  `/login?mode=signup&redirect=${encodeURIComponent(currentPath)}`,
+                )
+              }
               className="px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors"
             >
               {t("Create Free Account")}
             </button>
             <button
-              onClick={() => navigate("/login")}
+              onClick={() =>
+                navigate(`/login?redirect=${encodeURIComponent(currentPath)}`)
+              }
               className="px-3 py-1.5 text-xs font-medium rounded-lg border border-border bg-background hover:bg-muted transition-colors"
             >
               {t("Sign In")}

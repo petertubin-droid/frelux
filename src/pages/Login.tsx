@@ -28,6 +28,15 @@ import { TurnstileWidget } from "@/components/security/TurnstileWidget";
 import { useTurnstileGate } from "@/components/security/useTurnstileGate";
 import { Button } from "@/components/ui/shadcn/button";
 import { useLanguage } from "@/lib/i18n";
+import {
+  DEVICE_SHORT_EDGE_KEY,
+  DEVICE_IS_MOBILE_KEY,
+  OAUTH_MOBILE_KEY,
+  PHONE_MAX_SHORT_EDGE,
+  deviceCssShortEdge,
+  readStoredShortEdge,
+  isMobileUserAgent,
+} from "@/lib/display-viewport";
 
 type Mode = "signin" | "signup" | "reset";
 
@@ -186,16 +195,62 @@ export default function Login() {
   }, [user]);
 
   useEffect(() => {
+    // When returning from OAuth or visiting on a mobile device, lock in persistent mobile markers
+    try {
+      const isMobile =
+        localStorage.getItem(OAUTH_MOBILE_KEY) === "1" ||
+        localStorage.getItem(DEVICE_IS_MOBILE_KEY) === "1" ||
+        isMobileUserAgent();
+      const edge = deviceCssShortEdge();
+      const stored = readStoredShortEdge();
+      const phoneEdge =
+        edge > 0 && edge <= PHONE_MAX_SHORT_EDGE
+          ? edge
+          : stored > 0 && stored <= PHONE_MAX_SHORT_EDGE
+            ? stored
+            : isMobile
+              ? 390
+              : 0;
+      if (phoneEdge > 0 && isMobile) {
+        localStorage.setItem(DEVICE_IS_MOBILE_KEY, "1");
+        localStorage.setItem(
+          DEVICE_SHORT_EDGE_KEY,
+          String(Math.round(phoneEdge)),
+        );
+      }
+    } catch {
+      /* ignore storage error */
+    }
+  }, []);
+
+  useEffect(() => {
     if (user && !hasPendingOAuthProfile && !oauthProfileProcessing) {
-      // Retain OAuth mobile marker during transition so downstream landing routes maintain phone scale
-      const timer = setTimeout(() => {
-        try {
-          localStorage.removeItem("frelux_oauth_mobile_v1");
-        } catch {
-          /* ignore storage error */
+      // Ensure mobile markers remain active when transitioning to destination route
+      try {
+        const isMobile =
+          localStorage.getItem(OAUTH_MOBILE_KEY) === "1" ||
+          localStorage.getItem(DEVICE_IS_MOBILE_KEY) === "1" ||
+          isMobileUserAgent();
+        const edge = deviceCssShortEdge();
+        const stored = readStoredShortEdge();
+        const phoneEdge =
+          edge > 0 && edge <= PHONE_MAX_SHORT_EDGE
+            ? edge
+            : stored > 0 && stored <= PHONE_MAX_SHORT_EDGE
+              ? stored
+              : isMobile
+                ? 390
+                : 0;
+        if (phoneEdge > 0 && isMobile) {
+          localStorage.setItem(DEVICE_IS_MOBILE_KEY, "1");
+          localStorage.setItem(
+            DEVICE_SHORT_EDGE_KEY,
+            String(Math.round(phoneEdge)),
+          );
         }
-      }, 5000);
-      return () => clearTimeout(timer);
+      } catch {
+        /* ignore storage error */
+      }
     }
   }, [user, hasPendingOAuthProfile, oauthProfileProcessing]);
 
