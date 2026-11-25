@@ -152,7 +152,7 @@ Disallow: /marketplace/orders/
 Disallow: /pro-connect/register
 Disallow: /pro-connect/dashboard
 Disallow: /messages
-Disallow: /contractor
+Disallow: /contractor/
 Disallow: /worker-channels
 Disallow: /clients
 Disallow: /onboarding

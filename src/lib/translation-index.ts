@@ -31,7 +31,24 @@ export function registerIndexableLocalePath(locale: string, path: string) {
 
 export function isLocalePathIndexable(locale: string, path: string): boolean {
   if (!locale || locale === "en") return true;
-  return indexable.has(normalisePath(path));
+  const clean = normalisePath(path);
+  if (indexable.has(clean)) return true;
+  // If the prerendered HTML was already stamped as indexable by prerender.mjs
+  // (which verified the reviewed translation at build time), do not flip it
+  // to noindex while the client-side translation query is in flight.
+  if (
+    typeof document !== "undefined" &&
+    clean.startsWith(`/${locale}/learn/`) &&
+    isLocaleLaunched(locale)
+  ) {
+    const existingRobots = document
+      .querySelector('meta[name="robots"]')
+      ?.getAttribute("content");
+    if (existingRobots && !existingRobots.includes("noindex")) {
+      return true;
+    }
+  }
+  return false;
 }
 
 /** Test seam. */

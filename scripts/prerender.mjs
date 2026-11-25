@@ -4047,6 +4047,9 @@ for (const tool of toolRegistry) {
     route.title = toolSeoTitle(tool);
     route.description = toolSeoDescription(tool);
   }
+  if (tool.path === "/color-preview") {
+    route.robots = "noindex, nofollow";
+  }
   if (!contentMap[tool.path]) {
     contentMap[tool.path] = buildToolContent(
       tool,
@@ -4106,6 +4109,42 @@ for (const tool of toolRegistry) {
       },
     ];
   }
+}
+
+// Categorized tool subroutes from App.tsx: ensure each alias is prerendered
+// with its target tool or directory content so sitemap inventory matches prerender.
+try {
+  const appSrc = readFileSync("src/App.tsx", "utf8");
+  const navMap = new Map();
+  for (const match of appSrc.matchAll(/path="(\/tools[^"]*)"\s+element=\{<Navigate to="([^"]+)"/g)) {
+    navMap.set(match[1], match[2]);
+  }
+  for (const match of appSrc.matchAll(/path="(\/tools[^"]*)"/g)) {
+    const subPath = match[1].replace(/\/+$/, "") || "/tools";
+    if (subPath.includes(":") || subPath.startsWith("/admin")) continue;
+    let route = routes.find((r) => r.path === subPath);
+    if (!route) {
+      const target = navMap.get(subPath);
+      const targetTool = target ? toolByPath.get(target) : undefined;
+      const targetRoute = target ? routes.find((r) => r.path === target) : undefined;
+      route = {
+        path: subPath,
+        title: targetTool ? toolSeoTitle(targetTool) : (targetRoute?.title ?? "Construction Tools | FRELUX"),
+        description: targetTool ? toolSeoDescription(targetTool) : (targetRoute?.description ?? "Construction tools and estimators by FRELUX."),
+        priority: "0.8",
+        changefreq: "monthly",
+      };
+      routes.push(route);
+    }
+    const target = navMap.get(subPath);
+    if (target && contentMap[target] && !contentMap[subPath]) {
+      contentMap[subPath] = contentMap[target];
+    } else if (subPath === "/tools" && contentMap["/construction-tools"] && !contentMap["/tools"]) {
+      contentMap["/tools"] = contentMap["/construction-tools"];
+    }
+  }
+} catch (e) {
+  console.warn("Could not load /tools subtree routes for prerender:", e);
 }
 
 // ── Colour library, palette and template families (2026-11-01) ───────

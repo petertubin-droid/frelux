@@ -42,7 +42,7 @@ function toolRegistryRoutes() {
   for (const match of source.matchAll(/to:\s*"(\/[a-z0-9\-/]*)"/g)) {
     const path = match[1].replace(/\/+$/, "") || "/";
     // Public, in-app routes only: no admin surface, no external URLs.
-    if (path.startsWith("/") && !path.startsWith("/admin")) paths.add(path);
+    if (path.startsWith("/") && !path.startsWith("/admin") && path !== "/color-preview") paths.add(path);
   }
   return [...paths].sort();
 }
@@ -209,7 +209,6 @@ const routes = [
   { path: "/stucco-calculator", priority: "0.7", changefreq: "monthly" },
   { path: "/colors", priority: "0.8", changefreq: "weekly" },
   { path: "/colors/compare", priority: "0.7", changefreq: "monthly" },
-  { path: "/color-preview", priority: "0.7", changefreq: "monthly" },
   { path: "/ai-color-assistant", priority: "0.7", changefreq: "monthly" },
   { path: "/learn", priority: "0.8", changefreq: "weekly" },
   { path: "/prices", priority: "0.8", changefreq: "daily" },
@@ -967,6 +966,7 @@ if (droppedLocaleRoutes > 0) {
 // that keeps the sitemap and the robots meta from disagreeing.
 const indexableRoutes = allRoutes.filter((r) => {
   const clean = r.path.replace(/\/$/, "") || "/";
+  if (clean === "/color-preview") return false;
   return !manifestNoindex.has(clean) && !manifestNoindex.has(`${clean}/`);
 });
 if (indexableRoutes.length !== allRoutes.length) {

@@ -144,7 +144,10 @@ export default function LearnArticle() {
       article?.meta_description ??
       article?.excerpt ??
       "FRELUX educational article.",
-    canonicalPath: `/learn/${articleSlug}`,
+    canonicalPath:
+      translation && language && language !== "en"
+        ? `/${language}/learn/${articleSlug}`
+        : `/learn/${articleSlug}`,
     ogType: "article",
     ogImage: article?.cover_image_url ?? undefined,
     keywords: article?.meta_keywords ?? undefined,

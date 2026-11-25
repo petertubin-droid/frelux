@@ -185,9 +185,8 @@ export default function MaterialPriceTracker() {
 
   return (
     // A tracker answers no question and quotes nothing, so the shell adds
-    // neither a question block nor an estimate disclaimer. It was already kept
-    // out of the index before the move.
-    <ToolShell route="/material-prices" noIndex showFaq={false} hideDisclaimer>
+    // neither a question block nor an estimate disclaimer.
+    <ToolShell route="/material-prices" showFaq={false} hideDisclaimer>
       <div className="mx-auto max-w-5xl px-4 pb-12 pt-6 space-y-6">
         {/* Future Engine 4: deterministic price forecasting */}
         <MaterialPriceForecast />

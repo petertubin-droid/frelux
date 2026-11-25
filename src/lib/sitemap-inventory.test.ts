@@ -167,3 +167,23 @@ describe("build sitemap", () => {
     ).toBe(true);
   });
 });
+
+describe("robots and sitemap consistency", () => {
+  it("never advertises /color-preview in sitemap since it is disallowed and noindexed", () => {
+    const sitemap = join(root, "public/sitemap.xml");
+    if (!existsSync(sitemap)) return;
+    const xml = readFileSync(sitemap, "utf8");
+    expect(xml).not.toContain(
+      "<loc>https://freluxtools.com/color-preview/</loc>",
+    );
+  });
+
+  it("advertises public /material-prices in the sitemap", () => {
+    const sitemap = join(root, "public/sitemap.xml");
+    if (!existsSync(sitemap)) return;
+    const xml = readFileSync(sitemap, "utf8");
+    expect(xml).toContain(
+      "<loc>https://freluxtools.com/material-prices/</loc>",
+    );
+  });
+});
