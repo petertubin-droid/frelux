@@ -35,6 +35,11 @@ import { soffitGutterEstimatorGuide } from "@/content/calculator-guides/soffit-g
 import { solarPvEstimatorGuide } from "@/content/calculator-guides/solar-pv-estimator";
 import { generatorEstimatorGuide } from "@/content/calculator-guides/generator-estimator";
 import { boreholeWaterSystemEstimatorGuide } from "@/content/calculator-guides/borehole-water-system-estimator";
+import { renovationEstimatorGuide } from "@/content/calculator-guides/renovation-estimator";
+import { waterTowerEstimatorGuide } from "@/content/calculator-guides/water-tower-estimator";
+import { windowBlindsEstimatorGuide } from "@/content/calculator-guides/window-blinds-estimator";
+import { eifsWallEstimatorGuide } from "@/content/calculator-guides/eifs-wall-estimator";
+import { tyroleneEstimatorGuide } from "@/content/calculator-guides/tyrolene-estimator";
 
 const allGuides = [
   paintCalculatorGuide,
@@ -62,6 +67,11 @@ const allGuides = [
   solarPvEstimatorGuide,
   generatorEstimatorGuide,
   boreholeWaterSystemEstimatorGuide,
+  renovationEstimatorGuide,
+  waterTowerEstimatorGuide,
+  windowBlindsEstimatorGuide,
+  eifsWallEstimatorGuide,
+  tyroleneEstimatorGuide,
 ];
 
 describe("CalculatorGuideBlock structure", () => {

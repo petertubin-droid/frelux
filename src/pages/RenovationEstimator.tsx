@@ -15,6 +15,7 @@
 import { useMemo, useState } from "react";
 import { Building2, DoorOpen, Ruler } from "lucide-react";
 import SpecialtyCalculatorShell from "@/components/calculators/SpecialtyCalculatorShell";
+import { renovationEstimatorGuide } from "@/content/calculator-guides/renovation-estimator";
 import {
   FieldGroup,
   NumberField,
@@ -918,6 +919,7 @@ export default function RenovationEstimator() {
 
   return (
     <SpecialtyCalculatorShell
+      guide={renovationEstimatorGuide}
       onReset={resetInputs}
       methodology="renovation"
       calculatorType="renovation"

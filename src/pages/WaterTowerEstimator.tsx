@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { waterTowerEstimatorGuide } from "@/content/calculator-guides/water-tower-estimator";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -845,6 +847,9 @@ export default function WaterTowerEstimator() {
           </Container>
         </div>
       )}
+      <Container className="pb-16">
+        <CalculatorGuideBlock guide={waterTowerEstimatorGuide} />
+      </Container>
     </ToolShell>
   );
 }

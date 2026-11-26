@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { tyroleneEstimatorGuide } from "@/content/calculator-guides/tyrolene-estimator";
 /**
  * FRELUX Phase 3, Tyrolene Estimator Page
  *
@@ -1955,6 +1957,9 @@ export default function TyroleneEstimator({
       {!embedded && (
         <>
           <TyroleneEstimatorSeo />
+          <Container className="mt-8">
+            <CalculatorGuideBlock guide={tyroleneEstimatorGuide} />
+          </Container>
 
           <FaqItemsWithSchema
             faqs={[

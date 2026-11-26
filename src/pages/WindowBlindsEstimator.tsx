@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { windowBlindsEstimatorGuide } from "@/content/calculator-guides/window-blinds-estimator";
 // =========================================================
 // WINDOW BLIND ESTIMATOR (/window-blind-calculator)
 //
@@ -37,7 +39,6 @@ import {
   type LengthUnit,
 } from "@/lib/estimation/window-blinds-engine";
 import AdSlot from "@/components/ui/AdSlot";
-import { getToolFaqGroup } from "@/config/tool-faqs";
 import { NumericInput } from "@/components/ui/NumericInput";
 
 const labelClass = "text-sm font-medium text-foreground";
@@ -379,8 +380,6 @@ export default function WindowBlindsEstimator() {
     <ToolShell route="/window-blind-calculator">
       <div className="bg-background">
         <Container className="py-8 md:py-12">
-
-
           <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,400px)]">
             <section className="space-y-6">
               <div className="rounded-xl border border-border bg-card p-4 md:p-5">
@@ -594,7 +593,9 @@ export default function WindowBlindsEstimator() {
                           />
                         </label>
                         <label className="space-y-1 text-xs">
-                          <span className="text-muted-foreground">How many</span>
+                          <span className="text-muted-foreground">
+                            How many
+                          </span>
                           <input
                             aria-label="Drop ()
 
@@ -669,8 +670,8 @@ export default function WindowBlindsEstimator() {
                   </h2>
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  A motor, a cassette headrail and taking down old blinds vary too
-                  much by supplier for a made up figure. Enter what you were
+                  A motor, a cassette headrail and taking down old blinds vary
+                  too much by supplier for a made up figure. Enter what you were
                   quoted and the estimator adds it.
                 </p>
                 <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -766,7 +767,8 @@ export default function WindowBlindsEstimator() {
                         ? "manual"
                         : formatCurrency(
                             result.geometry.blendedRatePerM2,
-                            result.currencySymbol ?? marketOption.currencySymbol,
+                            result.currencySymbol ??
+                              marketOption.currencySymbol,
                           )}
                       <span className="text-muted-foreground"> /m2</span>
                     </dd>
@@ -818,7 +820,10 @@ export default function WindowBlindsEstimator() {
                     : "Tax is the rate you entered, not a local assumption"}
                 </p>
                 <div className="mt-4">
-                  <CalculatorResetButton onReset={resetInputs} className="mb-4" />
+                  <CalculatorResetButton
+                    onReset={resetInputs}
+                    className="mb-4"
+                  />
                   <HowCalculatedSection
                     methodologyText={methodologyText("window-blinds")}
                   />
@@ -965,8 +970,9 @@ export default function WindowBlindsEstimator() {
 
               <p className="flex items-start gap-2 rounded-xl border border-border bg-card p-3 text-xs text-muted-foreground">
                 <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                Sizes are the finished opening. Blinds need 10 to 20 mm clearance
-                inside a reveal, which the waste allowance already covers.
+                Sizes are the finished opening. Blinds need 10 to 20 mm
+                clearance inside a reveal, which the waste allowance already
+                covers.
               </p>
             </aside>
           </div>
@@ -1028,9 +1034,9 @@ export default function WindowBlindsEstimator() {
             </h2>
             <p className="max-w-3xl text-sm text-muted-foreground">
               Every band below is the top of what the Nigerian market actually
-              quotes, from vendor price lists and marketplace listings scanned in
-              November 2026. The estimator prices at the top of the band, because
-              under quoting a blind costs the installer money.
+              quotes, from vendor price lists and marketplace listings scanned
+              in November 2026. The estimator prices at the top of the band,
+              because under quoting a blind costs the installer money.
             </p>
             <div className="overflow-x-auto rounded-xl border border-border bg-card">
               <table className="w-full min-w-[520px] text-left text-sm">
@@ -1050,10 +1056,15 @@ export default function WindowBlindsEstimator() {
                 <tbody className="divide-y divide-border">
                   {BLIND_TYPES.map((type) => (
                     <tr key={type.key}>
-                      <th scope="row" className="p-3 font-medium text-foreground">
+                      <th
+                        scope="row"
+                        className="p-3 font-medium text-foreground"
+                      >
                         {type.label}
                       </th>
-                      <td className="p-3 text-muted-foreground">{type.family}</td>
+                      <td className="p-3 text-muted-foreground">
+                        {type.family}
+                      </td>
                       <td className="p-3 text-muted-foreground">
                         {type.observedBand}
                       </td>
@@ -1065,7 +1076,10 @@ export default function WindowBlindsEstimator() {
           </section>
 
           <section aria-labelledby="blind-next" className="mt-10 space-y-3">
-            <h2 id="blind-next" className="text-lg font-semibold text-foreground">
+            <h2
+              id="blind-next"
+              className="text-lg font-semibold text-foreground"
+            >
               Next in the job
             </h2>
             <div className="grid gap-3 sm:grid-cols-3">
@@ -1104,24 +1118,10 @@ export default function WindowBlindsEstimator() {
 
           <AdSlot slotKey="estimator_mid" className="mt-8" />
 
-          <section aria-labelledby="blind-faq" className="mt-10 space-y-4">
-            <h2 id="blind-faq" className="text-lg font-semibold text-foreground">
-              Blind pricing questions
-            </h2>
-            {(getToolFaqGroup("window-blinds")?.questions ?? []).map((item) => (
-              <details
-                key={item.q}
-                className="rounded-xl border border-border bg-card p-4 md:p-5"
-              >
-                <summary className="cursor-pointer text-sm font-medium text-foreground">
-                  {item.q}
-                </summary>
-                <p className="mt-2 text-sm text-muted-foreground">{item.a}</p>
-              </details>
-            ))}
-          </section>
+          <div className="mt-10">
+            <CalculatorGuideBlock guide={windowBlindsEstimatorGuide} />
+          </div>
         </Container>
-
       </div>
     </ToolShell>
   );

@@ -253,6 +253,18 @@ Audit findings applied during wiring:
 - 150 unit tests in CalculatorGuideBlock.test.tsx validate all 25 guides against every structural, no-em-dash, and 500-word volume constraint.
 - 190 total tests passing across all 25 wired calculator pages and guide test suites. 19 calculator content guides remain for future tranches.
 
+WIRED TRANCHE 6 (2026-11-26): Expanded CalculatorGuideBlock coverage to 5 additional building finishing, water storage, window treatment, exterior insulation, and decorative render estimators (30 total wired out of 44), each with concise, authentic trade takeoff, worked examples, coverage tables, accessible FAQs, and strict limits: 26. Renovation Estimator (`RenovationEstimator.tsx` + `SpecialtyCalculatorShell.tsx` + `src/content/calculator-guides/renovation-estimator.ts`) 27. Water Tower & Overhead Staging (`WaterTowerEstimator.tsx` + `src/content/calculator-guides/water-tower-estimator.ts`) 28. Window Blinds Schedule (`WindowBlindsEstimator.tsx` + `src/content/calculator-guides/window-blinds-estimator.ts`) 29. EIFS / ETICS Wall Takeoff (`EifsWallEstimator.tsx` + `src/content/calculator-guides/eifs-wall-estimator.ts`) 30. Tyrolene Exterior Finish (`TyroleneEstimator.tsx` + `src/content/calculator-guides/tyrolene-estimator.ts`)
+
+Audit findings applied during wiring:
+
+- Renovation Estimator: measured net room perimeters and floor areas deducting openings, strip-out scope, substrate repairs, repainting coverage rates, floor/wall tiling waste allowances (10% to 15%), sanitary fixture refits, and 10% to 15% site contingency. Wired via SpecialtyCalculatorShell guide prop.
+- Water Tower & Staging Estimator: sized water gravity dead load, tower elevation head (0.1 bar per metre), four-leg steel staging, wind overturning resistance, and reinforced concrete pad footings based on soil bearing capacity. Placed guide inside container ensuring visibility across initial and computed states.
+- Window Blinds Estimator: scheduled opening widths and drops, inside-recess deductions (10 mm) vs outside-face overlap allowances, fabric roll width constraints, minimum billing thresholds (1.0 to 1.5 m2), and tubular motorisation options. Replaced legacy unformatted FAQ section with semantic guide block.
+- EIFS / ETICS Wall Estimator: scheduled continuous insulation board takeoff (EPS/mineral wool), polymer adhesive mortar, mechanical wind anchors, alkali-resistant fiberglass mesh (160 g/m2), cementitious base coat, and acrylic textured finish coats. Replaced legacy static FAQ text with semantic guide block while preserving JSON-LD schema hook.
+- Tyrolene Estimator: measured net exterior elevations, sand-cement scratch coat substrate preparation, dry powder bag quantities (3.5 to 5.0 kg/m2 across 2 to 3 passes), acrylic bonding agents, masking protection, and water mist curing. Placed guide inside non-embedded view above existing FAQ schema.
+- 180 unit tests in CalculatorGuideBlock.test.tsx validate all 30 guides against every structural, no-em-dash, and 500-word volume constraint.
+- 192 total tests passing across all 30 wired calculator pages and guide test suites. 14 calculator content guides remain for future tranches.
+
 AdSense checklist items verified complete on the same pass (static inspection,
 not a live crawl): footer trust links (About, Contact, Editorial standards,
 Privacy Policy, Terms of Service, Cookie Policy, Disclaimer, AI Disclaimer, with

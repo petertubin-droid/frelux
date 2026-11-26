@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { eifsWallEstimatorGuide } from "@/content/calculator-guides/eifs-wall-estimator";
 import OpeningsEditor from "@/components/estimators/OpeningsEditor";
 import React, { useEffect, useMemo, useState } from "react";
 import ToolShell from "@/components/tools/ToolShell";
@@ -182,7 +184,6 @@ export default function EifsWallEstimator() {
     unitSystem === "imperial"
       ? (Number(wallHeight) || 0) * 0.3048
       : Number(wallHeight) || 0;
-
 
   // Reset all inputs
   const handleReset = () => {
@@ -1352,25 +1353,15 @@ export default function EifsWallEstimator() {
 
         <AdSlot slotKey="calculator_mid" />
 
+        <div className="mt-8">
+          <CalculatorGuideBlock guide={eifsWallEstimatorGuide} />
+        </div>
+
         <EstimateDisclaimer
           subject="EIFS / ETICS Wall Estimation"
           notes="Calculations are deterministic takeoffs for preliminary planning, contractor budgeting, and procurement. They do not replace job-specific structural engineering wind-load analysis, dew point hygrothermal calculations, or manufacturer system warranty specifications."
         />
       </Container>
-
-      <div className="rounded-xl border border-border/80 p-4 space-y-3">
-        <h2 className="text-sm font-semibold text-foreground">
-          Questions this estimator answers
-        </h2>
-        {EIFS_FAQ.map((item) => (
-          <div key={item.question} className="space-y-1">
-            <h3 className="text-sm font-medium text-foreground">
-              {item.question}
-            </h3>
-            <p className="text-xs text-muted-foreground">{item.answer}</p>
-          </div>
-        ))}
-      </div>
     </ToolShell>
   );
 }
