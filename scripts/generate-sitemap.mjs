@@ -30,6 +30,7 @@ import { isLocalePrefixed } from "./lib/locale-paths.mjs";
  */
 const EXCLUDED_SITEMAP_ROUTES = new Set([
   "/tools/offline-sync",
+  "/color-preview",
 ]);
 
 function toolRegistryRoutes() {
