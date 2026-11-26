@@ -76,11 +76,14 @@ describe("category parity across the visibility layers", () => {
   });
 });
 
+// Tools deliberately excluded from sitemap because robots.txt disallows them and pages are noindexed
+const EXCLUDED_TOOL_SITEMAP_PATHS = new Set(["/color-preview"]);
+
 describe("tool parity across the visibility layers", () => {
   it("lists every catalogue tool in the sitemap", () => {
-    const missing = toolPaths.filter(
-      (p) => !sitemapXml.includes(`${SITE}${p}/`),
-    );
+    const missing = toolPaths
+      .filter((p) => !EXCLUDED_TOOL_SITEMAP_PATHS.has(p))
+      .filter((p) => !sitemapXml.includes(`${SITE}${p}/`));
     expect(missing).toEqual([]);
   });
 

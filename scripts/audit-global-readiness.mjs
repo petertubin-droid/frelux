@@ -95,7 +95,14 @@ const sitemapPaths = new Set(
     m[1].replace(/\/$/, "") || "/",
   ),
 );
-const inSitemap = (route) => sitemapPaths.has(route.replace(/\/$/, ""));
+const EXCLUDED_SITEMAP_ROUTES = new Set([
+  "/tools/offline-sync",
+  "/color-preview",
+]);
+const inSitemap = (route) => {
+  const clean = route.replace(/\/$/, "");
+  return sitemapPaths.has(clean) || EXCLUDED_SITEMAP_ROUTES.has(clean);
+};
 
 /**
  * A specialty takeoff page renders through SpecialtyCalculatorShell, which mounts
