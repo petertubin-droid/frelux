@@ -1,4 +1,6 @@
 import { useMarket } from "@/lib/international/market-context";
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { boreholeWaterSystemEstimatorGuide } from "@/content/calculator-guides/borehole-water-system-estimator";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -373,7 +375,10 @@ export default function BoreholeWaterSystemEstimator() {
         "Static Lift (pump setting + tank height)",
         `${result.pumping.staticLiftMeters} m`,
       ],
-      ["Riser Pipe Friction Loss", `${result.pumping.riserFrictionLossMeters} m`],
+      [
+        "Riser Pipe Friction Loss",
+        `${result.pumping.riserFrictionLossMeters} m`,
+      ],
       [
         "Surface Pipe Friction Loss",
         `${result.pumping.surfaceFrictionLossMeters} m`,
@@ -1708,6 +1713,10 @@ export default function BoreholeWaterSystemEstimator() {
           </div>
 
           <AdSlot slotKey="estimator_native" className="mt-6" />
+
+          <div className="mt-8">
+            <CalculatorGuideBlock guide={boreholeWaterSystemEstimatorGuide} />
+          </div>
 
           <div className="mt-6 space-y-4">
             <BoreholeProConnectCta market={market} />

@@ -21,6 +21,7 @@ import {
   useSpecialtyPrices,
 } from "@/components/calculators/useSpecialtyPrices";
 import SpecialtyCalculatorShell from "@/components/calculators/SpecialtyCalculatorShell";
+import { soffitGutterEstimatorGuide } from "@/content/calculator-guides/soffit-gutter-estimator";
 import { CalculatorSchematic } from "@/components/engineering/CalculatorSchematic";
 import {
   NumberField,
@@ -134,6 +135,7 @@ export default function SoffitGutterEstimator() {
 
   return (
     <SpecialtyCalculatorShell
+      guide={soffitGutterEstimatorGuide}
       methodology="soffit-gutter"
       onReset={resetInputs}
       calculatorType="soffit_gutter"

@@ -13,6 +13,8 @@
  * design.
  */
 
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { generatorEstimatorGuide } from "@/content/calculator-guides/generator-estimator";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -729,36 +731,9 @@ export default function GeneratorEstimator() {
 
         <AdSlot slotKey="calculator_native" className="mt-8" />
 
-        {/* How it works */}
-        <section className="mt-10 rounded-lg border bg-muted/30 p-5 text-sm">
-          <h2 className="mb-2 font-semibold">
-            {t("How this estimator works")}
-          </h2>
-          <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-            <li>
-              The size bracket is YOUR decision from your load assessment. The
-              engine prices the chosen unit; it never calculates or recommends a
-              size, and every result says so.
-            </li>
-            <li>
-              The cable quantity comes from your measured run with FRELUX's
-              visible waste/route allowance. A blank run is reported missing
-              rather than assumed; 0 is confirmed in the breakdown, not passed
-              silently.
-            </li>
-            <li>
-              ATS and starting battery follow one-per-set, labelled assumptions.
-              All prices come from the shared FRELUX material database (Price
-              Tracker); unpriced materials show PRICE NOT CONFIGURED, never
-              invented.
-            </li>
-            <li>
-              This is material ESTIMATION, not a load calculation or
-              installation design. Earthing, changeover wiring and commissioning
-              must follow a qualified electrician's design and local codes.
-            </li>
-          </ul>
-        </section>
+        <div className="mt-8">
+          <CalculatorGuideBlock guide={generatorEstimatorGuide} />
+        </div>
       </Container>
     </ToolShell>
   );

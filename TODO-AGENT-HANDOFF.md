@@ -241,6 +241,18 @@ Audit findings applied during wiring:
 - 120 unit tests in CalculatorGuideBlock.test.tsx validate all 20 guides against every structural, no-em-dash, and 500-word volume constraint.
 - 135 total tests passing across all 20 wired calculator pages and guide test suites. 24 calculator content guides remain for future tranches.
 
+WIRED TRANCHE 5 (2026-11-26): Expanded CalculatorGuideBlock coverage to 5 additional structural, electrical MEP, plumbing, and roof drainage estimators (25 total wired out of 44), each with concise, authentic engineering takeoff, worked examples, structural ratios/specs, accessible FAQs, and strict limits: 21. Structural Steel I-Beam (`SteelBeamEstimator.tsx` + `SpecialtyCalculatorShell.tsx` + `src/content/calculator-guides/steel-beam-estimator.ts`) 22. Soffit, Fascia & Rainwater Gutter (`SoffitGutterEstimator.tsx` + `SpecialtyCalculatorShell.tsx` + `src/content/calculator-guides/soffit-gutter-estimator.ts`) 23. Solar PV Roofing & Power (`SolarPvEstimator.tsx` + `src/content/calculator-guides/solar-pv-estimator.ts`) 24. Backup Generator & Transfer Switch (`GeneratorEstimator.tsx` + `src/content/calculator-guides/generator-estimator.ts`) 25. Borehole & Water Distribution (`BoreholeWaterSystemEstimator.tsx` + `src/content/calculator-guides/borehole-water-system-estimator.ts`)
+
+Audit findings applied during wiring:
+
+- Structural Steel Beam: sized universal beam (UB) and universal column (UC) linear weight in kg/m, end bearing length (150 mm to 200 mm) on reinforced concrete padstones, spreader plates, and anti-corrosive primer. Verified non-certifying structural limits.
+- Soffit, Fascia & Gutter: sized eaves perimeter, fascia lengths with 10% mitre waste, vented soffit panels, gutter bracket spacing (600 mm centres), gutter falls (1:200 to 1:500), and downpipe drops based on roof catchment area.
+- Solar PV Estimator: sized daily kilowatt-hour target (kWh/day), peak sun hours (PSH), monocrystalline panel module counts, roof area requirements, inverter sizing with DC/AC ratio (1.15 to 1.30), and LiFePO4 battery storage autonomy. Adjusted worked example phrasing to prevent conflict with roof-fit test query assertions.
+- Generator Estimator: sized user-selected kVA/kW bracket, inrush current starting allowances, automatic transfer switch (ATS) ratings, multi-core armoured copper cable runs, dedicated earthing electrode assemblies, and isolated concrete plinth pads. Cleanly replaced legacy static text bullets with full semantic guide block.
+- Borehole Water System Estimator: sized drilling depth, casing/slotted screen schedule, graded silica filter pack, sanitary bentonite surface seal, total dynamic head (TDH), submersible pump motor horsepower, and elevated storage tank staging.
+- 150 unit tests in CalculatorGuideBlock.test.tsx validate all 25 guides against every structural, no-em-dash, and 500-word volume constraint.
+- 190 total tests passing across all 25 wired calculator pages and guide test suites. 19 calculator content guides remain for future tranches.
+
 AdSense checklist items verified complete on the same pass (static inspection,
 not a live crawl): footer trust links (About, Contact, Editorial standards,
 Privacy Policy, Terms of Service, Cookie Policy, Disclaimer, AI Disclaimer, with

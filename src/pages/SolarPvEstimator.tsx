@@ -12,6 +12,8 @@
  *   the total is withheld, never invented.
  */
 
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { solarPvEstimatorGuide } from "@/content/calculator-guides/solar-pv-estimator";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -756,6 +758,10 @@ export default function SolarPvEstimator() {
         </div>
         <CalculatorAdBanner toolKey="solar" className="mt-8" />
         <RecommendedProducts category="electrical" />
+
+        <div className="mt-8">
+          <CalculatorGuideBlock guide={solarPvEstimatorGuide} />
+        </div>
 
         <AdSlot slotKey="calculator_mid" className="mt-8" />
         <AdSlot slotKey="calculator_native" className="mt-8" />

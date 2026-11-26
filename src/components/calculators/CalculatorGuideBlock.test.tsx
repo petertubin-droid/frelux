@@ -30,6 +30,11 @@ import { earthworksEstimatorGuide } from "@/content/calculator-guides/earthworks
 import { retainingWallEstimatorGuide } from "@/content/calculator-guides/retaining-wall-estimator";
 import { flooringEstimatorGuide } from "@/content/calculator-guides/flooring-estimator";
 import { increteFlooringEstimatorGuide } from "@/content/calculator-guides/increte-flooring-estimator";
+import { steelBeamEstimatorGuide } from "@/content/calculator-guides/steel-beam-estimator";
+import { soffitGutterEstimatorGuide } from "@/content/calculator-guides/soffit-gutter-estimator";
+import { solarPvEstimatorGuide } from "@/content/calculator-guides/solar-pv-estimator";
+import { generatorEstimatorGuide } from "@/content/calculator-guides/generator-estimator";
+import { boreholeWaterSystemEstimatorGuide } from "@/content/calculator-guides/borehole-water-system-estimator";
 
 const allGuides = [
   paintCalculatorGuide,
@@ -52,6 +57,11 @@ const allGuides = [
   retainingWallEstimatorGuide,
   flooringEstimatorGuide,
   increteFlooringEstimatorGuide,
+  steelBeamEstimatorGuide,
+  soffitGutterEstimatorGuide,
+  solarPvEstimatorGuide,
+  generatorEstimatorGuide,
+  boreholeWaterSystemEstimatorGuide,
 ];
 
 describe("CalculatorGuideBlock structure", () => {

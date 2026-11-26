@@ -21,6 +21,7 @@ import {
   useSpecialtyPrices,
 } from "@/components/calculators/useSpecialtyPrices";
 import SpecialtyCalculatorShell from "@/components/calculators/SpecialtyCalculatorShell";
+import { steelBeamEstimatorGuide } from "@/content/calculator-guides/steel-beam-estimator";
 import { CalculatorSchematic } from "@/components/engineering/CalculatorSchematic";
 import {
   NumberField,
@@ -121,6 +122,7 @@ export default function SteelBeamEstimator() {
 
   return (
     <SpecialtyCalculatorShell
+      guide={steelBeamEstimatorGuide}
       onReset={resetInputs}
       calculatorType="steel_beam"
       routePath="/structural-steel-i-beam-calculator"
