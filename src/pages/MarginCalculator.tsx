@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { marginCalculatorGuide } from "@/content/calculator-guides/margin-calculator";
 /**
  * FRELUX Profit Margin Calculator (Future Engine 8)
  *
@@ -493,6 +495,9 @@ export default function MarginCalculator() {
         />
         <CalculatorResetButton onReset={resetInputs} />
         <HowCalculatedSection methodologyText={methodologyText("margin")} />
+      </div>
+      <div className="mt-8">
+        <CalculatorGuideBlock guide={marginCalculatorGuide} />
       </div>
       <AdSlot slotKey="calculator_mid" className="mt-8" />
       <AdSlot slotKey="calculator_native" className="mt-8" />

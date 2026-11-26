@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { labourEstimatorGuide } from "@/content/calculator-guides/labour-estimator";
 /**
  * FRELUX Labour & Crew Estimator (Future Engine 7)
  *
@@ -331,6 +333,9 @@ export default function LabourEstimator() {
               </div>
             </div>
           )}
+        </div>
+        <div className="mt-8">
+          <CalculatorGuideBlock guide={labourEstimatorGuide} />
         </div>
         <AdSlot slotKey="calculator_mid" className="mt-8" />
         <AdSlot slotKey="calculator_native" className="mt-8" />

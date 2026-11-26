@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { defsCalculatorGuide } from "@/content/calculator-guides/defs-calculator";
 import OpeningsEditor, { type OpeningRow } from "@/components/estimators/OpeningsEditor";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useMemo, useState } from "react";
@@ -499,20 +501,10 @@ export default function DefsCalculator() {
           </p>
         </div>
 
-        <div className="rounded-xl border bg-card p-4">
-          <h2 className="text-sm font-semibold">DEFS questions</h2>
-          <dl className="mt-2 space-y-3">
-            <AdSlot slotKey="calculator_mid" />
+        <AdSlot slotKey="calculator_mid" className="mt-8" />
 
-        {DEFS_FAQ.map((item) => (
-              <div key={item.question}>
-                <dt className="text-sm font-medium">{item.question}</dt>
-                <dd className="mt-1 text-xs text-muted-foreground">
-                  {item.answer}
-                </dd>
-              </div>
-            ))}
-          </dl>
+        <div className="mt-8">
+          <CalculatorGuideBlock guide={defsCalculatorGuide} />
         </div>
       </Container>
     </ToolShell>

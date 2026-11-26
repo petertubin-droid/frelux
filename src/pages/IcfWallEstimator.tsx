@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { icfWallEstimatorGuide } from "@/content/calculator-guides/icf-wall-estimator";
 import React, { useEffect, useMemo, useState } from "react";
 import ToolShell from "@/components/tools/ToolShell";
 import AdSlot from "@/components/ui/AdSlot";
@@ -1487,22 +1489,12 @@ export default function IcfWallEstimator() {
 
         <AdSlot slotKey="calculator_mid" />
 
+        <div className="mt-8">
+          <CalculatorGuideBlock guide={icfWallEstimatorGuide} />
+        </div>
+
         <EstimateDisclaimer text="This calculator provides deterministic material takeoffs based on typical manufacturer guidelines, ACI 318/332, and IRC Section R608 prescriptive provisions. It does not replace stamped structural engineering drawings or seismic/wind load calculations by a licensed professional engineer in your jurisdiction." />
       </Container>
-
-      <div className="rounded-xl border border-border/80 p-4 space-y-3">
-        <h2 className="text-sm font-semibold text-foreground">
-          Questions this estimator answers
-        </h2>
-        {ICF_FAQ.map((item) => (
-          <div key={item.question} className="space-y-1">
-            <h3 className="text-sm font-medium text-foreground">
-              {item.question}
-            </h3>
-            <p className="text-xs text-muted-foreground">{item.answer}</p>
-          </div>
-        ))}
-      </div>
     </ToolShell>
   );
 }

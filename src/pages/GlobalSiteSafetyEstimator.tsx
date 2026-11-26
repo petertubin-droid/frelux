@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { globalSiteSafetyEstimatorGuide } from "@/content/calculator-guides/global-site-safety-estimator";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -721,6 +723,9 @@ export default function GlobalSiteSafetyEstimator() {
               </a>
             </CardContent>
           </Card>
+          <div className="mt-8">
+            <CalculatorGuideBlock guide={globalSiteSafetyEstimatorGuide} />
+          </div>
           <AdSlot slotKey="calculator_mid" className="mt-8" />
           <AdSlot slotKey="calculator_native" className="mt-8" />
         </Container>

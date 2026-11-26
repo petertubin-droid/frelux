@@ -40,6 +40,11 @@ import { waterTowerEstimatorGuide } from "@/content/calculator-guides/water-towe
 import { windowBlindsEstimatorGuide } from "@/content/calculator-guides/window-blinds-estimator";
 import { eifsWallEstimatorGuide } from "@/content/calculator-guides/eifs-wall-estimator";
 import { tyroleneEstimatorGuide } from "@/content/calculator-guides/tyrolene-estimator";
+import { icfWallEstimatorGuide } from "@/content/calculator-guides/icf-wall-estimator";
+import { defsCalculatorGuide } from "@/content/calculator-guides/defs-calculator";
+import { globalSiteSafetyEstimatorGuide } from "@/content/calculator-guides/global-site-safety-estimator";
+import { labourEstimatorGuide } from "@/content/calculator-guides/labour-estimator";
+import { marginCalculatorGuide } from "@/content/calculator-guides/margin-calculator";
 
 const allGuides = [
   paintCalculatorGuide,
@@ -72,6 +77,11 @@ const allGuides = [
   windowBlindsEstimatorGuide,
   eifsWallEstimatorGuide,
   tyroleneEstimatorGuide,
+  icfWallEstimatorGuide,
+  defsCalculatorGuide,
+  globalSiteSafetyEstimatorGuide,
+  labourEstimatorGuide,
+  marginCalculatorGuide,
 ];
 
 describe("CalculatorGuideBlock structure", () => {

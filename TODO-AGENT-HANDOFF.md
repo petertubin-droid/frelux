@@ -265,6 +265,18 @@ Audit findings applied during wiring:
 - 180 unit tests in CalculatorGuideBlock.test.tsx validate all 30 guides against every structural, no-em-dash, and 500-word volume constraint.
 - 192 total tests passing across all 30 wired calculator pages and guide test suites. 14 calculator content guides remain for future tranches.
 
+WIRED TRANCHE 7 (2026-11-26): Expanded CalculatorGuideBlock coverage to 5 additional structural envelope, exterior finish, site safety, trade labour, and commercial pricing estimators (35 total wired out of 44), each with concise, authentic trade takeoff, worked examples, coverage tables, accessible FAQs, and strict limits: 31. Insulated Concrete Form Wall (`IcfWallEstimator.tsx` + `src/content/calculator-guides/icf-wall-estimator.ts`) 32. Direct-Applied Exterior Finish System (`DefsCalculator.tsx` + `src/content/calculator-guides/defs-calculator.ts`) 33. Global Site Safety & PPE (`GlobalSiteSafetyEstimator.tsx` + `src/content/calculator-guides/global-site-safety-estimator.ts`) 34. Labour & Crew Productivity (`LabourEstimator.tsx` + `src/content/calculator-guides/labour-estimator.ts`) 35. Contractor Profit Margin & Markup (`MarginCalculator.tsx` + `src/content/calculator-guides/margin-calculator.ts`)
+
+Audit findings applied during wiring:
+
+- ICF Wall Estimator: scheduled modular EPS block units (0.48 m2/block), core concrete volume with internal web deduction, horizontal rebar courses and vertical rebar grids (40d lap development length), turnbuckle alignment bracing (1.8 m centres), and vertical concrete pour rate limits (1.2 m/hr). Replaced unformatted FAQ box with semantic guide block while preserving JSON-LD schema hook.
+- DEFS Calculator: scheduled exterior cement sheathing joint reinforcement tape, polymer-modified base coat mortar, continuous 160 g/m2 alkali-resistant fiberglass mesh, tinted primer, acrylic textured finish, and PVC casing/expansion joints. Matched unit test FAQ assertions for DEFS vs EIFS comparison.
+- Global Site Safety Estimator: sized mandatory 4-point baseline PPE (Type 1 helmets, Class 2 hi-vis vests, ISO 20345 S3 boots, eye protection), specialty height fall-arrest harnesses, ISO 7010 site signage schedule, Class B first aid trauma stations, and dry powder extinguishers based on peak workforce headcount.
+- Labour Estimator: transformed bill of quantities work items into craftsman worker-days and helper ratios based on trade productivity benchmarks, site efficiency loss factors (vertical hoisting, weather, congestion), and balanced gang compositions for duration scheduling.
+- Profit Margin Calculator: established mathematical distinction between cost markup and contract revenue profit margin, jobsite general conditions overhead, corporate G and A overhead recovery, and unforeseen renovation contingency buffers.
+- 210 unit tests in CalculatorGuideBlock.test.tsx validate all 35 guides against every structural, no-em-dash, and 500-word volume constraint.
+- 9 calculator content guides remain for future tranches.
+
 AdSense checklist items verified complete on the same pass (static inspection,
 not a live crawl): footer trust links (About, Contact, Editorial standards,
 Privacy Policy, Terms of Service, Cookie Policy, Disclaimer, AI Disclaimer, with
