@@ -117,4 +117,17 @@ describe("EarthworksEstimator page", () => {
     ]);
     expect(columns.map((c) => c.header)).toContain("Cut (m3)");
   });
+  it("renders the earthworks calculation guide block", () => {
+    render(
+      <MemoryRouter>
+        <EarthworksEstimator />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: /Earthworks excavation, trenching, bulking, and cart-away calculation guide/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });

@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { reinforcementEstimatorGuide } from "@/content/calculator-guides/reinforcement-estimator";
 /**
  * FRELUX Reinforcement Estimator (Tier 2, Engine 5)
  *
@@ -876,6 +878,10 @@ export default function ReinforcementEstimator() {
             </div>
           </>
         )}
+
+        <div className="mt-8">
+          <CalculatorGuideBlock guide={reinforcementEstimatorGuide} />
+        </div>
 
         <AdSlot slotKey="calculator_native" className="mt-8" />
 

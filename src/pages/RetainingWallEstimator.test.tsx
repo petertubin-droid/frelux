@@ -74,4 +74,18 @@ describe("RetainingWallEstimator", () => {
       "Retaining Wall",
     );
   });
+  it("renders the retaining wall calculation guide block", async () => {
+    const { default: Page } = await import("@/pages/RetainingWallEstimator");
+    render(
+      <MemoryRouter>
+        <Page />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: /Retaining wall concrete, blockwork, footing, and drainage calculation guide/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });

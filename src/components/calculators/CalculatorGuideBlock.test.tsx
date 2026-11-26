@@ -25,6 +25,11 @@ import { doorsWindowsEstimatorGuide } from "@/content/calculator-guides/doors-wi
 import { conduitWiringEstimatorGuide } from "@/content/calculator-guides/conduit-wiring-estimator";
 import { plumbingEstimatorGuide } from "@/content/calculator-guides/plumbing-estimator";
 import { tvConsoleCalculatorGuide } from "@/content/calculator-guides/tv-console-calculator";
+import { reinforcementEstimatorGuide } from "@/content/calculator-guides/reinforcement-estimator";
+import { earthworksEstimatorGuide } from "@/content/calculator-guides/earthworks-estimator";
+import { retainingWallEstimatorGuide } from "@/content/calculator-guides/retaining-wall-estimator";
+import { flooringEstimatorGuide } from "@/content/calculator-guides/flooring-estimator";
+import { increteFlooringEstimatorGuide } from "@/content/calculator-guides/increte-flooring-estimator";
 
 const allGuides = [
   paintCalculatorGuide,
@@ -42,28 +47,39 @@ const allGuides = [
   conduitWiringEstimatorGuide,
   plumbingEstimatorGuide,
   tvConsoleCalculatorGuide,
+  reinforcementEstimatorGuide,
+  earthworksEstimatorGuide,
+  retainingWallEstimatorGuide,
+  flooringEstimatorGuide,
+  increteFlooringEstimatorGuide,
 ];
 
 describe("CalculatorGuideBlock structure", () => {
-  it.each(allGuides)("renders headings and content sections for $slug", (guide) => {
-    const { unmount } = render(<CalculatorGuideBlock guide={guide} />);
-    expect(
-      screen.getByRole("heading", {
-        level: 2,
-        name: new RegExp(guide.heading, "i"),
-      }),
-    ).toBeTruthy();
-    expect(
-      screen.getByRole("heading", { level: 3, name: /How it works/i }),
-    ).toBeTruthy();
-    expect(
-      screen.getByRole("heading", { level: 3, name: /Worked example/i }),
-    ).toBeTruthy();
-    expect(
-      screen.getByRole("heading", { level: 3, name: /Questions people ask/i }),
-    ).toBeTruthy();
-    unmount();
-  });
+  it.each(allGuides)(
+    "renders headings and content sections for $slug",
+    (guide) => {
+      const { unmount } = render(<CalculatorGuideBlock guide={guide} />);
+      expect(
+        screen.getByRole("heading", {
+          level: 2,
+          name: new RegExp(guide.heading, "i"),
+        }),
+      ).toBeTruthy();
+      expect(
+        screen.getByRole("heading", { level: 3, name: /How it works/i }),
+      ).toBeTruthy();
+      expect(
+        screen.getByRole("heading", { level: 3, name: /Worked example/i }),
+      ).toBeTruthy();
+      expect(
+        screen.getByRole("heading", {
+          level: 3,
+          name: /Questions people ask/i,
+        }),
+      ).toBeTruthy();
+      unmount();
+    },
+  );
 
   it.each(allGuides)(
     "puts ratio/coverage figures in a table with caption and headers for $slug",
@@ -115,14 +131,17 @@ describe("CalculatorGuideBlock content volume", () => {
     },
   );
 
-  it.each(allGuides)("uses no em dashes per the house style for $slug", (guide) => {
-    const { container, unmount } = render(
-      <CalculatorGuideBlock guide={guide} />,
-    );
-    expect(container.textContent ?? "").not.toContain("—");
-    expect(container.textContent ?? "").not.toContain("--");
-    unmount();
-  });
+  it.each(allGuides)(
+    "uses no em dashes per the house style for $slug",
+    (guide) => {
+      const { container, unmount } = render(
+        <CalculatorGuideBlock guide={guide} />,
+      );
+      expect(container.textContent ?? "").not.toContain("—");
+      expect(container.textContent ?? "").not.toContain("--");
+      unmount();
+    },
+  );
 
   it.each(allGuides)(
     "states what the tool does not do in limits for $slug",

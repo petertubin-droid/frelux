@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { increteFlooringEstimatorGuide } from "@/content/calculator-guides/increte-flooring-estimator";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
@@ -722,6 +724,10 @@ export default function IncreteFlooringEstimator() {
 
           <AdSlot slotKey="calculator_mid" className="mt-8" />
           {/* Native banner slot, placement "calculator_native" */}
+          <div className="mt-8">
+            <CalculatorGuideBlock guide={increteFlooringEstimatorGuide} />
+          </div>
+
           <AdSlot slotKey="calculator_native" className="mt-8" />
           <p className="text-xs text-muted-foreground">
             Estimates are planning aids, not installation specifications.

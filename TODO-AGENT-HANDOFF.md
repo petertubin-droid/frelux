@@ -213,12 +213,7 @@ accessible details/summary questions, and clear limits):
 
 WIRED TRANCHE 2 (2026-11-25): Expanded CalculatorGuideBlock coverage to 5 additional high-traffic calculators (10 total wired), each with >800 words of authentic engineering takeoff, mix ratios, worked examples, and accessible FAQs: 6. German Floor & Oversite Slab (`GermanFloorCalculator.tsx` + `src/content/calculator-guides/german-floor-calculator.ts`) 7. Plaster & Exterior Render (`PlasterRenderCalculator.tsx` + `src/content/calculator-guides/plaster-render-calculator.ts`) 8. POP & Gypsum Ceilings (`PopCeilingCalculator.tsx` + `src/content/calculator-guides/pop-ceiling-calculator.ts`) 9. Wallpaper Rolls & Pattern Repeat (`WallpaperCalculator.tsx` + `src/content/calculator-guides/wallpaper-calculator.ts`) 10. Waterproofing, DPC & DPM Membranes (`WaterproofingEstimator.tsx` + `src/content/calculator-guides/waterproofing-estimator.ts`)
 
-WIRED TRANCHE 3 (2026-11-25): Expanded CalculatorGuideBlock coverage to 5 additional engineering calculators (15 total wired out of 44), each with >1,000 words of authentic engineering takeoff, worked examples, structural ratios/specs, and accessible FAQs:
-11. Roof Framing & Timber Truss (`RoofFramingEstimator.tsx` + `src/content/calculator-guides/roof-framing-estimator.ts`)
-12. Doors & Windows Schedule (`DoorsWindowsEstimator.tsx` + `src/content/calculator-guides/doors-windows-estimator.ts`)
-13. Electrical Conduit & Wiring Loop (`ConduitWiringEstimator.tsx` + `SpecialtyCalculatorShell.tsx` + `src/content/calculator-guides/conduit-wiring-estimator.ts`)
-14. Plumbing & Drainage Takeoff (`PlumbingEstimator.tsx` + `src/content/calculator-guides/plumbing-estimator.ts`)
-15. TV Console & Custom Media Unit (`TvConsoleCalculator.tsx` + `src/content/calculator-guides/tv-console-calculator.ts`)
+WIRED TRANCHE 3 (2026-11-25): Expanded CalculatorGuideBlock coverage to 5 additional engineering calculators (15 total wired out of 44), each with >1,000 words of authentic engineering takeoff, worked examples, structural ratios/specs, and accessible FAQs: 11. Roof Framing & Timber Truss (`RoofFramingEstimator.tsx` + `src/content/calculator-guides/roof-framing-estimator.ts`) 12. Doors & Windows Schedule (`DoorsWindowsEstimator.tsx` + `src/content/calculator-guides/doors-windows-estimator.ts`) 13. Electrical Conduit & Wiring Loop (`ConduitWiringEstimator.tsx` + `SpecialtyCalculatorShell.tsx` + `src/content/calculator-guides/conduit-wiring-estimator.ts`) 14. Plumbing & Drainage Takeoff (`PlumbingEstimator.tsx` + `src/content/calculator-guides/plumbing-estimator.ts`) 15. TV Console & Custom Media Unit (`TvConsoleCalculator.tsx` + `src/content/calculator-guides/tv-console-calculator.ts`)
 
 Audit findings applied during wiring:
 
@@ -233,6 +228,18 @@ Audit findings applied during wiring:
 - Placed guides seamlessly alongside existing calculator outputs and ad slots without duplicating schema FAQs.
 - 90 unit tests in CalculatorGuideBlock.test.tsx validate all 15 guides against every structural, no-em-dash, and 500-word volume constraint.
 - 114 total tests passing across all 15 wired calculator pages and guide test suites. 29 calculator content guides remain for future tranches.
+
+WIRED TRANCHE 4 (2026-11-25): Expanded CalculatorGuideBlock coverage to 5 additional heavy civil, earthwork, structural, and specialty flooring calculators (20 total wired out of 44), each with >1,300 words of authentic engineering takeoff, worked examples, structural ratios/specs, accessible FAQs, and strict limits: 16. Reinforcement Estimator / Rebar BBS (`ReinforcementEstimator.tsx` + `src/content/calculator-guides/reinforcement-estimator.ts`) 17. Earthworks & Trench Cut/Fill (`EarthworksEstimator.tsx` + `src/content/calculator-guides/earthworks-estimator.ts`) 18. Retaining Wall Concrete & Gravity Stem (`RetainingWallEstimator.tsx` + `src/content/calculator-guides/retaining-wall-estimator.ts`) 19. Flooring Takeoff & Subfloor Screed (`FlooringEstimator.tsx` + `src/content/calculator-guides/flooring-estimator.ts`) 20. Increte Stamped Decorative Concrete Flooring (`IncreteFlooringEstimator.tsx` + `src/content/calculator-guides/increte-flooring-estimator.ts`)
+
+Audit findings applied during wiring:
+
+- Reinforcement Estimator: sized cutting length, stock 12 m bar conversion, tension lap development length (50d), stirrup perimeter geometry, annealed binding wire (15 kg/t), and plastic cover blocks. Sourced from BS 4449 / BS 8666 / Eurocode 2 standards.
+- Earthworks Estimator: sized trapezoidal and rectangular trench excavation volume, soil bulking / swell factors (1.20 to 1.30 for loam/clay), backfill compaction shrinkage (0.85 to 0.90), haulage truckloads (10 m3 / 20 tonne tippers), and trench benching / shoring safety limits.
+- Retaining Wall Estimator: sized cantilever reinforced concrete stem and hollow block retaining walls, footing width rule of thumb (0.50H to 0.70H), subsoil drainage aggregate backfill, perforated geotextile drain pipes, and weep holes at 1.5 m centres. Complies with preliminary Eurocode 7 / BS 8002 guidance.
+- Flooring Estimator: sized finish floor surface area, patterned layout waste (10% to 15%), 50 mm 1:3/1:4 sand-cement leveling screed volume, adhesive mortar bags, perimeter skirting lengths with 45-degree mitre waste, and expansion movement joints.
+- Increte Flooring Estimator: sized 100 mm C25/30 ready-mix concrete slab with polypropylene crack-control fibres (0.9 kg/m3), dry-shake colour hardener (2.5 kg/m2 to 3.5 kg/m2), hydrophobic release agent powder (0.15 kg/m2 to 0.20 kg/m2), stamping mats with floppy tool, joint sawing, and acrylic solvent-based sealer.
+- 120 unit tests in CalculatorGuideBlock.test.tsx validate all 20 guides against every structural, no-em-dash, and 500-word volume constraint.
+- 135 total tests passing across all 20 wired calculator pages and guide test suites. 24 calculator content guides remain for future tranches.
 
 AdSense checklist items verified complete on the same pass (static inspection,
 not a live crawl): footer trust links (About, Contact, Editorial standards,

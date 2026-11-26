@@ -1,3 +1,5 @@
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { earthworksEstimatorGuide } from "@/content/calculator-guides/earthworks-estimator";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import { useState } from "react";
@@ -556,6 +558,10 @@ The soil description is recorded for the job record. It does not change the quan
 
         <AdSlot slotKey="calculator_mid" className="mt-8" />
         {/* Native banner slot, placement "calculator_native" */}
+        <div className="mt-8">
+          <CalculatorGuideBlock guide={earthworksEstimatorGuide} />
+        </div>
+
         <AdSlot slotKey="calculator_native" className="mt-8" />
       </Container>
     </ToolShell>

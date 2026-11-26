@@ -1,3 +1,4 @@
+import { flooringEstimatorGuide } from "@/content/calculator-guides/flooring-estimator";
 /**
  * FRELUX Flooring Estimator (Tier 2, Engine 4)
  *
@@ -405,6 +406,7 @@ export default function FlooringEstimator() {
 
   return (
     <SpecialtyCalculatorShell
+      guide={flooringEstimatorGuide}
       calculatorType="flooring"
       routePath="/flooring"
       methodology="flooring"

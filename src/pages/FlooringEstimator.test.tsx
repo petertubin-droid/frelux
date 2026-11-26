@@ -212,4 +212,18 @@ describe("FlooringEstimator", () => {
     const amount = Number(repriced.replace(/[^0-9.]/g, ""));
     expect(amount).toBeGreaterThan(0);
   });
+  it("renders the flooring calculation guide block", async () => {
+    const { default: Page } = await import("@/pages/FlooringEstimator");
+    render(
+      <MemoryRouter>
+        <Page />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: /Flooring area, subfloor screed, tile, timber, and finish takeoff guide/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });

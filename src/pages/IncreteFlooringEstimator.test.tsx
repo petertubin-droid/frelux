@@ -74,4 +74,18 @@ describe("IncreteFlooringEstimator", () => {
       "Increte Flooring",
     );
   });
+  it("renders the increte stamped concrete calculation guide block", async () => {
+    const { default: Page } = await import("@/pages/IncreteFlooringEstimator");
+    render(
+      <MemoryRouter>
+        <Page />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: /Increte stamped concrete flooring, hardener, release agent, and sealer guide/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });

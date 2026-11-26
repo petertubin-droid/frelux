@@ -74,4 +74,17 @@ describe("ReinforcementEstimator", () => {
       ).toBeNull();
     });
   });
+  it("renders the reinforcement calculation guide block", () => {
+    render(
+      <MemoryRouter>
+        <ReinforcementEstimator />
+      </MemoryRouter>,
+    );
+    expect(
+      screen.getByRole("heading", {
+        level: 2,
+        name: /Steel reinforcement bar, stirrups, and rebar tonnage calculation guide/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });

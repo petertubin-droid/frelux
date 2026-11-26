@@ -1,3 +1,4 @@
+import { retainingWallEstimatorGuide } from "@/content/calculator-guides/retaining-wall-estimator";
 /**
  * Retaining Wall Material & Cost Calculator page.
  *
@@ -124,6 +125,7 @@ export default function RetainingWallEstimator() {
 
   return (
     <SpecialtyCalculatorShell
+      guide={retainingWallEstimatorGuide}
       onReset={resetInputs}
       methodology="retaining-wall"
       calculatorType="retaining_wall"
