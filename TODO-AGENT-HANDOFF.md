@@ -277,6 +277,19 @@ Audit findings applied during wiring:
 - 210 unit tests in CalculatorGuideBlock.test.tsx validate all 35 guides against every structural, no-em-dash, and 500-word volume constraint.
 - 9 calculator content guides remain for future tranches.
 
+WIRED TRANCHE 8 (2026-11-26): Expanded CalculatorGuideBlock coverage to 5 core structural, MEP, and architectural finishing estimators (40 total wired out of 44), each with concise, authentic trade takeoff, worked examples, coverage tables, accessible FAQs, and strict limits: 36. Build to Roof Estimator (`BuildToRoofEstimator.tsx` + `src/content/calculator-guides/build-to-roof-estimator.ts`) 37. Foundation Estimator (`FoundationEstimator.tsx` + `src/content/calculator-guides/foundation-estimator.ts`) 38. Electrical Estimator (`ElectricalEstimator.tsx` + `src/content/calculator-guides/electrical-estimator.ts`) 39. Painting Estimator (`PaintingEstimator.tsx` + `src/content/calculator-guides/painting-estimator.ts`) 40. Wall Finish Estimator (`WallFinishEstimator.tsx` + `src/content/calculator-guides/wall-finish-estimator.ts`)
+
+Audit findings and UI fixes applied during wiring:
+
+- Mobile Viewport Overflow Remediated: Fixed Playwright E2E mobile overflow regression on 360px viewport (`e2e/mobile-overflow.spec.ts`) by wrapping both worked example and coverage ratio tables in `src/components/calculators/CalculatorGuideBlock.tsx` with `<div className="overflow-x-auto">` containers, preventing long table captions and cell values from spilling out of narrow mobile viewports.
+- Build to Roof Estimator: quantified substructure trench excavation, blinding concrete, strip footing concrete, hollow foundation blockwork to DPC, hardcore subbase compaction, oversite ground slab, superstructure net wall blockwork deducting opening voids, continuous reinforced concrete lintel tie beams, and pitched timber roof truss framing. Placed guide inside container prior to planning disclaimer.
+- Foundation Estimator: calculated continuous strip and isolated pad excavation, soil swell/bulking disposal factors, C10 lean blinding platform, structural C25/30 footing concrete, DPC stem wall masonry, granular hardcore subbase, and 1000-gauge polyethylene damp-proof membrane. Placed guide inside container before ad slots.
+- Electrical Estimator: scheduled circuit point counts, standard conductor gauges (1.5 mm2 lighting, 2.5 mm2 sockets, 4.0/6.0 mm2 high-draw appliances), conduit runs with 40% fill limits, multi-way consumer distribution boards with RCBO/SPD protection, and copper earth rod assemblies. Placed guide cleanly inside container before ad slots.
+- Painting Estimator: calculated gross elevation areas, window and door deductions, substrate porosity adjustments, mist coat / stabilizing primers, multi-coat washable acrylic emulsion spreading rates (8 to 14 m2/litre), and sundries allowances. Placed guide inside container view before SEO markup.
+- Wall Finish Estimator: sized two-coat exterior sand-cement rendering (1:4 scratch coat and 1:5 finish coat with waterproofer), internal backing plaster, 2 mm to 3 mm gypsum multi-finish skimming, SBR bonding slurry for smooth concrete columns, PVC/galvanized corner angle beads, and stop beads. Placed guide inside container before native ad slot.
+- 240 unit tests in CalculatorGuideBlock.test.tsx validate all 40 guides against every structural, no-em-dash, and 500-word volume constraint.
+- 4 calculator content guides remain for future tranches (40 of 44 wired).
+
 AdSense checklist items verified complete on the same pass (static inspection,
 not a live crawl): footer trust links (About, Contact, Editorial standards,
 Privacy Policy, Terms of Service, Cookie Policy, Disclaimer, AI Disclaimer, with

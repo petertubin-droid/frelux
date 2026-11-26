@@ -14,6 +14,8 @@
 
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { wallFinishEstimatorGuide } from "@/content/calculator-guides/wall-finish-estimator";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import {} from "@/components/seo/SeoSections";
 import { CityPriceSelect } from "@/components/price-index/CityPriceSelect";
@@ -1274,6 +1276,9 @@ export default function WallFinishEstimator() {
               </ul>
             </section>
           )}
+          <div className="mt-8">
+            <CalculatorGuideBlock guide={wallFinishEstimatorGuide} />
+          </div>
           <AdSlot slotKey="calculator_native" className="mt-8" />
         </Container>
 

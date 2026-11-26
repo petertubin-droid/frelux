@@ -9,6 +9,8 @@
 
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { paintingEstimatorGuide } from "@/content/calculator-guides/painting-estimator";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import AdSlot from "@/components/ui/AdSlot";
 import { COUNTRY_OPTIONS } from "@/lib/international/countries";
@@ -1268,6 +1270,10 @@ export default function PaintingEstimator({
 
       {!embedded && (
         <>
+          <div className="mx-auto max-w-5xl px-4 sm:px-6 mt-8">
+            <CalculatorGuideBlock guide={paintingEstimatorGuide} />
+          </div>
+
           <PaintingEstimatorSeo />
 
           <FaqItemsWithSchema

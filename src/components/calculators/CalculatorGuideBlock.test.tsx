@@ -45,6 +45,11 @@ import { defsCalculatorGuide } from "@/content/calculator-guides/defs-calculator
 import { globalSiteSafetyEstimatorGuide } from "@/content/calculator-guides/global-site-safety-estimator";
 import { labourEstimatorGuide } from "@/content/calculator-guides/labour-estimator";
 import { marginCalculatorGuide } from "@/content/calculator-guides/margin-calculator";
+import { buildToRoofEstimatorGuide } from "@/content/calculator-guides/build-to-roof-estimator";
+import { foundationEstimatorGuide } from "@/content/calculator-guides/foundation-estimator";
+import { electricalEstimatorGuide } from "@/content/calculator-guides/electrical-estimator";
+import { paintingEstimatorGuide } from "@/content/calculator-guides/painting-estimator";
+import { wallFinishEstimatorGuide } from "@/content/calculator-guides/wall-finish-estimator";
 
 const allGuides = [
   paintCalculatorGuide,
@@ -82,6 +87,11 @@ const allGuides = [
   globalSiteSafetyEstimatorGuide,
   labourEstimatorGuide,
   marginCalculatorGuide,
+  buildToRoofEstimatorGuide,
+  foundationEstimatorGuide,
+  electricalEstimatorGuide,
+  paintingEstimatorGuide,
+  wallFinishEstimatorGuide,
 ];
 
 describe("CalculatorGuideBlock structure", () => {

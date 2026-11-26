@@ -14,6 +14,8 @@
 import { currencySymbolOrCode } from "@/lib/international/currency-format";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { electricalEstimatorGuide } from "@/content/calculator-guides/electrical-estimator";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { useEffect, useState, useMemo, useCallback } from "react";
 import Container from "@/components/ui/Container";
@@ -1135,6 +1137,10 @@ export default function ElectricalEstimator() {
         )}
 
         <CableSizingCheck marketCode={marketCode} />
+
+        <div className="mt-8">
+          <CalculatorGuideBlock guide={electricalEstimatorGuide} />
+        </div>
 
         <AdSlot slotKey="calculator_native" className="mt-8" />
 

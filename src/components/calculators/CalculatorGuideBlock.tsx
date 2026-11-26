@@ -94,29 +94,31 @@ export default function CalculatorGuideBlock({
       <div className="space-y-3">
         <h3 className="text-base font-semibold">Worked example</h3>
         <p className="text-sm leading-relaxed">{guide.workedExample.intro}</p>
-        <table className="w-full border-collapse text-sm">
-          <caption className="pb-2 text-left text-xs text-muted-foreground">
-            Each line of the example, so you can check the arithmetic yourself
-          </caption>
-          <thead>
-            <tr className="border-b border-border text-left">
-              <th scope="col" className="py-1.5 pr-3 font-medium">
-                Step
-              </th>
-              <th scope="col" className="py-1.5 font-medium">
-                Figure
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {guide.workedExample.steps.map((step, i) => (
-              <tr key={i} className="border-b border-border/60">
-                <td className="py-1.5 pr-3">{step.label}</td>
-                <td className="py-1.5 tabular-nums">{step.value}</td>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
+            <caption className="pb-2 text-left text-xs text-muted-foreground">
+              Each line of the example, so you can check the arithmetic yourself
+            </caption>
+            <thead>
+              <tr className="border-b border-border text-left">
+                <th scope="col" className="py-1.5 pr-3 font-medium">
+                  Step
+                </th>
+                <th scope="col" className="py-1.5 font-medium">
+                  Figure
+                </th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {guide.workedExample.steps.map((step, i) => (
+                <tr key={i} className="border-b border-border/60">
+                  <td className="py-1.5 pr-3">{step.label}</td>
+                  <td className="py-1.5 tabular-nums">{step.value}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
         <p className="text-sm font-medium">{guide.workedExample.result}</p>
         {guide.workedExample.note && (
           <p className="text-sm text-muted-foreground">
@@ -127,31 +129,33 @@ export default function CalculatorGuideBlock({
 
       <div className="space-y-3">
         <h3 className="text-base font-semibold">Coverage figures</h3>
-        <table className="w-full border-collapse text-sm">
-          <caption className="pb-2 text-left text-xs text-muted-foreground">
-            {guide.ratioTable.caption}
-          </caption>
-          <thead>
-            <tr className="border-b border-border text-left">
-              {guide.ratioTable.columns.map((c) => (
-                <th key={c} scope="col" className="py-1.5 pr-3 font-medium">
-                  {c}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {guide.ratioTable.rows.map((row, i) => (
-              <tr key={i} className="border-b border-border/60">
-                {row.map((cell, j) => (
-                  <td key={j} className="py-1.5 pr-3">
-                    {cell}
-                  </td>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse text-sm">
+            <caption className="pb-2 text-left text-xs text-muted-foreground">
+              {guide.ratioTable.caption}
+            </caption>
+            <thead>
+              <tr className="border-b border-border text-left">
+                {guide.ratioTable.columns.map((c) => (
+                  <th key={c} scope="col" className="py-1.5 pr-3 font-medium">
+                    {c}
+                  </th>
                 ))}
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {guide.ratioTable.rows.map((row, i) => (
+                <tr key={i} className="border-b border-border/60">
+                  {row.map((cell, j) => (
+                    <td key={j} className="py-1.5 pr-3">
+                      {cell}
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="space-y-3">
@@ -163,7 +167,9 @@ export default function CalculatorGuideBlock({
               className="rounded-lg border border-border p-3"
             >
               <summary className="cursor-pointer text-sm font-medium">
-                <h3 className="inline text-inherit font-medium">{faq.question}</h3>
+                <h3 className="inline text-inherit font-medium">
+                  {faq.question}
+                </h3>
               </summary>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
                 {faq.answer}
