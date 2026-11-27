@@ -126,6 +126,7 @@ export function estimateIndicativeValue(
   const screen = evaluateComparables(
     {
       ...criteria,
+      nowIso,
       propertyType: subject.propertyType,
       country: subject.country,
       currency: subject.currency,

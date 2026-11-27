@@ -38,6 +38,7 @@ export default function OfflineSyncHub() {
     title: "Offline Workbench Prototype | FRELUX",
     description:
       "Zero-latency offline computation for remote jobsites, deep basements, and emerging market network drops. Resilient IndexedDB caching, vector clock sequencing, and 3-way structural conflict resolution.",
+    noIndex: true,
   });
 
   const [online, setOnline] = useState(isEdgeOnline);

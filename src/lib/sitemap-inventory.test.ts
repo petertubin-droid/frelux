@@ -178,6 +178,15 @@ describe("robots and sitemap consistency", () => {
     );
   });
 
+  it("never advertises /tools/offline-sync in sitemap since it is excluded and noindexed", () => {
+    const sitemap = join(root, "public/sitemap.xml");
+    if (!existsSync(sitemap)) return;
+    const xml = readFileSync(sitemap, "utf8");
+    expect(xml).not.toContain(
+      "<loc>https://freluxtools.com/tools/offline-sync/</loc>",
+    );
+  });
+
   it("advertises public /material-prices in the sitemap", () => {
     const sitemap = join(root, "public/sitemap.xml");
     if (!existsSync(sitemap)) return;

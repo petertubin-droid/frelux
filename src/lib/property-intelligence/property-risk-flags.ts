@@ -73,6 +73,8 @@ export interface PropertyRiskInput {
   conditionClaimedWithoutSource?: boolean;
   /** Max comparable data age in days, default 180 (used for the outdated flag). */
   comparableMaxAgeDays?: number;
+  /** Reference timestamp (ISO) against which age is measured. */
+  nowIso?: string;
   /** Oldest comparable observation date actually used, if any. */
   oldestComparableDate?: string;
 }
@@ -204,7 +206,9 @@ export function evaluatePropertyRisks(
       });
     }
     const maxAge = input.comparableMaxAgeDays ?? 180;
-    const cutoff = Date.now() - maxAge * 24 * 60 * 60 * 1000;
+    const nowMs = input.nowIso ? new Date(input.nowIso).getTime() : Date.now();
+    const validNowMs = Number.isFinite(nowMs) ? nowMs : Date.now();
+    const cutoff = validNowMs - maxAge * 24 * 60 * 60 * 1000;
     if (
       input.oldestComparableDate &&
       new Date(input.oldestComparableDate).getTime() < cutoff

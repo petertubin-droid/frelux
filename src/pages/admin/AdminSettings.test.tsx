@@ -132,7 +132,7 @@ describe("AdminSettings", () => {
       await screen.findByRole("heading", { level: 1, name: /Site Settings/i }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: /Save changes/i }),
+      await screen.findByRole("button", { name: /Save changes/i }),
     ).toBeInTheDocument();
     expect(screen.getByDisplayValue("FRELUX Global")).toBeInTheDocument();
     expect(

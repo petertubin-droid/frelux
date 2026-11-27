@@ -82,6 +82,8 @@ export interface ComparableCriteria {
   propertyType: string;
   country: string;
   region?: string;
+  /** Reference timestamp (ISO) against which age is measured. Defaults to now. */
+  nowIso?: string;
   /** Max acceptable listing age in days. Default 180. */
   maxAgeDays?: number;
   /** Max land-size deviation from subject, percent. Default 40. */
@@ -106,10 +108,10 @@ export interface ComparableEvaluation {
   reason: string;
 }
 
-function ageInDays(observedAt: string): number | undefined {
+function ageInDays(observedAt: string, nowMs = Date.now()): number | undefined {
   const t = new Date(observedAt).getTime();
   if (!Number.isFinite(t)) return undefined;
-  return Math.floor((Date.now() - t) / (24 * 60 * 60 * 1000));
+  return Math.floor((nowMs - t) / (24 * 60 * 60 * 1000));
 }
 
 /**
@@ -125,6 +127,8 @@ export function evaluateComparables(
   const landTol = criteria.landSizeTolerancePercent ?? 40;
   const bldgTol = criteria.buildingSizeTolerancePercent ?? 40;
   const minCount = criteria.minComparables ?? 3;
+  const nowMs = criteria.nowIso ? new Date(criteria.nowIso).getTime() : Date.now();
+  const validNowMs = Number.isFinite(nowMs) ? nowMs : Date.now();
 
   const comparables: ComparableEvaluation["comparables"] = [];
   const excluded: ComparableEvaluation["excluded"] = [];
@@ -163,7 +167,7 @@ export function evaluateComparables(
       continue;
     }
 
-    const age = ageInDays(listing.observedAt);
+    const age = ageInDays(listing.observedAt, validNowMs);
     if (age === undefined || age > maxAge) {
       excluded.push({
         listingId: listing.id,

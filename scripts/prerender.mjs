@@ -4136,6 +4136,9 @@ try {
       };
       routes.push(route);
     }
+    if (subPath === "/tools/offline-sync" || subPath === "/color-preview") {
+      route.robots = "noindex, nofollow";
+    }
     const target = navMap.get(subPath);
     if (target && contentMap[target] && !contentMap[subPath]) {
       contentMap[subPath] = contentMap[target];
