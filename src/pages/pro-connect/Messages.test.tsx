@@ -20,6 +20,14 @@ vi.mock("@/lib/auth", () => ({
   useAuth: () => AUTH,
 }));
 
+vi.mock("@/lib/credits", () => ({
+  getCreditWallet: vi.fn().mockResolvedValue({ balance: 40 }),
+}));
+
+vi.mock("@/lib/storage/files", () => ({
+  uploadStoredFile: vi.fn().mockResolvedValue({ publicUrl: "https://example.com/file.pdf", error: null }),
+}));
+
 vi.mock("@/lib/supabase", () => ({
   supabase: {
     channel: () => ({
@@ -63,6 +71,23 @@ const convo = {
     display_name: "Ada Obi",
     slug: "ada-obi",
     business_name: "Ada Builds",
+  },
+};
+
+const convo2 = {
+  id: "convo-2",
+  customer_id: "cust-1",
+  professional_id: "pro-2",
+  project_ref: null,
+  project_context: null,
+  last_message_at: null,
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+  professional: {
+    id: "pro-2",
+    display_name: "Babajide Salami",
+    slug: "babajide-salami",
+    business_name: "Salami Masonry",
   },
 };
 
@@ -118,5 +143,45 @@ describe("Pro Connect messages", () => {
 
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Not enough FRELUX Credits"));
     expect(input).toHaveValue("Can you help with this job?");
+  });
+
+  it("filters conversation list by search query", async () => {
+    conversations.list = [convo, convo2];
+    renderAt("/messages");
+
+    await waitFor(() => {
+      expect(screen.getByText("Ada Obi")).toBeInTheDocument();
+      expect(screen.getByText("Babajide Salami")).toBeInTheDocument();
+    });
+
+    const searchInput = screen.getByPlaceholderText("Search conversations...");
+    fireEvent.change(searchInput, { target: { value: "Ada" } });
+
+    expect(screen.getByText("Ada Obi")).toBeInTheDocument();
+    expect(screen.queryByText("Babajide Salami")).toBeNull();
+  });
+
+  it("populates message input when clicking a suggestion prompt", async () => {
+    conversations.list = [convo];
+    renderAt("/messages/convo-1");
+
+    await screen.findByPlaceholderText("Type a message...");
+    const promptBtn = await screen.findByRole("button", {
+      name: "Can you provide a formal quotation for this project?",
+    });
+    fireEvent.click(promptBtn);
+
+    const input = screen.getByPlaceholderText("Type a message...");
+    expect(input).toHaveValue("Can you provide a formal quotation for this project?");
+  });
+
+  it("displays credit cost and wallet balance in active conversation", async () => {
+    conversations.list = [convo];
+    renderAt("/messages/convo-1");
+
+    await waitFor(() => {
+      expect(screen.getByText(/Each message costs 5 FRELUX Credits/i)).toBeInTheDocument();
+      expect(screen.getByText("40")).toBeInTheDocument();
+    });
   });
 });

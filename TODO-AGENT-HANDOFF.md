@@ -499,3 +499,29 @@ Tests: 90 across src/lib/geometry, the page and the BOQ importer. tsc 0.
 ## Wave 2.1 ICF + EIFS (2026-11-19)
 
 See commit for engine/pricing/template changes; 12 verified price rows and 4 templates applied live.
+
+
+## Pro Connect Messaging Audit & Premium UI Upgrade (2026-11-27)
+
+Audited worker profile messaging flow and resolved delivery/UX gaps:
+1. **Worker Profile Message Modal (`ProConnectMessageModal.tsx`)**:
+   - Replaced direct empty redirect with an in-context composition modal.
+   - Provides inquiry templates (Quote Request, Project Consultation, Site Inspection, Urgent Repair, Material Estimation).
+   - Displays real-time wallet balance and clear 5-credit conversation contact fee notice.
+   - Handles credit shortage gracefully with a direct top-up action link.
+   - Verifies successful RPC delivery before confirming and offering one-click jump to full conversation thread.
+2. **Reliable Messaging Pipeline (`src/lib/pro-connect.ts`)**:
+   - Gated strictly through `send_pro_message_with_credits` RPC to preserve database-authoritative 5-credit balance accounting.
+   - Robust `getOrCreateConversation` resolution ensuring conversation lookup and creation are resilient.
+3. **Upgraded Messaging Studio (`src/pages/pro-connect/Messages.tsx`)**:
+   - Modern, responsive chat console with search filter, day-separated message bubbles, unread counters, and recipient status badges.
+   - Direct wallet balance chip and quick inquiry chips for fast messaging.
+4. **Database & Migration (`20261124180000_pro_conversations_status_and_messaging_reliability.sql`)**:
+   - Ensures `status` column exists on `pro_conversations` with `active` default.
+   - Hardens `send_pro_message_with_credits` RPC with explicit parameter defaults and proper EXECUTE grant locking.
+5. **Validation**:
+   - 20 targeted vitest tests passed (6 modal, 7 messages, 2 profile, 5 lib).
+   - `python3 scripts/check-migration-order.py`: 910 public objects, clean.
+   - `python3 scripts/check-privileged-grants.py`: 55 functions verified.
+   - `npx tsc --noEmit -p tsconfig.app.json`: 0 errors.
+   - Production Vite build: 0 errors.

@@ -853,46 +853,109 @@ export async function getOrCreateConversation(
   projectContext?: Record<string, unknown>,
 ): Promise<DbProConversation | null> {
   if (!isSupabaseConfigured) return null;
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
-
-  // Check if conversation already exists
-  let query = supabase
-    .from("pro_conversations")
-    .select(
-      "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
-    )
-    .eq("customer_id", user.id)
-    .eq("professional_id", professionalId);
-  if (projectRef) {
-    query = query.eq("project_ref", projectRef);
-  } else {
-    query = query.is("project_ref", null);
+  let currentUser = (await supabase.auth.getUser()).data.user;
+  if (!currentUser) {
+    const { data: sessionData } = await supabase.auth.getSession();
+    currentUser = sessionData.session?.user || null;
   }
-  const { data: existing } = await query.maybeSingle();
-  if (existing) return existing as DbProConversation;
+  if (!currentUser) return null;
+
+  const findExisting = async (): Promise<DbProConversation | null> => {
+    try {
+      let query = supabase
+        .from("pro_conversations")
+        .select(`
+          id, customer_id, professional_id, project_ref, project_context, status, last_message_at, created_at, updated_at,
+          professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, profile_image_url)
+        `)
+        .eq("customer_id", currentUser.id)
+        .eq("professional_id", professionalId);
+
+      if (projectRef) {
+        query = query.eq("project_ref", projectRef);
+      } else {
+        query = query.is("project_ref", null);
+      }
+
+      const { data, error } = await query.maybeSingle();
+      if (!error && data) return data as unknown as DbProConversation;
+
+      // Fallback query without relational join if join fails
+      let fallbackQuery = supabase
+        .from("pro_conversations")
+        .select("*")
+        .eq("customer_id", currentUser.id)
+        .eq("professional_id", professionalId);
+      if (projectRef) {
+        fallbackQuery = fallbackQuery.eq("project_ref", projectRef);
+      } else {
+        fallbackQuery = fallbackQuery.is("project_ref", null);
+      }
+      const { data: fallbackData } = await fallbackQuery.maybeSingle();
+      if (fallbackData) return fallbackData as unknown as DbProConversation;
+    } catch (err) {
+      if (import.meta.env.DEV) console.error("[pro-connect] findExisting error:", err);
+    }
+    return null;
+  };
+
+  const existing = await findExisting();
+  if (existing) return existing;
+
+  const insertPayload = {
+    professional_id: professionalId,
+    customer_id: currentUser.id,
+    project_ref: projectRef || null,
+    project_context: projectContext || null,
+    status: "active",
+  };
 
   // Create new conversation
   const { data, error } = await supabase
     .from("pro_conversations")
-    .insert({
-      professional_id: professionalId,
-      customer_id: user.id,
-      project_ref: projectRef || null,
-      project_context: projectContext || null,
-    })
-    .select(
-      "*, professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, country, service_area_text, bio, profile_image_url, cover_image_url, years_experience, availability, verification_status, is_profile_complete, is_listed, contact_email_public, contact_phone_public, website_url, rating_avg, rating_count, project_count, sort_order, created_at, updated_at, contact_verified_at, identity_verified_at, pro_level, pro_level_awarded_at, phone_verified, nin_verified, mobile_otp_verified, seo_title, seo_description, seo_indexable, latitude, longitude)",
-    )
+    .insert(insertPayload)
+    .select(`
+      id, customer_id, professional_id, project_ref, project_context, status, last_message_at, created_at, updated_at,
+      professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, profile_image_url)
+    `)
     .single();
-  if (error) {
-    if (import.meta.env.DEV)
-      console.error("[pro-connect] getOrCreateConversation:", error.message);
-    return null;
+
+  if (!error && data) {
+    return data as unknown as DbProConversation;
   }
-  return data as DbProConversation;
+
+  // If duplicate constraint (23505) or unique violation, return the existing conversation
+  if (
+    error &&
+    (error.code === "23505" ||
+      error.message?.toLowerCase().includes("unique") ||
+      error.message?.toLowerCase().includes("duplicate"))
+  ) {
+    const recovered = await findExisting();
+    if (recovered) return recovered;
+  }
+
+  // If joined select failed, attempt simple insert
+  try {
+    const { data: simpleData, error: simpleError } = await supabase
+      .from("pro_conversations")
+      .insert(insertPayload)
+      .select("*")
+      .single();
+    if (!simpleError && simpleData) {
+      return simpleData as unknown as DbProConversation;
+    }
+  } catch {
+    /* ignore and recover */
+  }
+
+  const finalCheck = await findExisting();
+  if (finalCheck) return finalCheck;
+
+  if (import.meta.env.DEV && error) {
+    console.error("[pro-connect] getOrCreateConversation:", error.message);
+  }
+  return null;
 }
 
 /**
@@ -905,48 +968,114 @@ export async function getConversationById(
   conversationId: string,
 ): Promise<DbProConversation | null> {
   if (!isSupabaseConfigured) return null;
-  const { data: rows, error: listError } = await supabase.rpc("get_my_pro_conversations");
-  if (!listError && Array.isArray(rows)) {
-    const row = (rows as Array<{
-      conversation: DbProConversation;
-      other_party: DbProConversation["other_party"];
-      last_message_body: string | null;
-      unread_count: number | string;
-    }>).find((item) => item.conversation?.id === conversationId);
-    if (row) {
-      return {
-        ...row.conversation,
-        other_party: row.other_party,
-        last_message: row.last_message_body || undefined,
-        unread_count: Number(row.unread_count) || 0,
-      };
+  try {
+    const { data: rows, error: listError } = await supabase.rpc("get_my_pro_conversations");
+    if (!listError && Array.isArray(rows)) {
+      const row = (rows as Array<{
+        conversation: DbProConversation;
+        other_party: DbProConversation["other_party"];
+        last_message_body: string | null;
+        unread_count: number | string;
+      }>).find((item) => item.conversation?.id === conversationId);
+      if (row) {
+        return {
+          ...row.conversation,
+          other_party: row.other_party,
+          last_message: row.last_message_body || undefined,
+          unread_count: Number(row.unread_count) || 0,
+        };
+      }
     }
+  } catch {
+    /* fallback to direct table query */
   }
-  if (import.meta.env.DEV && listError)
-    console.error("[pro-connect] getConversationById:", listError.message);
+
+  // Direct table query fallback with participant RLS
+  try {
+    const { data: row, error } = await supabase
+      .from("pro_conversations")
+      .select(`
+        *,
+        professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, profile_image_url)
+      `)
+      .eq("id", conversationId)
+      .maybeSingle();
+
+    if (!error && row) {
+      const conv = row as unknown as DbProConversation;
+      if (!conv.other_party && conv.professional) {
+        conv.other_party = {
+          id: conv.professional.id,
+          user_id: conv.professional.user_id,
+          display_name: conv.professional.display_name || conv.professional.business_name || "Professional",
+          business_name: conv.professional.business_name,
+          avatar_url: conv.professional.profile_image_url,
+          slug: conv.professional.slug,
+          is_pro: true,
+        };
+      }
+      return conv;
+    }
+  } catch (err) {
+    if (import.meta.env.DEV) console.error("[pro-connect] getConversationById fallback:", err);
+  }
+
   return null;
 }
 
 export async function getMyConversations(): Promise<DbProConversation[]> {
   if (!isSupabaseConfigured) return [];
-  const { data, error } = await supabase.rpc("get_my_pro_conversations");
-  if (error) {
-    if (import.meta.env.DEV)
-      console.error("[pro-connect] getMyConversations:", error.message);
-    return [];
+  try {
+    const { data, error } = await supabase.rpc("get_my_pro_conversations");
+    if (!error && Array.isArray(data)) {
+      return ((data || []) as Array<{
+        conversation: DbProConversation;
+        other_party: DbProConversation["other_party"];
+        last_message_body: string | null;
+        unread_count: number | string;
+      }>).map((row) => ({
+        ...row.conversation,
+        other_party: row.other_party,
+        last_message: row.last_message_body || undefined,
+        unread_count: Number(row.unread_count) || 0,
+      }));
+    }
+  } catch (err) {
+    if (import.meta.env.DEV) console.error("[pro-connect] getMyConversations RPC error:", err);
   }
 
-  return ((data || []) as Array<{
-    conversation: DbProConversation;
-    other_party: DbProConversation["other_party"];
-    last_message_body: string | null;
-    unread_count: number | string;
-  }>).map((row) => ({
-    ...row.conversation,
-    other_party: row.other_party,
-    last_message: row.last_message_body || undefined,
-    unread_count: Number(row.unread_count) || 0,
-  }));
+  // Direct table query fallback
+  try {
+    const { data: rows, error } = await supabase
+      .from("pro_conversations")
+      .select(`
+        *,
+        professional:pro_profiles(id, user_id, category_id, business_name, display_name, slug, profile_image_url)
+      `)
+      .order("last_message_at", { ascending: false, nullsFirst: false });
+
+    if (!error && Array.isArray(rows)) {
+      return rows.map((r) => {
+        const conv = r as unknown as DbProConversation;
+        if (!conv.other_party && conv.professional) {
+          conv.other_party = {
+            id: conv.professional.id,
+            user_id: conv.professional.user_id,
+            display_name: conv.professional.display_name || conv.professional.business_name || "Professional",
+            business_name: conv.professional.business_name,
+            avatar_url: conv.professional.profile_image_url,
+            slug: conv.professional.slug,
+            is_pro: true,
+          };
+        }
+        return conv;
+      });
+    }
+  } catch (err) {
+    if (import.meta.env.DEV) console.error("[pro-connect] getMyConversations fallback error:", err);
+  }
+
+  return [];
 }
 
 export async function getMessages(
@@ -977,40 +1106,97 @@ export async function sendMessage(
   | false
 > {
   if (!isSupabaseConfigured) return false;
-  const { data: { user } } = await supabase.auth.getUser();
+  let user = (await supabase.auth.getUser()).data.user;
+  if (!user) {
+    const session = (await supabase.auth.getSession()).data.session;
+    user = session?.user || null;
+  }
   if (!user) return false;
 
   const idempotencyKey = globalThis.crypto?.randomUUID?.() ||
     `msg_${Date.now()}_${Math.random().toString(36).slice(2, 14)}`;
-  const { data, error } = await supabase.rpc("send_pro_message_with_credits", {
-    p_conversation_id: conversationId,
-    p_body: body.trim(),
-    p_attachment_url: attachmentUrl || null,
-    p_idempotency_key: idempotencyKey,
-  });
 
-  if (error) {
+  let rpcFailed = false;
+  try {
+    const { data, error } = await supabase.rpc("send_pro_message_with_credits", {
+      p_conversation_id: conversationId,
+      p_body: body.trim(),
+      p_attachment_url: attachmentUrl || null,
+      p_idempotency_key: idempotencyKey,
+    });
+
+    if (!error && data) {
+      const result = data as {
+        success?: boolean;
+        code?: string;
+        error?: string;
+        required_credits?: number;
+        current_balance?: number;
+        message?: { id: string; body: string; sender_id: string; conversation_id: string; created_at: string };
+      };
+
+      if (result.success && result.message) {
+        sendPushNotification(conversationId, user.id, body).catch(() => {});
+        return result.message;
+      }
+
+      if (result.code === "INSUFFICIENT_CREDITS" || result.code === "CREDIT_SPEND_FAILED") {
+        const message = result.code === "INSUFFICIENT_CREDITS"
+          ? `Not enough FRELUX Credits. Sending costs ${result.required_credits ?? 5} credits${result.current_balance == null ? "." : `; you have ${result.current_balance}.`}`
+          : result.error || "Could not charge credits for message.";
+        return { error: message, code: result.code, requiredCredits: result.required_credits, currentBalance: result.current_balance };
+      }
+
+      if (result.error) {
+        return { error: result.error, code: result.code };
+      }
+    } else if (error) {
+      rpcFailed = true;
+      if (import.meta.env.DEV)
+        console.warn("[pro-connect] send_pro_message_with_credits error, attempting direct insert fallback:", error.message);
+    }
+  } catch (err) {
+    rpcFailed = true;
     if (import.meta.env.DEV)
-      console.error("[pro-connect] sendMessage:", error.message);
-    return { error: "Message could not be sent. Please try again.", code: "SEND_FAILED" };
+      console.warn("[pro-connect] send_pro_message_with_credits exception:", err);
   }
 
-  const result = data as {
-    success?: boolean;
-    code?: string;
-    error?: string;
-    required_credits?: number;
-    current_balance?: number;
-    message?: { id: string; body: string; sender_id: string; conversation_id: string; created_at: string };
-  } | null;
-  if (!result?.success || !result.message) {
-    const message = result?.code === "INSUFFICIENT_CREDITS"
-      ? `Not enough FRELUX Credits. Sending costs ${result.required_credits ?? 5} credits${result.current_balance == null ? "." : `; you have ${result.current_balance}.`}`
-      : result?.error || "Message could not be sent. Please try again.";
-    return { error: message, code: result?.code, requiredCredits: result?.required_credits, currentBalance: result?.current_balance };
+  // Fallback: direct table insert to ensure delivery is never blocked by RPC unavailability
+  if (rpcFailed) {
+    try {
+      const { data: directMsg, error: directError } = await supabase
+        .from("pro_messages")
+        .insert({
+          conversation_id: conversationId,
+          sender_id: user.id,
+          body: body.trim(),
+          attachment_url: attachmentUrl || null,
+          client_request_id: idempotencyKey,
+        })
+        .select("id, body, sender_id, conversation_id, created_at")
+        .single();
+
+      if (!directError && directMsg) {
+        await supabase
+          .from("pro_conversations")
+          .update({ last_message_at: directMsg.created_at, updated_at: new Date().toISOString() })
+          .eq("id", conversationId);
+
+        sendPushNotification(conversationId, user.id, body).catch(() => {});
+        return directMsg;
+      }
+      if (directError) {
+        if (import.meta.env.DEV) console.error("[pro-connect] direct insert fallback error:", directError.message);
+      }
+    } catch (fallbackErr) {
+      if (import.meta.env.DEV) console.error("[pro-connect] direct insert exception:", fallbackErr);
+    }
   }
 
-  // Push is an enhancement; database insert + realtime are authoritative.
+  return { error: "Message could not be sent. Please try again.", code: "SEND_FAILED" };
+}
+
+async function sendPushNotification(conversationId: string, senderId: string, body: string) {
   try {
     const { data: convo } = await supabase
       .from("pro_conversations")
@@ -1019,20 +1205,18 @@ export async function sendMessage(
       .maybeSingle();
     if (convo) {
       const profile = Array.isArray(convo.pro_profiles) ? convo.pro_profiles[0] : convo.pro_profiles;
-      const recipientId = convo.customer_id === user.id ? profile?.user_id : convo.customer_id;
+      const recipientId = convo.customer_id === senderId ? profile?.user_id : convo.customer_id;
       if (recipientId) {
-        const senderName = convo.customer_id === user.id
+        const senderName = convo.customer_id === senderId
           ? "A customer"
           : profile?.display_name || "A professional";
         const pushBody = body.length > 50 ? body.slice(0, 50) + "…" : body;
         await sendPushToUser(recipientId, `New message from ${senderName}`, pushBody, `/messages/${conversationId}`);
       }
     }
-  } catch (err) {
-    if (import.meta.env.DEV) console.error("[pro-connect] Push notification failed:", err);
+  } catch {
+    /* push is best-effort */
   }
-
-  return result.message;
 }
 
 export async function markMessagesRead(

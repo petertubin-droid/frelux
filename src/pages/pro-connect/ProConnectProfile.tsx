@@ -1,3 +1,4 @@
+import ProConnectMessageModal from "@/components/pro-connect/ProConnectMessageModal";
 import { sanitizeHttpUrl } from "@/lib/sanitization";
 import { useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
@@ -18,7 +19,6 @@ import {
   getProProfileLocations,
   getProPortfolio,
   getProReviews,
-  getOrCreateConversation,
   createReport,
   createReview,
 } from "@/lib/pro-connect";
@@ -72,7 +72,8 @@ export default function ProConnectProfile() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [contactError, setContactError] = useState<string | null>(null);
+  const [contactError] = useState<string | null>(null);
+  const [messageModalOpen, setMessageModalOpen] = useState(false);
   // The public number comes from an RPC that only returns it when the
   // professional has published contact_phone_public, so the column itself
   // never reaches the browser.
@@ -133,30 +134,7 @@ export default function ProConnectProfile() {
       return;
     }
     if (!profile) return;
-    const convo = await getOrCreateConversation(profile.id);
-    if (!convo) {
-      setContactError(
-        t("We could not open a conversation. Please try again in a moment."),
-      );
-      return;
-    }
-    // Best-effort alert so the professional hears about the enquiry even if
-    // they are not signed in. The stored conversation remains the source of
-    // truth; a mail failure never blocks the customer.
-    try {
-      const { data: sessionData } = await supabase.auth.getSession();
-      await supabase.functions.invoke("send-email", {
-        body: { type: "pro_inquiry", conversation_id: convo.id },
-        headers: sessionData.session
-          ? { Authorization: `Bearer ${sessionData.session.access_token}` }
-          : undefined,
-      });
-    } catch {
-      /* email is a courtesy, never a gate */
-    }
-    // `replace` so the back button returns to the profile, not to a page that
-    // immediately bounces forward again.
-    navigate(`/messages/${convo.id}`, { replace: true });
+    setMessageModalOpen(true);
   }
 
   useSeo({
@@ -738,6 +716,12 @@ export default function ProConnectProfile() {
             }}
           />
         )}
+        {/* Pro Connect Quick Message Modal */}
+        <ProConnectMessageModal
+          isOpen={messageModalOpen}
+          onClose={() => setMessageModalOpen(false)}
+          profile={profile}
+        />
         <AdSlot slotKey="market_mid" className="mt-8" />
       </div>
     </>
@@ -952,6 +936,7 @@ function ReviewModal({
           </Button>
         </div>
       </div>
+
     </div>
   );
 }
