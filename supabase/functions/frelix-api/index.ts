@@ -92,20 +92,23 @@ const CORS = {
   "Access-Control-Allow-Headers":
     "Content-Type, Authorization, X-Client-Info, Apikey, Idempotency-Key",
   "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
+  "Access-Control-Max-Age": "86400",
 };
 
 function json(
   status: number,
   body: Record<string, unknown>,
   requestId?: string,
+  extraHeaders?: Record<string, string>,
 ) {
   return new Response(JSON.stringify(body), {
     status,
     headers: {
       "Content-Type": "application/json",
       ...(requestId ? { "X-Request-Id": requestId } : {}),
-      "Cache-Control": "no-store",
+      "Cache-Control": extraHeaders?.["Cache-Control"] ?? "no-store",
       ...CORS,
+      ...(extraHeaders ?? {}),
     },
   });
 }
@@ -387,7 +390,7 @@ async function authenticate(
           graceAllowance,
           balanceUsd,
           overagePerRequestUsd: overageRate,
-          topUpUrl: "https://freluxtools.com/developer",
+          topUpUrl: `${getSiteUrl()}/developers`,
         },
         requestId,
       ),
@@ -711,6 +714,7 @@ function handleIdentity(requestId: string) {
       requestId,
     },
     requestId,
+    { "Cache-Control": "public, max-age=300, stale-while-revalidate=600" },
   );
 }
 
@@ -731,6 +735,7 @@ function handleCapabilities(requestId: string) {
       requestId,
     },
     requestId,
+    { "Cache-Control": "public, max-age=300, stale-while-revalidate=600" },
   );
 }
 
@@ -751,7 +756,9 @@ async function handlePlans(requestId: string) {
       requestId,
     );
   }
-  return json(200, { plans: data, requestId }, requestId);
+  return json(200, { plans: data, requestId }, requestId, {
+    "Cache-Control": "public, max-age=300, stale-while-revalidate=600",
+  });
 }
 
 async function handleCalculator(
@@ -761,7 +768,10 @@ async function handleCalculator(
 ) {
   const started = Date.now();
   const { body, error } = await readJson(req);
-  if (error) return error;
+  if (error || !body)
+    return (
+      error ?? json(400, apiError("invalid_request", "Invalid request body."))
+    );
 
   const descriptor = listEngines().find((e) => e.id === engineId);
   if (!descriptor) {
@@ -841,7 +851,10 @@ async function handleCalculator(
 async function handleChat(req: Request, auth: AuthedRequest) {
   const started = Date.now();
   const { body, error } = await readJson(req);
-  if (error) return error;
+  if (error || !body)
+    return (
+      error ?? json(400, apiError("invalid_request", "Invalid request body."))
+    );
 
   const message = body.message;
   if (
@@ -1297,7 +1310,10 @@ async function handleRegions(req: Request, auth: AuthedRequest, code?: string) {
 async function handleFeedback(req: Request, auth: AuthedRequest) {
   const started = Date.now();
   const { body, error } = await readJson(req);
-  if (error) return error;
+  if (error || !body)
+    return (
+      error ?? json(400, apiError("invalid_request", "Invalid request body."))
+    );
 
   const topic = typeof body.topic === "string" ? body.topic.trim() : "";
   const recommendation =
@@ -1504,7 +1520,10 @@ async function handleKeys(
   // POST /v1/keys — create
   if (path === "/v1/keys" && req.method === "POST") {
     const { body, error } = await readJson(req);
-    if (error) return error;
+    if (error || !body)
+      return (
+        error ?? json(400, apiError("invalid_request", "Invalid request body."))
+      );
     const name = typeof body.name === "string" ? body.name.trim() : "";
     if (name.length < 1 || name.length > 100) {
       return json(
@@ -1523,10 +1542,23 @@ async function handleKeys(
     // from the plan the OWNER/ADMIN configured in
     // frelux_api_plans — NEVER from the request body. A
     // subscriber can never self-issue elevated permissions.
+    // Check if the caller has an active paid entitlement; default to free.
+    const { data: activeEntitlement } = await svc
+      .from("frelux_api_entitlements")
+      .select("plan_key, status, paid_until")
+      .eq("user_id", userId)
+      .eq("status", "ACTIVE")
+      .maybeSingle();
+
+    const effectivePlanKey =
+      activeEntitlement?.plan_key && activeEntitlement.plan_key !== "free"
+        ? activeEntitlement.plan_key
+        : "free";
+
     const { data: plan } = await svc
       .from("frelux_api_plans")
       .select("key,config,active")
-      .eq("key", "free")
+      .eq("key", effectivePlanKey)
       .maybeSingle();
     if (!plan?.active) {
       return json(
@@ -1556,7 +1588,7 @@ async function handleKeys(
           : Array.isArray(planCfg.permissions) && planCfg.permissions.length > 0
             ? planCfg.permissions
             : ["calculators"],
-      plan_key: "free",
+      plan_key: effectivePlanKey,
       rate_limit_per_minute: Math.max(1, planCfg.rateLimitPerMinute ?? 30),
       daily_quota: Math.max(1, planCfg.dailyQuota ?? 100),
       monthly_quota: Math.max(1, planCfg.monthlyQuota ?? 2500),
@@ -1657,7 +1689,10 @@ async function handleKeys(
 
   if (req.method === "PATCH") {
     const { body, error } = await readJson(req);
-    if (error) return error;
+    if (error || !body)
+      return (
+        error ?? json(400, apiError("invalid_request", "Invalid request body."))
+      );
     const update: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
     };
@@ -1745,7 +1780,7 @@ async function routeRequest(req: Request): Promise<Response> {
     if (req.method === "GET" && path === "/v1/capabilities")
       return handleCapabilities(requestId);
     if (req.method === "GET" && path === "/v1/plans")
-      return handlePlans(requestId);
+      return await handlePlans(requestId);
 
     // Key management — session JWT (never an API key).
     if (path === "/v1/keys" || path.startsWith("/v1/keys/")) {

@@ -378,3 +378,72 @@ export async function startWalletTopup(
   }
   return { authorization_url: url };
 }
+
+// ---------------------------------------------------------
+// User API Entitlement & Verification
+// ---------------------------------------------------------
+
+export interface ApiEntitlement {
+  id: string;
+  plan_key: string;
+  status: string;
+  purchased_at: string | null;
+  paid_until: string | null;
+  provider: string | null;
+  provider_reference?: string | null;
+}
+
+export async function getUserEntitlement(): Promise<ApiEntitlement | null> {
+  try {
+    const { data, error } = await supabase
+      .from("frelux_api_entitlements")
+      .select(
+        "id, plan_key, status, purchased_at, paid_until, provider, provider_reference",
+      )
+      .eq("status", "ACTIVE")
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (error) return null;
+    return data ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export async function verifyApiPlanPayment(
+  reference: string,
+  planKey: string,
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const { data, error } = await supabase.functions.invoke("paystack-verify", {
+      body: {
+        reference,
+        plan: planKey,
+        purpose: "api_plan",
+      },
+    });
+    if (error) {
+      return {
+        success: false,
+        message: error.message || "Verification failed.",
+      };
+    }
+    if (data?.status === false) {
+      return {
+        success: false,
+        message: data.message || "Payment verification failed.",
+      };
+    }
+    return {
+      success: true,
+      message: data?.message || "API plan activated successfully!",
+    };
+  } catch (err) {
+    return {
+      success: false,
+      message: err instanceof Error ? err.message : "Verification failed.",
+    };
+  }
+}

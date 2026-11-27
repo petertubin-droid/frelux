@@ -19,6 +19,8 @@ const portalClient = vi.hoisted(() => ({
   getUsageSummary: vi.fn(),
   getPlans: vi.fn(),
   initializeApiPlanCheckout: vi.fn(),
+  getUserEntitlement: vi.fn(),
+  verifyApiPlanPayment: vi.fn(),
   // The portal renders the API wallet card, so the module mock must carry the
   // wallet reads it makes.
   getApiWallet: vi.fn(),
@@ -80,6 +82,11 @@ beforeEach(() => {
     auto_topup_card_id: null,
   });
   portalClient.listApiPaymentMethods.mockResolvedValue([]);
+  portalClient.getUserEntitlement.mockResolvedValue(null);
+  portalClient.verifyApiPlanPayment.mockResolvedValue({
+    success: true,
+    message: "Plan activated",
+  });
   portalClient.getPlans.mockResolvedValue([
     {
       key: "free",

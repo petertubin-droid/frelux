@@ -144,6 +144,86 @@ serveWithCors(async (req: Request) => {
     const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, serviceRoleKey);
 
+    // ── API plan purchase: grant entitlement idempotently ──
+    if (purpose === "api_plan") {
+      const planKey =
+        (metadata.plan_key as string) || (metadata.plan as string) || plan;
+      if (!userId || !planKey) {
+        return new Response(
+          JSON.stringify({
+            error: "Missing user_id or plan_key in transaction metadata",
+          }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const { data: planRow } = await supabase
+        .from("frelux_api_plans")
+        .select("key, name, active")
+        .eq("key", planKey)
+        .maybeSingle();
+
+      if (!planRow || !planRow.active) {
+        return new Response(
+          JSON.stringify({ error: "Invalid or inactive API plan" }),
+          {
+            status: 400,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      const { data: applied, error: planError } = await supabase.rpc(
+        "frelux_api_apply_plan_purchase",
+        {
+          p_user_id: userId,
+          p_plan_key: planKey,
+          p_provider_reference: reference,
+          p_amount: transaction.amount,
+          p_currency: (metadata.currency as string) || "USD",
+          p_metadata: {
+            source: "paystack-verify",
+            paystack_reference: reference,
+            purpose: "api_plan",
+          },
+        },
+      );
+
+      if (planError) {
+        return new Response(
+          JSON.stringify({
+            error: `Failed to activate API plan: ${planError.message}`,
+          }),
+          {
+            status: 500,
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          },
+        );
+      }
+
+      return new Response(
+        JSON.stringify({
+          status: true,
+          message: applied
+            ? `API ${planRow.name} plan activated successfully`
+            : `API ${planRow.name} plan already active for this payment`,
+          data: {
+            ...transaction,
+            purpose: "api_plan",
+            plan_key: planKey,
+            already_applied: !applied,
+          },
+        }),
+        {
+          status: 200,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        },
+      );
+    }
+
     // ── Token purchase: credit the wallet atomically (idempotent) ──
     // Packs (2026-10-16): the bundle is identified by metadata.pack_id
     // (default 1). Tokens and price are ALWAYS resolved server-side
@@ -408,7 +488,8 @@ serveWithCors(async (req: Request) => {
       },
     );
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const msg = error instanceof Error ? error.message : "Internal error";
+    return new Response(JSON.stringify({ error: msg }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
