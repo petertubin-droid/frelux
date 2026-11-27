@@ -172,6 +172,8 @@ export default function PipeSizingPanel() {
           >
             <option value="ppr">PPR</option>
             <option value="copper">Copper</option>
+            <option value="pex">PEX (ASTM F876/CTS)</option>
+            <option value="pvc">PVC / CPVC (Sch 40)</option>
           </select>
         </label>
       </div>

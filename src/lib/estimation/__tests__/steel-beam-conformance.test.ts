@@ -46,13 +46,45 @@ const PUBLISHED_UB: Record<string, number> = {
   "Universal beam 305 × 165 × 54": 54,
 };
 
+const PUBLISHED_W: Record<string, number> = {
+  "AISC W8 × 10": 14.9,
+  "AISC W8 × 15": 22.3,
+  "AISC W8 × 24": 35.7,
+  "AISC W10 × 15": 22.3,
+  "AISC W10 × 22": 32.7,
+  "AISC W10 × 30": 44.6,
+  "AISC W12 × 16": 23.8,
+  "AISC W12 × 26": 38.7,
+  "AISC W14 × 22": 32.7,
+  "AISC W14 × 30": 44.6,
+};
+
+const PUBLISHED_HEA: Record<string, number> = {
+  "HEA 100": 16.7,
+  "HEA 120": 19.9,
+  "HEA 140": 24.7,
+  "HEA 160": 30.4,
+};
+
+const PUBLISHED_HEB: Record<string, number> = {
+  "HEB 100": 20.4,
+  "HEB 120": 26.7,
+  "HEB 140": 33.7,
+  "HEB 160": 42.6,
+};
+
 const NO_RATE = null;
 
 describe("steel: the published section table", () => {
   it("carries only sections that exist, at their published mass", () => {
     const wrong: string[] = [];
     for (const profile of STEEL_PROFILES) {
-      const published = PUBLISHED_IPE[profile.label] ?? PUBLISHED_UB[profile.label];
+      const published =
+        PUBLISHED_IPE[profile.label] ??
+        PUBLISHED_UB[profile.label] ??
+        PUBLISHED_W[profile.label] ??
+        PUBLISHED_HEA[profile.label] ??
+        PUBLISHED_HEB[profile.label];
       if (published === undefined) {
         wrong.push(`${profile.label}: not a published section`);
       } else if (profile.kg_per_m !== published) {

@@ -259,3 +259,79 @@ export function calculateConduitWiring(
     tax_status: TAX_NOT_DETERMINED,
   };
 }
+
+export interface CableSpec {
+  count: number;
+  outerDiameterMm: number;
+  label?: string;
+}
+
+export interface ConduitFillResult {
+  conduitInnerDiameterMm: number;
+  totalConduitAreaMm2: number;
+  totalCableAreaMm2: number;
+  fillPercentage: number;
+  maxAllowedFillPercentage: number;
+  cableCount: number;
+  passesCode: boolean;
+  codeStandard: "NEC Chapter 9 Table 1 / BS 7671";
+  warning?: string;
+}
+
+/**
+ * Verifies electrical conduit wire fill capacity against NEC Chapter 9 Table 1 and BS 7671.
+ * Rules:
+ * - 1 conductor: max 53% fill
+ * - 2 conductors: max 31% fill
+ * - 3 or more conductors: max 40% fill
+ */
+export function verifyConduitFill(
+  conduitInnerDiameterMm: number,
+  cables: CableSpec[],
+): ConduitFillResult | null {
+  if (
+    conduitInnerDiameterMm <= 0 ||
+    !Array.isArray(cables) ||
+    cables.length === 0
+  ) {
+    return null;
+  }
+
+  const conduitArea = (Math.PI * conduitInnerDiameterMm ** 2) / 4;
+  let totalCableArea = 0;
+  let totalCableCount = 0;
+
+  for (const c of cables) {
+    if (c.count <= 0 || c.outerDiameterMm <= 0) continue;
+    const singleCableArea = (Math.PI * c.outerDiameterMm ** 2) / 4;
+    totalCableArea += c.count * singleCableArea;
+    totalCableCount += c.count;
+  }
+
+  if (totalCableCount === 0) return null;
+
+  const fillPercentage = (totalCableArea / conduitArea) * 100;
+  let maxAllowed = 40;
+  if (totalCableCount === 1) {
+    maxAllowed = 53;
+  } else if (totalCableCount === 2) {
+    maxAllowed = 31;
+  }
+
+  const passes = fillPercentage <= maxAllowed;
+  const warning = !passes
+    ? `Conduit fill is ${fillPercentage.toFixed(1)}%, exceeding code maximum ${maxAllowed}% (${totalCableCount} conductors). Upsize conduit to avoid overheating and wire damage during pulling.`
+    : undefined;
+
+  return {
+    conduitInnerDiameterMm,
+    totalConduitAreaMm2: Number(conduitArea.toFixed(1)),
+    totalCableAreaMm2: Number(totalCableArea.toFixed(1)),
+    fillPercentage: Number(fillPercentage.toFixed(1)),
+    maxAllowedFillPercentage: maxAllowed,
+    cableCount: totalCableCount,
+    passesCode: passes,
+    codeStandard: "NEC Chapter 9 Table 1 / BS 7671",
+    warning,
+  };
+}

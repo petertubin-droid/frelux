@@ -24,6 +24,9 @@ export interface SepticSizingResult {
   tankTotalVolumeM3: number;
   tankWorkingVolumeGallons: number;
   tankTotalVolumeGallons: number;
+  dailyDesignFlowImperialGallons: number;
+  tankWorkingVolumeImperialGallons: number;
+  tankTotalVolumeImperialGallons: number;
   soakawayRequiredAbsorptionAreaM2: number | null;
   soakawayRequiredAbsorptionAreaSqFt: number | null;
   indicativeSoakawayDiameterM: number | null;
@@ -33,6 +36,8 @@ export interface SepticSizingResult {
 
 const LITRES_TO_US_GALLONS = 0.264172;
 const M3_TO_US_GALLONS = 264.172;
+const LITRES_TO_IMP_GALLONS = 0.219969;
+const M3_TO_IMP_GALLONS = 219.969;
 const M2_TO_SQFT = 10.7639;
 
 export function calculateSepticSizing(
@@ -96,6 +101,9 @@ export function calculateSepticSizing(
     dailyDesignFlowGallons: Number(
       (dailyFlow * LITRES_TO_US_GALLONS).toFixed(1),
     ),
+    dailyDesignFlowImperialGallons: Number(
+      (dailyFlow * LITRES_TO_IMP_GALLONS).toFixed(1),
+    ),
     tankWorkingVolumeM3: Number(tankWorkingVolumeM3.toFixed(3)),
     tankTotalVolumeM3: Number(tankTotalVolumeM3.toFixed(3)),
     tankWorkingVolumeGallons: Number(
@@ -103,6 +111,12 @@ export function calculateSepticSizing(
     ),
     tankTotalVolumeGallons: Number(
       (tankTotalVolumeM3 * M3_TO_US_GALLONS).toFixed(1),
+    ),
+    tankWorkingVolumeImperialGallons: Number(
+      (tankWorkingVolumeM3 * M3_TO_IMP_GALLONS).toFixed(1),
+    ),
+    tankTotalVolumeImperialGallons: Number(
+      (tankTotalVolumeM3 * M3_TO_IMP_GALLONS).toFixed(1),
     ),
     soakawayRequiredAbsorptionAreaM2:
       soakawayRequiredAbsorptionAreaM2 === null

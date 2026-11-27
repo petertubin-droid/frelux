@@ -57,6 +57,26 @@ export const STEEL_PROFILES: SteelProfile[] = [
   { key: "ub_305_165_40", label: "Universal beam 305 × 165 × 40", kg_per_m: 40.3, note: "long span floor beams" },
   { key: "ub_305_165_46", label: "Universal beam 305 × 165 × 46", kg_per_m: 46.1, note: "long span girders" },
   { key: "ub_305_165_54", label: "Universal beam 305 × 165 × 54", kg_per_m: 54, note: "heavy long span girders" },
+  // North American AISC W-Shapes (ASTM A6 wide-flange beams; nominal kg/m converted from lb/ft).
+  { key: "w8_10", label: "AISC W8 × 10", kg_per_m: 14.9, note: "light floor and roof trimmer beams" },
+  { key: "w8_15", label: "AISC W8 × 15", kg_per_m: 22.3, note: "residential floor girder" },
+  { key: "w8_24", label: "AISC W8 × 24", kg_per_m: 35.7, note: "loaded residential floor beam" },
+  { key: "w10_15", label: "AISC W10 × 15", kg_per_m: 22.3, note: "light commercial floor beam" },
+  { key: "w10_22", label: "AISC W10 × 22", kg_per_m: 32.7, note: "standard commercial floor beam" },
+  { key: "w10_30", label: "AISC W10 × 30", kg_per_m: 44.6, note: "heavy commercial floor girder" },
+  { key: "w12_16", label: "AISC W12 × 16", kg_per_m: 23.8, note: "long span light roof girder" },
+  { key: "w12_26", label: "AISC W12 × 26", kg_per_m: 38.7, note: "standard commercial girder" },
+  { key: "w14_22", label: "AISC W14 × 22", kg_per_m: 32.7, note: "deep commercial girder" },
+  { key: "w14_30", label: "AISC W14 × 30", kg_per_m: 44.6, note: "heavy long-span girder" },
+  // European Euronorm Wide-Flange Beams (HEA / HEB series per EN 10025 / EN 10034).
+  { key: "he_100_a", label: "HEA 100", kg_per_m: 16.7, note: "light broad-flange floor beam" },
+  { key: "he_120_a", label: "HEA 120", kg_per_m: 19.9, note: "domestic floor beam" },
+  { key: "he_140_a", label: "HEA 140", kg_per_m: 24.7, note: "medium floor slab beam" },
+  { key: "he_160_a", label: "HEA 160", kg_per_m: 30.4, note: "medium opening girder" },
+  { key: "he_100_b", label: "HEB 100", kg_per_m: 20.4, note: "standard column and heavy beam" },
+  { key: "he_120_b", label: "HEB 120", kg_per_m: 26.7, note: "heavy floor beam" },
+  { key: "he_140_b", label: "HEB 140", kg_per_m: 33.7, note: "loaded floor beam" },
+  { key: "he_160_b", label: "HEB 160", kg_per_m: 42.6, note: "heavy girder and column" },
 ];
 
 export const STEEL_PROFILE_BY_KEY: Record<string, SteelProfile> =
@@ -74,6 +94,21 @@ export const STEEL_USE_PRESETS: {
     key: "mezzanine",
     label: "Warehouse mezzanine frame",
     profile: "ub_203_133_30",
+  },
+  {
+    key: "us_residential_girder",
+    label: "US Residential Floor Girder (W8×15)",
+    profile: "w8_15",
+  },
+  {
+    key: "us_commercial_beam",
+    label: "US Commercial Floor Beam (W10×22)",
+    profile: "w10_22",
+  },
+  {
+    key: "eu_broad_flange",
+    label: "European Wide-Flange (HEA 140)",
+    profile: "he_140_a",
   },
 ];
 

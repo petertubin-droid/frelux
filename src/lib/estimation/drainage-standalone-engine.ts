@@ -109,12 +109,14 @@ export function calculateDrainageTakeoff(
    * run fell through to no minimum at all and a sewer at 1 mm/m drew no caution.
    */
   const MIN_FALL_MM_PER_M: ReadonlyArray<readonly [number, number]> = [
-    [75, 16.7],
-    [110, 12.5],
-    [160, 6.7],
-    [200, 5.0],
-    [250, 4.0],
-    [315, 3.2],
+    [40, 20.8], // 1 in 48 (1/4 in/ft per IPC 704.1 / EN 12056)
+    [50, 20.8], // 1 in 48 (1/4 in/ft per IPC 704.1)
+    [75, 16.7], // 1 in 60
+    [110, 12.5], // 1 in 80
+    [160, 6.7], // 1 in 150
+    [200, 5.0], // 1 in 200
+    [250, 4.0], // 1 in 250
+    [315, 3.2], // 1 in 315
   ];
   const minFallFor = (diameterMm: number): number => {
     const hit = MIN_FALL_MM_PER_M.find(([d]) => diameterMm <= d);
@@ -192,5 +194,55 @@ export function calculateDrainageTakeoff(
       `Trench width allows ${WORKING_SPACE_M * 1000} mm of working space each side of the pipe and depth is cover plus pipe and bedding, measured per run; it excludes battering, groundwater, shoring and swell.`,
       ...gradientCautions,
     ],
+  };
+}
+
+export interface ManningGravityFlowResult {
+  velocityMPerS: number;
+  flowRateLitresPerSecond: number;
+  flowRateM3PerS: number;
+  hydraulicRadiusM: number;
+  wettedAreaM2: number;
+  isSelfCleansing: boolean;
+  isScourSafe: boolean;
+}
+
+/**
+ * Calculates gravity pipe flow capacity and velocity using Manning formula:
+ * V = (1/n) * R^(2/3) * S^(1/2)
+ * Q = V * A
+ *
+ * @param diameterMm Pipe internal diameter in mm
+ * @param fallMmPerM Pipe gradient / slope in mm fall per metre (e.g. 12.5 for 1 in 80)
+ * @param nRoughness Manning n roughness (default 0.010 for smooth plastic/PVC/HDPE, 0.013 for clay/concrete)
+ * @param depthFraction Proportion of depth filled (0.5 for half-full, 1.0 for full)
+ */
+export function calculateManningGravityFlow(
+  diameterMm: number,
+  fallMmPerM: number,
+  nRoughness: number = 0.01,
+  depthFraction: number = 0.5,
+): ManningGravityFlowResult | null {
+  if (diameterMm <= 0 || fallMmPerM <= 0 || nRoughness <= 0) return null;
+  const dM = diameterMm / 1000;
+  const slope = fallMmPerM / 1000; // m/m
+
+  const isFull = depthFraction >= 0.99;
+  const areaM2 = isFull ? (Math.PI * dM * dM) / 4 : (Math.PI * dM * dM) / 8;
+  const hydRadiusM = dM / 4;
+
+  const velocity =
+    (1 / nRoughness) * Math.pow(hydRadiusM, 2 / 3) * Math.sqrt(slope);
+  const flowM3s = velocity * areaM2;
+  const flowLps = flowM3s * 1000;
+
+  return {
+    velocityMPerS: Number(velocity.toFixed(3)),
+    flowRateLitresPerSecond: Number(flowLps.toFixed(2)),
+    flowRateM3PerS: Number(flowM3s.toFixed(5)),
+    hydraulicRadiusM: Number(hydRadiusM.toFixed(4)),
+    wettedAreaM2: Number(areaM2.toFixed(5)),
+    isSelfCleansing: velocity >= 0.75,
+    isScourSafe: velocity <= 3.0,
   };
 }

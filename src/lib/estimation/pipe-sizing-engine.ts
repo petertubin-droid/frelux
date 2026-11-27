@@ -11,7 +11,7 @@
  * only because they asked for one, and it is shown in the working.
  */
 
-export type PipeFamily = "copper" | "ppr";
+export type PipeFamily = "copper" | "ppr" | "pex" | "pvc";
 
 export interface PipeBore {
   /** How the size is bought and quoted. */
@@ -44,8 +44,43 @@ export const PPR_BORES: ReadonlyArray<PipeBore> = [
   { label: "63 mm PPR", inner_mm: 42.0, family: "ppr" },
 ];
 
+/**
+ * PEX tubing inner bores per ASTM F876/F877 (CTS SDR 9).
+ * Used widely in North American and Australasian modern residential plumbing.
+ */
+export const PEX_BORES: ReadonlyArray<PipeBore> = [
+  { label: "1/2-inch PEX", inner_mm: 12.3, family: "pex" },
+  { label: "3/4-inch PEX", inner_mm: 17.3, family: "pex" },
+  { label: "1-inch PEX", inner_mm: 22.2, family: "pex" },
+  { label: "1-1/4-inch PEX", inner_mm: 26.8, family: "pex" },
+  { label: "1-1/2-inch PEX", inner_mm: 31.6, family: "pex" },
+  { label: "2-inch PEX", inner_mm: 41.4, family: "pex" },
+];
+
+/**
+ * PVC / CPVC Schedule 40 pressure pipe bores per ASTM D1785 / ASTM F441.
+ */
+export const PVC_BORES: ReadonlyArray<PipeBore> = [
+  { label: "1/2-inch PVC (Sch 40)", inner_mm: 15.8, family: "pvc" },
+  { label: "3/4-inch PVC (Sch 40)", inner_mm: 20.9, family: "pvc" },
+  { label: "1-inch PVC (Sch 40)", inner_mm: 26.6, family: "pvc" },
+  { label: "1-1/4-inch PVC (Sch 40)", inner_mm: 35.1, family: "pvc" },
+  { label: "1-1/2-inch PVC (Sch 40)", inner_mm: 40.9, family: "pvc" },
+  { label: "2-inch PVC (Sch 40)", inner_mm: 52.5, family: "pvc" },
+];
+
 export function boresFor(family: PipeFamily): ReadonlyArray<PipeBore> {
-  return family === "ppr" ? PPR_BORES : COPPER_BORES;
+  switch (family) {
+    case "ppr":
+      return PPR_BORES;
+    case "pex":
+      return PEX_BORES;
+    case "pvc":
+      return PVC_BORES;
+    case "copper":
+    default:
+      return COPPER_BORES;
+  }
 }
 
 export interface OutletFlow {
@@ -154,7 +189,7 @@ export function requiredBoreMm(
 export function sizePipe(request: PipeSizingRequest): PipeSizingVerdict {
   const limit = Number(request.velocity_limit_mps);
   const flow = Number(request.flow_lps);
-  const bores = boresFor(request.family === "ppr" ? "ppr" : "copper");
+  const bores = boresFor(request.family ?? "copper");
 
   if (!(flow > 0) || !(limit > 0)) {
     return {

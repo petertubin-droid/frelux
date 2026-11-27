@@ -112,31 +112,53 @@ export function designConcreteCapacity(
 
   switch (code) {
     case "ACI_318": {
-      // ACI 318-19 §22.2.2.4.1: a = As*fy / (0.85*f'c*b)
+      // ACI 318-19 §22.2.2.4.1: equivalent rectangular stress block depth a = As*fy / (0.85*f'c*b)
       const a = (As * fy) / (0.85 * fck * b);
-      // §22.2.2.4.1: Mn = As*fy*(d - a/2)
+      // §22.2.2.4.3: beta1 factor depends on concrete compressive strength
+      // For f'c <= 28 MPa: beta1 = 0.85
+      // For 28 < f'c < 55 MPa: beta1 = 0.85 - (0.05 * (f'c - 28)) / 7
+      // For f'c >= 55 MPa: beta1 = 0.65 (shall not be taken less than 0.65)
+      const beta1 = fck <= 28 ? 0.85 : Math.max(0.65, 0.85 - (0.05 * (fck - 28)) / 7);
+      const c = a / beta1;
+      // Net tensile strain in extreme tension reinforcement: epsilon_t = 0.003 * (d - c) / c
+      const epsilonT = c > 0 ? 0.003 * ((d - c) / c) : 0;
+      // Yield strain epsilon_ty = fy / 200,000 MPa (§21.2.2.1)
+      const epsilonTy = fy / 200000;
+      // Strength reduction factor phi per Table 21.2.2:
+      // Tension-controlled (epsilon_t >= 0.005): phi = 0.90
+      // Transition (epsilon_ty <= epsilon_t < 0.005): linear interpolation
+      // Compression-controlled (epsilon_t < epsilon_ty): phi = 0.65
+      let phi = 0.90;
+      if (epsilonT < 0.005) {
+        if (epsilonT >= epsilonTy) {
+          phi = 0.65 + (0.25 * (epsilonT - epsilonTy)) / (0.005 - epsilonTy);
+        } else {
+          phi = 0.65;
+        }
+      }
+      // §22.2.2.4.1: Nominal flexural strength Mn = As*fy*(d - a/2)
       const Mn = (As * fy * (d - a / 2)) / 1e6; // N·mm -> kN·m
-      // §21.2 tension-controlled: phi = 0.90
-      const phi = 0.9;
       const phiMn = phi * Mn;
       // §22.5.5.1 (SI): Vc = 0.17*lambda*sqrt(f'c)*b*d, lambda=1 NWC
       const Vc = (0.17 * Math.sqrt(fck) * b * d) / 1e3; // N -> kN
       const phiVc = 0.75 * Vc; // §21.2 shear phi
       formulaTransparency.push(
         `a = As·fy/(0.85·f'c·b) = ${As.toFixed(0)}×${fy}/(0.85×${fck}×${b}) = ${a.toFixed(1)} mm (ACI 318-19 §22.2.2.4.1)`,
+        `beta1 = ${beta1.toFixed(3)} (§22.2.2.4.3), c = a/beta1 = ${c.toFixed(1)} mm, epsilon_t = ${epsilonT.toFixed(4)}`,
         `Mn = As·fy·(d − a/2) = ${(As * fy).toFixed(0)}×(${d} − ${(a / 2).toFixed(1)}) = ${Mn.toFixed(1)} kN·m`,
-        `phi·Mn = ${phi}×${Mn.toFixed(1)} = ${phiMn.toFixed(1)} kN·m (phi = 0.90 tension-controlled, §21.2.1)`,
+        `phi·Mn = ${phi.toFixed(3)}×${Mn.toFixed(1)} = ${phiMn.toFixed(1)} kN·m (${epsilonT >= 0.005 ? "phi = 0.90 tension-controlled" : "phi = " + phi.toFixed(3) + " transition/compression"}, Table 21.2.2)`,
         `Vc = 0.17·sqrt(f'c)·b·d = 0.17×${Math.sqrt(fck).toFixed(2)}×${b}×${d} = ${Vc.toFixed(1)} kN; phi·Vc = 0.75×${Vc.toFixed(1)} = ${phiVc.toFixed(1)} kN (§22.5.5.1, §21.2)`,
       );
-      if (a > 0.5 * d)
+      if (a > 0.5 * d || epsilonT < 0.005) {
         warnings.push(
-          "Stress block exceeds d/2: the section is over-reinforced for the tension-controlled phi = 0.90 assumption; check strain epsilon_t >= 0.005 per ACI 318-19 Table 21.2.2.",
+          `Section is over-reinforced: net tensile strain epsilon_t = ${epsilonT.toFixed(4)} < 0.005 (phi = ${phi.toFixed(3)} per ACI 318-19 Table 21.2.2). Increase section depth or reduce tension steel.`,
         );
+      }
       return {
         code,
         flexuralCapacityKNm: phiMn,
         shearCapacityKN: phiVc,
-        neutralAxisMm: a / 0.85,
+        neutralAxisMm: c,
         leverArmMm: d - a / 2,
         capacityFactor: phi,
         blockDepthMm: a,
@@ -232,7 +254,9 @@ export function designConcreteCapacity(
       // BS 8110-1:1997 Fig 2.1 / Cl 3.4.4.3: concrete block 0.45*fcu over
       // 0.9*xu, steel 0.87*fy. Equilibrium: 0.87*fy*As = 0.405*fcu*b*xu
       const xu = (0.87 * fy * As) / (0.405 * fck * b);
-      const z = d - 0.45 * xu;
+      // BS 8110-1:1997 Cl 3.4.4.4: lever arm z shall not exceed 0.95*d
+      const zUncapped = d - 0.45 * xu;
+      const z = Math.min(zUncapped, 0.95 * d);
       const Mu = (0.87 * fy * As * z) / 1e6;
       // Table 3.8 design concrete shear stress:
       // vc = (0.79/gamma_m)(100As/bd)^(1/3)(400/d)^(1/4)(fcu/25)^(1/3),

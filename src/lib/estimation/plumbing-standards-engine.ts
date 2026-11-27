@@ -288,3 +288,114 @@ export function calculateEn12056Drainage(
     ],
   };
 }
+
+export interface UpcIpcWaterSupplyResult {
+  total_wsfu: number;
+  peak_flow_gpm: number;
+  peak_flow_lps: number;
+  system_type: "flush_tank" | "flushometer";
+  recommended_service_pipe_inches: string;
+  standards_reference: string;
+  fixture_breakdown: Array<{
+    fixture: string;
+    count: number;
+    unit_wsfu: number;
+    total_wsfu: number;
+  }>;
+  notes: string[];
+}
+
+/**
+ * Calculates water supply peak demand from Water Supply Fixture Units (WSFU)
+ * using Hunter's Curve per IPC 2024 Appendix E and UPC 2024 Appendix A.
+ */
+export function calculateUpcIpcWaterSupply(
+  fixtures: UpcIpcFixtureCounts,
+  systemType: "flush_tank" | "flushometer" = "flush_tank",
+): UpcIpcWaterSupplyResult {
+  let totalWsfu = 0;
+  const breakdown: UpcIpcWaterSupplyResult["fixture_breakdown"] = [];
+
+  for (const [key, spec] of Object.entries(IPC_UPC_DFU_VALUES)) {
+    const count = Math.max(
+      0,
+      Number(fixtures[key as keyof UpcIpcFixtureCounts]) || 0,
+    );
+    if (count > 0 && spec.wsfu > 0) {
+      const lineWsfu = count * spec.wsfu;
+      totalWsfu += lineWsfu;
+      breakdown.push({
+        fixture: spec.label,
+        count,
+        unit_wsfu: spec.wsfu,
+        total_wsfu: lineWsfu,
+      });
+    }
+  }
+
+  // Hunter curve piecewise approximation (GPM from WSFU):
+  let gpm = 0;
+  if (totalWsfu > 0) {
+    if (systemType === "flush_tank") {
+      if (totalWsfu <= 10) {
+        gpm = 3.0 + totalWsfu * 0.5;
+      } else if (totalWsfu <= 30) {
+        gpm = 8.0 + (totalWsfu - 10) * 0.6;
+      } else if (totalWsfu <= 100) {
+        gpm = 20.0 + (totalWsfu - 30) * 0.34;
+      } else if (totalWsfu <= 250) {
+        gpm = 44.0 + (totalWsfu - 100) * 0.21;
+      } else {
+        gpm = 75.0 + (totalWsfu - 250) * 0.20;
+      }
+    } else {
+      // Flushometer valve system:
+      if (totalWsfu <= 10) {
+        gpm = 15.0 + totalWsfu * 1.2;
+      } else if (totalWsfu <= 30) {
+        gpm = 27.0 + (totalWsfu - 10) * 0.65;
+      } else if (totalWsfu <= 100) {
+        gpm = 40.0 + (totalWsfu - 30) * 0.36;
+      } else if (totalWsfu <= 250) {
+        gpm = 65.0 + (totalWsfu - 100) * 0.20;
+      } else {
+        gpm = 95.0 + (totalWsfu - 250) * 0.18;
+      }
+    }
+  }
+
+  const roundedGpm = Math.round(gpm * 10) / 10;
+  // 1 US GPM = 0.0630902 L/s
+  const flowLps = Math.round(roundedGpm * 0.06309 * 100) / 100;
+
+  // Recommended service supply pipe size at ~8 ft/s (2.4 m/s) cold water limit:
+  let recommendedPipe = '3/4"';
+  if (roundedGpm <= 10) {
+    recommendedPipe = '3/4"';
+  } else if (roundedGpm <= 20) {
+    recommendedPipe = '1"';
+  } else if (roundedGpm <= 35) {
+    recommendedPipe = '1-1/4"';
+  } else if (roundedGpm <= 60) {
+    recommendedPipe = '1-1/2"';
+  } else if (roundedGpm <= 120) {
+    recommendedPipe = '2"';
+  } else {
+    recommendedPipe = '2-1/2"';
+  }
+
+  return {
+    total_wsfu: Math.round(totalWsfu * 10) / 10,
+    peak_flow_gpm: roundedGpm,
+    peak_flow_lps: flowLps,
+    system_type: systemType,
+    recommended_service_pipe_inches: recommendedPipe,
+    standards_reference: "IPC 2024 Appendix E / UPC 2024 Appendix A",
+    fixture_breakdown: breakdown,
+    notes: [
+      `Estimated peak demand flow is ${roundedGpm} GPM (${flowLps} L/s) for ${Math.round(totalWsfu * 10) / 10} WSFU.`,
+      `Recommended service main: ${recommendedPipe} pipe at <= 8 ft/s (2.4 m/s) velocity.`,
+      "Pressure loss through water meters, backflow preventers, and static elevation head must be subtracted from street supply pressure.",
+    ],
+  };
+}

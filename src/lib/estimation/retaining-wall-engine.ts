@@ -237,7 +237,21 @@ export function computeRetainingWallStability(
   const middle_third_limit = B / 6;
   const middle_third_pass = e <= middle_third_limit;
 
-  const max_q = W_total > 0 && B > 0 ? (W_total / B) * (1 + (6 * e) / B) : 0;
+  // Geotechnical bearing pressure distribution (BS 8002 / Eurocode 7 / Meyerhof):
+  // When resultant falls within middle third (e <= B/6): trapezoidal pressure q = (W/B) * (1 +/- 6e/B).
+  // When resultant falls outside middle third (e > B/6): heel liftoff occurs (soil has zero tensile capacity),
+  // producing a triangular distribution over effective contact width 3*x_bar with q_max = 2*W / (3*x_bar).
+  let max_q = 0;
+  if (W_total > 0 && B > 0) {
+    if (e <= middle_third_limit) {
+      max_q = (W_total / B) * (1 + (6 * e) / B);
+    } else if (x_bar > 0) {
+      const contact_length = 3 * x_bar;
+      max_q = (2 * W_total) / contact_length;
+    } else {
+      max_q = 0;
+    }
+  }
 
   const ot_pass = fs_ot >= MIN_FOS_OVERTURNING;
   const sl_pass = fs_sl >= MIN_FOS_SLIDING;

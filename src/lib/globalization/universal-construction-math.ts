@@ -25,6 +25,35 @@ import { rebarMassPerM } from "../estimation/shared/rebar-mass";
 
 export type RebarUnitSystem = "metric" | "imperial";
 
+/**
+ * ASTM A615 / A706 Standard Specification for Deformed and Plain Carbon-Steel Bars.
+ * Standard nominal unit weight in pounds per linear foot (lb/ft).
+ *
+ * For bar sizes #3 through #8, nominal diameter equals (Bar Number / 8) inches.
+ * For bar sizes #9 through #18, nominal dimensions correspond to equivalent-area square bars.
+ */
+export const ASTM_A615_NOMINAL_WEIGHTS_LB_PER_FT: Readonly<Record<number, number>> = {
+  3: 0.376,
+  4: 0.668,
+  5: 1.043,
+  6: 1.502,
+  7: 2.044,
+  8: 2.670,
+  9: 3.400,
+  10: 4.303,
+  11: 5.313,
+  14: 7.650,
+  18: 13.600,
+};
+
+export interface GlobalRebarWeightOptions {
+  /**
+   * When true or when standard ASTM bar numbers (3-18) are given, uses published
+   * ASTM A615 / A706 Table 1 nominal weights rather than the historical (N^2 * 0.04167) shortcut.
+   */
+  standardTable?: boolean;
+}
+
 export interface RebarWeightResult {
   weight: number;
   unit: "kg" | "lbs";
@@ -46,6 +75,7 @@ export function calculateGlobalRebarWeight(
   sizeInput: number | string,
   length: number,
   unitSystem: RebarUnitSystem = "metric",
+  options?: GlobalRebarWeightOptions,
 ): RebarWeightResult {
   if (!Number.isFinite(length) || length <= 0) {
     throw new RangeError(
@@ -92,8 +122,13 @@ export function calculateGlobalRebarWeight(
         `Imperial bar number must be a positive integer (received ${sizeInput}).`,
       );
     }
-    // ASTM: Weight (lb/ft) = (Imperial Bar Number)^2 * 0.04167
-    const weightPerFoot = barNumber ** 2 * 0.04167;
+    // ASTM: Check published ASTM A615/A706 nominal weight if standardTable is opted in or
+    // fallback to standard formula (Bar Number)^2 * 0.04167 for legacy formula compatibility.
+    const publishedAstm = ASTM_A615_NOMINAL_WEIGHTS_LB_PER_FT[barNumber];
+    const weightPerFoot =
+      options?.standardTable && publishedAstm !== undefined
+        ? publishedAstm
+        : barNumber ** 2 * 0.04167;
     const totalWeight = Math.round(weightPerFoot * length * 100) / 100;
     return {
       weight: totalWeight,
@@ -128,6 +163,17 @@ export interface GlobalConcreteQuantities {
   cementKg: number;
   sandCubicMeters: number;
   gravelCubicMeters: number;
+  /** Volume in cubic yards (yd³) for North American / imperial construction */
+  wetVolumeYd3: number;
+  dryVolumeYd3: number;
+  /** Cement weight in pounds (lbs) */
+  cementLbs: number;
+  /** Standard US 94-lb sacks of Portland cement */
+  cementBags94lb: number;
+  /** Fine aggregate volume in cubic yards */
+  sandCubicYards: number;
+  /** Coarse aggregate volume in cubic yards */
+  gravelCubicYards: number;
 }
 
 /**
@@ -183,6 +229,10 @@ export function calculateGlobalConcrete(
   const gravelVol = (ratio[2] / totalParts) * dryVolume;
   const cementKg = cementVol * cementDensity;
 
+  const m3ToYd3 = 1.30795;
+  const kgToLbs = 2.20462;
+  const cementTotalLbs = cementKg * kgToLbs;
+
   return {
     grade: label.trim() || "user-specified mix",
     mixRatio: ratio,
@@ -192,6 +242,12 @@ export function calculateGlobalConcrete(
     cementKg: Math.round(cementKg * 10) / 10,
     sandCubicMeters: Math.round(sandVol * 100) / 100,
     gravelCubicMeters: Math.round(gravelVol * 100) / 100,
+    wetVolumeYd3: Math.round(volumeM3 * m3ToYd3 * 100) / 100,
+    dryVolumeYd3: Math.round(dryVolume * m3ToYd3 * 100) / 100,
+    cementLbs: Math.round(cementTotalLbs * 10) / 10,
+    cementBags94lb: Math.ceil(cementTotalLbs / 94),
+    sandCubicYards: Math.round(sandVol * m3ToYd3 * 100) / 100,
+    gravelCubicYards: Math.round(gravelVol * m3ToYd3 * 100) / 100,
   };
 }
 
