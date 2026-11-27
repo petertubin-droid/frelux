@@ -32,7 +32,8 @@ import {
 import { track } from "@/lib/analytics";
 import { Badge } from "@/components/ui/shadcn/badge";
 import { Button } from "@/components/ui/shadcn/button";
-import { Plus, Trash2, Download, Route, Layers } from "lucide-react";
+import { Plus, Trash2, Download, Route, Layers, Gauge } from "lucide-react";
+import ConduitFillCheck from "@/components/calculators/ConduitFillCheck";
 import { useMarket } from "@/lib/international/market-context";
 import { usePriceBook } from "@/lib/pricing/price-book-context";
 import { applyPriceBook } from "@/lib/pricing/price-book";
@@ -79,7 +80,9 @@ export default function ConduitWiringEstimator() {
   const sliderStep = Math.max(1, Math.round(areaUnit.fromSqm(5)));
 
   // Mode: "quick" (empirical area/points) vs "router" (interactive 2D Manhattan layout)
-  const [activeMode, setActiveMode] = useState<"quick" | "router">("quick");
+  const [activeMode, setActiveMode] = useState<"quick" | "router" | "fill">(
+    "quick",
+  );
 
   // Quick mode inputs
   const [area, setArea] = useState(120);
@@ -324,7 +327,6 @@ export default function ConduitWiringEstimator() {
               }`}
             >
               <Layers className="h-3.5 w-3.5 text-primary" /> Quick Takeoff
-              (Area & Points)
             </button>
             <button
               type="button"
@@ -338,9 +340,22 @@ export default function ConduitWiringEstimator() {
               <Route className="h-3.5 w-3.5 text-primary" /> Interactive
               Manhattan Router
             </button>
+            <button
+              type="button"
+              onClick={() => setActiveMode("fill")}
+              className={`flex-1 py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
+                activeMode === "fill"
+                  ? "bg-card text-foreground shadow-xs border border-border/80"
+                  : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <Gauge className="h-3.5 w-3.5 text-primary" /> Raceway Fill Check
+            </button>
           </div>
 
-          {activeMode === "quick" ? (
+          {activeMode === "fill" ? (
+            <ConduitFillCheck />
+          ) : activeMode === "quick" ? (
             <>
               <FieldGroup title="Building">
                 <SliderField

@@ -290,13 +290,10 @@ Audit findings and UI fixes applied during wiring:
 - 240 unit tests in CalculatorGuideBlock.test.tsx validate all 40 guides against every structural, no-em-dash, and 500-word volume constraint.
 - 4 calculator content guides remain for future tranches (40 of 44 wired).
 
-WIRED TRANCHE 9 (2026-11-27): Finalized CalculatorGuideBlock coverage across the remaining 4 specialized engineering and architectural coating estimators (completing 44 of 44 calculators wired), each with rigorous authentic engineering/trade takeoff, step-by-step worked examples, ratio tables with scoped column headers, accessible FAQ details, and clear professional limits:
-41. Structural Calculator (`StructuralCalculator.tsx` + `src/content/calculator-guides/structural-calculator.ts`)
-42. Tall Building Structure Calculator (`TallBuildingCalculator.tsx` + `src/content/calculator-guides/tall-building-calculator.ts`)
-43. Mineral Stone Finish Calculator (`MineralStoneCalculator.tsx` / `ConfigurableFinishCalculator.tsx` + `src/content/calculator-guides/mineral-stone-calculator.ts`)
-44. Stucco Finish Calculator (`StuccoCalculator.tsx` / `ConfigurableFinishCalculator.tsx` + `src/content/calculator-guides/stucco-calculator.ts`)
+WIRED TRANCHE 9 (2026-11-27): Finalized CalculatorGuideBlock coverage across the remaining 4 specialized engineering and architectural coating estimators (completing 44 of 44 calculators wired), each with rigorous authentic engineering/trade takeoff, step-by-step worked examples, ratio tables with scoped column headers, accessible FAQ details, and clear professional limits: 41. Structural Calculator (`StructuralCalculator.tsx` + `src/content/calculator-guides/structural-calculator.ts`) 42. Tall Building Structure Calculator (`TallBuildingCalculator.tsx` + `src/content/calculator-guides/tall-building-calculator.ts`) 43. Mineral Stone Finish Calculator (`MineralStoneCalculator.tsx` / `ConfigurableFinishCalculator.tsx` + `src/content/calculator-guides/mineral-stone-calculator.ts`) 44. Stucco Finish Calculator (`StuccoCalculator.tsx` / `ConfigurableFinishCalculator.tsx` + `src/content/calculator-guides/stucco-calculator.ts`)
 
 Engineering and takeoff specifications delivered in Tranche 9:
+
 - Structural Calculator: characteristic dead/live loads, factored ULS combinations (Eurocode 2, BS 8110, ACI 318, IS 456, AS 3600), flexural tension rebar area (As = M / [0.87 fy z]), shear stirrup spacing (Asv / sv), concrete cylinder vs cube compressive strengths, and deflection SLS limits. Placed guide inside tool shell below engineering disclaimer.
 - Tall Building Structure Calculator: aspect ratio (H/B) screening across moment frames, shear walls, outriggers, and framed tubes; ASCE 7-22 wind velocity pressure integration; seismic base shear; roof drift criteria (H/400 to H/500); and thick raft pile group sizing under overturning moments. Placed guide inside tool shell following technical notes.
 - Mineral Stone Finish Calculator: substrate cure requirements (14 to 28 days), quartz bonding primer (0.18 to 0.25 kg/m2), natural crushed marble aggregate spreading rates across grain sizes (1.2 mm to 2.5 mm), 8% application waste, and protective clear acrylic/silicone sealers. Placed guide within shared configurable finish component before disclaimer.
@@ -500,10 +497,10 @@ Tests: 90 across src/lib/geometry, the page and the BOQ importer. tsc 0.
 
 See commit for engine/pricing/template changes; 12 verified price rows and 4 templates applied live.
 
-
 ## Pro Connect Messaging Audit & Premium UI Upgrade (2026-11-27)
 
 Audited worker profile messaging flow and resolved delivery/UX gaps:
+
 1. **Worker Profile Message Modal (`ProConnectMessageModal.tsx`)**:
    - Replaced direct empty redirect with an in-context composition modal.
    - Provides inquiry templates (Quote Request, Project Consultation, Site Inspection, Urgent Repair, Material Estimation).
@@ -525,3 +522,31 @@ Audited worker profile messaging flow and resolved delivery/UX gaps:
    - `python3 scripts/check-privileged-grants.py`: 55 functions verified.
    - `npx tsc --noEmit -p tsconfig.app.json`: 0 errors.
    - Production Vite build: 0 errors.
+
+## Calculator Engines UI Audit & Global Completeness Upgrade (2026-11-27)
+
+Audited calculator engine interfaces across Frelux for global readiness, unit conversions, standards compliance, and UI completeness:
+
+1. **Conduit Wire Fill Capacity Check (`ConduitFillCheck.tsx` & `ConduitWiringEstimator.tsx`)**:
+   - Integrated the existing `verifyConduitFill` engine into the user interface with a new "Raceway Fill Check" tab.
+   - Supports both NEC Chapter 9 Table 1 and BS 7671 (IET On-Site Guide) fill limits (53%/31%/40% for 1/2/3+ conductors in NEC; 40%/45% for conduit/trunking in BS 7671).
+   - Allows multi-conductor group specification across EMT, Rigid PVC (Schedule 40/80), and Flexible Metallic Conduit with real-time percentage fill gauges and overfill warnings.
+   - Transparently scopes analysis to cross-sectional area comparisons with explicit engineering-review disclaimers.
+2. **Hunter's Curve Peak Water Supply Sizing (`PipeSizingPanel.tsx`)**:
+   - Expanded the pipe sizing tool to include an interactive Hunter's Curve Peak Demand tab alongside branch velocity sizing.
+   - Calculates Water Supply Fixture Units (WSFU), continuous demand conversions, and recommended minimum service main diameters across Flush Tank and Flushometer valve distributions via `calculateUpcIpcWaterSupply`.
+   - Clear preliminary-sizing disclaimers indicating pressure drops and local code compliance require licensed design.
+3. **Regional Drainage Baseline Comparison (`RegionalDrainageCheck.tsx`)**:
+   - Added user-selectable plumbing baseline standards between IPC/UPC (DFU metric) and EN 12056 (Discharge Unit frequency metric) with contextual market detection and warnings when used outside natively adopted jurisdictions.
+4. **Retaining Wall Structural Rigor (`RetainingWallEstimator.tsx`)**:
+   - Exposes middle-third base eccentricity checks (`middle_third_pass`) and eccentricity metrics directly in the stability dashboard alongside sliding and overturning safety factors.
+   - Provides dual bearing pressure units (kPa and psf) when imperial units are selected.
+5. **Earthworks Dual Unit Ergonomics (`EarthworksEstimator.tsx`)**:
+   - Earthworks volume summaries display dual cubic yards (`yd³`) alongside cubic metres (`m³`) when imperial inputs are configured.
+6. **Validation**:
+   - 59 targeted unit tests passed across 8 test suites.
+   - `python3 scripts/check-migration-order.py`: 910 public objects, clean.
+   - `python3 scripts/check-privileged-grants.py`: 55 functions verified.
+   - `npx tsc --noEmit -p tsconfig.app.json`: 0 errors.
+   - `npm run lint`: 0 errors.
+   - `npm run build`: all 11 stages and prerendering completed successfully.

@@ -188,12 +188,13 @@ export default function RetainingWallEstimator() {
                     }`}
                   >
                     {preview.stability.overturning_pass &&
-                    preview.stability.sliding_pass
+                    preview.stability.sliding_pass &&
+                    preview.stability.middle_third_pass
                       ? "Stable Geometry"
                       : "Review Sizing"}
                   </span>
                 </div>
-                <div className="mt-2.5 grid grid-cols-2 gap-2 text-muted-foreground sm:grid-cols-4">
+                <div className="mt-2.5 grid grid-cols-2 gap-2 text-muted-foreground sm:grid-cols-3 lg:grid-cols-5">
                   <div>
                     <span className="block font-medium text-foreground">
                       Ka Earth Coeff
@@ -238,10 +239,30 @@ export default function RetainingWallEstimator() {
                       (≥1.5)
                     </span>
                   </div>
+                  <div>
+                    <span className="block font-medium text-foreground">
+                      Middle-Third (e)
+                    </span>
+                    <span
+                      className={
+                        preview.stability.middle_third_pass
+                          ? "font-medium text-emerald-600 dark:text-emerald-400"
+                          : "font-medium text-amber-600 dark:text-amber-400"
+                      }
+                    >
+                      {preview.stability.eccentricity_m.toFixed(2)} m (
+                      {preview.stability.middle_third_pass ? "Pass" : "Tension"}
+                      )
+                    </span>
+                  </div>
                 </div>
                 <p className="mt-2 text-muted-foreground">
                   {preview.stability.status_summary}. Max ground pressure:{" "}
-                  {preview.stability.max_bearing_pressure_kpa} kPa.
+                  {preview.stability.max_bearing_pressure_kpa} kPa
+                  {unit === "feet"
+                    ? ` (${Math.round(preview.stability.max_bearing_pressure_kpa * 20.8854).toLocaleString()} psf)`
+                    : ""}
+                  .
                 </p>
               </div>
             </>

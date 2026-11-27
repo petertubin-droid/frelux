@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import PipeSizingPanel from "./PipeSizingPanel";
 
 describe("PipeSizingPanel", () => {
@@ -13,5 +13,21 @@ describe("PipeSizingPanel", () => {
     render(<PipeSizingPanel />);
     expect(screen.getByLabelText(/Velocity limit/)).toBeTruthy();
     expect(screen.getByLabelText(/Pipe system/)).toBeTruthy();
+  });
+
+  it("switches to Hunter's Curve Peak Demand mode and computes WSFU supply main", () => {
+    render(<PipeSizingPanel />);
+    const tabButton = screen.getByRole("button", {
+      name: /Hunter's Curve Peak Demand/i,
+    });
+    fireEvent.click(tabButton);
+
+    expect(
+      screen.getByText(/Peak Water Demand & Service Line Size/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByText(/IPC 2024 Appendix E \/ UPC 2024 Appendix A/i).length,
+    ).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Peak Demand Flow/i).length).toBeGreaterThan(0);
   });
 });

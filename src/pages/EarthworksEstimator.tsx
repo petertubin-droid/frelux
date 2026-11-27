@@ -408,6 +408,9 @@ export default function EarthworksEstimator() {
                       </span>
                       <b>
                         {display(Number(value))} {unit}
+                        {areaUnit === "ft2" && unit === "m³"
+                          ? ` (${display(Number(value) * 1.30795)} yd³)`
+                          : ""}
                       </b>
                     </div>
                   ))}
