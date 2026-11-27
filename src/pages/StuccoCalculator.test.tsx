@@ -134,4 +134,15 @@ describe("StuccoCalculator", () => {
     ).toBeInTheDocument();
     expect(mockedFetch).toHaveBeenCalledWith("stucco");
   });
+
+  it("renders the stucco crawlable guide block below the calculator", async () => {
+    mockedFetch.mockResolvedValue({ data: [], error: null });
+    renderPage();
+    expect(
+      await screen.findByRole("heading", {
+        level: 2,
+        name: /Exterior Portland Cement Stucco Plaster Takeoff and Material Guide/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });

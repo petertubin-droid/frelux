@@ -9,6 +9,7 @@
 
 import ConfigurableFinishCalculator from "./ConfigurableFinishCalculator";
 import { useBreadcrumbJsonLd } from "@/lib/seo";
+import { stuccoCalculatorGuide } from "@/content/calculator-guides/stucco-calculator";
 
 export default function StuccoCalculator({
   embedded = false,
@@ -26,6 +27,7 @@ export default function StuccoCalculator({
       calcEvent="stucco_calculated"
       calculatorType="stucco"
       embedded={embedded}
+      guide={stuccoCalculatorGuide}
     />
   );
 }

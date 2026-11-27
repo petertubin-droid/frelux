@@ -50,6 +50,10 @@ import { foundationEstimatorGuide } from "@/content/calculator-guides/foundation
 import { electricalEstimatorGuide } from "@/content/calculator-guides/electrical-estimator";
 import { paintingEstimatorGuide } from "@/content/calculator-guides/painting-estimator";
 import { wallFinishEstimatorGuide } from "@/content/calculator-guides/wall-finish-estimator";
+import { structuralCalculatorGuide } from "@/content/calculator-guides/structural-calculator";
+import { tallBuildingCalculatorGuide } from "@/content/calculator-guides/tall-building-calculator";
+import { mineralStoneCalculatorGuide } from "@/content/calculator-guides/mineral-stone-calculator";
+import { stuccoCalculatorGuide } from "@/content/calculator-guides/stucco-calculator";
 
 const allGuides = [
   paintCalculatorGuide,
@@ -92,6 +96,10 @@ const allGuides = [
   electricalEstimatorGuide,
   paintingEstimatorGuide,
   wallFinishEstimatorGuide,
+  structuralCalculatorGuide,
+  tallBuildingCalculatorGuide,
+  mineralStoneCalculatorGuide,
+  stuccoCalculatorGuide,
 ];
 
 describe("CalculatorGuideBlock structure", () => {

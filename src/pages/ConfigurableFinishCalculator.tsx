@@ -53,6 +53,7 @@ import { useCurrencySymbol } from "@/lib/international";
 import { calculateLabourCost } from "@/lib/labour";
 import PageHeader from "@/components/ui/PageHeader";
 import { EstimateDisclaimer } from "@/components/calculators";
+import CalculatorGuideBlock, { type CalculatorGuide } from "@/components/calculators/CalculatorGuideBlock";
 import { useLanguage } from "@/lib/i18n";
 import {
   fetchConfigurableFinishProducts,
@@ -78,6 +79,7 @@ export interface ConfigurableFinishCalculatorProps {
   /** calculator_type used for estimates, achievements and recent tools */
   calculatorType: string;
   embedded?: boolean;
+  guide?: CalculatorGuide;
 }
 
 function fmt(n: number, digits = 2): string {
@@ -111,6 +113,7 @@ export default function ConfigurableFinishCalculator({
   calcEvent,
   calculatorType,
   embedded = false,
+  guide,
 }: ConfigurableFinishCalculatorProps) {
   // Product, profile, area and coats clear; the loaded configuration is the
   // book this page runs on and stays.
@@ -1075,6 +1078,8 @@ export default function ConfigurableFinishCalculator({
         {/* Two slots, the calculator ceiling. Empty placements collapse, so a
             visitor with no ad served sees no gap and no label. */}
         <AdSlot slotKey="calculator_mid" className="mt-8" />
+
+        {guide && <CalculatorGuideBlock guide={guide} />}
 
         <div className="mt-8">
           <EstimateDisclaimer />

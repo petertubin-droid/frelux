@@ -179,4 +179,15 @@ describe("MineralStoneCalculator", () => {
     // No purchase section may be shown for an uncalculable result
     expect(screen.queryByText(/Purchase quantity/i)).toBeNull();
   });
+
+  it("renders the mineral stone crawlable guide block below the calculator", async () => {
+    mockedFetch.mockResolvedValue({ data: [], error: null });
+    renderPage();
+    expect(
+      await screen.findByRole("heading", {
+        level: 2,
+        name: /Mineral Stone Exterior Wall Coating Takeoff and Coverage Guide/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });

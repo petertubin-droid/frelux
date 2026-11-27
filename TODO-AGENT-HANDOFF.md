@@ -290,6 +290,20 @@ Audit findings and UI fixes applied during wiring:
 - 240 unit tests in CalculatorGuideBlock.test.tsx validate all 40 guides against every structural, no-em-dash, and 500-word volume constraint.
 - 4 calculator content guides remain for future tranches (40 of 44 wired).
 
+WIRED TRANCHE 9 (2026-11-27): Finalized CalculatorGuideBlock coverage across the remaining 4 specialized engineering and architectural coating estimators (completing 44 of 44 calculators wired), each with rigorous authentic engineering/trade takeoff, step-by-step worked examples, ratio tables with scoped column headers, accessible FAQ details, and clear professional limits:
+41. Structural Calculator (`StructuralCalculator.tsx` + `src/content/calculator-guides/structural-calculator.ts`)
+42. Tall Building Structure Calculator (`TallBuildingCalculator.tsx` + `src/content/calculator-guides/tall-building-calculator.ts`)
+43. Mineral Stone Finish Calculator (`MineralStoneCalculator.tsx` / `ConfigurableFinishCalculator.tsx` + `src/content/calculator-guides/mineral-stone-calculator.ts`)
+44. Stucco Finish Calculator (`StuccoCalculator.tsx` / `ConfigurableFinishCalculator.tsx` + `src/content/calculator-guides/stucco-calculator.ts`)
+
+Engineering and takeoff specifications delivered in Tranche 9:
+- Structural Calculator: characteristic dead/live loads, factored ULS combinations (Eurocode 2, BS 8110, ACI 318, IS 456, AS 3600), flexural tension rebar area (As = M / [0.87 fy z]), shear stirrup spacing (Asv / sv), concrete cylinder vs cube compressive strengths, and deflection SLS limits. Placed guide inside tool shell below engineering disclaimer.
+- Tall Building Structure Calculator: aspect ratio (H/B) screening across moment frames, shear walls, outriggers, and framed tubes; ASCE 7-22 wind velocity pressure integration; seismic base shear; roof drift criteria (H/400 to H/500); and thick raft pile group sizing under overturning moments. Placed guide inside tool shell following technical notes.
+- Mineral Stone Finish Calculator: substrate cure requirements (14 to 28 days), quartz bonding primer (0.18 to 0.25 kg/m2), natural crushed marble aggregate spreading rates across grain sizes (1.2 mm to 2.5 mm), 8% application waste, and protective clear acrylic/silicone sealers. Placed guide within shared configurable finish component before disclaimer.
+- Stucco Finish Calculator: traditional three-coat Portland cement stucco (9 mm scratch coat 1:3 mix, 8 mm brown coat 1:1:5 lime mix, 3 mm acrylic finish) vs one-coat systems, weather barrier plies, diamond metal lath coverage, 48-hour moist water curing, and expansion joint controls. Placed guide within shared configurable finish component before disclaimer.
+- CalculatorGuideBlock conformance: 264 unit tests across all 44 guides in CalculatorGuideBlock.test.tsx validate headings, 500+ word volume, ratio table scoping, and zero em dashes.
+- Page integration tests added for all 4 calculators verifying the guide block renders its designated heading in the DOM.
+
 AdSense checklist items verified complete on the same pass (static inspection,
 not a live crawl): footer trust links (About, Contact, Editorial standards,
 Privacy Policy, Terms of Service, Cookie Policy, Disclaimer, AI Disclaimer, with

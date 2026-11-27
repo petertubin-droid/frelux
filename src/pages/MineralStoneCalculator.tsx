@@ -8,6 +8,7 @@
 
 import ConfigurableFinishCalculator from "./ConfigurableFinishCalculator";
 import { useBreadcrumbJsonLd } from "@/lib/seo";
+import { mineralStoneCalculatorGuide } from "@/content/calculator-guides/mineral-stone-calculator";
 
 export default function MineralStoneCalculator({
   embedded = false,
@@ -25,6 +26,7 @@ export default function MineralStoneCalculator({
       calcEvent="mineral_stone_calculated"
       calculatorType="mineral_stone"
       embedded={embedded}
+      guide={mineralStoneCalculatorGuide}
     />
   );
 }

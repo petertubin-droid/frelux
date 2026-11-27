@@ -5,6 +5,8 @@
 
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { tallBuildingCalculatorGuide } from "@/content/calculator-guides/tall-building-calculator";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useMemo, useState } from "react";
@@ -1524,6 +1526,8 @@ export default function TallBuildingCalculator() {
             engineer before any construction decision.
           </div>
         </section>
+
+        <CalculatorGuideBlock guide={tallBuildingCalculatorGuide} />
       </div>
     </ToolShell>
   );

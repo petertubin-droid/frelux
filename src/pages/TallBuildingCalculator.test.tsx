@@ -95,4 +95,19 @@ describe("TallBuildingCalculator", () => {
 
     expect(screen.queryByText(/Some inputs were normalized/i)).toBeNull();
   });
+
+  it("renders the crawlable high-rise guide block for SEO and technical depth", async () => {
+    const { default: Page } = await import("@/pages/TallBuildingCalculator");
+    render(
+      <MemoryRouter>
+        <Page />
+      </MemoryRouter>,
+    );
+    expect(
+      await screen.findByRole("heading", {
+        level: 2,
+        name: /Skyscraper Lateral Systems and Tall Building Structural Takeoff Guide/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });

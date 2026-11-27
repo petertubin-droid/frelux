@@ -143,6 +143,16 @@ describe("StructuralCalculator", () => {
       screen.queryByText(/Material quantity schedule/i),
     ).not.toBeInTheDocument();
   });
+
+  it("renders the crawlable structural guide block at the bottom of the page", async () => {
+    await renderPage();
+    expect(
+      await screen.findByRole("heading", {
+        level: 2,
+        name: /Reinforced Concrete Structural Element Design and Analysis Guide/i,
+      }),
+    ).toBeInTheDocument();
+  });
 });
 
 describe("StructuralCalculator navigation", () => {

@@ -1,5 +1,7 @@
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import { structuralCalculatorGuide } from "@/content/calculator-guides/structural-calculator";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import SaveToProjectButton from "@/components/calculators/SaveToProjectButton";
 import { printQuote, type QuoteOptions } from "@/lib/estimation/quote-export";
@@ -264,6 +266,8 @@ export default function StructuralCalculator() {
               </div>
             </div>
           </div>
+
+          <CalculatorGuideBlock guide={structuralCalculatorGuide} />
         </div>
         {/* Ad slot, placement "calculator_mid" */}
         <RecommendedProducts category="cement" />
