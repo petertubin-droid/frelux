@@ -2,13 +2,13 @@
 // API Interactive Sandbox & Playground
 //
 // Allows builders and evaluators to test deterministic FRELUX
-// calculation engines and AI endpoints directly from the browser
-// with real JSON payloads and live execution metrics.
+// calculation engines and discovery endpoints directly from
+// the browser with real JSON payloads and live execution metrics.
 // =========================================================
 
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Play,
   CheckCircle2,
@@ -20,6 +20,8 @@ import {
   Sparkles,
   Cpu,
   RefreshCw,
+  Terminal,
+  ShieldAlert,
 } from "lucide-react";
 import type { ApiKeyRow } from "@/lib/frelix-api/portal-client";
 
@@ -79,6 +81,28 @@ const PRESETS: EndpointPreset[] = [
     ),
   },
   {
+    id: "tiling_floor",
+    name: "Floor Tiling Takeoff",
+    method: "POST",
+    path: "/v1/calculators/tiling_floor",
+    category: "Calculators",
+    description:
+      "Floor tiles, adhesive/cement mortar, grout, and wastage allowance.",
+    defaultBody: JSON.stringify(
+      {
+        input: {
+          length: 5,
+          width: 4,
+          tile_width_cm: 60,
+          tile_length_cm: 60,
+          waste_percentage: 10,
+        },
+      },
+      null,
+      2,
+    ),
+  },
+  {
     id: "paint",
     name: "Paint Takeoff",
     method: "POST",
@@ -119,6 +143,28 @@ const PRESETS: EndpointPreset[] = [
     ),
   },
   {
+    id: "roof_geometry",
+    name: "Roof Geometry",
+    method: "POST",
+    path: "/v1/calculators/roof_geometry",
+    category: "Calculators",
+    description:
+      "True surface pitch multiplier, hip/valley lengths, and fascia requirements.",
+    defaultBody: JSON.stringify(
+      {
+        input: {
+          building_length: 12,
+          building_width: 10,
+          pitch_degrees: 30,
+          overhang_meters: 0.6,
+          roof_type: "hip",
+        },
+      },
+      null,
+      2,
+    ),
+  },
+  {
     id: "capabilities",
     name: "Capabilities Registry",
     method: "GET",
@@ -126,6 +172,16 @@ const PRESETS: EndpointPreset[] = [
     category: "Discovery",
     description:
       "Lists all canonical deterministic calculation engines and AI capabilities.",
+    defaultBody: "{}",
+  },
+  {
+    id: "plans",
+    name: "API Plans & Pricing",
+    method: "GET",
+    path: "/v1/plans",
+    category: "Discovery",
+    description:
+      "Active quota limits, rate limits, and regional configurations from frelux_api_plans.",
     defaultBody: "{}",
   },
   {
@@ -158,10 +214,7 @@ export default function ApiPlayground({ apiKeys, prefilledKey }: Props) {
   const [selectedPreset, setSelectedPreset] = useState<EndpointPreset>(
     PRESETS[0],
   );
-  const [selectedKeyId, setSelectedKeyId] = useState<string>(
-    apiKeys[0]?.id || "manual",
-  );
-  const [manualKey, setManualKey] = useState<string>(prefilledKey || "");
+  const [rawKeyInput, setRawKeyInput] = useState<string>(prefilledKey || "");
   const [bodyText, setBodyText] = useState<string>(PRESETS[0].defaultBody);
   const [loading, setLoading] = useState<boolean>(false);
   const [status, setStatus] = useState<number | null>(null);
@@ -171,6 +224,13 @@ export default function ApiPlayground({ apiKeys, prefilledKey }: Props) {
   >({});
   const [responseBody, setResponseBody] = useState<string | null>(null);
   const [copied, setCopied] = useState<boolean>(false);
+  const [copiedCurl, setCopiedCurl] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (prefilledKey) {
+      setRawKeyInput(prefilledKey);
+    }
+  }, [prefilledKey]);
 
   const handlePresetChange = (preset: EndpointPreset) => {
     setSelectedPreset(preset);
@@ -181,24 +241,33 @@ export default function ApiPlayground({ apiKeys, prefilledKey }: Props) {
     setResponseHeaders({});
   };
 
+  const isPublicDiscovery =
+    selectedPreset.path === "/v1" ||
+    selectedPreset.path === "/v1/capabilities" ||
+    selectedPreset.path === "/v1/plans";
+
+  const getBaseUrl = () => {
+    return import.meta.env.VITE_SUPABASE_URL
+      ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/frelix-api`
+      : "https://nfgaaohweygwydoelxnf.supabase.co/functions/v1/frelix-api";
+  };
+
   const handleExecute = async () => {
     setLoading(true);
     setStatus(null);
     setResponseBody(null);
     setLatencyMs(null);
 
-    const baseUrl = import.meta.env.VITE_SUPABASE_URL
-      ? `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/frelix-api`
-      : "https://nfgaaohweygwydoelxnf.supabase.co/functions/v1/frelix-api";
-
+    const baseUrl = getBaseUrl();
     const url = `${baseUrl}${selectedPreset.path}`;
-    const token =
-      manualKey.trim() ||
-      (apiKeys.find((k) => k.id === selectedKeyId)?.key_prefix ?? "");
+
+    // Token: only attach Authorization if user provided a raw key or if not public
+    const token = rawKeyInput.trim();
 
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
     };
+
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
     }
@@ -239,17 +308,23 @@ export default function ApiPlayground({ apiKeys, prefilledKey }: Props) {
       const hdrs: Record<string, string> = {};
       res.headers.forEach((v, k) => {
         if (
-          k.startsWith("x-") ||
-          k === "content-type" ||
-          k === "cache-control"
+          k.toLowerCase().startsWith("x-frelux-") ||
+          k.toLowerCase() === "content-type" ||
+          k.toLowerCase() === "x-request-id" ||
+          k.toLowerCase() === "cache-control"
         ) {
           hdrs[k] = v;
         }
       });
       setResponseHeaders(hdrs);
 
-      const data = await res.json().catch(() => null);
-      setResponseBody(JSON.stringify(data, null, 2));
+      const text = await res.text();
+      try {
+        const parsed = JSON.parse(text);
+        setResponseBody(JSON.stringify(parsed, null, 2));
+      } catch {
+        setResponseBody(text);
+      }
     } catch (err) {
       const elapsed = Math.round(performance.now() - t0);
       setLatencyMs(elapsed);
@@ -257,7 +332,7 @@ export default function ApiPlayground({ apiKeys, prefilledKey }: Props) {
       setResponseBody(
         JSON.stringify(
           {
-            error: "Request failed to reach gateway",
+            error: "Failed to connect to FRELUX API gateway.",
             details: err instanceof Error ? err.message : String(err),
           },
           null,
@@ -269,7 +344,7 @@ export default function ApiPlayground({ apiKeys, prefilledKey }: Props) {
     }
   };
 
-  const handleCopy = async () => {
+  const handleCopyResponse = async () => {
     if (!responseBody) return;
     try {
       await navigator.clipboard.writeText(responseBody);
@@ -280,179 +355,228 @@ export default function ApiPlayground({ apiKeys, prefilledKey }: Props) {
     }
   };
 
-  return (
-    <div className="space-y-6">
-      {/* Sandbox Control Header */}
-      <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5 pb-5 border-b border-border">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="p-1.5 rounded-lg bg-primary/10 text-primary">
-                <Cpu className="h-4 w-4" />
-              </span>
-              <h3 className="text-lg font-bold">Interactive API Sandbox</h3>
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Execute test requests against canonical FRELUX engines with live
-              execution metrics.
-            </p>
-          </div>
+  const handleCopyCurl = async () => {
+    const baseUrl = getBaseUrl();
+    const url = `${baseUrl}${selectedPreset.path}`;
+    const token = rawKeyInput.trim() || "FLX-YOUR_API_KEY";
+    const authHeader =
+      isPublicDiscovery && !rawKeyInput.trim()
+        ? ""
+        : `  -H "Authorization: Bearer ${token}" \\\n`;
 
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground font-medium">
-              Auth Key:
-            </span>
-            {apiKeys.length > 0 ? (
-              <select
-                aria-label="Active API Key"
-                value={selectedKeyId}
-                onChange={(e) => setSelectedKeyId(e.target.value)}
-                className="px-3 py-1.5 rounded-lg border border-border bg-background text-xs font-mono font-medium focus:ring-1 focus:ring-primary"
-              >
-                {apiKeys.map((k) => (
-                  <option key={k.id} value={k.id}>
-                    {k.name} ({k.key_prefix})
-                  </option>
-                ))}
-                <option value="manual">Manual Bearer Token...</option>
-              </select>
-            ) : (
-              <span className="text-xs text-muted-foreground italic">
-                Using public test token
-              </span>
-            )}
+    let curlCmd = `curl -X ${selectedPreset.method} "${url}" \\\n${authHeader}  -H "Content-Type: application/json"`;
+    if (selectedPreset.method === "POST") {
+      try {
+        const compact = JSON.stringify(JSON.parse(bodyText));
+        curlCmd += ` \\\n  -d '${compact}'`;
+      } catch {
+        curlCmd += ` \\\n  -d '${bodyText.replace(/\n/g, "")}'`;
+      }
+    }
+
+    try {
+      await navigator.clipboard.writeText(curlCmd);
+      setCopiedCurl(true);
+      setTimeout(() => setCopiedCurl(false), 2000);
+    } catch {
+      // fallback
+    }
+  };
+
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 sm:p-7 shadow-sm text-foreground">
+      {/* Sandbox Header */}
+      <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
+        <div>
+          <div className="flex items-center gap-2 text-primary font-semibold text-xs tracking-wider uppercase mb-1">
+            <Cpu className="h-4 w-4" />
+            <span>Interactive Sandbox</span>
           </div>
+          <h2 className="text-lg sm:text-xl font-bold tracking-tight">
+            Live API Console &amp; Engine Tester
+          </h2>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Test canonical calculation formulas and discovery contracts against
+            the live edge gateway.
+          </p>
         </div>
 
-        {selectedKeyId === "manual" && (
-          <div className="mb-4">
-            <label className="block text-xs font-semibold mb-1 text-muted-foreground">
-              Enter Secret API Key (FLX-...)
-            </label>
-            <input
-              type="password"
-              value={manualKey}
-              onChange={(e) => setManualKey(e.target.value)}
-              placeholder="FLX-..."
-              className="w-full px-3 py-2 rounded-lg border border-border bg-background text-xs font-mono"
-            />
-          </div>
-        )}
+        <button
+          type="button"
+          onClick={handleCopyCurl}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-xl border border-border bg-muted/60 hover:bg-muted text-foreground transition-colors self-start sm:self-auto"
+        >
+          {copiedCurl ? (
+            <>
+              <Check className="h-3.5 w-3.5 text-emerald-500" />
+              <span>cURL Copied</span>
+            </>
+          ) : (
+            <>
+              <Terminal className="h-3.5 w-3.5" />
+              <span>Copy cURL</span>
+            </>
+          )}
+        </button>
+      </div>
 
-        {/* Preset Selector */}
-        <div className="flex flex-wrap gap-2 mb-4">
-          {PRESETS.map((p) => {
-            const active = selectedPreset.id === p.id;
+      {/* Preset Selector */}
+      <div className="mb-5">
+        <label className="block text-xs font-semibold mb-2">
+          Select Endpoint Preset
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {PRESETS.map((preset) => {
+            const active = selectedPreset.id === preset.id;
             return (
               <button
-                key={p.id}
+                key={preset.id}
                 type="button"
-                onClick={() => handlePresetChange(p)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all flex items-center gap-1.5 ${
+                onClick={() => handlePresetChange(preset)}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
                   active
                     ? "bg-primary text-primary-foreground shadow-sm"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80 hover:text-foreground"
+                    : "border border-border bg-background hover:bg-muted text-foreground"
                 }`}
               >
                 <span
-                  className={`text-[10px] font-bold uppercase px-1 rounded ${
-                    p.method === "POST"
-                      ? "bg-emerald-500/20 text-emerald-400"
-                      : "bg-blue-500/20 text-blue-400"
+                  className={`text-[10px] uppercase font-bold px-1 py-0.2 rounded ${
+                    preset.method === "POST"
+                      ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
+                      : "bg-blue-500/20 text-blue-600 dark:text-blue-400"
                   }`}
                 >
-                  {p.method}
+                  {preset.method}
                 </span>
-                <span>{p.name}</span>
+                <span>{preset.name}</span>
               </button>
             );
           })}
         </div>
-
-        {/* URL / Method Bar */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-          <div className="flex items-center flex-1 rounded-lg border border-border bg-muted/40 font-mono text-xs overflow-hidden">
-            <span
-              className={`px-3 py-2 font-bold uppercase tracking-wider ${
-                selectedPreset.method === "POST"
-                  ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
-                  : "bg-blue-500/15 text-blue-600 dark:text-blue-400"
-              }`}
-            >
-              {selectedPreset.method}
-            </span>
-            <span className="px-3 py-2 text-foreground truncate select-all">
-              https://freluxtools.com/api{selectedPreset.path}
-            </span>
-          </div>
-
-          <button
-            type="button"
-            disabled={loading}
-            onClick={handleExecute}
-            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-lg bg-primary text-primary-foreground font-semibold text-xs hover:opacity-90 disabled:opacity-50 transition-all shrink-0 shadow-sm"
-          >
-            {loading ? (
-              <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Play className="h-3.5 w-3.5 fill-current" />
-            )}
-            <span>Execute Request</span>
-          </button>
-        </div>
-
         <p className="text-xs text-muted-foreground mt-2">
           {selectedPreset.description}
         </p>
       </div>
 
-      {/* Request & Response Split Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-        {/* Request Payload Editor */}
-        <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm flex flex-col">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Request Payload (JSON)
+      {/* Credentials Bar */}
+      <div className="mb-5 rounded-xl border border-border bg-muted/30 p-3.5">
+        <label
+          htmlFor="playground-raw-key"
+          className="block text-xs font-semibold mb-1"
+        >
+          API Authentication Token
+        </label>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <input
+            id="playground-raw-key"
+            type="password"
+            value={rawKeyInput}
+            onChange={(e) => setRawKeyInput(e.target.value)}
+            placeholder={
+              isPublicDiscovery
+                ? "Optional for this endpoint (e.g. FLX-...)"
+                : "Paste raw API key (FLX-...) or generate one above"
+            }
+            className="flex-1 rounded-xl border border-input bg-background px-3 py-2 text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary/40"
+          />
+          {rawKeyInput && (
+            <button
+              type="button"
+              onClick={() => setRawKeyInput("")}
+              className="px-3 py-1.5 text-xs rounded-xl border border-border bg-background hover:bg-muted transition-colors text-muted-foreground"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+        <div className="mt-2 text-[11px] text-muted-foreground flex items-center gap-1.5">
+          {isPublicDiscovery ? (
+            <span className="text-blue-500 dark:text-blue-400 font-medium">
+              ℹ Public discovery endpoints do not require an API key.
             </span>
+          ) : (
+            <span>
+              ℹ FRELUX stores only SHA-256 hashes of keys. Paste the raw secret
+              you copied at creation time.
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* Request & Response Split Grid */}
+      <div className="grid gap-4 lg:grid-cols-2">
+        {/* Left Column: Request Payload */}
+        <div className="flex flex-col">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-semibold">Request Body (JSON)</span>
             {selectedPreset.method === "GET" && (
-              <span className="text-[11px] text-muted-foreground italic">
-                GET request (No payload body)
+              <span className="text-[11px] text-muted-foreground">
+                GET requests have no payload
               </span>
             )}
           </div>
+          <div className="relative flex-1">
+            <textarea
+              value={bodyText}
+              onChange={(e) => setBodyText(e.target.value)}
+              disabled={selectedPreset.method === "GET"}
+              rows={12}
+              className="w-full h-full min-h-[220px] rounded-xl border border-border bg-muted/40 p-3 font-mono text-xs leading-relaxed focus:outline-none focus:ring-2 focus:ring-primary/40 disabled:opacity-60 resize-y"
+            />
+          </div>
 
-          <textarea
-            aria-label="Request Payload JSON"
-            rows={12}
-            disabled={selectedPreset.method === "GET"}
-            value={bodyText}
-            onChange={(e) => setBodyText(e.target.value)}
-            className="w-full flex-1 p-3 rounded-lg border border-border bg-slate-950 text-slate-100 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-primary disabled:opacity-50 resize-y"
-          />
+          <div className="mt-3 flex items-center justify-between">
+            <span className="text-[11px] font-mono text-muted-foreground truncate max-w-[280px]">
+              {selectedPreset.method} {selectedPreset.path}
+            </span>
+            <button
+              type="button"
+              onClick={handleExecute}
+              disabled={loading}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-all shadow-sm disabled:opacity-50"
+            >
+              {loading ? (
+                <>
+                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                  <span>Executing...</span>
+                </>
+              ) : (
+                <>
+                  <Play className="h-3.5 w-3.5" />
+                  <span>Execute Request</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
 
-        {/* Live Response Viewer */}
-        <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 shadow-sm flex flex-col">
+        {/* Right Column: Gateway Response */}
+        <div className="flex flex-col">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Gateway Response
-              </span>
+              <span className="text-xs font-semibold">Gateway Response</span>
               {status !== null && (
                 <span
-                  className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${
+                  className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
                     status >= 200 && status < 300
                       ? "bg-emerald-500/20 text-emerald-600 dark:text-emerald-400"
                       : "bg-destructive/20 text-destructive"
                   }`}
                 >
-                  {status} {status === 200 ? "OK" : ""}
+                  {status}{" "}
+                  {status === 200
+                    ? "OK"
+                    : status === 401
+                      ? "Unauthorized"
+                      : status === 400
+                        ? "Bad Request"
+                        : ""}
                 </span>
               )}
               {latencyMs !== null && (
-                <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                <span className="flex items-center gap-1 text-[11px] text-muted-foreground font-mono">
                   <Clock className="h-3 w-3" />
-                  <span>{latencyMs}ms</span>
+                  {latencyMs}ms
                 </span>
               )}
             </div>
@@ -460,47 +584,45 @@ export default function ApiPlayground({ apiKeys, prefilledKey }: Props) {
             {responseBody && (
               <button
                 type="button"
-                onClick={handleCopy}
-                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                onClick={handleCopyResponse}
+                className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground"
               >
                 {copied ? (
-                  <Check className="h-3 w-3 text-emerald-500" />
+                  <>
+                    <Check className="h-3 w-3 text-emerald-500" />
+                    <span>Copied</span>
+                  </>
                 ) : (
-                  <Copy className="h-3 w-3" />
+                  <>
+                    <Copy className="h-3 w-3" />
+                    <span>Copy JSON</span>
+                  </>
                 )}
-                <span>{copied ? "Copied" : "Copy"}</span>
               </button>
             )}
           </div>
 
-          <div className="relative flex-1 min-h-[240px] rounded-lg border border-border bg-slate-950 text-slate-100 font-mono text-xs overflow-auto p-3">
-            {loading ? (
-              <div className="h-full flex items-center justify-center text-muted-foreground gap-2">
-                <RefreshCw className="h-4 w-4 animate-spin text-primary" />
-                <span>Executing canonical calculation...</span>
-              </div>
-            ) : responseBody ? (
-              <pre className="text-[11px] leading-relaxed whitespace-pre select-all">
-                {responseBody}
-              </pre>
-            ) : (
-              <div className="h-full flex flex-col items-center justify-center text-muted-foreground text-xs p-6 text-center">
-                <Sparkles className="h-6 w-6 text-muted-foreground/40 mb-2" />
-                <span>
-                  Click &quot;Execute Request&quot; above to see real-time
-                  calculation output.
+          <div className="relative flex-1">
+            <pre className="w-full h-full min-h-[220px] max-h-[360px] overflow-auto rounded-xl border border-border bg-muted/60 p-3 font-mono text-xs leading-relaxed text-foreground">
+              {responseBody ? (
+                <code>{responseBody}</code>
+              ) : (
+                <span className="text-muted-foreground italic">
+                  Press &quot;Execute Request&quot; to test this endpoint. Live
+                  response output and telemetry will appear here.
                 </span>
-              </div>
-            )}
+              )}
+            </pre>
           </div>
 
+          {/* Telemetry Headers */}
           {Object.keys(responseHeaders).length > 0 && (
-            <div className="mt-3 pt-3 border-t border-border flex flex-wrap gap-2 text-[10px] text-muted-foreground font-mono">
+            <div className="mt-3 rounded-lg border border-border bg-muted/30 p-2 text-[10px] font-mono text-muted-foreground space-y-0.5">
               {Object.entries(responseHeaders).map(([k, v]) => (
-                <span key={k} className="px-2 py-0.5 rounded bg-muted">
-                  <span className="text-foreground font-semibold">{k}:</span>{" "}
-                  {v}
-                </span>
+                <div key={k} className="flex justify-between">
+                  <span className="font-semibold">{k}:</span>
+                  <span className="truncate max-w-[240px]">{v}</span>
+                </div>
               ))}
             </div>
           )}

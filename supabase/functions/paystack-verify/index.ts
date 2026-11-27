@@ -176,14 +176,27 @@ serveWithCors(async (req: Request) => {
         );
       }
 
+      const majorAmount =
+        typeof metadata.price_monthly === "number"
+          ? metadata.price_monthly
+          : typeof transaction.amount === "number"
+            ? transaction.amount / 100
+            : 0;
+
+      const currency = String(
+        (transaction as { currency?: string }).currency ||
+          metadata.currency ||
+          "USD",
+      ).toUpperCase();
+
       const { data: applied, error: planError } = await supabase.rpc(
         "frelux_api_apply_plan_purchase",
         {
           p_user_id: userId,
           p_plan_key: planKey,
           p_provider_reference: reference,
-          p_amount: transaction.amount,
-          p_currency: (metadata.currency as string) || "USD",
+          p_amount: majorAmount,
+          p_currency: currency,
           p_metadata: {
             source: "paystack-verify",
             paystack_reference: reference,

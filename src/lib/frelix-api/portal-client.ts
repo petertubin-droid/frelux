@@ -83,6 +83,47 @@ export async function createApiKey(
   if (trimmed.length < 1 || trimmed.length > 100) {
     throw new Error("Key name must be 1–100 characters.");
   }
+
+  // Determine effective plan from user entitlement if default free requested
+  let effectivePlanKey = plan_key;
+  try {
+    const ent = await getUserEntitlement();
+    if (
+      ent &&
+      ent.status === "ACTIVE" &&
+      ent.plan_key &&
+      ent.plan_key !== "free"
+    ) {
+      if (plan_key === "free") {
+        effectivePlanKey = ent.plan_key;
+      }
+    }
+  } catch {
+    // fallback
+  }
+
+  // Resolve quotas from frelux_api_plans configuration
+  let rateLimit = 30;
+  let dailyQuota = 100;
+  let monthlyQuota = 2500;
+  try {
+    const { data: planData } = await supabase
+      .from("frelux_api_plans")
+      .select("config")
+      .eq("key", effectivePlanKey)
+      .maybeSingle();
+
+    if (planData?.config) {
+      const cfg = planData.config as Record<string, unknown>;
+      if (typeof cfg.rateLimitPerMinute === "number")
+        rateLimit = cfg.rateLimitPerMinute;
+      if (typeof cfg.dailyQuota === "number") dailyQuota = cfg.dailyQuota;
+      if (typeof cfg.monthlyQuota === "number") monthlyQuota = cfg.monthlyQuota;
+    }
+  } catch {
+    // fallback
+  }
+
   const rawKey = generateFreluxApiKey(); // §3 contract, same as the gateway
   const keyHash = await hashApiKey(rawKey); // WebCrypto, raw key never stored
   const { data, error } = await supabase
@@ -92,7 +133,10 @@ export async function createApiKey(
       key_prefix: apiKeyDisplayPrefix(rawKey),
       key_hash: keyHash,
       permissions,
-      plan_key,
+      plan_key: effectivePlanKey,
+      rate_limit_per_minute: rateLimit,
+      daily_quota: dailyQuota,
+      monthly_quota: monthlyQuota,
     })
     .select(KEY_COLUMNS)
     .single();
@@ -395,18 +439,33 @@ export interface ApiEntitlement {
 
 export async function getUserEntitlement(): Promise<ApiEntitlement | null> {
   try {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    if (!user) return null;
+
     const { data, error } = await supabase
       .from("frelux_api_entitlements")
       .select(
-        "id, plan_key, status, purchased_at, paid_until, provider, provider_reference",
+        "id, plan_key, status, purchased_at, paid_until, provider, provider_reference, created_date",
       )
+      .eq("user_id", user.id)
       .eq("status", "ACTIVE")
-      .order("created_at", { ascending: false })
+      .order("created_date", { ascending: false })
       .limit(1)
       .maybeSingle();
 
-    if (error) return null;
-    return data ?? null;
+    if (error || !data) return null;
+
+    // Check if subscription window has expired
+    if (data.paid_until && new Date(data.paid_until).getTime() < Date.now()) {
+      return {
+        ...data,
+        status: "EXPIRED",
+      };
+    }
+
+    return data;
   } catch {
     return null;
   }

@@ -1550,8 +1550,15 @@ async function handleKeys(
       .eq("status", "ACTIVE")
       .maybeSingle();
 
+    const isExpired = Boolean(
+      activeEntitlement?.paid_until &&
+      new Date(activeEntitlement.paid_until).getTime() < Date.now(),
+    );
+
     const effectivePlanKey =
-      activeEntitlement?.plan_key && activeEntitlement.plan_key !== "free"
+      !isExpired &&
+      activeEntitlement?.plan_key &&
+      activeEntitlement.plan_key !== "free"
         ? activeEntitlement.plan_key
         : "free";
 

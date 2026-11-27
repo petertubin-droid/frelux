@@ -113,7 +113,7 @@ serveWithCors(async (req: Request) => {
       const { data: escrowContract, error: escrowError } = await supabase
         .from("escrow_contracts")
         .select(
-          "id, status, total_minor, currency, held_minor, released_minor, refunded_minor, provider_transaction_id",
+          "id, reference_code, status, total_minor, currency, held_minor, released_minor, refunded_minor, provider_transaction_id",
         )
         .eq("reference_code", escrowRef)
         .maybeSingle();
@@ -172,7 +172,7 @@ serveWithCors(async (req: Request) => {
         }
 
         const applied = await applyEscrowFunding(
-          supabase,
+          supabase as unknown as Parameters<typeof applyEscrowFunding>[0],
           escrowContract,
           decision,
           "paystack",
@@ -228,7 +228,7 @@ serveWithCors(async (req: Request) => {
         }
 
         const applied = await applyEscrowRefund(
-          supabase,
+          supabase as unknown as Parameters<typeof applyEscrowRefund>[0],
           escrowContract,
           decision.amountMinor,
         );
@@ -323,14 +323,25 @@ serveWithCors(async (req: Request) => {
           },
         );
       }
+      const majorAmount =
+        typeof metadata.price_monthly === "number"
+          ? metadata.price_monthly
+          : typeof data.amount === "number"
+            ? (data.amount as number) / 100
+            : 0;
+
+      const currency = String(
+        (data as { currency?: string }).currency || metadata.currency || "USD",
+      ).toUpperCase();
+
       const { data: applied, error: planError } = await supabase.rpc(
         "frelux_api_apply_plan_purchase",
         {
           p_user_id: userId,
           p_plan_key: planKey,
           p_provider_reference: data.reference as string,
-          p_amount: data.amount as number,
-          p_currency: (metadata.currency as string) || "USD",
+          p_amount: majorAmount,
+          p_currency: currency,
           p_metadata: {
             source: "paystack-webhook",
             paystack_reference: data.reference,
@@ -521,7 +532,8 @@ serveWithCors(async (req: Request) => {
       },
     );
   } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+    const msg = error instanceof Error ? error.message : String(error);
+    return new Response(JSON.stringify({ error: msg }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
