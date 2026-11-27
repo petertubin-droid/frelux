@@ -47,6 +47,7 @@ export interface ColumnValidationResult {
   is_user_specified: boolean;
   governing_code: string;
   code_minimum_mm: number;
+  code_minimum_check_pass: boolean;
   axial_capacity_minimum_mm: number;
   applied_axial_stress_mpa: number;
   allowable_axial_stress_mpa: number;
@@ -361,16 +362,33 @@ export function validateAndResolveColumnFace(
   let governing_code = input.design_code;
   if (!governing_code) {
     const mc = (input.market_code || "").toUpperCase();
-    if (mc === "US" || mc === "CA" || mc === "MX") {
-      governing_code = "ACI 318-19";
+    if (mc === "US" || mc === "CA") {
+      governing_code = "ACI 318-19 / IBC 2024";
+    } else if (mc === "MX") {
+      governing_code = "NTC-EM / ACI 318-19";
     } else if (mc === "IN") {
-      governing_code = "IS 456:2000 / IS 13920";
+      governing_code = "IS 456:2000 / IS 13920:2016";
     } else if (mc === "DE" || mc === "FR" || mc === "IT" || mc === "ES") {
-      governing_code = "Eurocode 2 (EN 1992-1-1)";
+      governing_code = "Eurocode 2 (EN 1992-1-1 / EN 1997-1)";
     } else if (mc === "AU") {
-      governing_code = "AS 3600:2018";
-    } else if (mc === "NG" || mc === "GH" || mc === "KE" || mc === "GB") {
+      governing_code = "AS 3600:2018 / AS 2870";
+    } else if (mc === "NG") {
+      governing_code =
+        "BS 8110-1:1997 / Nigerian National Building Code / COREN";
+    } else if (mc === "GH" || mc === "KE" || mc === "GB") {
       governing_code = "BS 8110-1:1997 / BS 8004";
+    } else if (mc === "ZA") {
+      governing_code = "SANS 10100-1 / SANS 10160";
+    } else if (mc === "BR") {
+      governing_code = "ABNT NBR 6118:2023";
+    } else if (mc === "CN") {
+      governing_code = "GB 50010-2010";
+    } else if (mc === "JP") {
+      governing_code = "AIJ Standard for RC Structures";
+    } else if (mc === "SA" || mc === "AE") {
+      governing_code = "SBC 304 / ACI 318";
+    } else if (mc === "ID") {
+      governing_code = "SNI 2847:2019";
     } else {
       governing_code = "BS 8110-1:1997 / Eurocode 2 (International baseline)";
     }
@@ -382,9 +400,24 @@ export function validateAndResolveColumnFace(
   // Project-specific axial compressive capacity
   const fcu = fcuFromGrade(input.concrete_grade);
   const ULS_N = 1.4 * Math.max(0, input.column_load_kn) * 1000; // Factored axial load in N
-  // Allowable short column compressive stress with nominal 1% longitudinal rebar (fy = 410 MPa):
-  // N_u = 0.4*fcu*Ac + 0.8*fy*Asc = Ac * (0.4*fcu + 3.28)
-  const sigma_allow = 0.4 * fcu + 3.28;
+
+  // Allowable short column compressive stress adapting to governing standard:
+  // BS 8110 Cl 3.8.4.3: Nu = 0.4*fcu*Ac + 0.8*fy*Asc (fy = 410 MPa, 1% steel) -> 0.4*fcu + 3.28
+  // ACI 318-19 §22.4: phi*Pn,max = 0.80*phi*(0.85*f'c*(Ag-Ast) + fy*Ast), phi=0.65, f'c~0.8*fcu
+  // IS 456:2000 Cl 39.3: Pu = 0.4*fck*Ac + 0.67*fy*Asc (fy=415 MPa, 1% steel) -> 0.4*fcu + 2.78
+  // Eurocode 2: fcd = 0.85*fck/1.5, fyd = 500/1.15 with 0.8 eccentricity factor
+  let sigma_allow = 0.4 * fcu + 3.28;
+  if (governing_code.includes("ACI 318")) {
+    const fc_prime = fcu * 0.8;
+    sigma_allow = 0.52 * (0.85 * fc_prime * 0.99 + 420 * 0.01);
+  } else if (governing_code.includes("IS 456")) {
+    sigma_allow = 0.4 * fcu + 0.67 * 415 * 0.01;
+  } else if (
+    governing_code.includes("Eurocode 2") ||
+    governing_code.includes("EN 1992")
+  ) {
+    sigma_allow = 0.8 * ((0.85 * (fcu * 0.8)) / 1.5 + 0.01 * (500 / 1.15));
+  }
 
   const req_area = ULS_N / Math.max(sigma_allow, 1);
   const raw_face = Math.sqrt(req_area);
@@ -424,10 +457,11 @@ export function validateAndResolveColumnFace(
     const applied_area = column_face_mm * column_length_mm;
     const applied_axial_stress = ULS_N / applied_area;
     const axial_pass = applied_axial_stress <= sigma_allow;
+    const min_dim = Math.min(column_face_mm, column_length_mm);
 
-    if (column_face_mm < code_minimum_mm) {
+    if (min_dim < code_minimum_mm) {
       validation_notes.push(
-        `Column face of ${column_face_mm} mm is below the 200 mm structural concrete code minimum (${governing_code}) required for 1-hour fire resistance, rebar cover (35-40 mm), and link anchorage.`,
+        `Column dimension of ${min_dim} mm (${column_face_mm}×${column_length_mm} mm) is below the 200 mm structural concrete code minimum (${governing_code}) required for 1-hour fire resistance, rebar cover (35-40 mm), and link anchorage.`,
       );
       engineering_status = "warning_undersized";
     }
@@ -439,7 +473,7 @@ export function validateAndResolveColumnFace(
       engineering_status = "warning_undersized";
     }
 
-    if (column_face_mm >= code_minimum_mm && axial_pass) {
+    if (min_dim >= code_minimum_mm && axial_pass) {
       engineering_status = "verified_conforming";
       validation_notes.push(
         `Column face of ${column_face_mm}×${column_length_mm} mm verified conforming to ${governing_code} and satisfies axial compression capacity (${applied_axial_stress.toFixed(2)} ≤ ${sigma_allow.toFixed(2)} N/mm²).`,
@@ -491,6 +525,8 @@ export function validateAndResolveColumnFace(
   const allowable_axial_stress_mpa = Math.round(sigma_allow * 100) / 100;
   const axial_capacity_check_pass =
     applied_axial_stress_mpa <= allowable_axial_stress_mpa;
+  const min_dim = Math.min(column_face_mm, column_length_mm);
+  const code_minimum_check_pass = min_dim >= code_minimum_mm;
 
   return {
     column_face_mm,
@@ -498,6 +534,7 @@ export function validateAndResolveColumnFace(
     is_user_specified,
     governing_code,
     code_minimum_mm,
+    code_minimum_check_pass,
     axial_capacity_minimum_mm,
     applied_axial_stress_mpa,
     allowable_axial_stress_mpa,
@@ -734,31 +771,6 @@ export function designFoundation(
       `Square pad side = √${required_area.toFixed(3)} = ${side.toFixed(0)} mm`,
     );
 
-    const recommended_side = Math.max(roundUpTo100(side), 600); // min 600mm
-    const actual_area = (recommended_side / 1000) * (recommended_side / 1000);
-    const check_pressure = total_footing_load / actual_area;
-    const bearing_check_pass = check_pressure <= allowable_capacity;
-    const actual_fos = allowable_capacity / check_pressure;
-    formulas.push(
-      `Margin over allowable = ${allowable_capacity.toFixed(0)} / ${check_pressure.toFixed(1)} = ${actual_fos.toFixed(2)} (>= 1.0 required)`,
-    );
-
-    // Blinding is laid 100 mm beyond the pad on every side, so it is counted
-    // on the projected footprint. Using the pad area alone under-ordered it.
-    const blinding_area = Math.pow(recommended_side / 1000 + 0.2, 2);
-    const blinding_volume = blinding_area * 0.075;
-
-    if (recommended_side > 2000) {
-      warnings.push(
-        `Pad size ${recommended_side}×${recommended_side}mm is very large. Consider raft foundation or soil improvement.`,
-      );
-    }
-    if (input.foundation_depth < 0.9) {
-      warnings.push(
-        "Shallow foundation depth (< 0.9 m): in temperate and freezing climates, verify local frost-line depth requirements (e.g. US IRC R403.1.4, UK Building Regs Part A, Eurocode 7) to prevent frost heave.",
-      );
-    }
-
     // Column Face & Structural Code Validation
     const columnValidation = validateAndResolveColumnFace({
       column_width_mm: input.column_width_mm,
@@ -781,6 +793,39 @@ export function designFoundation(
       ) {
         warnings.push(note);
       }
+    }
+
+    // Structural pad footing detailing: footing must physically extend past column face (>= 150mm each side)
+    const min_pad_for_col = roundUpTo100(Math.max(col_face, col_len) + 300);
+    const recommended_side = Math.max(roundUpTo100(side), 600, min_pad_for_col);
+    if (min_pad_for_col > roundUpTo100(side) && min_pad_for_col > 600) {
+      formulas.push(
+        `Pad side enlarged to ${recommended_side} mm to satisfy minimum structural projection (≥ 150 mm) beyond ${col_face}×${col_len} mm column.`,
+      );
+    }
+
+    const actual_area = (recommended_side / 1000) * (recommended_side / 1000);
+    const check_pressure = total_footing_load / actual_area;
+    const bearing_check_pass = check_pressure <= allowable_capacity;
+    const actual_fos = allowable_capacity / check_pressure;
+    formulas.push(
+      `Margin over allowable = ${allowable_capacity.toFixed(0)} / ${check_pressure.toFixed(1)} = ${actual_fos.toFixed(2)} (>= 1.0 required)`,
+    );
+
+    // Blinding is laid 100 mm beyond the pad on every side, so it is counted
+    // on the projected footprint. Using the pad area alone under-ordered it.
+    const blinding_area = Math.pow(recommended_side / 1000 + 0.2, 2);
+    const blinding_volume = blinding_area * 0.075;
+
+    if (recommended_side > 2000) {
+      warnings.push(
+        `Pad size ${recommended_side}×${recommended_side}mm is very large. Consider raft foundation or soil improvement.`,
+      );
+    }
+    if (input.foundation_depth < 0.9) {
+      warnings.push(
+        "Shallow foundation depth (< 0.9 m): in temperate and freezing climates, verify local frost-line depth requirements (e.g. US IRC R403.1.4, UK Building Regs Part A, Eurocode 7) to prevent frost heave.",
+      );
     }
 
     const fcu = fcuFromGrade(input.concrete_grade);

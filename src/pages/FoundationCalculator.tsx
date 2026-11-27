@@ -72,7 +72,8 @@ function formatFoundationDimension(mm: number, unit: "m" | "ft"): string {
   const totalInches = mm / 25.4;
   const feet = Math.floor(totalInches / 12);
   const inches = Math.round((totalInches - feet * 12) * 16) / 16;
-  return `${feet}′ ${inches}″`;
+  if (feet === 0) return `${inches}″`;
+  return inches > 0 ? `${feet}′ ${inches}″` : `${feet}′ 0″`;
 }
 
 function formatFoundationVolume(m3: number, unit: "m" | "ft"): string {
@@ -83,6 +84,10 @@ function formatFoundationVolume(m3: number, unit: "m" | "ft"): string {
 
 export default function FoundationCalculator() {
   const [columnWidthInput, setColumnWidthInput] = useState<number | null>(null);
+  const [columnLengthInput, setColumnLengthInput] = useState<number | null>(
+    null,
+  );
+  const [designCodeInput, setDesignCodeInput] = useState<string>("");
 
   const resetInputs = () => {
     setShape("strip");
@@ -91,6 +96,8 @@ export default function FoundationCalculator() {
     setWallLoad(40);
     setColumnLoad(200);
     setColumnWidthInput(null);
+    setColumnLengthInput(null);
+    setDesignCodeInput("");
     setDepth(0.9);
     setWaterTableDepth(null);
     setBuildingLength(15);
@@ -159,6 +166,14 @@ export default function FoundationCalculator() {
             ? columnWidthInput * 25.4
             : columnWidthInput
           : undefined,
+      column_length_mm:
+        shape === "pad" && columnLengthInput !== null && columnLengthInput > 0
+          ? measurementUnit === "ft"
+            ? columnLengthInput * 25.4
+            : columnLengthInput
+          : undefined,
+      design_code:
+        shape === "pad" && designCodeInput ? designCodeInput : undefined,
       market_code: marketCode,
       foundation_depth: measurementUnit === "ft" ? depth * mPerFt : depth,
       bearing_method: waterDepthM !== undefined ? "terzaghi" : undefined,
@@ -185,6 +200,8 @@ export default function FoundationCalculator() {
     measurementUnit,
     loadSystem,
     columnWidthInput,
+    columnLengthInput,
+    designCodeInput,
     marketCode,
   ]);
 
@@ -416,34 +433,116 @@ export default function FoundationCalculator() {
                 />
               </div>
               {shape === "pad" && (
-                <div>
-                  <label
-                    htmlFor="fnd-col-width"
-                    className="text-xs font-medium text-muted-foreground mb-1.5 block"
-                  >
-                    {t("Column face width")} (
-                    {measurementUnit === "ft" ? "in" : "mm"})
-                  </label>
-                  <NumericInput
-                    id="fnd-col-width"
-                    value={columnWidthInput ?? 0}
-                    step={measurementUnit === "ft" ? 1 : 25}
-                    placeholder={
-                      measurementUnit === "ft"
-                        ? "Auto (e.g. 10 in)"
-                        : "Auto (e.g. 250 mm)"
-                    }
-                    onValueChange={(val) =>
-                      setColumnWidthInput(val > 0 ? val : null)
-                    }
-                    className="input-field"
-                  />
-                  <p className="text-[11px] text-muted-foreground mt-1">
-                    {columnWidthInput
-                      ? "Custom project column dimension"
-                      : "Auto: validated against code minimums & axial load"}
-                  </p>
-                </div>
+                <>
+                  <div>
+                    <label
+                      htmlFor="fnd-col-width"
+                      className="text-xs font-medium text-muted-foreground mb-1.5 block"
+                    >
+                      {t("Column face width")} (
+                      {measurementUnit === "ft" ? "in" : "mm"})
+                    </label>
+                    <NumericInput
+                      id="fnd-col-width"
+                      value={columnWidthInput ?? 0}
+                      step={measurementUnit === "ft" ? 1 : 25}
+                      placeholder={
+                        measurementUnit === "ft"
+                          ? "Auto (e.g. 10 in)"
+                          : "Auto (e.g. 250 mm)"
+                      }
+                      onValueChange={(val) =>
+                        setColumnWidthInput(val > 0 ? val : null)
+                      }
+                      className="input-field"
+                    />
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      {columnWidthInput
+                        ? t("Primary column dimension")
+                        : t(
+                            "Auto: validated against code minimums & axial load",
+                          )}
+                    </p>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="fnd-col-length"
+                      className="text-xs font-medium text-muted-foreground mb-1.5 block"
+                    >
+                      {t("Column face length / depth")} (
+                      {measurementUnit === "ft" ? "in" : "mm"}, {t("optional")})
+                    </label>
+                    <NumericInput
+                      id="fnd-col-length"
+                      value={columnLengthInput ?? 0}
+                      step={measurementUnit === "ft" ? 1 : 25}
+                      placeholder={
+                        columnWidthInput
+                          ? `${columnWidthInput} ${measurementUnit === "ft" ? "in" : "mm"} [Square]`
+                          : "Auto (square)"
+                      }
+                      onValueChange={(val) =>
+                        setColumnLengthInput(val > 0 ? val : null)
+                      }
+                      className="input-field"
+                    />
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      {columnLengthInput
+                        ? t("Rectangular column dimension")
+                        : t("Defaults to square column when omitted")}
+                    </p>
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="fnd-design-code"
+                      className="text-xs font-medium text-muted-foreground mb-1.5 block"
+                    >
+                      {t("Structural Design Standard")}
+                    </label>
+                    <select
+                      id="fnd-design-code"
+                      value={designCodeInput}
+                      onChange={(e) => setDesignCodeInput(e.target.value)}
+                      className="input-field"
+                    >
+                      <option value="">
+                        {t("Auto (Regional Market Default)")}
+                      </option>
+                      <option value="BS 8110-1:1997 / BS 8004">
+                        BS 8110 / BS 8004 (British & Commonwealth)
+                      </option>
+                      <option value="Eurocode 2 (EN 1992-1-1 / EN 1997-1)">
+                        Eurocode 2 & 7 (European Standards)
+                      </option>
+                      <option value="ACI 318-19 / IBC 2024">
+                        ACI 318-19 / IBC (American Concrete Institute)
+                      </option>
+                      <option value="IS 456:2000 / IS 13920:2016">
+                        IS 456:2000 / IS 13920 (Bureau of Indian Standards)
+                      </option>
+                      <option value="AS 3600:2018 / AS 2870">
+                        AS 3600:2018 (Australian Standard)
+                      </option>
+                      <option value="SANS 10100-1 / SANS 10160">
+                        SANS 10100 / 10160 (South African Standard)
+                      </option>
+                      <option value="ABNT NBR 6118:2023">
+                        ABNT NBR 6118:2023 (Brazilian Standard)
+                      </option>
+                      <option value="GB 50010-2010">
+                        GB 50010-2010 (Chinese National Standard)
+                      </option>
+                      <option value="SBC 304 / ACI 318">
+                        SBC 304 (Saudi Building Code)
+                      </option>
+                    </select>
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                      {t(
+                        "Code rules governing minimum column geometry & shear checks",
+                      )}
+                    </p>
+                  </div>
+                </>
               )}
               <div>
                 <label
@@ -825,17 +924,23 @@ export default function FoundationCalculator() {
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         result.column_validation.axial_capacity_check_pass &&
-                        result.punching_shear_check_pass
+                        result.punching_shear_check_pass &&
+                        result.column_validation.engineering_status !==
+                          "warning_undersized" &&
+                        (result.column_validation.face_shear_check_pass ?? true)
                           ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                           : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
                       }`}
                     >
-                      {result.column_validation.is_user_specified
-                        ? "User-Specified Support"
-                        : result.column_validation.engineering_status ===
-                            "axial_load_governed"
-                          ? "Axial-Load Sized Support"
-                          : "Code Standard Support"}
+                      {result.column_validation.engineering_status ===
+                      "warning_undersized"
+                        ? "Undersized Support Warning"
+                        : result.column_validation.is_user_specified
+                          ? "User-Specified Support"
+                          : result.column_validation.engineering_status ===
+                              "axial_load_governed"
+                            ? "Axial-Load Sized Support"
+                            : "Code Standard Support"}
                     </span>
                   </div>
 
@@ -855,6 +960,17 @@ export default function FoundationCalculator() {
                             result.column_validation.column_length_mm,
                             measurementUnit,
                           )}`}
+                      </span>
+                      <span
+                        className={`text-[11px] block mt-0.5 ${
+                          result.column_validation.code_minimum_check_pass
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-amber-500 font-semibold"
+                        }`}
+                      >
+                        {result.column_validation.code_minimum_check_pass
+                          ? "✓ Meets code minimum"
+                          : "⚠ Below 200 mm code floor"}
                       </span>
                     </div>
 

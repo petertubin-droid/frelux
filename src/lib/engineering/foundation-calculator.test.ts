@@ -538,3 +538,105 @@ describe("designFoundation, pad footing complete engineering integration", () =>
     );
   });
 });
+
+describe("global engineering standards & rectangular column validation", () => {
+  it("flags rectangular column when second dimension is below 200 mm code minimum", () => {
+    const res = validateAndResolveColumnFace({
+      column_width_mm: 350,
+      column_length_mm: 150,
+      column_load_kn: 150,
+      concrete_grade: "C25",
+    });
+
+    expect(res.is_user_specified).toBe(true);
+    expect(res.column_face_mm).toBe(350);
+    expect(res.column_length_mm).toBe(150);
+    expect(res.code_minimum_check_pass).toBe(false);
+    expect(res.engineering_status).toBe("warning_undersized");
+    expect(
+      res.validation_notes.some((n) =>
+        n.includes(
+          "Column dimension of 150 mm (350×150 mm) is below the 200 mm structural concrete code minimum",
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it("accurately maps all global building codes across international markets", () => {
+    const za = validateAndResolveColumnFace({
+      column_load_kn: 100,
+      concrete_grade: "C25",
+      market_code: "ZA",
+    });
+    expect(za.governing_code).toContain("SANS 10100");
+
+    const br = validateAndResolveColumnFace({
+      column_load_kn: 100,
+      concrete_grade: "C25",
+      market_code: "BR",
+    });
+    expect(br.governing_code).toContain("ABNT NBR 6118");
+
+    const cn = validateAndResolveColumnFace({
+      column_load_kn: 100,
+      concrete_grade: "C25",
+      market_code: "CN",
+    });
+    expect(cn.governing_code).toContain("GB 50010");
+    expect(cn.column_face_mm).toBe(240);
+
+    const jp = validateAndResolveColumnFace({
+      column_load_kn: 100,
+      concrete_grade: "C25",
+      market_code: "JP",
+    });
+    expect(jp.governing_code).toContain("AIJ");
+
+    const sa = validateAndResolveColumnFace({
+      column_load_kn: 100,
+      concrete_grade: "C25",
+      market_code: "SA",
+    });
+    expect(sa.governing_code).toContain("SBC 304");
+
+    const id = validateAndResolveColumnFace({
+      column_load_kn: 100,
+      concrete_grade: "C25",
+      market_code: "ID",
+    });
+    expect(id.governing_code).toContain("SNI 2847");
+  });
+
+  it("honors explicit user design_code override", () => {
+    const res = validateAndResolveColumnFace({
+      column_width_mm: 300,
+      column_load_kn: 200,
+      concrete_grade: "C25",
+      design_code: "ACI 318-19 / IBC 2024",
+      market_code: "NG",
+    });
+
+    expect(res.governing_code).toBe("ACI 318-19 / IBC 2024");
+  });
+
+  it("enlarges pad footing side to satisfy minimum 150 mm projection beyond large column", () => {
+    const res = designFoundation({
+      shape: "pad",
+      soil_type: "rock",
+      wall_load: 0,
+      column_load: 100,
+      column_width_mm: 500,
+      foundation_depth: 1.0,
+      concrete_grade: "C25",
+    });
+
+    expect(res.recommended_width).toBeGreaterThanOrEqual(800);
+    expect(
+      res.formula_transparency.some((f) =>
+        f.includes(
+          "Pad side enlarged to 800 mm to satisfy minimum structural projection (≥ 150 mm) beyond 500×500 mm column",
+        ),
+      ),
+    ).toBe(true);
+  });
+});

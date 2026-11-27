@@ -602,6 +602,16 @@ function registerFoundationCalculatorAdapter(): void {
                   res.column_validation.column_face_mm,
                   "mm",
                 ),
+                ...(res.column_validation.column_length_mm !==
+                res.column_validation.column_face_mm
+                  ? [
+                      quantityLine(
+                        "Column length",
+                        res.column_validation.column_length_mm,
+                        "mm",
+                      ),
+                    ]
+                  : []),
               ]
             : []),
           quantityLine("Excavation volume", res.excavation_volume, "m³"),
