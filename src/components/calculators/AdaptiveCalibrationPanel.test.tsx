@@ -64,6 +64,7 @@ async function open() {
   await screen.findByRole("region", {
     name: "Actuals, calibration and cost coding",
   });
+  await screen.findByText(/evidence stored/i);
 }
 
 describe("adaptive calibration panel", () => {
@@ -153,7 +154,7 @@ describe("adaptive calibration panel", () => {
   it("keeps an owner review self attested", async () => {
     renderPanel({ market: "NG" });
     await open();
-    fireEvent.click(screen.getByRole("button", { name: "Accept" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Accept" }));
     await waitFor(() => expect(repo.review).toHaveBeenCalledTimes(1));
     expect(repo.review.mock.calls[0][0].reviewerRole).toBe("owner");
   });
@@ -162,7 +163,7 @@ describe("adaptive calibration panel", () => {
     authState.isAdmin = true;
     renderPanel({ market: "NG" });
     await open();
-    fireEvent.click(screen.getByRole("button", { name: "Verify" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Verify" }));
     await waitFor(() => expect(repo.review).toHaveBeenCalledTimes(1));
     expect(repo.review.mock.calls[0][0].reviewerRole).toBe("admin");
     expect(repo.review.mock.calls[0][0].decision).toBe("accepted");
@@ -172,10 +173,10 @@ describe("adaptive calibration panel", () => {
     renderPanel({ market: "NG", currency: "NGN" });
     await open();
     expect(
-      screen.getByRole("button", { name: "Export cost code for block" }),
+      await screen.findByRole("button", { name: "Export cost code for block" }),
     ).toBeInTheDocument();
     expect(
-      screen.getByRole("button", { name: "Remove record for block" }),
+      await screen.findByRole("button", { name: "Remove record for block" }),
     ).toBeInTheDocument();
   });
 
