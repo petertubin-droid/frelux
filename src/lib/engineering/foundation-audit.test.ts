@@ -113,6 +113,22 @@ describe("derived (Terzaghi) bearing capacity", () => {
     expect(wet.recommended_width).toBeGreaterThan(dry.recommended_width);
     expect(wet.bearing_capacity).toBeLessThan(dry.bearing_capacity);
   });
+
+  it("handles non-finite or edge input values gracefully without crashing", () => {
+    const edge = terzaghiAllowablePressure({
+      shape: "pad",
+      widthM: NaN as unknown as number,
+      depthM: NaN as unknown as number,
+      phiDeg: NaN as unknown as number,
+      cohesionKpa: NaN as unknown as number,
+      unitWeightKnM3: NaN as unknown as number,
+      waterDepthM: null,
+      factorOfSafety: NaN as unknown as number,
+    });
+    expect(Number.isFinite(edge.allowable)).toBe(true);
+    expect(edge.allowable).toBeGreaterThan(0);
+    expect(Number.isFinite(edge.ultimate)).toBe(true);
+  });
 });
 
 describe("retaining wall", () => {

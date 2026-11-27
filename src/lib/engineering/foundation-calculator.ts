@@ -175,7 +175,8 @@ export function bearingCapacityFactors(phiDeg: number): {
   nq: number;
   ngamma: number;
 } {
-  const phi = (Math.max(0, Math.min(phiDeg, 45)) * Math.PI) / 180;
+  const safePhiDeg = Number.isFinite(phiDeg) ? phiDeg : 0;
+  const phi = (Math.max(0, Math.min(safePhiDeg, 45)) * Math.PI) / 180;
   if (phi <= 0.0001) return { nc: 5.7, nq: 1, ngamma: 0 };
   const nq =
     Math.exp(Math.PI * Math.tan(phi)) * Math.tan(Math.PI / 4 + phi / 2) ** 2;
@@ -239,24 +240,41 @@ export function terzaghiAllowablePressure(input: TerzaghiInput): {
   gammaSurcharge: number;
   gammaWedge: number;
 } {
-  const Df = Math.max(0, input.depthM);
-  const B = Math.max(0.1, input.widthM);
-  const gamma = Math.max(1, input.unitWeightKnM3);
-  const water = input.waterDepthM ?? null;
-  const waterAtBase = water === null ? null : water;
+  const Df = Number.isFinite(input.depthM) ? Math.max(0, input.depthM) : 0;
+  const B = Number.isFinite(input.widthM) ? Math.max(0.1, input.widthM) : 0.1;
+  const gamma = Number.isFinite(input.unitWeightKnM3)
+    ? Math.max(1, input.unitWeightKnM3)
+    : 18;
+  const cohesion = Number.isFinite(input.cohesionKpa)
+    ? Math.max(0, input.cohesionKpa)
+    : 0;
+  const phiDeg = Number.isFinite(input.phiDeg)
+    ? Math.max(0, Math.min(input.phiDeg, 45))
+    : 30;
+  const water =
+    input.waterDepthM !== undefined &&
+    input.waterDepthM !== null &&
+    Number.isFinite(input.waterDepthM)
+      ? Math.max(0, input.waterDepthM)
+      : null;
+  const waterAtBase = water;
   const gammaSurcharge = effectiveUnitWeight(gamma, 0, Df, waterAtBase);
   const gammaWedge = effectiveUnitWeight(gamma, Df, Df + B, waterAtBase);
-  const { nc, nq, ngamma } = bearingCapacityFactors(input.phiDeg);
+  const { nc, nq, ngamma } = bearingCapacityFactors(phiDeg);
 
   const shapeC = input.shape === "pad" ? 1.3 : 1;
   const shapeGamma = input.shape === "pad" ? 0.4 : 0.5;
   const overburden = gammaSurcharge * Df;
   const ultimate =
-    shapeC * input.cohesionKpa * nc +
+    shapeC * cohesion * nc +
     overburden * nq +
     shapeGamma * gammaWedge * B * ngamma;
   const fs =
-    input.factorOfSafety && input.factorOfSafety > 1 ? input.factorOfSafety : 3;
+    input.factorOfSafety &&
+    Number.isFinite(input.factorOfSafety) &&
+    input.factorOfSafety > 1
+      ? input.factorOfSafety
+      : 3;
   return {
     allowable: ultimate / fs,
     ultimate,

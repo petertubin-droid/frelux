@@ -198,6 +198,97 @@ export function calculateGlobalConcrete(
 export type CartesianCoordinate = [number, number] | { x: number; y: number };
 
 /**
+ * Cross product / orientation test of vector AB with AC.
+ * Returns positive for counter-clockwise turn, negative for clockwise, near 0 if collinear.
+ */
+function ccw(
+  a: readonly [number, number],
+  b: readonly [number, number],
+  c: readonly [number, number],
+): number {
+  return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0]);
+}
+
+/**
+ * Checks whether point Q lies on segment PR (assuming P, Q, R are collinear).
+ */
+function onSegment(
+  p: readonly [number, number],
+  q: readonly [number, number],
+  r: readonly [number, number],
+): boolean {
+  return (
+    q[0] <= Math.max(p[0], r[0]) + 1e-9 &&
+    q[0] >= Math.min(p[0], r[0]) - 1e-9 &&
+    q[1] <= Math.max(p[1], r[1]) + 1e-9 &&
+    q[1] >= Math.min(p[1], r[1]) - 1e-9
+  );
+}
+
+/**
+ * Determines whether two line segments AB and CD intersect (properly or collinearly overlapping).
+ */
+function segmentsIntersectProper(
+  p1: readonly [number, number],
+  p2: readonly [number, number],
+  p3: readonly [number, number],
+  p4: readonly [number, number],
+): boolean {
+  const EPS = 1e-9;
+  const d1 = ccw(p3, p4, p1);
+  const d2 = ccw(p3, p4, p2);
+  const d3 = ccw(p1, p2, p3);
+  const d4 = ccw(p1, p2, p4);
+
+  // General case: strictly crossing
+  if (
+    ((d1 > EPS && d2 < -EPS) || (d1 < -EPS && d2 > EPS)) &&
+    ((d3 > EPS && d4 < -EPS) || (d3 < -EPS && d4 > EPS))
+  ) {
+    return true;
+  }
+
+  // Collinear cases
+  if (Math.abs(d1) <= EPS && onSegment(p3, p1, p4)) return true;
+  if (Math.abs(d2) <= EPS && onSegment(p3, p2, p4)) return true;
+  if (Math.abs(d3) <= EPS && onSegment(p1, p3, p2)) return true;
+  if (Math.abs(d4) <= EPS && onSegment(p1, p4, p2)) return true;
+
+  return false;
+}
+
+/**
+ * Validates whether a polygon's boundary contains any self-intersecting non-adjacent edges.
+ */
+export function isPolygonSelfIntersecting(
+  coordinates: readonly CartesianCoordinate[],
+): boolean {
+  const n = coordinates.length;
+  if (n < 4) return false;
+
+  const pts: [number, number][] = coordinates.map((c) => {
+    const x = Array.isArray(c) ? c[0] : c.x;
+    const y = Array.isArray(c) ? c[1] : c.y;
+    return [x, y];
+  });
+
+  for (let i = 0; i < n; i++) {
+    const p1 = pts[i];
+    const p2 = pts[(i + 1) % n];
+    for (let j = i + 1; j < n; j++) {
+      // Adjacent edges share a legitimate vertex, don't test them
+      if (Math.abs(i - j) <= 1 || (i === 0 && j === n - 1)) continue;
+      const p3 = pts[j];
+      const p4 = pts[(j + 1) % n];
+      if (segmentsIntersectProper(p1, p2, p3, p4)) {
+        return true;
+      }
+    }
+  }
+  return false;
+}
+
+/**
  * Calculates the exact planar area of any non-self-intersecting irregular polygon
  * using the Shoelace Formula (Surveyor's Formula / Gauss's Area Formula).
  *
@@ -228,6 +319,12 @@ export function calculateIrregularPolygonArea(
     }
     return [x, y];
   });
+
+  if (isPolygonSelfIntersecting(pts)) {
+    throw new RangeError(
+      "Polygon edges self-intersect; the Shoelace formula requires a simple non-self-intersecting boundary.",
+    );
+  }
 
   let area = 0.0;
   for (let i = 0; i < n; i++) {

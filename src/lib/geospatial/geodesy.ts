@@ -112,5 +112,6 @@ export function sphericalPolygonAreaMeters(ring: LatLon[]): number {
  */
 export {
   calculateIrregularPolygonArea,
+  isPolygonSelfIntersecting,
   type CartesianCoordinate,
 } from "../globalization/universal-construction-math";

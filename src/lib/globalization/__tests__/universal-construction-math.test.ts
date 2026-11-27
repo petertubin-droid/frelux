@@ -3,6 +3,7 @@ import {
   calculateGlobalRebarWeight,
   calculateGlobalConcrete,
   calculateIrregularPolygonArea,
+  isPolygonSelfIntersecting,
   GLOBAL_DRY_SHRINKAGE_FACTOR,
   GLOBAL_CEMENT_DENSITY_KG_M3,
 } from "../universal-construction-math";
@@ -201,6 +202,36 @@ describe("Universal Global Construction Math & Physics", () => {
           [5, 5],
         ]),
       ).toThrow(RangeError);
+    });
+
+    it("detects and rejects self-intersecting polygon boundaries (bowtie/figure-8)", () => {
+      // Bowtie polygon crossing at (5, 5)
+      const bowtie = [
+        [0, 0],
+        [0, 10],
+        [10, 0],
+        [10, 10],
+      ] as [number, number][];
+
+      expect(isPolygonSelfIntersecting(bowtie)).toBe(true);
+      expect(() => calculateIrregularPolygonArea(bowtie)).toThrow(
+        /edges self-intersect/i,
+      );
+    });
+
+    it("confirms valid non-self-intersecting complex L-shaped polygons pass", () => {
+      const lShape = [
+        [0, 0],
+        [6, 0],
+        [6, 2],
+        [2, 2],
+        [2, 6],
+        [0, 6],
+      ] as [number, number][];
+
+      expect(isPolygonSelfIntersecting(lShape)).toBe(false);
+      // Area = 6*2 + 2*4 = 20
+      expect(calculateIrregularPolygonArea(lShape)).toBe(20);
     });
   });
 });
