@@ -1314,6 +1314,8 @@ export function bbsToCsv(schedule: BarBendingSchedule): string {
  */
 export {
   calculateGlobalRebarWeight,
+  ASTM_A615_NOMINAL_WEIGHTS_LB_PER_FT,
+  type GlobalRebarWeightOptions,
   type RebarUnitSystem,
   type RebarWeightResult,
 } from "../globalization/universal-construction-math";

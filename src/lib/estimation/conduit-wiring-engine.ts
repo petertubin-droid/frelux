@@ -266,6 +266,20 @@ export interface CableSpec {
   label?: string;
 }
 
+export type ConduitFillStandard = "NEC" | "BS_7671";
+
+export interface ConduitFillOptions {
+  /**
+   * Standards basis:
+   * - "NEC": NFPA 70 Chapter 9 Table 1 (53% for 1, 31% for 2, 40% for 3+ conductors).
+   * - "BS_7671": IET Wiring Regulations / On-Site Guide (40% conduit space factor, 45% for trunking).
+   * Defaults to "NEC".
+   */
+  standard?: ConduitFillStandard;
+  /** When standard is BS_7671, set true to evaluate trunking (45% cap) instead of conduit (40% cap) */
+  isTrunking?: boolean;
+}
+
 export interface ConduitFillResult {
   conduitInnerDiameterMm: number;
   totalConduitAreaMm2: number;
@@ -274,22 +288,20 @@ export interface ConduitFillResult {
   maxAllowedFillPercentage: number;
   cableCount: number;
   passesCode: boolean;
-  codeStandard: "NEC Chapter 9 Table 1 / BS 7671";
+  codeStandard: string;
   warning?: string;
 }
 
 /**
- * Verifies electrical conduit wire fill capacity against NEC Chapter 9 Table 1 and BS 7671.
- * Rules:
- * - 1 conductor: max 53% fill
- * - 2 conductors: max 31% fill
- * - 3 or more conductors: max 40% fill
+ * Verifies electrical conduit wire fill capacity against NEC Chapter 9 Table 1 or BS 7671.
  */
 export function verifyConduitFill(
   conduitInnerDiameterMm: number,
   cables: CableSpec[],
+  options?: ConduitFillOptions,
 ): ConduitFillResult | null {
   if (
+    !Number.isFinite(conduitInnerDiameterMm) ||
     conduitInnerDiameterMm <= 0 ||
     !Array.isArray(cables) ||
     cables.length === 0
@@ -302,7 +314,15 @@ export function verifyConduitFill(
   let totalCableCount = 0;
 
   for (const c of cables) {
-    if (c.count <= 0 || c.outerDiameterMm <= 0) continue;
+    if (
+      !c ||
+      !Number.isFinite(c.count) ||
+      c.count <= 0 ||
+      !Number.isFinite(c.outerDiameterMm) ||
+      c.outerDiameterMm <= 0
+    ) {
+      continue;
+    }
     const singleCableArea = (Math.PI * c.outerDiameterMm ** 2) / 4;
     totalCableArea += c.count * singleCableArea;
     totalCableCount += c.count;
@@ -311,16 +331,31 @@ export function verifyConduitFill(
   if (totalCableCount === 0) return null;
 
   const fillPercentage = (totalCableArea / conduitArea) * 100;
+  const standard = options?.standard ?? "NEC";
+
   let maxAllowed = 40;
-  if (totalCableCount === 1) {
-    maxAllowed = 53;
-  } else if (totalCableCount === 2) {
-    maxAllowed = 31;
+  let codeStandard = "NEC Chapter 9 Table 1";
+
+  if (standard === "BS_7671") {
+    maxAllowed = options?.isTrunking ? 45 : 40;
+    codeStandard = options?.isTrunking
+      ? "BS 7671 / IET On-Site Guide (Trunking 45%)"
+      : "BS 7671 / IET On-Site Guide (Conduit 40%)";
+  } else {
+    // NEC Chapter 9 Table 1
+    codeStandard = "NEC Chapter 9 Table 1";
+    if (totalCableCount === 1) {
+      maxAllowed = 53;
+    } else if (totalCableCount === 2) {
+      maxAllowed = 31;
+    } else {
+      maxAllowed = 40;
+    }
   }
 
   const passes = fillPercentage <= maxAllowed;
   const warning = !passes
-    ? `Conduit fill is ${fillPercentage.toFixed(1)}%, exceeding code maximum ${maxAllowed}% (${totalCableCount} conductors). Upsize conduit to avoid overheating and wire damage during pulling.`
+    ? `Conduit fill is ${fillPercentage.toFixed(1)}%, exceeding code maximum ${maxAllowed}% (${totalCableCount} conductors per ${codeStandard}). Upsize conduit to avoid overheating and wire damage during pulling.`
     : undefined;
 
   return {
@@ -331,7 +366,7 @@ export function verifyConduitFill(
     maxAllowedFillPercentage: maxAllowed,
     cableCount: totalCableCount,
     passesCode: passes,
-    codeStandard: "NEC Chapter 9 Table 1 / BS 7671",
+    codeStandard,
     warning,
   };
 }

@@ -333,36 +333,103 @@ export function calculateUpcIpcWaterSupply(
     }
   }
 
-  // Hunter curve piecewise approximation (GPM from WSFU):
-  let gpm = 0;
-  if (totalWsfu > 0) {
-    if (systemType === "flush_tank") {
-      if (totalWsfu <= 10) {
-        gpm = 3.0 + totalWsfu * 0.5;
-      } else if (totalWsfu <= 30) {
-        gpm = 8.0 + (totalWsfu - 10) * 0.6;
-      } else if (totalWsfu <= 100) {
-        gpm = 20.0 + (totalWsfu - 30) * 0.34;
-      } else if (totalWsfu <= 250) {
-        gpm = 44.0 + (totalWsfu - 100) * 0.21;
-      } else {
-        gpm = 75.0 + (totalWsfu - 250) * 0.20;
-      }
-    } else {
-      // Flushometer valve system:
-      if (totalWsfu <= 10) {
-        gpm = 15.0 + totalWsfu * 1.2;
-      } else if (totalWsfu <= 30) {
-        gpm = 27.0 + (totalWsfu - 10) * 0.65;
-      } else if (totalWsfu <= 100) {
-        gpm = 40.0 + (totalWsfu - 30) * 0.36;
-      } else if (totalWsfu <= 250) {
-        gpm = 65.0 + (totalWsfu - 100) * 0.20;
-      } else {
-        gpm = 95.0 + (totalWsfu - 250) * 0.18;
+  // Hunter curve demand per IPC 2024 Table E103.3(2) and UPC 2024 Table A 103.1(1):
+  const FLUSH_TANK_CURVE: ReadonlyArray<[number, number]> = [
+    [0, 0],
+    [1, 3.0],
+    [2, 4.0],
+    [3, 4.8],
+    [4, 5.5],
+    [5, 6.5],
+    [6, 7.5],
+    [7, 8.5],
+    [8, 9.5],
+    [9, 10.3],
+    [10, 11.0],
+    [15, 15.0],
+    [20, 17.5],
+    [25, 20.0],
+    [30, 22.5],
+    [35, 24.5],
+    [40, 26.5],
+    [45, 28.5],
+    [50, 30.5],
+    [60, 34.0],
+    [70, 37.0],
+    [80, 40.0],
+    [90, 43.0],
+    [100, 46.0],
+    [120, 51.0],
+    [140, 56.0],
+    [160, 61.0],
+    [180, 65.5],
+    [200, 70.0],
+    [225, 75.0],
+    [250, 80.0],
+    [300, 90.0],
+    [400, 110.0],
+    [500, 130.0],
+    [750, 175.0],
+    [1000, 215.0],
+  ];
+
+  const FLUSHOMETER_CURVE: ReadonlyArray<[number, number]> = [
+    [0, 0],
+    [5, 15.0],
+    [10, 27.0],
+    [15, 31.0],
+    [20, 35.0],
+    [25, 38.0],
+    [30, 41.0],
+    [35, 43.5],
+    [40, 46.0],
+    [45, 48.0],
+    [50, 50.0],
+    [60, 54.0],
+    [70, 58.0],
+    [80, 61.0],
+    [90, 64.0],
+    [100, 67.5],
+    [120, 73.0],
+    [140, 78.0],
+    [160, 83.0],
+    [180, 87.0],
+    [200, 92.0],
+    [225, 97.0],
+    [250, 101.0],
+    [300, 110.0],
+    [400, 126.0],
+    [500, 142.0],
+    [750, 178.0],
+    [1000, 208.0],
+  ];
+
+  function interpolateHunter(curve: ReadonlyArray<[number, number]>, load: number): number {
+    if (load <= 0) return 0;
+    if (load <= curve[1][0]) {
+      // Between 0 and first point: proportional
+      return (load / curve[1][0]) * curve[1][1];
+    }
+    const last = curve[curve.length - 1];
+    if (load >= last[0]) {
+      // Extrapolate past end
+      const prev = curve[curve.length - 2];
+      const slope = (last[1] - prev[1]) / (last[0] - prev[0]);
+      return last[1] + (load - last[0]) * slope;
+    }
+    for (let i = 0; i < curve.length - 1; i++) {
+      const [x0, y0] = curve[i];
+      const [x1, y1] = curve[i + 1];
+      if (load >= x0 && load <= x1) {
+        const factor = (load - x0) / (x1 - x0);
+        return y0 + factor * (y1 - y0);
       }
     }
+    return 0;
   }
+
+  const curveToUse = systemType === "flush_tank" ? FLUSH_TANK_CURVE : FLUSHOMETER_CURVE;
+  const gpm = interpolateHunter(curveToUse, totalWsfu);
 
   const roundedGpm = Math.round(gpm * 10) / 10;
   // 1 US GPM = 0.0630902 L/s

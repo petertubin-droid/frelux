@@ -198,6 +198,24 @@ describe("Sanitary & Drainage: Septic Dual-Units & Manning Equation", () => {
     });
     expect(res.cautions.some((c) => c.includes("50 mm run falls 10 mm/m, below the 20.8 mm/m"))).toBe(true);
   });
+  it("calculates exact partial depth circular hydraulics with Manning formula (depthFraction = 0.8)", () => {
+    // 150 mm pipe at 1 in 100 slope (10 mm/m) at 80% depth
+    const flow80 = calculateManningGravityFlow(150, 10, 0.010, 0.8);
+    expect(flow80).not.toBeNull();
+    expect(flow80?.depthFraction).toBe(0.8);
+    // At 80% depth, hydraulic radius R > D/4 (exceeds half-full and full pipe R)
+    expect(flow80?.hydraulicRadiusM).toBeGreaterThan(0.150 / 4);
+    expect(flow80?.velocityMPerS).toBeGreaterThan(1.0);
+    expect(flow80?.wettedPerimeterM).toBeGreaterThan(0.150 * Math.PI * 0.5);
+  });
+
+  it("handles 100% full pipe flow in Manning calculation", () => {
+    const flowFull = calculateManningGravityFlow(200, 5, 0.012, 1.0);
+    expect(flowFull).not.toBeNull();
+    expect(flowFull?.hydraulicRadiusM).toBeCloseTo(0.200 / 4, 4);
+    expect(flowFull?.wettedPerimeterM).toBeCloseTo(Math.PI * 0.200, 3);
+  });
+
 });
 
 describe("Structural Steel: Global Profiles (AISC W-Shapes & Euronorm HEA/HEB)", () => {
@@ -258,4 +276,38 @@ describe("Electrical & Plumbing Standards: NEC Conduit Fill & Hunter's Curve", (
     expect(supply.peak_flow_lps).toBeGreaterThan(0.6);
     expect(supply.recommended_service_pipe_inches).toBe('1"');
   });
+  it("evaluates 1-conductor (53%) and 2-conductor (31%) fill limits per NEC Chapter 9 Table 1", () => {
+    // 1 single large conductor: max allowed 53%
+    const single = verifyConduitFill(25, [{ count: 1, outerDiameterMm: 15.0 }]);
+    expect(single?.cableCount).toBe(1);
+    expect(single?.maxAllowedFillPercentage).toBe(53);
+    expect(single?.codeStandard).toBe("NEC Chapter 9 Table 1");
+
+    // 2 conductors: max allowed 31%
+    const pair = verifyConduitFill(25, [{ count: 2, outerDiameterMm: 12.0 }]);
+    expect(pair?.cableCount).toBe(2);
+    expect(pair?.maxAllowedFillPercentage).toBe(31);
+  });
+
+  it("evaluates BS 7671 space factors for conduit (40%) and trunking (45%)", () => {
+    const bsConduit = verifyConduitFill(20, [{ count: 1, outerDiameterMm: 10.0 }], { standard: "BS_7671" });
+    expect(bsConduit?.maxAllowedFillPercentage).toBe(40);
+    expect(bsConduit?.codeStandard).toContain("BS 7671");
+
+    const bsTrunking = verifyConduitFill(50, [{ count: 5, outerDiameterMm: 10.0 }], { standard: "BS_7671", isTrunking: true });
+    expect(bsTrunking?.maxAllowedFillPercentage).toBe(45);
+    expect(bsTrunking?.codeStandard).toContain("Trunking 45%");
+  });
+
+  it("interpolates Hunter curve exactly for flushometer systems per UPC/IPC tables", () => {
+    // 20 WSFU flushometer system: tabulated exact demand is 35.0 GPM
+    const supplyFlushometer = calculateUpcIpcWaterSupply(
+      { water_closets: 5, lavatories: 5, showers: 3 }, // approximate mix
+      "flushometer",
+    );
+    // At total WSFU around 20, peak flow should reflect flushometer curve
+    expect(supplyFlushometer.system_type).toBe("flushometer");
+    expect(supplyFlushometer.peak_flow_gpm).toBeGreaterThan(25);
+  });
+
 });

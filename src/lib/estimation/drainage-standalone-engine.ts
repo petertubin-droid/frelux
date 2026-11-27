@@ -203,6 +203,8 @@ export interface ManningGravityFlowResult {
   flowRateM3PerS: number;
   hydraulicRadiusM: number;
   wettedAreaM2: number;
+  wettedPerimeterM: number;
+  depthFraction: number;
   isSelfCleansing: boolean;
   isScourSafe: boolean;
 }
@@ -223,13 +225,47 @@ export function calculateManningGravityFlow(
   nRoughness: number = 0.01,
   depthFraction: number = 0.5,
 ): ManningGravityFlowResult | null {
-  if (diameterMm <= 0 || fallMmPerM <= 0 || nRoughness <= 0) return null;
+  if (
+    !Number.isFinite(diameterMm) ||
+    diameterMm <= 0 ||
+    !Number.isFinite(fallMmPerM) ||
+    fallMmPerM <= 0 ||
+    !Number.isFinite(nRoughness) ||
+    nRoughness <= 0 ||
+    !Number.isFinite(depthFraction) ||
+    depthFraction <= 0
+  ) {
+    return null;
+  }
+
   const dM = diameterMm / 1000;
   const slope = fallMmPerM / 1000; // m/m
+  const cappedDepth = Math.min(Math.max(depthFraction, 0.001), 1.0);
 
-  const isFull = depthFraction >= 0.99;
-  const areaM2 = isFull ? (Math.PI * dM * dM) / 4 : (Math.PI * dM * dM) / 8;
-  const hydRadiusM = dM / 4;
+  let areaM2: number;
+  let perimeterM: number;
+  let hydRadiusM: number;
+
+  if (cappedDepth >= 0.999) {
+    // 100% full pipe flow
+    areaM2 = (Math.PI * dM * dM) / 4;
+    perimeterM = Math.PI * dM;
+    hydRadiusM = dM / 4;
+  } else if (Math.abs(cappedDepth - 0.5) < 0.001) {
+    // Exactly half-full flow (theta = PI)
+    areaM2 = (Math.PI * dM * dM) / 8;
+    perimeterM = (Math.PI * dM) / 2;
+    hydRadiusM = dM / 4;
+  } else {
+    // Exact circular open-channel trigonometry:
+    // y = depth of water = cappedDepth * dM
+    // cos(theta / 2) = 1 - 2*(y / dM) = 1 - 2*cappedDepth
+    const cosHalfTheta = Math.max(-1, Math.min(1, 1 - 2 * cappedDepth));
+    const theta = 2 * Math.acos(cosHalfTheta); // subtended angle in radians (0 to 2*PI)
+    areaM2 = ((dM * dM) / 8) * (theta - Math.sin(theta));
+    perimeterM = (dM * theta) / 2;
+    hydRadiusM = perimeterM > 0 ? areaM2 / perimeterM : dM / 4;
+  }
 
   const velocity =
     (1 / nRoughness) * Math.pow(hydRadiusM, 2 / 3) * Math.sqrt(slope);
@@ -242,6 +278,8 @@ export function calculateManningGravityFlow(
     flowRateM3PerS: Number(flowM3s.toFixed(5)),
     hydraulicRadiusM: Number(hydRadiusM.toFixed(4)),
     wettedAreaM2: Number(areaM2.toFixed(5)),
+    wettedPerimeterM: Number(perimeterM.toFixed(4)),
+    depthFraction: Number(cappedDepth.toFixed(3)),
     isSelfCleansing: velocity >= 0.75,
     isScourSafe: velocity <= 3.0,
   };
