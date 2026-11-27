@@ -82,12 +82,15 @@ function formatFoundationVolume(m3: number, unit: "m" | "ft"): string {
 }
 
 export default function FoundationCalculator() {
+  const [columnWidthInput, setColumnWidthInput] = useState<number | null>(null);
+
   const resetInputs = () => {
     setShape("strip");
     setSoilType("lateritic");
     setCustomBearing(150);
     setWallLoad(40);
     setColumnLoad(200);
+    setColumnWidthInput(null);
     setDepth(0.9);
     setWaterTableDepth(null);
     setBuildingLength(15);
@@ -150,6 +153,13 @@ export default function FoundationCalculator() {
       wall_load: lineLoadToKnPerM(wallLoad, loadSystem),
       column_load:
         shape === "pad" ? pointLoadToKn(columnLoad, loadSystem) : undefined,
+      column_width_mm:
+        shape === "pad" && columnWidthInput !== null && columnWidthInput > 0
+          ? measurementUnit === "ft"
+            ? columnWidthInput * 25.4
+            : columnWidthInput
+          : undefined,
+      market_code: marketCode,
       foundation_depth: measurementUnit === "ft" ? depth * mPerFt : depth,
       bearing_method: waterDepthM !== undefined ? "terzaghi" : undefined,
       ground_water_depth_m: waterDepthM,
@@ -174,6 +184,8 @@ export default function FoundationCalculator() {
     buildingWidth,
     measurementUnit,
     loadSystem,
+    columnWidthInput,
+    marketCode,
   ]);
 
   if (!result) calculate();
@@ -403,6 +415,36 @@ export default function FoundationCalculator() {
                   className="input-field"
                 />
               </div>
+              {shape === "pad" && (
+                <div>
+                  <label
+                    htmlFor="fnd-col-width"
+                    className="text-xs font-medium text-muted-foreground mb-1.5 block"
+                  >
+                    {t("Column face width")} (
+                    {measurementUnit === "ft" ? "in" : "mm"})
+                  </label>
+                  <NumericInput
+                    id="fnd-col-width"
+                    value={columnWidthInput ?? 0}
+                    step={measurementUnit === "ft" ? 1 : 25}
+                    placeholder={
+                      measurementUnit === "ft"
+                        ? "Auto (e.g. 10 in)"
+                        : "Auto (e.g. 250 mm)"
+                    }
+                    onValueChange={(val) =>
+                      setColumnWidthInput(val > 0 ? val : null)
+                    }
+                    className="input-field"
+                  />
+                  <p className="text-[11px] text-muted-foreground mt-1">
+                    {columnWidthInput
+                      ? "Custom project column dimension"
+                      : "Auto: validated against code minimums & axial load"}
+                  </p>
+                </div>
+              )}
               <div>
                 <label
                   htmlFor="fnd-depth"
@@ -762,6 +804,128 @@ export default function FoundationCalculator() {
                 </div>
               </div>
 
+              {/* Pad Structural & Column Face Code Validation */}
+              {result.shape === "pad" && result.column_validation && (
+                <div className="rounded-2xl border border-border bg-card p-5 mb-6 shadow-sm dark:border-white/10 dark:bg-card">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-border/60 gap-2 mb-4">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-5 h-5 text-primary shrink-0" />
+                      <div>
+                        <h4 className="text-sm font-semibold text-foreground">
+                          {t(
+                            "Column Structural & Engineering-Code Verification",
+                          )}
+                        </h4>
+                        <p className="text-xs text-muted-foreground">
+                          Governing Standard:{" "}
+                          {result.column_validation.governing_code}
+                        </p>
+                      </div>
+                    </div>
+                    <span
+                      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        result.column_validation.axial_capacity_check_pass &&
+                        result.punching_shear_check_pass
+                          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+                          : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                      }`}
+                    >
+                      {result.column_validation.is_user_specified
+                        ? "User-Specified Support"
+                        : result.column_validation.engineering_status ===
+                            "axial_load_governed"
+                          ? "Axial-Load Sized Support"
+                          : "Code Standard Support"}
+                    </span>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+                    <div className="rounded-xl border border-border/60 bg-muted/30 p-3">
+                      <span className="text-muted-foreground block mb-1">
+                        Column Face
+                      </span>
+                      <span className="font-bold text-foreground text-sm">
+                        {formatFoundationDimension(
+                          result.column_validation.column_face_mm,
+                          measurementUnit,
+                        )}
+                        {result.column_validation.column_length_mm !==
+                          result.column_validation.column_face_mm &&
+                          ` × ${formatFoundationDimension(
+                            result.column_validation.column_length_mm,
+                            measurementUnit,
+                          )}`}
+                      </span>
+                    </div>
+
+                    <div className="rounded-xl border border-border/60 bg-muted/30 p-3">
+                      <span className="text-muted-foreground block mb-1">
+                        Axial Stress vs. Capacity
+                      </span>
+                      <span className="font-bold text-foreground text-sm">
+                        {result.column_validation.applied_axial_stress_mpa} ≤{" "}
+                        {result.column_validation.allowable_axial_stress_mpa}{" "}
+                        MPa
+                      </span>
+                      <span
+                        className={`text-[11px] block mt-0.5 ${
+                          result.column_validation.axial_capacity_check_pass
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-red-500 font-semibold"
+                        }`}
+                      >
+                        {result.column_validation.axial_capacity_check_pass
+                          ? "✓ Compressive capacity OK"
+                          : "✗ Column undersized / crushing risk"}
+                      </span>
+                    </div>
+
+                    <div className="rounded-xl border border-border/60 bg-muted/30 p-3">
+                      <span className="text-muted-foreground block mb-1">
+                        Punching Shear (1.5d)
+                      </span>
+                      <span className="font-bold text-foreground text-sm">
+                        {result.punching_shear_stress ?? 0} ≤{" "}
+                        {result.punching_shear_capacity ?? 0} N/mm²
+                      </span>
+                      <span
+                        className={`text-[11px] block mt-0.5 ${
+                          result.punching_shear_check_pass
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-red-500 font-semibold"
+                        }`}
+                      >
+                        {result.punching_shear_check_pass
+                          ? "✓ Punching shear PASS"
+                          : "✗ Requires thicker footing"}
+                      </span>
+                    </div>
+
+                    <div className="rounded-xl border border-border/60 bg-muted/30 p-3">
+                      <span className="text-muted-foreground block mb-1">
+                        Face Shear (Column Perimeter)
+                      </span>
+                      <span className="font-bold text-foreground text-sm">
+                        {result.column_validation.face_shear_stress_mpa ?? 0} ≤{" "}
+                        {result.column_validation.face_shear_capacity_mpa ?? 0}{" "}
+                        N/mm²
+                      </span>
+                      <span
+                        className={`text-[11px] block mt-0.5 ${
+                          result.column_validation.face_shear_check_pass
+                            ? "text-emerald-600 dark:text-emerald-400"
+                            : "text-amber-500 font-semibold"
+                        }`}
+                      >
+                        {result.column_validation.face_shear_check_pass
+                          ? "✓ Face shear OK"
+                          : "⚠ Enlarge column face"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Volumes */}
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
                 {[
@@ -923,6 +1087,18 @@ export default function FoundationCalculator() {
                         {result.coren_audit_sheet.factor_of_safety} (
                         {result.bearing_check_pass ? "PASS" : "FAIL"})
                       </div>
+                      {result.coren_audit_sheet
+                        .column_structural_evaluation && (
+                        <div className="sm:col-span-2">
+                          <strong className="text-foreground">
+                            {t("Column Verification")}:
+                          </strong>{" "}
+                          {
+                            result.coren_audit_sheet
+                              .column_structural_evaluation
+                          }
+                        </div>
+                      )}
                     </div>
                     <p className="mt-2 text-[11px] italic text-muted-foreground">
                       {result.coren_audit_sheet.coren_endorsement_placeholder}

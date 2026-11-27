@@ -38,10 +38,6 @@ import type {
 } from "@/lib/engineering/timeline-estimator";
 import { engineOk, engineFail } from "./engine-result";
 
-
-
-
-
 /** Shared structural line shape used by all three engines. */
 interface StructuralLine {
   label: string;
@@ -562,6 +558,17 @@ function registerFoundationCalculatorAdapter(): void {
           typeof typed.building_width === "number" ? typed.building_width : 10;
         const safety_factor =
           typeof typed.safety_factor === "number" ? typed.safety_factor : 3.0;
+        const column_width_mm =
+          typeof typed.column_width_mm === "number" && typed.column_width_mm > 0
+            ? typed.column_width_mm
+            : undefined;
+        const column_length_mm =
+          typeof typed.column_length_mm === "number" &&
+          typed.column_length_mm > 0
+            ? typed.column_length_mm
+            : undefined;
+        const design_code =
+          typeof typed.design_code === "string" ? typed.design_code : undefined;
 
         if (Number.isNaN(wall_load) || wall_load <= 0) {
           return engineFail(
@@ -575,6 +582,10 @@ function registerFoundationCalculatorAdapter(): void {
           soil_type,
           wall_load,
           column_load,
+          column_width_mm,
+          column_length_mm,
+          market_code: marketCode,
+          design_code,
           foundation_depth,
           concrete_grade,
           building_length,
@@ -584,6 +595,15 @@ function registerFoundationCalculatorAdapter(): void {
 
         const quantities = [
           quantityLine("Footing width", res.recommended_width, "mm"),
+          ...(res.column_validation
+            ? [
+                quantityLine(
+                  "Column face",
+                  res.column_validation.column_face_mm,
+                  "mm",
+                ),
+              ]
+            : []),
           quantityLine("Excavation volume", res.excavation_volume, "m³"),
           quantityLine("Concrete volume", res.concrete_volume, "m³"),
           quantityLine("Blinding volume", res.blinding_volume, "m³"),

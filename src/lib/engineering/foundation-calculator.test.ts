@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   designFoundation,
+  validateAndResolveColumnFace,
   SOIL_BEARING_CAPACITY,
   SOIL_DESCRIPTIONS,
   type FoundationDesignInput,
@@ -349,6 +350,191 @@ describe("audit fix F4 — pad footing self-weight & punching shear", () => {
     expect(result.coren_audit_sheet?.governing_code).toContain("BS 8004");
     expect(result.coren_audit_sheet?.coren_endorsement_placeholder).toContain(
       "COREN Registered",
+    );
+  });
+});
+
+describe("validateAndResolveColumnFace, global engineering-code & axial validation", () => {
+  it("validates user-specified column face conforming to code and axial capacity", () => {
+    const res = validateAndResolveColumnFace({
+      column_width_mm: 300,
+      column_load_kn: 300,
+      concrete_grade: "C25",
+    });
+
+    expect(res.is_user_specified).toBe(true);
+    expect(res.column_face_mm).toBe(300);
+    expect(res.column_length_mm).toBe(300);
+    expect(res.axial_capacity_check_pass).toBe(true);
+    expect(res.engineering_status).toBe("verified_conforming");
+    expect(
+      res.validation_notes.some((n) => n.includes("verified conforming")),
+    ).toBe(true);
+  });
+
+  it("flags user-specified column below 200 mm physical structural code minimum", () => {
+    const res = validateAndResolveColumnFace({
+      column_width_mm: 150,
+      column_load_kn: 100,
+      concrete_grade: "C25",
+      design_code: "Eurocode 2",
+    });
+
+    expect(res.is_user_specified).toBe(true);
+    expect(res.column_face_mm).toBe(150);
+    expect(res.engineering_status).toBe("warning_undersized");
+    expect(
+      res.validation_notes.some((n) =>
+        n.includes("below the 200 mm structural concrete code minimum"),
+      ),
+    ).toBe(true);
+  });
+
+  it("flags user-specified column that crushes under heavy axial load", () => {
+    // 200 mm column on 1500 kN load (factored N = 2100 kN, area = 40,000 mm² => stress = 52.5 MPa > 13.28 MPa)
+    const res = validateAndResolveColumnFace({
+      column_width_mm: 200,
+      column_load_kn: 1500,
+      concrete_grade: "C25",
+    });
+
+    expect(res.is_user_specified).toBe(true);
+    expect(res.axial_capacity_check_pass).toBe(false);
+    expect(res.engineering_status).toBe("warning_undersized");
+    expect(
+      res.validation_notes.some((n) =>
+        n.includes("structurally undersized for factored axial load"),
+      ),
+    ).toBe(true);
+    expect(res.axial_capacity_minimum_mm).toBeGreaterThan(350);
+  });
+
+  it("supports rectangular column dimensions and verifies combined cross-sectional area", () => {
+    const res = validateAndResolveColumnFace({
+      column_width_mm: 250,
+      column_length_mm: 400,
+      column_load_kn: 600,
+      concrete_grade: "C25",
+    });
+
+    expect(res.column_face_mm).toBe(250);
+    expect(res.column_length_mm).toBe(400);
+    expect(res.axial_capacity_check_pass).toBe(true);
+  });
+
+  it("resolves market modular standard for Nigeria (225 mm) and India (230 mm)", () => {
+    const resNG = validateAndResolveColumnFace({
+      column_load_kn: 200,
+      concrete_grade: "C25",
+      market_code: "NG",
+    });
+    expect(resNG.is_user_specified).toBe(false);
+    expect(resNG.column_face_mm).toBe(225);
+    expect(resNG.governing_code).toContain("BS 8110");
+
+    const resIN = validateAndResolveColumnFace({
+      column_load_kn: 200,
+      concrete_grade: "C25",
+      market_code: "IN",
+    });
+    expect(resIN.column_face_mm).toBe(230);
+    expect(resIN.governing_code).toContain("IS 456");
+  });
+
+  it("elevates thin masonry leaf markets (GB 100mm, BR 90mm) to the 200 mm structural RC minimum", () => {
+    const resGB = validateAndResolveColumnFace({
+      column_load_kn: 150,
+      concrete_grade: "C25",
+      market_code: "GB",
+    });
+    expect(resGB.column_face_mm).toBe(200);
+
+    const resBR = validateAndResolveColumnFace({
+      column_load_kn: 150,
+      concrete_grade: "C25",
+      market_code: "BR",
+    });
+    expect(resBR.column_face_mm).toBe(200);
+  });
+
+  it("automatically sizes column face when axial load demands larger dimension than code floor", () => {
+    // 1200 kN service load => factored load 1680 kN
+    // at C25 allowable stress 13.28 MPa => required area ~ 126,506 mm² => raw face ~ 355.6 mm => 375 mm
+    const res = validateAndResolveColumnFace({
+      column_load_kn: 1200,
+      concrete_grade: "C25",
+    });
+
+    expect(res.is_user_specified).toBe(false);
+    expect(res.column_face_mm).toBeGreaterThanOrEqual(375);
+    expect(res.engineering_status).toBe("axial_load_governed");
+    expect(res.axial_capacity_check_pass).toBe(true);
+    expect(
+      res.validation_notes.some((n) => n.includes("automatically sized to")),
+    ).toBe(true);
+  });
+});
+
+describe("designFoundation, pad footing complete engineering integration", () => {
+  it("integrates user-specified column face into punching shear and provides validation breakdown", () => {
+    const res = designFoundation({
+      shape: "pad",
+      soil_type: "dense_sand",
+      wall_load: 0,
+      column_load: 400,
+      column_width_mm: 350,
+      foundation_depth: 1.5,
+      concrete_grade: "C25",
+    });
+
+    expect(res.column_validation).toBeDefined();
+    expect(res.column_validation?.column_face_mm).toBe(350);
+    expect(res.column_validation?.is_user_specified).toBe(true);
+    expect(res.punching_shear_check_pass).toBe(true);
+    expect(res.column_validation?.face_shear_check_pass).toBe(true);
+    expect(
+      res.formula_transparency.some((f) =>
+        f.includes("Column face validation: 350×350 mm [User-Specified]"),
+      ),
+    ).toBe(true);
+  });
+
+  it("warns when user-specified column face is undersized for the axial load", () => {
+    const res = designFoundation({
+      shape: "pad",
+      soil_type: "rock",
+      wall_load: 0,
+      column_load: 1400,
+      column_width_mm: 200, // structurally undersized for 1400 kN
+      foundation_depth: 1.5,
+      concrete_grade: "C25",
+    });
+
+    expect(res.column_validation?.axial_capacity_check_pass).toBe(false);
+    expect(
+      res.warnings.some((w) =>
+        w.includes("structurally undersized for factored axial load"),
+      ),
+    ).toBe(true);
+  });
+
+  it("populates COREN audit sheet with column structural evaluation", () => {
+    const res = designFoundation({
+      shape: "pad",
+      soil_type: "dense_sand",
+      wall_load: 0,
+      column_load: 300,
+      market_code: "NG",
+      foundation_depth: 1.5,
+      concrete_grade: "C25",
+    });
+
+    expect(res.coren_audit_sheet?.column_structural_evaluation).toBeDefined();
+    expect(res.coren_audit_sheet?.column_structural_evaluation).toContain(
+      "225×225 mm",
+    );
+    expect(res.coren_audit_sheet?.column_structural_evaluation).toContain(
+      "PASS",
     );
   });
 });
