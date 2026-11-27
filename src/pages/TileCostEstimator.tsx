@@ -1,3 +1,4 @@
+import StandaloneEstimateAccuracyFeedback from "@/components/calculators/StandaloneEstimateAccuracyFeedback";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -336,13 +337,13 @@ export default function TileCostEstimator({
   } = useProjectLocationCurrency(passed.projectLocation ?? null);
   const currencySymbol =
     projectCurrencySymbol ??
-    settings?.default_currency_symbol ??
     market?.currencySymbol ??
+    settings?.default_currency_symbol ??
     "₦";
   const currency =
     projectCurrencyCode ??
-    settings?.default_currency ??
     market?.currencyCode ??
+    settings?.default_currency ??
     "NGN";
 
   const mountedRef = useRef(true);
@@ -1234,6 +1235,7 @@ export default function TileCostEstimator({
               </div>
               {result && (
                 <div className="border-t border-border/50 px-6 py-3 dark:border-white/5">
+                  <StandaloneEstimateAccuracyFeedback />
                   <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
                   <AdSlot slotKey="calculator_mid" className="mt-8" />
                   <AdSlot slotKey="calculator_native" className="mt-8" />

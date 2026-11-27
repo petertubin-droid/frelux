@@ -1,3 +1,4 @@
+import StandaloneEstimateAccuracyFeedback from "@/components/calculators/StandaloneEstimateAccuracyFeedback";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -1057,6 +1058,7 @@ export default function ScreedingCostEstimator({
                 </div>
                 {result && (
                   <div className="border-t border-border/50 px-6 py-3 dark:border-white/5">
+                    <StandaloneEstimateAccuracyFeedback />
                     <EstimateDisclaimer
                       text={calcDefaults.estimateDisclaimer}
                     />

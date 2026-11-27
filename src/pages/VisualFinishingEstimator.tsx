@@ -1,3 +1,4 @@
+import StandaloneEstimateAccuracyFeedback from "@/components/calculators/StandaloneEstimateAccuracyFeedback";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import React from "react";
 import Container from "@/components/ui/Container";
@@ -40,6 +41,7 @@ export default function VisualFinishingEstimatorPage() {
           <RelatedTools links={Object.values(CALC_LINKS)} />
         </div>
       </Container>
+      <StandaloneEstimateAccuracyFeedback />
       <EstimateDisclaimer />
     </>
   );

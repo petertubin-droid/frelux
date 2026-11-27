@@ -1,3 +1,4 @@
+import StandaloneEstimateAccuracyFeedback from "@/components/calculators/StandaloneEstimateAccuracyFeedback";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import { MacroTrackerCard } from "@/components/pricing/MacroTrackerCard";
 import PriceFreshnessNotice from "@/components/prices/PriceFreshnessNotice";
@@ -1458,6 +1459,7 @@ export default function CostEstimator({
                   <HowCalculatedSection
                     methodologyText={methodologyText("cost")}
                   />
+                  <StandaloneEstimateAccuracyFeedback />
                   <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
                   <ReportCalculationIssue
                     calculatorType="cost"

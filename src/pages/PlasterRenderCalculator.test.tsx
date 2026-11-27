@@ -26,6 +26,11 @@ describe("PlasterRenderCalculator", () => {
     // default system is exterior render: its topcoat line must appear
     expect(screen.getAllByText(/Topcoat/i).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/primer/i).length).toBeGreaterThan(0);
+    expect(screen.getByText("Area units")).toBeInTheDocument();
+    expect(screen.getByText("Length units")).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: /How this estimate is calculated/i }),
+    ).toBeInTheDocument();
   });
 
   it("carries the how-to, cost and about blocks a catalogued calculator owes", () => {

@@ -26,12 +26,12 @@ const files = readdirSync(PAGES)
  * file reported those shells' share button and disclaimer as missing. Resolve
  * one level of delegation so a feature counts wherever it actually renders.
  */
-const SHELLS = ["ConfigurableFinishCalculator", "SpecialtyCalculatorShell"];
+const SHELLS = ["ConfigurableFinishCalculator", "SpecialtyCalculatorShell", "ToolShell"];
 const shellCache = new Map();
 function shellProvides(name) {
   if (shellCache.has(name)) return shellCache.get(name);
   let source = "";
-  for (const dir of [PAGES, "src/components/calculators"]) {
+  for (const dir of [PAGES, "src/components/calculators", "src/components/tools"]) {
     try {
       source = readFileSync(join(dir, name + ".tsx"), "utf8");
       break;
@@ -43,10 +43,20 @@ function shellProvides(name) {
   return source;
 }
 
+function resolveShells(source, seen = new Set()) {
+  let resolved = source;
+  for (const name of SHELLS) {
+    if (seen.has(name) || !new RegExp(`<${name}\\b`).test(source)) continue;
+    seen.add(name);
+    const shell = shellProvides(name);
+    resolved += "\n" + resolveShells(shell, seen);
+  }
+  return resolved;
+}
+
 const rows = files.map((file) => {
   const own = readFileSync(join(PAGES, file), "utf8");
-  const delegated = SHELLS.filter((n) => own.includes("<" + n));
-  const s = own + delegated.map(shellProvides).join("\n");
+  const s = resolveShells(own);
   const adSlots = (s.match(/<AdSlot/g) ?? []).length;
   const inputs = (s.match(/<input\b/g) ?? []).length;
   // A field wrapper carrying a label prop counts as a label: most calculators
@@ -76,7 +86,7 @@ const rows = files.map((file) => {
     kind: redirect ? "redirect" : hub ? "index" : "calculator",
     file,
     // Thin wrappers delegate to a shared shell that renders the header.
-    header: /PageHeader|SpecialtyCalculatorShell|ConfigurableFinishCalculator/.test(s),
+    header: /PageHeader|SpecialtyCalculatorShell|ConfigurableFinishCalculator|ToolShell/.test(s),
     ads: adSlots,
     adRule: adSlots <= 3,
     share:
@@ -86,6 +96,7 @@ const rows = files.map((file) => {
     reset: /CalculatorResetButton|setState\(|Reset/.test(s),
     method: /HowCalculatedSection|HowCalculated/.test(s),
     disclaimer: /EstimateDisclaimer|estimateOnly|Disclaimer/i.test(s),
+    accuracyFeedback: /EstimateAccuracyFeedback/.test(s),
     unlabelledInputs: Math.max(0, inputs - labels - aria),
     feet,
     // Only unprefixed fixed pixel widths are a phone overflow risk; a
@@ -101,6 +112,7 @@ const fails = (pred) => real.filter((r) => !pred(r));
 const share = fails((r) => r.share);
 const method = fails((r) => r.method);
 const disclaimer = fails((r) => r.disclaimer);
+const accuracyFeedback = fails((r) => r.accuracyFeedback);
 const header = fails((r) => r.header);
 const ads = real.filter((r) => !r.adRule);
 const labelling = real.filter((r) => r.unlabelledInputs > 0);
@@ -131,6 +143,7 @@ console.log(
 console.log(`no share/PDF:     ${share.length}`);
 console.log(`no method note:   ${method.length}`);
 console.log(`no disclaimer:    ${disclaimer.length}`);
+console.log(`no accuracy feedback: ${accuracyFeedback.length}`);
 console.log(`inputs possibly unlabelled: ${labelling.length}`);
 console.log(
   `no feet reference: ${feetUnexplained.length} unexplained, ${feetExempt.length} exempt (no length entered)`,
@@ -145,13 +158,14 @@ if (process.argv.includes("--verbose")) {
   show("missing share", share);
   show("missing method", method);
   show("missing disclaimer", disclaimer);
+  show("missing accuracy feedback", accuracyFeedback);
   show("over ad slots", ads);
   show("no feet, exempt", feetExempt);
 }
 
 if (process.argv.includes("--write")) {
   const line = (r) =>
-    `| \`${r.file}\` | ${r.kind} | ${r.header ? "yes" : "**no**"} | ${r.ads} | ${r.share ? "yes" : "**no**"} | ${r.method ? "yes" : "**no**"} | ${r.disclaimer ? "yes" : "**no**"} | ${r.unlabelledInputs || ""} |`;
+    `| \`${r.file}\` | ${r.kind} | ${r.header ? "yes" : "**no**"} | ${r.ads} | ${r.share ? "yes" : "**no**"} | ${r.method ? "yes" : "**no**"} | ${r.disclaimer ? "yes" : "**no**"} | ${r.accuracyFeedback ? "yes" : "**no**"} | ${r.unlabelledInputs || ""} |`;
   const body = [
     "---",
     "title: Calculator UI audit",
@@ -171,13 +185,14 @@ if (process.argv.includes("--write")) {
     `- Missing share or PDF: ${share.length}`,
     `- Missing method explanation: ${method.length}`,
     `- Missing disclaimer: ${disclaimer.length}`,
+    `- Missing estimate accuracy feedback: ${accuracyFeedback.length}`,
     `- Inputs that may lack a label: ${labelling.length} pages`,
     `- No feet reference at all (only a defect on length based tools): ${feet.length}`,
     `- Fixed wide layout that can overflow a phone: ${wide.length}`,
     "",
     "## Per page",
     "",
-    "| Page | Kind | Header | Ads | Share/PDF | Method | Disclaimer | Unlabelled inputs |",
+    "| Page | Kind | Header | Ads | Share/PDF | Method | Disclaimer | Accuracy feedback | Unlabelled inputs |",
     "| --- | --- | --- | --- | --- | --- | --- | --- |",
     ...rows.sort((a, b) => a.file.localeCompare(b.file)).map(line),
     "",

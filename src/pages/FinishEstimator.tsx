@@ -1,3 +1,4 @@
+import StandaloneEstimateAccuracyFeedback from "@/components/calculators/StandaloneEstimateAccuracyFeedback";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import AdSlot from "@/components/ui/AdSlot";
 import { useState, useEffect, useRef } from "react";
@@ -269,8 +270,9 @@ export default function FinishEstimator({
     currencySymbol: projectCurrencySymbol,
   } = useProjectLocationCurrency(passed.projectLocation ?? null);
   const currencySymbol =
-    projectCurrencySymbol ?? settings?.default_currency_symbol ?? "₦";
-  const currency = projectCurrencyCode ?? settings?.default_currency ?? "NGN";
+    projectCurrencySymbol ?? market?.currencySymbol ?? settings?.default_currency_symbol ?? "₦";
+  const currency =
+    projectCurrencyCode ?? market?.currencyCode ?? settings?.default_currency ?? "NGN";
 
   const [areaInput, setAreaInput] = useState<ScreedingCalcInput>({
     method: "full_room",
@@ -1006,6 +1008,7 @@ export default function FinishEstimator({
                 },
               ]}
             />
+            <StandaloneEstimateAccuracyFeedback />
             <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
             <AdSlot slotKey="calculator_mid" className="mt-8" />
             <AdSlot slotKey="calculator_native" className="mt-8" />

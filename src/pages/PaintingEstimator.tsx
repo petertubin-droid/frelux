@@ -7,6 +7,7 @@
  * 5. Colour → 6. Surface condition → 7. Ceiling → 8. Coats → 9. Preparation → 10. Calculate → 11. Estimate
  */
 
+import StandaloneEstimateAccuracyFeedback from "@/components/calculators/StandaloneEstimateAccuracyFeedback";
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
@@ -2554,6 +2555,7 @@ function EstimateResult({
             />
           </div>
 
+          <StandaloneEstimateAccuracyFeedback />
           <EstimateDisclaimer text="Estimates are indicative and not a formal quote." />
           <AdSlot slotKey="calculator_mid" className="mt-8" />
           <AdSlot slotKey="calculator_native" className="mt-8" />

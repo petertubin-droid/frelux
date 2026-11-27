@@ -1,3 +1,4 @@
+import StandaloneEstimateAccuracyFeedback from "@/components/calculators/StandaloneEstimateAccuracyFeedback";
 import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
 import { tileCalculatorGuide } from "@/content/calculator-guides/tile-calculator";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -2049,6 +2050,7 @@ function TileResultCard({
           { label: "Method", value: input.method },
         ]}
       />
+      <StandaloneEstimateAccuracyFeedback />
       <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
       <ReportCalculationIssue
         calculatorType="tile"

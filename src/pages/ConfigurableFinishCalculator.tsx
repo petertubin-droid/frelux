@@ -16,6 +16,7 @@
 
 import { methodologyText } from "@/lib/calculatorMethodology";
 import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import EstimateAccuracyFeedback from "@/components/calculators/EstimateAccuracyFeedback";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
 import AdSlot from "@/components/ui/AdSlot";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -898,6 +899,7 @@ export default function ConfigurableFinishCalculator({
                             "configurable-finish",
                           )}
                         />
+                        <EstimateAccuracyFeedback toolId={calculatorType} />
                         <ShareEstimateButton
                           showPdf={false}
                           estimate={{

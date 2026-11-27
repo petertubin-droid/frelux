@@ -1,4 +1,6 @@
 import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import { methodologyText } from "@/lib/calculatorMethodology";
 import { plasterRenderCalculatorGuide } from "@/content/calculator-guides/plaster-render-calculator";
 import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
@@ -16,6 +18,9 @@ import {
   type RenderGrainMm,
 } from "@/lib/estimation/plaster-render-engine";
 import { useMarket } from "@/lib/international/market-context";
+import UnitToggle from "@/components/measurement/UnitToggle";
+import AreaUnitToggle from "@/components/measurement/AreaUnitToggle";
+import { useAreaUnit, useLengthUnit, useMarketAreaUnit } from "@/lib/use-length-unit";
 
 const SYSTEMS: Array<{
   key: PlasterSystem;
@@ -74,8 +79,10 @@ const inputClass =
   "w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-brand-purple focus:outline-none";
 
 export default function PlasterRenderCalculator() {
-  const { marketCode } = useMarket();
+  const { marketCode, preferredLengthUnit } = useMarket();
   const { t } = useTechnicalLabels();
+  const lengthUnit = useLengthUnit(preferredLengthUnit);
+  const areaUnit = useAreaUnit(useMarketAreaUnit());
 
   const [system, setSystem] = useState<PlasterSystem>("exterior_render");
   const [substrate, setSubstrate] = useState<PlasterSubstrate>("clay_brick");
@@ -177,20 +184,29 @@ export default function PlasterRenderCalculator() {
             </div>
 
             <div className="grid grid-cols-2 gap-3">
-              <Field label="Net area (m²)">
+              <div className="col-span-2 flex flex-wrap items-center justify-between gap-2">
+                <span className="text-xs text-muted-foreground">Area units</span>
+                <AreaUnitToggle
+                  value={areaUnit.unit === "sqm" ? "m2" : "ft2"}
+                  onChange={(unit) =>
+                    areaUnit.setUnit(unit === "m2" ? "sqm" : "sqft")
+                  }
+                />
+              </div>
+              <Field label={`Net area (${areaUnit.label})`}>
                 <input
                   className={inputClass}
                   inputMode="decimal"
-                  value={areaM2}
-                  onChange={(e) => setAreaM2(e.target.value)}
+                  value={areaM2 === "" ? "" : String(areaUnit.fromSqm(Number(areaM2) || 0))}
+                  onChange={(e) => setAreaM2(e.target.value === "" ? "" : String(areaUnit.toSqm(e.target.value)))}
                 />
               </Field>
-              <Field label="Openings deducted (m²)">
+              <Field label={`Openings deducted (${areaUnit.label})`}>
                 <input
                   className={inputClass}
                   inputMode="decimal"
-                  value={openingAreaM2}
-                  onChange={(e) => setOpeningAreaM2(e.target.value)}
+                  value={openingAreaM2 === "" ? "" : String(areaUnit.fromSqm(Number(openingAreaM2) || 0))}
+                  onChange={(e) => setOpeningAreaM2(e.target.value === "" ? "" : String(areaUnit.toSqm(e.target.value)))}
                 />
               </Field>
             </div>
@@ -278,21 +294,25 @@ export default function PlasterRenderCalculator() {
               </div>
             )}
 
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span className="text-xs text-muted-foreground">Length units</span>
+              <UnitToggle value={lengthUnit.unit} onChange={lengthUnit.setUnit} />
+            </div>
             <div className="grid grid-cols-2 gap-3">
-              <Field label="External corners (m)">
+              <Field label={`External corners (${lengthUnit.label})`}>
                 <input
                   className={inputClass}
                   inputMode="decimal"
-                  value={cornerM}
-                  onChange={(e) => setCornerM(e.target.value)}
+                  value={cornerM === "" ? "" : String(lengthUnit.fromMetres(Number(cornerM) || 0))}
+                  onChange={(e) => setCornerM(e.target.value === "" ? "" : String(lengthUnit.toMetres(e.target.value)))}
                 />
               </Field>
-              <Field label="Reveal perimeter (m)">
+              <Field label={`Reveal perimeter (${lengthUnit.label})`}>
                 <input
                   className={inputClass}
                   inputMode="decimal"
-                  value={perimeterM}
-                  onChange={(e) => setPerimeterM(e.target.value)}
+                  value={perimeterM === "" ? "" : String(lengthUnit.fromMetres(Number(perimeterM) || 0))}
+                  onChange={(e) => setPerimeterM(e.target.value === "" ? "" : String(lengthUnit.toMetres(e.target.value)))}
                 />
               </Field>
             </div>
@@ -455,6 +475,8 @@ export default function PlasterRenderCalculator() {
                 </ul>
               </div>
             )}
+
+            <HowCalculatedSection methodologyText={methodologyText("plaster-render")} />
 
             <p className="text-xs text-muted-foreground">
               Rates are published manufacturer figures (Knauf MP 75, Baumit

@@ -1,3 +1,4 @@
+import StandaloneEstimateAccuracyFeedback from "@/components/calculators/StandaloneEstimateAccuracyFeedback";
 import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
 import { paintCalculatorGuide } from "@/content/calculator-guides/paint-calculator";
 import DeviceRoomsBar from "@/components/rooms/DeviceRoomsBar";
@@ -2872,6 +2873,7 @@ function ResultCard({
             },
           ]}
         />
+        <StandaloneEstimateAccuracyFeedback />
         <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
         <ReportCalculationIssue
           calculatorType="painting"

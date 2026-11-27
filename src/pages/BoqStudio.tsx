@@ -1,3 +1,4 @@
+import StandaloneEstimateAccuracyFeedback from "@/components/calculators/StandaloneEstimateAccuracyFeedback";
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
 import { RelatedTools, CALC_LINKS } from "@/components/seo/SeoSections";
 import AdSlot from "@/components/ui/AdSlot";
@@ -1978,6 +1979,7 @@ export default function BoqStudio() {
             },
           ]}
         />
+        <StandaloneEstimateAccuracyFeedback />
         <EstimateDisclaimer />
       </ScreenProtection>
 

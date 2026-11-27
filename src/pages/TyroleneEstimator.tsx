@@ -1,3 +1,4 @@
+import StandaloneEstimateAccuracyFeedback from "@/components/calculators/StandaloneEstimateAccuracyFeedback";
 import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
 import { tyroleneEstimatorGuide } from "@/content/calculator-guides/tyrolene-estimator";
 /**
@@ -1774,6 +1775,7 @@ export default function TyroleneEstimator({
                         },
                       ]}
                     />
+                    <StandaloneEstimateAccuracyFeedback />
                     <EstimateDisclaimer
                       text={calcDefaults.estimateDisclaimer}
                     />

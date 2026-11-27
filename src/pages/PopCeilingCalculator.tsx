@@ -1,3 +1,4 @@
+import StandaloneEstimateAccuracyFeedback from "@/components/calculators/StandaloneEstimateAccuracyFeedback";
 import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
 import { popCeilingCalculatorGuide } from "@/content/calculator-guides/pop-ceiling-calculator";
 import CalculatorResetButton from "@/components/calculators/CalculatorResetButton";
@@ -1084,6 +1085,7 @@ function PopResultCard({
             { label: "Workflow", value: input.workflow },
           ]}
         />
+        <StandaloneEstimateAccuracyFeedback />
         <EstimateDisclaimer text={calcDefaults.estimateDisclaimer} />
         <ReportCalculationIssue
           calculatorType="pop_ceiling"

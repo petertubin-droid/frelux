@@ -1,4 +1,6 @@
 import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
+import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
+import { methodologyText } from "@/lib/calculatorMethodology";
 import { defsCalculatorGuide } from "@/content/calculator-guides/defs-calculator";
 import OpeningsEditor, {
   type OpeningRow,
@@ -514,6 +516,7 @@ export default function DefsCalculator() {
                 ))}
               </ul>
             </div>
+            <HowCalculatedSection methodologyText={methodologyText("defs")} />
           </>
         )}
 

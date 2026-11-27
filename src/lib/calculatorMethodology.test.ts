@@ -49,6 +49,8 @@ describe("calculator methodology notes", () => {
     expect(methodologyText("painting")).toMatch(/2 coats|two coats/i);
     expect(methodologyText("foundation")).toMatch(/bearing pressure/i);
     expect(methodologyText("build-to-roof")).toMatch(/mix ratios/i);
+    expect(methodologyText("defs")).toMatch(/board.*waste/i);
+    expect(methodologyText("plaster-render")).toMatch(/market packaging/i);
   });
 
   it("returns nothing for an unknown key instead of an empty panel", () => {

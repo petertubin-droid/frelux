@@ -228,6 +228,7 @@ export function SpecialtyCalculatorShell({
     <ToolShell
       route={routePath}
       methodologyLink={Boolean(methodology && result?.ok)}
+      showAccuracyFeedback={false}
       relatedLinks={related}
     >
       <Container className="pb-16 pt-6">
