@@ -50,8 +50,12 @@ export interface HeatComfortResult {
   /** Fraction of incident solar energy absorbed by the current finish */
   current_absorbed_fraction: number | null;
   proposed_absorbed_fraction: number | null;
+  /** Surface area in square feet */
+  area_sqft: number | null;
   /** kWh/day of solar energy no longer absorbed (positive = cooling benefit) */
   daily_energy_delta_kwh: number | null;
+  /** BTU/day of solar energy no longer absorbed (ASHRAE HVAC cooling equivalent) */
+  daily_energy_delta_btu: number | null;
   /** Percentage reduction in absorbed solar energy (null when base is 0) */
   reduction_percent: number | null;
   /** Admin threshold: does the reduction count as a meaningful cooling benefit? */
@@ -71,7 +75,7 @@ export interface HeatComfortResult {
 
 
 const MAX_DP = 4;
-const SQFT_TO_M2 = 0.092903;
+const SQFT_TO_M2 = 0.09290304;
 
 // ─────────────────────────────────────────────
 // Engine
@@ -90,7 +94,9 @@ export function calculateHeatComfort(
     proposed_albedo: null,
     current_absorbed_fraction: null,
     proposed_absorbed_fraction: null,
+    area_sqft: null,
     daily_energy_delta_kwh: null,
+    daily_energy_delta_btu: null,
     reduction_percent: null,
     meaningful_benefit: null,
     direction: null,
@@ -119,6 +125,7 @@ export function calculateHeatComfort(
     return result;
   }
   result.area_sqm = roundTo(area, 2);
+  result.area_sqft = roundTo(area / SQFT_TO_M2, 1);
 
   const curCat = input.current_category?.trim();
   const propCat = input.proposed_category?.trim();
@@ -216,10 +223,12 @@ export function calculateHeatComfort(
     decimals,
   );
   result.daily_energy_delta_kwh = deltaKwh;
+  const btuDelta = deltaKwh !== null ? Math.round(deltaKwh * 3412.142) : null;
+  result.daily_energy_delta_btu = btuDelta;
 
   result.steps.push({
     label: "Daily energy delta",
-    detail: `${result.area_sqm} m² × ${irradiance} kWh/m²/day (configured rule) × (${propAlbedo} − ${curAlbedo}) = ${deltaKwh} kWh/day. Positive means less solar energy absorbed: a cooling benefit.`,
+    detail: `${result.area_sqm} m² (${result.area_sqft} sq ft) × ${irradiance} kWh/m²/day (configured rule) × (${propAlbedo} − ${curAlbedo}) = ${deltaKwh} kWh/day (${btuDelta} BTU/day). Positive means less solar energy absorbed: a cooling benefit.`,
   });
 
   // ── 4. Reduction percentage - use unrounded base to prevent premature division by zero ──

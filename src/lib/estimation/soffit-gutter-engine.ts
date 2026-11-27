@@ -71,20 +71,39 @@ export interface SoffitGutterInput {
   /** Either measure the eaves perimeter, or derive it from a footprint. */
   mode: "perimeter" | "footprint";
   perimeter_m?: number | null;
+  perimeter_ft?: number | null;
   building_length_m?: number | null;
+  building_length_ft?: number | null;
   building_width_m?: number | null;
+  building_width_ft?: number | null;
   overhang_m: number;
+  overhang_in?: number | null;
   material: SoffitMaterial;
 }
 
 export function resolveEavesPerimeter(input: SoffitGutterInput): number | null {
+  const o =
+    Number.isFinite(input.overhang_m) && (input.overhang_m as number) > 0
+      ? (input.overhang_m as number)
+      : Number.isFinite(input.overhang_in) && (input.overhang_in as number) > 0
+        ? (input.overhang_in as number) * 0.0254
+        : (Number.isFinite(input.overhang_m) ? Number(input.overhang_m) : 0);
+
   if (input.mode === "perimeter") {
-    const p = Number(input.perimeter_m);
+    let p = Number(input.perimeter_m);
+    if ((!Number.isFinite(p) || p <= 0) && Number.isFinite(input.perimeter_ft) && (input.perimeter_ft as number) > 0) {
+      p = (input.perimeter_ft as number) * 0.3048;
+    }
     return Number.isFinite(p) && p > 0 ? money(p) : null;
   }
-  const l = Number(input.building_length_m);
-  const w = Number(input.building_width_m);
-  const o = Number(input.overhang_m);
+  let l = Number(input.building_length_m);
+  if ((!Number.isFinite(l) || l <= 0) && Number.isFinite(input.building_length_ft) && (input.building_length_ft as number) > 0) {
+    l = (input.building_length_ft as number) * 0.3048;
+  }
+  let w = Number(input.building_width_m);
+  if ((!Number.isFinite(w) || w <= 0) && Number.isFinite(input.building_width_ft) && (input.building_width_ft as number) > 0) {
+    w = (input.building_width_ft as number) * 0.3048;
+  }
   if (!Number.isFinite(l) || l <= 0) return null;
   if (!Number.isFinite(w) || w <= 0) return null;
   if (!Number.isFinite(o) || o < 0) return null;
@@ -106,8 +125,15 @@ export function calculateSoffitGutter(
         : "Enter the building length and width, both greater than zero.",
     );
   }
-  if (!Number.isFinite(input.overhang_m) || input.overhang_m < 0) {
-    errors.push("Eaves overhang width must be zero or more (metres).");
+  const effectiveOverhangM =
+    Number.isFinite(input.overhang_m) && (input.overhang_m as number) > 0
+      ? (input.overhang_m as number)
+      : Number.isFinite(input.overhang_in) && (input.overhang_in as number) > 0
+        ? (input.overhang_in as number) * 0.0254
+        : (Number.isFinite(input.overhang_m) ? Number(input.overhang_m) : 0);
+
+  if (!Number.isFinite(effectiveOverhangM) || effectiveOverhangM < 0) {
+    errors.push("Eaves overhang width must be zero or more (metres or inches).");
   }
   if (errors.length > 0 || perimeter === null) return emptyResult(errors);
 
@@ -120,8 +146,14 @@ export function calculateSoffitGutter(
   // band of 31.44 m2, and the error grows with the overhang. When the footprint
   // is known the exact band is (L + 2o)(W + 2o) - L x W; when only a measured
   // perimeter is known the strip figure stays, as an upper bound.
-  const lengthM = Number(input.building_length_m);
-  const widthM = Number(input.building_width_m);
+  let lengthM = Number(input.building_length_m);
+  if ((!Number.isFinite(lengthM) || lengthM <= 0) && Number.isFinite(input.building_length_ft) && (input.building_length_ft as number) > 0) {
+    lengthM = (input.building_length_ft as number) * 0.3048;
+  }
+  let widthM = Number(input.building_width_m);
+  if ((!Number.isFinite(widthM) || widthM <= 0) && Number.isFinite(input.building_width_ft) && (input.building_width_ft as number) > 0) {
+    widthM = (input.building_width_ft as number) * 0.3048;
+  }
   const hasFootprint =
     input.mode === "footprint" &&
     Number.isFinite(lengthM) &&
@@ -129,9 +161,9 @@ export function calculateSoffitGutter(
     lengthM > 0 &&
     widthM > 0;
   const soffitBandArea = hasFootprint
-    ? (lengthM + 2 * input.overhang_m) * (widthM + 2 * input.overhang_m) -
+    ? (lengthM + 2 * effectiveOverhangM) * (widthM + 2 * effectiveOverhangM) -
       lengthM * widthM
-    : perimeter * input.overhang_m;
+    : perimeter * effectiveOverhangM;
   const soffitArea = money(soffitBandArea * wasteFactor);
   const downpipes = ceilQty(perimeter / rules.downpipe_spacing_m);
   const brackets = ceilQty(gutterLength / rules.bracket_spacing_m);

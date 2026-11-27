@@ -260,8 +260,18 @@ export function stringSeriesLimits(params: {
   const mpptMin = num(params.inverter_mppt_min_v);
   const tMin = Number(params.design_min_cell_temp_c);
   const tMax = Number(params.design_max_cell_temp_c);
-  const bVoc = Number(params.module_voc_temp_coeff_per_c);
-  const bVmp = Number(params.module_vmp_temp_coeff_per_c);
+  let bVoc = Number(params.module_voc_temp_coeff_per_c);
+  if (Number.isFinite(bVoc)) {
+    // If entered as percentage (e.g. -0.28 %/degC), convert to fraction per degC (-0.0028)
+    if (Math.abs(bVoc) > 0.05) bVoc /= 100;
+    // Standard silicon PV cells always have a negative Voc temperature coefficient
+    if (bVoc > 0) bVoc = -bVoc;
+  }
+  let bVmp = Number(params.module_vmp_temp_coeff_per_c);
+  if (Number.isFinite(bVmp)) {
+    if (Math.abs(bVmp) > 0.05) bVmp /= 100;
+    if (bVmp > 0) bVmp = -bVmp;
+  }
 
   const vocCold =
     voc !== null && Number.isFinite(tMin) && Number.isFinite(bVoc)
@@ -347,19 +357,18 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
   }
 
   // ── Validation: mode inputs ────────────────────────────
+  const SQFT_TO_M2 = 0.09290304;
+  let effectiveRoofAreaM2: number | null = null;
+  if (Number.isFinite(input.usable_roof_area_m2) && (input.usable_roof_area_m2 as number) > 0) {
+    effectiveRoofAreaM2 = input.usable_roof_area_m2 as number;
+  } else if (Number.isFinite(input.usable_roof_area_sqft) && (input.usable_roof_area_sqft as number) > 0) {
+    effectiveRoofAreaM2 = (input.usable_roof_area_sqft as number) * SQFT_TO_M2;
+  }
+
   if (mode === "roof_area") {
-    let area = input.usable_roof_area_m2 ?? NaN;
-    const roofAreaSqft = input.usable_roof_area_sqft ?? NaN;
-    if (
-      (!area || !Number.isFinite(area) || area <= 0) &&
-      Number.isFinite(roofAreaSqft) &&
-      roofAreaSqft > 0
-    ) {
-      area = roofAreaSqft * 0.092903;
-    }
-    if (!Number.isFinite(area) || area <= 0) {
+    if (effectiveRoofAreaM2 === null || effectiveRoofAreaM2 <= 0) {
       return refuse([
-        "Enter the usable roof area in square metres: it must be a positive number.",
+        "Enter the usable roof area in square metres or square feet: it must be a positive number.",
       ]);
     }
   } else {
@@ -442,14 +451,14 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
   let panelCount: number;
 
   if (mode === "roof_area") {
-    panelCount = Math.floor(input.usable_roof_area_m2! / panelArea);
+    panelCount = Math.floor(effectiveRoofAreaM2! / panelArea);
     steps.push({
       label: "Panels that fit the roof",
-      detail: `floor(${r(input.usable_roof_area_m2!)} m² ÷ ${r(panelArea)} m² per panel) = ${panelCount} panels.`,
+      detail: `floor(${r(effectiveRoofAreaM2!)} m² ÷ ${r(panelArea)} m² per panel) = ${panelCount} panels.`,
     });
     if (panelCount < 1) {
       return refuse([
-        `The usable roof area (${r(input.usable_roof_area_m2!)} m²) is smaller than one panel (${r(panelArea)} m²). There is nothing to estimate: no invented numbers.`,
+        `The usable roof area (${r(effectiveRoofAreaM2!)} m²) is smaller than one panel (${r(panelArea)} m²). There is nothing to estimate: no invented numbers.`,
       ]);
     }
   } else {
@@ -473,12 +482,11 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
       detail: `${panelCount} × ${r(panelArea)} m² = ${r(neededArea)} m² of roof needed.`,
     });
     if (
-      Number.isFinite(input.usable_roof_area_m2) &&
-      input.usable_roof_area_m2! > 0 &&
-      neededArea > input.usable_roof_area_m2!
+      effectiveRoofAreaM2 !== null &&
+      neededArea > effectiveRoofAreaM2
     ) {
       return refuse([
-        `This target needs ${r(neededArea)} m² of roof but only ${r(input.usable_roof_area_m2!)} m² is available. The estimator refuses to produce a plan that physically cannot fit.`,
+        `This target needs ${r(neededArea)} m² of roof but only ${r(effectiveRoofAreaM2)} m² is available. The estimator refuses to produce a plan that physically cannot fit.`,
       ]);
     }
   }
@@ -543,7 +551,7 @@ export function calculateSolarPv(input: SolarPvInput): SolarPvResult {
   });
   steps.push({
     label: "Strings",
-    detail: `ceil(${panelCount} ÷ ${rv.string_size_max} max per string) = ${strings} strings: one DC breaker each.`,
+    detail: `ceil(${panelCount} ÷ ${seriesMax} max per string) = ${strings} strings: one DC breaker each.`,
   });
 
   // ── Battery bank (only when storage is requested) ─────

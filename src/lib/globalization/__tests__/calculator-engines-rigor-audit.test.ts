@@ -311,3 +311,193 @@ describe("Electrical & Plumbing Standards: NEC Conduit Fill & Hunter's Curve", (
   });
 
 });
+
+describe("Global Readiness: Imperial Takeoffs & Physical Rigor Enhancements", () => {
+  it("computes concrete mix constituents directly from cubic yards (US Customary)", () => {
+    // 10 cubic yards of 1:2:4 mix
+    const takeoff = calculateGlobalConcrete(10, [1, 2, 4], "10 yd3 slab", {
+      unitSystem: "imperial",
+    });
+    expect(takeoff.wetVolumeYd3).toBeCloseTo(10, 1);
+    expect(takeoff.wetVolumeM3).toBeCloseTo(10 / 1.30795, 1);
+    expect(takeoff.cementLbs).toBeGreaterThan(4000);
+    expect(takeoff.cementBags94lb).toBeGreaterThan(40);
+    expect(takeoff.sandCubicYards).toBeGreaterThan(0);
+    expect(takeoff.gravelCubicYards).toBeGreaterThan(0);
+  });
+
+  it("calculates solar PV from imperial roof area in square feet without NaN", async () => {
+    const { calculateSolarPv } = await import("../../estimation/solar-pv-engine");
+    const basePrices = {
+      mounting_rail_per_m: { price_naira: 4500 },
+      mid_clamp: { price_naira: 1200 },
+      end_clamp: { price_naira: 1000 },
+      mc4_connector_pair: { price_naira: 2500 },
+      dc_cable_per_m: { price_naira: 1800 },
+      ac_cable_per_m: { price_naira: 2200 },
+      dc_breaker: { price_naira: 25000 },
+      ac_breaker: { price_naira: 15000 },
+      inverter_base: { price_naira: 350000 },
+      inverter_per_kw: { price_naira: 70000 },
+      battery_per_kwh: { price_naira: 120000 },
+      balance_of_system: { price_naira: 75000 },
+    };
+    const baseRules: any = [
+      { rule_key: "peak_sun_hours_day", rule_value: { value: 5.0 } },
+      { rule_key: "system_loss_factor", rule_value: { value: 0.2 } },
+      { rule_key: "inverter_dc_ac_ratio", rule_value: { value: 1.15 } },
+      { rule_key: "rails_per_panel", rule_value: { value: 2 } },
+      { rule_key: "mid_clamps_per_panel", rule_value: { value: 2 } },
+      { rule_key: "end_clamps_per_panel", rule_value: { value: 4 } },
+      { rule_key: "mc4_pairs_per_panel", rule_value: { value: 1 } },
+      { rule_key: "dc_cable_per_panel_m", rule_value: { value: 2 } },
+      { rule_key: "string_size_max", rule_value: { value: 10 } },
+      { rule_key: "labor_cost_per_panel_naira", rule_value: { value: 15000 } },
+      { rule_key: "rounding_decimals", rule_value: { value: 2 } },
+    ];
+    // 645.835 sqft is ~60 m2
+    const panel = {
+      watt_peak: 550,
+      length_m: 2.28,
+      width_m: 1.13,
+      unit_price_naira: 180000,
+    };
+    const res = calculateSolarPv({
+      mode: "roof_area",
+      usable_roof_area_sqft: 645.835,
+      panel: panel,
+      cable_run_m: 15,
+      rules: baseRules,
+      prices: basePrices,
+    });
+    expect(res.ok).toBe(true);
+    expect(res.panel_count).toBe(23);
+    expect(res.array_kwp).toBeCloseTo(12.65, 2);
+  });
+
+  it("normalizes solar PV temperature coefficients entered as percentages", async () => {
+    const { stringSeriesLimits } = await import("../../estimation/solar-pv-engine");
+    // Enter -0.30 (%/degC) instead of -0.0030 (1/degC)
+    const limits = stringSeriesLimits({
+      module_voc_v: 49.8,
+      module_vmp_v: 41.5,
+      inverter_max_dc_voltage_v: 600,
+      inverter_mppt_min_v: 150,
+      design_min_cell_temp_c: 10,
+      design_max_cell_temp_c: 65,
+      module_voc_temp_coeff_per_c: -0.30, // entered as %/degC
+      module_vmp_temp_coeff_per_c: -0.35,
+    });
+    // At 10 degC (delta -15 degC) with beta -0.0030 / degC:
+    // Voc_cold = 49.8 * (1 + (-0.0030) * (-15)) = 49.8 * 1.045 = 52.04 V
+    expect(limits.voc_cold_v).toBeCloseTo(52.04, 1);
+    expect(limits.max_series).toBe(Math.floor(600 / 52.04)); // 11 panels
+  });
+
+  it("reports ASHRAE cooling equivalent in BTU/day in heat comfort engine", async () => {
+    const { calculateHeatComfort } = await import("../../estimation/heat-comfort-engine");
+    const rules: any = [
+      { rule_key: "solar_irradiance_kwh_per_sqm_day", rule_value: { value: 5.5 } },
+      { rule_key: "meaningful_reduction_threshold", rule_value: { value: 0.15 } },
+      { rule_key: "rounding_decimals", rule_value: { value: 2 } },
+    ];
+    const factors = {
+      "roof:dark_membrane": { solar_reflectance: 0.20 },
+      "roof:cool_coating": { solar_reflectance: 0.65 },
+    };
+    const result = calculateHeatComfort({
+      surface_type: "roof",
+      area_sqm: 100,
+      current_category: "dark_membrane",
+      proposed_category: "cool_coating",
+      rules,
+      factors,
+    });
+    expect(result.ok).toBe(true);
+    expect(result.daily_energy_delta_kwh).toBeGreaterThan(0);
+    expect(result.daily_energy_delta_btu).toBeGreaterThan(0);
+    // 1 kWh = ~3412.142 BTU
+    expect(result.daily_energy_delta_btu).toBeCloseTo(
+      Math.round(result.daily_energy_delta_kwh! * 3412.142),
+      -2,
+    );
+    expect(result.area_sqft).toBeCloseTo(100 / 0.09290304, 1);
+  });
+
+  it("calculates soffit and gutter eaves perimeter from imperial feet and inches", async () => {
+    const { resolveEavesPerimeter, calculateSoffitGutter } = await import(
+      "../../estimation/soffit-gutter-engine"
+    );
+    // 40 ft x 30 ft building with 24 in (2 ft) overhang
+    const perimeterM = resolveEavesPerimeter({
+      mode: "footprint",
+      building_length_ft: 40,
+      building_width_ft: 30,
+      overhang_m: 0,
+      overhang_in: 24,
+      material: "pvc",
+    });
+    expect(perimeterM).not.toBeNull();
+    // Length with eaves: (40 + 4)*0.3048 = 13.4112m, Width: (30 + 4)*0.3048 = 10.3632m
+    // Fascia = 2 * (13.4112 + 10.3632) = 47.55m
+    expect(perimeterM).toBeGreaterThan(45);
+
+    const res = calculateSoffitGutter(
+      {
+        mode: "footprint",
+        building_length_ft: 40,
+        building_width_ft: 30,
+        overhang_m: 0,
+        overhang_in: 24,
+        material: "pvc",
+      },
+      {
+        downpipe_spacing_m: 10,
+        bracket_spacing_m: 0.6,
+        waste_pct: 10,
+      },
+      {},
+    );
+    expect(res.errors).toHaveLength(0);
+    expect(res.steps.length).toBeGreaterThan(0);
+  });
+
+  it("calculates structural steel beam mass from imperial span in feet", async () => {
+    const { steelMassKg } = await import("../../estimation/steel-beam-engine");
+    // W8x15 beam (22.3 kg/m, ~15 lb/ft), span 16.4042 ft (~5.0 m)
+    const mass = steelMassKg({
+      profile: "w8_15",
+      span_m: 0,
+      span_ft: 16.4042,
+      beam_count: 1,
+      price_per_tonne: null,
+      columns_included: false,
+    });
+    // 5.0m + 0.3m bearing = 5.3m cut length * 22.3 kg/m = 118.19 kg
+    expect(mass).toBeCloseTo(118.19, 1);
+  });
+
+  it("provides imperial hydraulic units (ft/s, GPM, CFS) for Manning circular flow", () => {
+    const flow = calculateManningGravityFlow(200, 10, 0.010, 0.5);
+    expect(flow).not.toBeNull();
+    expect(flow?.velocityFtPerS).toBeCloseTo(flow!.velocityMPerS * 3.28084, 2);
+    expect(flow?.flowRateGpm).toBeCloseTo(flow!.flowRateLitresPerSecond * 15.8503, 1);
+    expect(flow?.flowRateCfs).toBeGreaterThan(0);
+  });
+
+  it("uses standard 200 mm column face when neither column_width_mm nor market_code is given", async () => {
+    const { designFoundation } = await import("../../engineering/foundation-calculator");
+    const res = designFoundation({
+      shape: "pad",
+      soil_type: "dense_sand",
+      column_load: 300,
+      wall_load: 0,
+      foundation_depth: 1.5,
+      concrete_grade: "C25",
+    });
+    expect(res.punching_shear_check_pass).toBe(true);
+    expect(
+      res.warnings.some((w) => w.includes("standard 200 mm column face")),
+    ).toBe(true);
+  });
+});

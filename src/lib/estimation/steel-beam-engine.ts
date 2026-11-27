@@ -117,6 +117,7 @@ export const OPEN_SPAN_LIMIT_M = 8;
 export interface SteelBeamInput {
   profile: string;
   span_m: number;
+  span_ft?: number | null;
   beam_count: number;
   /** Buyer's own rate, local currency per tonne; null = not provided */
   price_per_tonne: number | null;
@@ -133,7 +134,14 @@ export const BEARING_ALLOWANCE_M = 0.3;
 export function steelMassKg(input: SteelBeamInput): number | null {
   const profile = STEEL_PROFILE_BY_KEY[input.profile];
   if (!profile) return null;
-  const cutLength = input.span_m + BEARING_ALLOWANCE_M;
+  const span =
+    Number.isFinite(input.span_m) && input.span_m > 0
+      ? input.span_m
+      : Number.isFinite(input.span_ft) && (input.span_ft as number) > 0
+        ? (input.span_ft as number) * 0.3048
+        : 0;
+  if (span <= 0) return null;
+  const cutLength = span + BEARING_ALLOWANCE_M;
   return money(cutLength * input.beam_count * profile.kg_per_m);
 }
 
@@ -147,8 +155,15 @@ export function calculateSteelBeam(
     errors.push(
       "Choose a steel profile: each one carries a different mass per metre.",
     );
-  if (!Number.isFinite(input.span_m) || input.span_m <= 0) {
-    errors.push("Span length must be greater than zero (metres).");
+  const spanM =
+    Number.isFinite(input.span_m) && input.span_m > 0
+      ? input.span_m
+      : Number.isFinite(input.span_ft) && (input.span_ft as number) > 0
+        ? (input.span_ft as number) * 0.3048
+        : Number(input.span_m);
+
+  if (!Number.isFinite(spanM) || spanM <= 0) {
+    errors.push("Span length must be greater than zero (metres or feet).");
   }
   if (!Number.isInteger(input.beam_count) || input.beam_count < 1) {
     errors.push("Number of beams must be a whole number, one or more.");
@@ -163,22 +178,22 @@ export function calculateSteelBeam(
   }
   if (errors.length > 0 || !profile) return emptyResult(errors);
 
-  const cutLengthM = input.span_m + BEARING_ALLOWANCE_M;
-  const mass = steelMassKg(input) ?? 0;
-  // Tonnes keep four decimals: a per tonne rate multiplies straight into the
-  // total, so rounding the quantity to two places would move real money.
+  const cutLengthM = spanM + BEARING_ALLOWANCE_M;
+  const mass = steelMassKg({ ...input, span_m: spanM }) ?? 0;
   const tonnes = Math.round((mass / 1000) * 10000) / 10000;
+  const massLbs = Math.round(mass * 2.2046226 * 10) / 10;
+  const usTons = Math.round((massLbs / 2000) * 10000) / 10000;
   const rate =
     input.price_per_tonne ?? prices["steel-section-per-tonne"] ?? null;
 
   const steps: SpecialtyStep[] = [
     {
       label: "Mass per beam",
-      detail: `${input.span_m} m span + ${BEARING_ALLOWANCE_M} m bearing allowance = ${money(cutLengthM)} m cut, × ${profile.kg_per_m} kg/m (${profile.label}) = ${money(cutLengthM * profile.kg_per_m)} kg`,
+      detail: `${spanM.toFixed(2)} m span (${(spanM / 0.3048).toFixed(1)} ft) + ${BEARING_ALLOWANCE_M} m bearing allowance = ${money(cutLengthM)} m cut (${(cutLengthM / 0.3048).toFixed(1)} ft), × ${profile.kg_per_m} kg/m (${(profile.kg_per_m * 0.671969).toFixed(1)} lb/ft, ${profile.label}) = ${money(cutLengthM * profile.kg_per_m)} kg (${(money(cutLengthM * profile.kg_per_m) * 2.2046226).toFixed(1)} lbs)`,
     },
     {
       label: "Total mass",
-      detail: `${money(cutLengthM)} m cut × ${input.beam_count} beam(s) × ${profile.kg_per_m} kg/m = ${mass} kg (${tonnes} tonnes)`,
+      detail: `${money(cutLengthM)} m cut × ${input.beam_count} beam(s) × ${profile.kg_per_m} kg/m = ${mass} kg (${massLbs} lbs / ${tonnes} metric tonnes / ${usTons} US short tons)`,
     },
     {
       label: "Rate used",
@@ -197,7 +212,7 @@ export function calculateSteelBeam(
       quantity: tonnes,
       quantity_source: "rule_derived",
       unit: "tonnes",
-      detail: `${input.beam_count} × ${money(cutLengthM)} m cut (${input.span_m} m span) at ${profile.kg_per_m} kg/m = ${mass} kg`,
+      detail: `${input.beam_count} × ${money(cutLengthM)} m cut (${spanM.toFixed(2)} m span) at ${profile.kg_per_m} kg/m = ${mass} kg (${massLbs} lbs)`,
       unit_price: rate,
       line_total: rate === null ? null : money(tonnes * rate),
     },
@@ -213,7 +228,7 @@ export function calculateSteelBeam(
           "No steel rate was entered. The mass above is what you are buying: enter the rate your steel merchant quotes per tonne to cost it.",
         ]
       : []),
-    `Steel is priced by mass: ${mass} kg of steel is what you are buying, and merchant weighbridge tickets are the check on delivery.`,
+    `Steel is priced by mass: ${mass} kg (${massLbs} lbs / ${tonnes} metric tonnes / ${usTons} US short tons) of steel is what you are buying, and merchant weighbridge tickets are the check on delivery.`,
   ];
   if (input.span_m > OPEN_SPAN_LIMIT_M && !input.columns_included) {
     warnings.push(

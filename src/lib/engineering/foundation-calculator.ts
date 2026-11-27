@@ -561,14 +561,14 @@ export function designFoundation(
     // check still runs but says which face it assumed instead of quietly using
     // the Nigerian 225 mm module in Houston.
     const col_face =
-      input.column_width_mm ??
-      (input.market_code
-        ? resolveMemberSizing(input.market_code).minColumnWidthMm
-        : 0) ??
-      0;
+      (input.column_width_mm && input.column_width_mm > 0)
+        ? input.column_width_mm
+        : (input.market_code
+          ? resolveMemberSizing(input.market_code).minColumnWidthMm
+          : 200);
     if (!input.column_width_mm && !input.market_code) {
       warnings.push(
-        `Punching shear assumed a ${col_face} mm column face; pass column_width_mm or market_code for the real support size.`,
+        `Punching shear assumed a standard ${col_face} mm column face (practical engineering minimum); pass column_width_mm or market_code for the real support size.`,
       );
     }
     const fcu = fcuFromGrade(input.concrete_grade);

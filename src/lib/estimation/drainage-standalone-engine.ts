@@ -199,8 +199,11 @@ export function calculateDrainageTakeoff(
 
 export interface ManningGravityFlowResult {
   velocityMPerS: number;
+  velocityFtPerS: number;
   flowRateLitresPerSecond: number;
+  flowRateGpm: number;
   flowRateM3PerS: number;
+  flowRateCfs: number;
   hydraulicRadiusM: number;
   wettedAreaM2: number;
   wettedPerimeterM: number;
@@ -272,10 +275,17 @@ export function calculateManningGravityFlow(
   const flowM3s = velocity * areaM2;
   const flowLps = flowM3s * 1000;
 
+  const velocityFtPerS = Number((velocity * 3.28084).toFixed(3));
+  const flowRateGpm = Number((flowLps * 15.850323).toFixed(2));
+  const flowRateCfs = Number((flowM3s * 35.314667).toFixed(4));
+
   return {
     velocityMPerS: Number(velocity.toFixed(3)),
+    velocityFtPerS,
     flowRateLitresPerSecond: Number(flowLps.toFixed(2)),
+    flowRateGpm,
     flowRateM3PerS: Number(flowM3s.toFixed(5)),
+    flowRateCfs,
     hydraulicRadiusM: Number(hydRadiusM.toFixed(4)),
     wettedAreaM2: Number(areaM2.toFixed(5)),
     wettedPerimeterM: Number(perimeterM.toFixed(4)),

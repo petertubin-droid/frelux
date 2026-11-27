@@ -185,17 +185,27 @@ export interface GlobalConcreteQuantities {
  * @param label Optional user label, for example a project mix ID (not a grade)
  * @param assumptions Optional dry-volume factor and loose cement density
  */
+export interface GlobalConcreteAssumptions {
+  dryVolumeFactor?: number;
+  cementDensityKgM3?: number;
+  /** When "imperial", the input volume is interpreted as cubic yards (yd³) and converted */
+  unitSystem?: "metric" | "imperial";
+}
+
 export function calculateGlobalConcrete(
-  volumeM3: number,
+  volumeInput: number,
   mixRatio: ConcreteMixRatio,
   label = "user-specified mix",
-  assumptions: { dryVolumeFactor?: number; cementDensityKgM3?: number } = {},
+  assumptions: GlobalConcreteAssumptions = {},
 ): GlobalConcreteQuantities {
-  if (!Number.isFinite(volumeM3) || volumeM3 <= 0) {
+  if (!Number.isFinite(volumeInput) || volumeInput <= 0) {
     throw new RangeError(
-      `Concrete volume must be a positive finite number (received ${volumeM3}).`,
+      `Concrete volume must be a positive finite number (received ${volumeInput}).`,
     );
   }
+  const isImperial = assumptions.unitSystem === "imperial";
+  const m3ToYd3 = 1.30795062;
+  const volumeM3 = isImperial ? volumeInput / m3ToYd3 : volumeInput;
   if (
     !Array.isArray(mixRatio) ||
     mixRatio.length !== 3 ||
@@ -229,7 +239,7 @@ export function calculateGlobalConcrete(
   const gravelVol = (ratio[2] / totalParts) * dryVolume;
   const cementKg = cementVol * cementDensity;
 
-  const m3ToYd3 = 1.30795;
+  // Conversion factor m3ToYd3 defined above
   const kgToLbs = 2.20462;
   const cementTotalLbs = cementKg * kgToLbs;
 
