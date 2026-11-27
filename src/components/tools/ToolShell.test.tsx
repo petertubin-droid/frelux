@@ -71,6 +71,42 @@ describe("tool shell", () => {
     expect(screen.getByText("calculator body")).toBeTruthy();
   });
 
+  it("adds one shared accuracy-feedback control to every catalogued tool", () => {
+    renderAt(
+      "/concrete-takeoff-calculator",
+      <ToolShell route="/concrete-takeoff-calculator">body</ToolShell>,
+    );
+    expect(
+      screen.getByRole("heading", { name: "Was this result accurate?" }),
+    ).toBeTruthy();
+    const heading = screen.getByRole("heading", {
+      name: "Was this result accurate?",
+    });
+    expect(heading.id).toBeTruthy();
+    expect(heading.closest("section")).toHaveAttribute(
+      "aria-labelledby",
+      heading.id,
+    );
+    expect(
+      document.querySelectorAll(`[aria-labelledby="${heading.id}"]`),
+    ).toHaveLength(1);
+  });
+
+  it("allows result shells to avoid duplicate feedback controls", () => {
+    renderAt(
+      "/concrete-takeoff-calculator",
+      <ToolShell
+        route="/concrete-takeoff-calculator"
+        showAccuracyFeedback={false}
+      >
+        body
+      </ToolShell>,
+    );
+    expect(
+      screen.queryByRole("heading", { name: "Was this result accurate?" }),
+    ).toBeNull();
+  });
+
   it("resolves the tool's own questions and not a neighbour's", () => {
     const own = getToolFaqGroupByRoute("/concrete-takeoff-calculator");
     const blinds = getToolFaqGroupByRoute("/window-blind-calculator");

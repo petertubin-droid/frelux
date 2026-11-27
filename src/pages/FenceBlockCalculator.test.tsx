@@ -124,4 +124,13 @@ describe("FenceBlockCalculator page", () => {
     expect(String(cement?.item)).toMatch(/kg bags/);
     expect(rows.some((r) => r.section === "Assumption")).toBe(true);
   });
+
+  it("converts measurements when switching length unit", () => {
+    renderPage();
+    fireEvent.click(screen.getByRole("button", { name: /Measure it/i }));
+    const select = screen.getByLabelText("Length unit") as HTMLSelectElement;
+    const lengthInput = screen.getByDisplayValue("30.48") as HTMLInputElement;
+    fireEvent.change(select, { target: { value: "feet" } });
+    expect(Number(lengthInput.value)).toBeCloseTo(100, 0);
+  });
 });

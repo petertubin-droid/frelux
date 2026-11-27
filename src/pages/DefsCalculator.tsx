@@ -1,6 +1,8 @@
 import CalculatorGuideBlock from "@/components/calculators/CalculatorGuideBlock";
 import { defsCalculatorGuide } from "@/content/calculator-guides/defs-calculator";
-import OpeningsEditor, { type OpeningRow } from "@/components/estimators/OpeningsEditor";
+import OpeningsEditor, {
+  type OpeningRow,
+} from "@/components/estimators/OpeningsEditor";
 import { ShareEstimateButton } from "@/components/ShareEstimateButton";
 import { useEffect, useMemo, useState } from "react";
 import { AlertTriangle, Info, Layers, RotateCcw } from "lucide-react";
@@ -12,11 +14,14 @@ import { Badge } from "@/components/ui/shadcn/badge";
 import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
 import { Label } from "@/components/ui/shadcn/label";
+import UnitToggle from "@/components/measurement/UnitToggle";
 import { BoqPricingPanel } from "@/components/tools/BoqPricingPanel";
 import { useSeo, useFaqJsonLd, useBreadcrumbJsonLd } from "@/lib/seo";
 import { useMarket } from "@/lib/international/market-context";
 import { getActiveDisplayCurrency } from "@/lib/international/fx-display";
 import { formatNumber } from "@/lib/convert/units";
+import { useLengthUnit } from "@/lib/use-length-unit";
+import { unitToMeters, unitShortLabel } from "@/lib/utils";
 import { useTechnicalLabels } from "@/lib/construction-dictionary/use-technical-labels";
 import {
   calculateDefs,
@@ -26,6 +31,7 @@ import {
 } from "@/lib/estimation/exterior-finish-engine";
 import { resolveDefsPrices } from "@/lib/estimation/icf-eifs-market";
 import type { EifsFinishTexture } from "@/lib/estimation/eifs-engine";
+import type { Unit } from "@/types";
 
 const DEFS_FAQ = [
   {
@@ -102,13 +108,26 @@ export default function DefsCalculator() {
   ]);
 
   const { marketCode } = useMarket();
+  const { unit, setUnit, toMetres } = useLengthUnit("meters");
+  const switchUnit = (nextUnit: Unit) => {
+    const scale = unitToMeters(1, unit) / unitToMeters(1, nextUnit);
+    setWallLength((value) => String((Number(value) || 0) * scale));
+    setWallHeight((value) => String((Number(value) || 0) * scale));
+    setUnit(nextUnit);
+  };
   const [wallLength, setWallLength] = useState("40");
   const [wallHeight, setWallHeight] = useState("3.0");
   const [substrate, setSubstrate] = useState<DefsSubstrate>("cement-board");
   const [wastage, setWastage] = useState("10");
   const [texture, setTexture] = useState<EifsFinishTexture>("medium_swirl");
   const [openings, setOpenings] = useState<OpeningRow[]>([
-    { id: "opening-1", label: "Opening 1", widthM: 1.2, heightM: 1.2, count: 2 },
+    {
+      id: "opening-1",
+      label: "Opening 1",
+      widthM: 1.2,
+      heightM: 1.2,
+      count: 2,
+    },
   ]);
 
   const [priceResolution, setPriceResolution] = useState<Awaited<
@@ -133,8 +152,8 @@ export default function DefsCalculator() {
   const result: ExteriorFinishResult = useMemo(() => {
     const input = exteriorInputFromEifs(
       {
-        wallLengthM: Number(wallLength) || 0,
-        wallHeightM: Number(wallHeight) || 0,
+        wallLengthM: toMetres(wallLength),
+        wallHeightM: toMetres(wallHeight),
         // Only used to size the wall; DEFS ignores the insulation fields.
         insulationThicknessMm: 50,
         openings: openings.map((opening) => ({
@@ -156,6 +175,7 @@ export default function DefsCalculator() {
   }, [
     wallLength,
     wallHeight,
+    toMetres,
     openings,
     substrate,
     wastage,
@@ -170,7 +190,13 @@ export default function DefsCalculator() {
     setWastage("10");
     setTexture("medium_swirl");
     setOpenings([
-      { id: "opening-1", label: "Opening 1", widthM: 1.2, heightM: 1.2, count: 2 },
+      {
+        id: "opening-1",
+        label: "Opening 1",
+        widthM: 1.2,
+        heightM: 1.2,
+        count: 2,
+      },
     ]);
   }
 
@@ -250,10 +276,15 @@ export default function DefsCalculator() {
 
         <div className="grid gap-4 lg:grid-cols-2">
           <div className="rounded-xl border bg-card p-4 space-y-3">
-            <h2 className="text-sm font-semibold">Wall</h2>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="text-sm font-semibold">Wall</h2>
+              <UnitToggle value={unit} onChange={switchUnit} />
+            </div>
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="space-y-1">
-                <Label className="text-xs">Facade length (m)</Label>
+                <Label className="text-xs">
+                  Facade length ({unitShortLabel(unit)})
+                </Label>
                 <Input
                   type="number"
                   min="0"
@@ -264,7 +295,9 @@ export default function DefsCalculator() {
                 />
               </div>
               <div className="space-y-1">
-                <Label className="text-xs">Wall height (m)</Label>
+                <Label className="text-xs">
+                  Wall height ({unitShortLabel(unit)})
+                </Label>
                 <Input
                   type="number"
                   min="0"
@@ -353,6 +386,7 @@ export default function DefsCalculator() {
                 heightM: 2.1,
                 count: 1,
               })}
+              unitSystem={unit}
             />
           </div>
         </div>

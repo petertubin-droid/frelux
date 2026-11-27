@@ -12,6 +12,10 @@ import MeasurementTip from "@/components/ui/MeasurementTip";
 import AdSlot from "@/components/ui/AdSlot";
 import { downloadCsv } from "@/lib/export-utils";
 import { useLanguage } from "@/lib/i18n";
+import { useMarket } from "@/lib/international/market-context";
+import { marketCodeVariants } from "@/lib/international/market-codes";
+import { formatCurrency, unitToMeters } from "@/lib/utils";
+import type { Unit } from "@/types";
 import {
   PLOT_PRESETS,
   plotPresetsForMarket,
@@ -39,21 +43,42 @@ const COACH_CHOICES = [3, 4, 5, 6, 7, 8, 9, 10];
 
 export default function FenceBlockCalculator() {
   const resetInputs = () => {
-    setPreset("full-plot");
-    setCustom({ length: "30.48", width: "15.24" });
+    setPreset(hasPlotPresets(market) ? "full-plot" : "custom");
+    setCustom({
+      length: String(lengthUnit.fromMetres(30.48)),
+      width: String(lengthUnit.fromMetres(15.24)),
+    });
     setCoaches(5);
-    setUnitKey("ng-block-9");
-    setGateWidth("3");
+    setUnitKey(masonryUnitsForMarket(market)[0].key);
+    setGateWidth(String(lengthUnit.fromMetres(3)));
     setGateCoaches("4");
     setFoundationCourses("3");
   };
   const { t } = useLanguage();
-
-  const [market, setMarket] = useState("NG");
-  const [preset, setPreset] = useState<PlotPresetKey | "custom">("full-plot");
+  const { marketCode: visitorMarketCode, availableMarkets } = useMarket();
+  const initialMarket =
+    vocabularyMarkets().find((option) =>
+      marketCodeVariants(option.code).includes(visitorMarketCode),
+    )?.code ?? "NG";
+  const [market, setMarket] = useState(initialMarket);
+  const [marketChosen, setMarketChosen] = useState(false);
+  useEffect(() => {
+    if (!marketChosen) setMarket(initialMarket);
+  }, [initialMarket, marketChosen]);
+  const selectedMarketProfile = availableMarkets.find((profile) =>
+    marketCodeVariants(market).includes(profile.country_code),
+  );
+  const priceCurrencyCode = selectedMarketProfile?.currency_code;
+  const priceCurrencySymbol =
+    selectedMarketProfile?.currency_symbol ?? priceCurrencyCode ?? "";
+  const [preset, setPreset] = useState<PlotPresetKey | "custom">(
+    hasPlotPresets(initialMarket) ? "full-plot" : "custom",
+  );
   const [custom, setCustom] = useState({ length: "30.48", width: "15.24" });
   const [coaches, setCoaches] = useState(5);
-  const [unitKey, setUnitKey] = useState<MasonryUnitKey>("ng-block-9");
+  const [unitKey, setUnitKey] = useState<MasonryUnitKey>(
+    masonryUnitsForMarket(initialMarket)[0].key,
+  );
   const [materialPrices, setMaterialPrices] = useState<{
     block?: number;
     cement?: number;
@@ -64,15 +89,18 @@ export default function FenceBlockCalculator() {
     let cancelled = false;
     void (async () => {
       try {
+        setMaterialPrices({});
+        if (!priceCurrencyCode) return;
         const { data } = await supabase
           .from("material_prices")
-          .select("name, unit_price, is_active")
-          .eq("is_active", true);
+          .select("name, price, currency, is_active")
+          .eq("is_active", true)
+          .eq("currency", priceCurrencyCode);
         if (cancelled || !data) return;
         const prices: { block?: number; cement?: number; sand?: number } = {};
         for (const item of data) {
           const lower = (item.name || "").toLowerCase();
-          const price = Number(item.unit_price) || 0;
+          const price = Number(item.price) || 0;
           if (price <= 0) continue;
           if (
             unitKey.includes("9") &&
@@ -107,7 +135,7 @@ export default function FenceBlockCalculator() {
     return () => {
       cancelled = true;
     };
-  }, [unitKey]);
+  }, [unitKey, priceCurrencyCode]);
   const [gateWidth, setGateWidth] = useState("3");
   const [gateCoaches, setGateCoaches] = useState("4");
   const [foundationCourses, setFoundationCourses] = useState("3");
@@ -116,6 +144,15 @@ export default function FenceBlockCalculator() {
   // engine still receives metres; wall areas come back in their area unit.
   const lengthUnit = useLengthUnit("meters");
   const areaUnit = useAreaUnit("sqm");
+  const changeLengthUnit = (nextUnit: Unit) => {
+    const scale = unitToMeters(1, lengthUnit.unit) / unitToMeters(1, nextUnit);
+    setCustom((current) => ({
+      length: String((Number(current.length) || 0) * scale),
+      width: String((Number(current.width) || 0) * scale),
+    }));
+    setGateWidth((current) => String((Number(current) || 0) * scale));
+    lengthUnit.setUnit(nextUnit);
+  };
 
   const vocab = regionalVocabulary(market);
 
@@ -337,6 +374,7 @@ export default function FenceBlockCalculator() {
         onChange={(event) => {
           const next = event.target.value;
           setMarket(next);
+          setMarketChosen(true);
           // The block list is built from this market, so the selection
           // has to land on a unit that exists in it. Hard coding
           // ng-block-9 left US on a CMU the radios could not show and
@@ -460,7 +498,7 @@ export default function FenceBlockCalculator() {
                           className={`${fieldClass} w-auto`}
                           value={lengthUnit.unit}
                           onChange={(event) =>
-                            lengthUnit.setUnit(event.target.value as never)
+                            changeLengthUnit(event.target.value as Unit)
                           }
                         >
                           <option value="meters">m</option>
@@ -908,10 +946,12 @@ export default function FenceBlockCalculator() {
                           <div>
                             <span className="block">{t("Blocks")}</span>
                             <span className="font-medium text-foreground">
-                              ₦
-                              {Math.round(
-                                result.blocks.total * materialPrices.block,
-                              ).toLocaleString()}
+                              {formatCurrency(
+                                Math.round(
+                                  result.blocks.total * materialPrices.block,
+                                ),
+                                priceCurrencySymbol,
+                              )}
                             </span>
                           </div>
                         )}
@@ -921,10 +961,12 @@ export default function FenceBlockCalculator() {
                               {t(vocab.cementBagLabel)}
                             </span>
                             <span className="font-medium text-foreground">
-                              ₦
-                              {Math.round(
-                                result.cement.bags * materialPrices.cement,
-                              ).toLocaleString()}
+                              {formatCurrency(
+                                Math.round(
+                                  result.cement.bags * materialPrices.cement,
+                                ),
+                                priceCurrencySymbol,
+                              )}
                             </span>
                           </div>
                         )}
@@ -932,12 +974,14 @@ export default function FenceBlockCalculator() {
                           <div>
                             <span className="block">{t("Sand")}</span>
                             <span className="font-medium text-foreground">
-                              ₦
-                              {Math.round(
-                                (result.sand.trips.length > 0
-                                  ? result.sand.trips[0].count
-                                  : 1) * materialPrices.sand,
-                              ).toLocaleString()}
+                              {formatCurrency(
+                                Math.round(
+                                  (result.sand.trips.length > 0
+                                    ? result.sand.trips[0].count
+                                    : 1) * materialPrices.sand,
+                                ),
+                                priceCurrencySymbol,
+                              )}
                             </span>
                           </div>
                         )}
@@ -946,26 +990,35 @@ export default function FenceBlockCalculator() {
                             {t("Total Material Est.")}
                           </span>
                           <span className="font-bold text-primary">
-                            ₦
-                            {(
+                            {formatCurrency(
                               (materialPrices.block
                                 ? result.blocks.total * materialPrices.block
                                 : 0) +
-                              (materialPrices.cement
-                                ? result.cement.bags * materialPrices.cement
-                                : 0) +
-                              (materialPrices.sand
-                                ? (result.sand.trips.length > 0
-                                    ? result.sand.trips[0].count
-                                    : 1) * materialPrices.sand
-                                : 0)
-                            ).toLocaleString()}
+                                (materialPrices.cement
+                                  ? result.cement.bags * materialPrices.cement
+                                  : 0) +
+                                (materialPrices.sand
+                                  ? (result.sand.trips.length > 0
+                                      ? result.sand.trips[0].count
+                                      : 1) * materialPrices.sand
+                                  : 0),
+                              priceCurrencySymbol,
+                            )}
                           </span>
                         </div>
                       </div>
                     </div>
                   )}
 
+                  {!Object.values(materialPrices).some(
+                    (price) => price && price > 0,
+                  ) && (
+                    <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                      Local material prices are not configured for{" "}
+                      {priceCurrencyCode ?? market}. Quantities remain
+                      available; confirm current prices with local suppliers.
+                    </p>
+                  )}
                   <div className="rounded-lg bg-muted px-3 py-3">
                     <p className="text-xs font-semibold text-foreground">
                       {t("How this was worked out")}

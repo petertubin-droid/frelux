@@ -26,6 +26,7 @@ import { getMarketToolCopy } from "@/lib/globalization/construction-terminology"
 import { SITE_URL } from "@/lib/site-config";
 
 import EstimateDisclaimer from "@/components/calculators/EstimateDisclaimer";
+import EstimateAccuracyFeedback from "@/components/calculators/EstimateAccuracyFeedback";
 import AboutThisToolSection from "@/components/calculators/AboutThisToolSection";
 import { RelatedTools } from "@/components/seo/SeoSections";
 import type { RelatedLink } from "@/components/seo/SeoSections";
@@ -74,6 +75,8 @@ export interface ToolShellProps {
   disclaimerText?: string;
   /** Hide the estimate disclaimer, for tools that quote nothing. */
   hideDisclaimer?: boolean;
+  /** Disable where a nested result shell already owns conditional feedback. */
+  showAccuracyFeedback?: boolean;
   /** Override the category label shown above the heading. */
   eyebrow?: string;
   /**
@@ -102,6 +105,7 @@ export default function ToolShell({
   relatedLinks,
   disclaimerText,
   hideDisclaimer = false,
+  showAccuracyFeedback = true,
   noIndex = false,
 }: ToolShellProps) {
   const { pathname } = useLocation();
@@ -209,6 +213,10 @@ export default function ToolShell({
 
       {children}
 
+      {tool && showAccuracyFeedback ? (
+        <EstimateAccuracyFeedback toolId={tool.slug} />
+      ) : null}
+
       {tool ? (
         <AboutThisToolSection
           route={tool.to}
@@ -217,7 +225,9 @@ export default function ToolShell({
         />
       ) : null}
 
-      {!tool && showRelated && links.length > 0 ? <RelatedTools links={links} /> : null}
+      {!tool && showRelated && links.length > 0 ? (
+        <RelatedTools links={links} />
+      ) : null}
 
       {hideDisclaimer ? null : <EstimateDisclaimer text={disclaimerText} />}
     </>

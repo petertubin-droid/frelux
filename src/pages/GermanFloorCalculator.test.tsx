@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 
 vi.mock("@/components/ui/AdSlot", () => ({ default: () => null }));
@@ -66,5 +66,15 @@ describe("GermanFloorCalculator page", () => {
         name: /How thick should a German floor slab be/i,
       }),
     ).toBeDefined();
+  });
+
+  it("converts custom measurements when switching unit toggle", () => {
+    renderPage();
+    const measureBtn = screen.getByRole("button", { name: /Measure it/i });
+    fireEvent.click(measureBtn);
+    const lengthInput = screen.getByDisplayValue("33") as HTMLInputElement;
+    const metersBtn = screen.getByRole("button", { name: /^Metres$/i });
+    fireEvent.click(metersBtn);
+    expect(Number(lengthInput.value)).toBeCloseTo(10.0584, 1);
   });
 });

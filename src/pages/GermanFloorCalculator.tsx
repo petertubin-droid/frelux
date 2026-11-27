@@ -10,6 +10,9 @@ import Container from "@/components/ui/Container";
 import MeasurementTip from "@/components/ui/MeasurementTip";
 import AdSlot from "@/components/ui/AdSlot";
 import { useLanguage } from "@/lib/i18n";
+import { useMarket } from "@/lib/international/market-context";
+import { marketCodeVariants } from "@/lib/international/market-codes";
+import { formatCurrency, unitToMeters } from "@/lib/utils";
 import {
   CEMENT_MARKETS,
   MARKET_NAMES,
@@ -26,6 +29,7 @@ import {
 import { slabVocabulary } from "@/lib/localization/regional-vocabulary";
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { unitShortLabel } from "@/lib/utils";
+import type { Unit } from "@/types";
 import { useLengthUnit } from "@/lib/use-length-unit";
 import ToolShell from "@/components/tools/ToolShell";
 
@@ -45,15 +49,32 @@ const MARKETS = CEMENT_MARKETS.map((code) => ({
 
 export default function GermanFloorCalculator() {
   const resetInputs = () => {
-    setPreset("full-plot");
-    setCustom({ length: "33", width: "26" });
+    setPreset(hasPlotPresets(market) ? "full-plot" : "custom");
+    setCustom({
+      length: String(unitTools.fromMetres(33 * unitToMeters(1, "feet"))),
+      width: String(unitTools.fromMetres(26 * unitToMeters(1, "feet"))),
+    });
     setHardcoreMm(150);
     setSlabMm(100);
     setMixKey("1:2:4");
   };
   const { t } = useLanguage();
-
-  const [market, setMarket] = useState("NG");
+  const { marketCode: visitorMarketCode, availableMarkets } = useMarket();
+  const initialMarket =
+    MARKETS.find((option) =>
+      marketCodeVariants(option.code).includes(visitorMarketCode),
+    )?.code ?? "NG";
+  const [market, setMarket] = useState<string>(initialMarket);
+  const [marketChosen, setMarketChosen] = useState(false);
+  useEffect(() => {
+    if (!marketChosen) setMarket(initialMarket);
+  }, [initialMarket, marketChosen]);
+  const selectedMarketProfile = availableMarkets.find((profile) =>
+    marketCodeVariants(market).includes(profile.country_code),
+  );
+  const priceCurrencyCode = selectedMarketProfile?.currency_code;
+  const priceCurrencySymbol =
+    selectedMarketProfile?.currency_symbol ?? priceCurrencyCode ?? "";
   const [materialPrices, setMaterialPrices] = useState<{
     cement?: number;
     sand?: number;
@@ -64,15 +85,18 @@ export default function GermanFloorCalculator() {
     let cancelled = false;
     void (async () => {
       try {
+        setMaterialPrices({});
+        if (!priceCurrencyCode) return;
         const { data } = await supabase
           .from("material_prices")
-          .select("name, unit_price, is_active")
-          .eq("is_active", true);
+          .select("name, price, currency, is_active")
+          .eq("is_active", true)
+          .eq("currency", priceCurrencyCode);
         if (cancelled || !data) return;
         const prices: { cement?: number; sand?: number; granite?: number } = {};
         for (const item of data) {
           const lower = (item.name || "").toLowerCase();
-          const price = Number(item.unit_price) || 0;
+          const price = Number(item.price) || 0;
           if (price <= 0) continue;
           if (lower.includes("cement") && !lower.includes("white"))
             prices.cement = price;
@@ -95,11 +119,22 @@ export default function GermanFloorCalculator() {
     return () => {
       cancelled = true;
     };
-  }, []);
-  const [preset, setPreset] = useState<PlotPresetKey | "custom">("full-plot");
+  }, [priceCurrencyCode]);
+  const [preset, setPreset] = useState<PlotPresetKey | "custom">(
+    hasPlotPresets(initialMarket) ? "full-plot" : "custom",
+  );
   // A custom plot is measured on site, so the two dimensions default to feet
   // and are converted to metres for the engine.
-  const { unit, setUnit, toMetres } = useLengthUnit("feet");
+  const unitTools = useLengthUnit("feet");
+  const { unit, setUnit, toMetres } = unitTools;
+  const changeUnit = (nextUnit: Unit) => {
+    const scale = unitToMeters(1, unit) / unitToMeters(1, nextUnit);
+    setCustom((current) => ({
+      length: String((Number(current.length) || 0) * scale),
+      width: String((Number(current.width) || 0) * scale),
+    }));
+    setUnit(nextUnit);
+  };
   const [custom, setCustom] = useState({ length: "33", width: "26" });
   const [hardcoreMm, setHardcoreMm] = useState(150);
   const [slabMm, setSlabMm] = useState(100);
@@ -146,7 +181,10 @@ export default function GermanFloorCalculator() {
       <select
         aria-label={t("Market")}
         value={market}
-        onChange={(event) => setMarket(event.target.value)}
+        onChange={(event) => {
+          setMarket(event.target.value);
+          setMarketChosen(true);
+        }}
         className="rounded-lg border border-border bg-background px-2 py-1.5 text-xs font-semibold text-foreground outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
         {MARKETS.map((option) => (
@@ -214,7 +252,7 @@ export default function GermanFloorCalculator() {
                         <span className="text-xs text-muted-foreground">
                           Plot measured in feet by default
                         </span>
-                        <UnitToggle value={unit} onChange={setUnit} />
+                        <UnitToggle value={unit} onChange={changeUnit} />
                       </div>
                       <div className="mt-1 grid grid-cols-2 gap-3">
                         <label className="block">
@@ -526,10 +564,12 @@ export default function GermanFloorCalculator() {
                           <div>
                             <span className="block">{t("Cement")}</span>
                             <span className="font-medium text-foreground">
-                              ₦
-                              {Math.round(
-                                result.cement.bags * materialPrices.cement,
-                              ).toLocaleString()}
+                              {formatCurrency(
+                                Math.round(
+                                  result.cement.bags * materialPrices.cement,
+                                ),
+                                priceCurrencySymbol,
+                              )}
                             </span>
                           </div>
                         )}
@@ -537,12 +577,14 @@ export default function GermanFloorCalculator() {
                           <div>
                             <span className="block">{t("Sharp Sand")}</span>
                             <span className="font-medium text-foreground">
-                              ₦
-                              {Math.round(
-                                (result.sand.trips.length > 0
-                                  ? result.sand.trips[0].count
-                                  : 1) * materialPrices.sand,
-                              ).toLocaleString()}
+                              {formatCurrency(
+                                Math.round(
+                                  (result.sand.trips.length > 0
+                                    ? result.sand.trips[0].count
+                                    : 1) * materialPrices.sand,
+                                ),
+                                priceCurrencySymbol,
+                              )}
                             </span>
                           </div>
                         )}
@@ -550,12 +592,14 @@ export default function GermanFloorCalculator() {
                           <div>
                             <span className="block">{t("Granite")}</span>
                             <span className="font-medium text-foreground">
-                              ₦
-                              {Math.round(
-                                (result.aggregate.trips.length > 0
-                                  ? result.aggregate.trips[0].count
-                                  : 1) * materialPrices.granite,
-                              ).toLocaleString()}
+                              {formatCurrency(
+                                Math.round(
+                                  (result.aggregate.trips.length > 0
+                                    ? result.aggregate.trips[0].count
+                                    : 1) * materialPrices.granite,
+                                ),
+                                priceCurrencySymbol,
+                              )}
                             </span>
                           </div>
                         )}
@@ -564,28 +608,37 @@ export default function GermanFloorCalculator() {
                             {t("Total Est.")}
                           </span>
                           <span className="font-bold text-primary">
-                            ₦
-                            {(
+                            {formatCurrency(
                               (materialPrices.cement
                                 ? result.cement.bags * materialPrices.cement
                                 : 0) +
-                              (materialPrices.sand
-                                ? (result.sand.trips.length > 0
-                                    ? result.sand.trips[0].count
-                                    : 1) * materialPrices.sand
-                                : 0) +
-                              (materialPrices.granite
-                                ? (result.aggregate.trips.length > 0
-                                    ? result.aggregate.trips[0].count
-                                    : 1) * materialPrices.granite
-                                : 0)
-                            ).toLocaleString()}
+                                (materialPrices.sand
+                                  ? (result.sand.trips.length > 0
+                                      ? result.sand.trips[0].count
+                                      : 1) * materialPrices.sand
+                                  : 0) +
+                                (materialPrices.granite
+                                  ? (result.aggregate.trips.length > 0
+                                      ? result.aggregate.trips[0].count
+                                      : 1) * materialPrices.granite
+                                  : 0),
+                              priceCurrencySymbol,
+                            )}
                           </span>
                         </div>
                       </div>
                     </div>
                   )}
 
+                  {!Object.values(materialPrices).some(
+                    (price) => price && price > 0,
+                  ) && (
+                    <p className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800 dark:border-amber-900 dark:bg-amber-950/30 dark:text-amber-200">
+                      Local material prices are not configured for{" "}
+                      {priceCurrencyCode ?? market}. Quantities remain
+                      available; confirm current prices with local suppliers.
+                    </p>
+                  )}
                   <div className="rounded-lg bg-muted px-3 py-3">
                     <p className="text-xs font-semibold text-foreground">
                       {t("How this was worked out")}

@@ -36,8 +36,6 @@ import { Plus, Trash2, Download, Route, Layers } from "lucide-react";
 import { useMarket } from "@/lib/international/market-context";
 import { usePriceBook } from "@/lib/pricing/price-book-context";
 import { applyPriceBook } from "@/lib/pricing/price-book";
-import { methodologyText } from "@/lib/calculatorMethodology";
-import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { unitShortLabel, unitToMeters } from "@/lib/utils";
 import type { Unit } from "@/types";
@@ -274,6 +272,7 @@ export default function ConduitWiringEstimator() {
       }
       bookSummary={bookSummary}
       onReset={resetInputs}
+      methodology="electrical"
       quoteTitle="FRELUX Electrical Material Estimate"
       quoteFooter="Material takeoff only, not a circuit design. Circuit sizing, earthing and breaker ratings are the electrician's design."
       proCallout={{
@@ -724,5 +723,4 @@ export default function ConduitWiringEstimator() {
       }
     />
   );
-  <HowCalculatedSection methodologyText={methodologyText("electrical")} />;
 }

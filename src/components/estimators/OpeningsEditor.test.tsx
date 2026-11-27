@@ -40,16 +40,29 @@ describe("OpeningsEditor", () => {
     expect(next[0].widthM).toBeCloseTo(1.2192, 4);
   });
 
+  it("supports centimetre input while keeping opening geometry in metres", () => {
+    const { onChange } = setup({ unitSystem: "centimeters" });
+    const width = screen.getByLabelText("Opening width");
+    expect(width).toHaveValue(120);
+    fireEvent.change(width, { target: { value: "150" } });
+    const next = onChange.mock.calls[0][0] as OpeningRow[];
+    expect(next[0].widthM).toBeCloseTo(1.5, 6);
+  });
+
   it("removes a row", () => {
     const { onChange } = setup();
-    fireEvent.click(screen.getByRole("button", { name: /remove front window/i }));
+    fireEvent.click(
+      screen.getByRole("button", { name: /remove front window/i }),
+    );
     expect(onChange).toHaveBeenCalledWith([]);
   });
 
   it("shows the empty hint when there are no openings", () => {
     setup({ openings: [] });
     expect(
-      screen.getByText(/no openings added\. wall is calculated as solid perimeter/i),
+      screen.getByText(
+        /no openings added\. wall is calculated as solid perimeter/i,
+      ),
     ).toBeInTheDocument();
   });
 
@@ -57,19 +70,25 @@ describe("OpeningsEditor", () => {
     setup({
       openings: [{ id: "z", label: "Zero", widthM: 0, heightM: 1, count: 1 }],
     });
-    expect(screen.getByText(/need a width, height and quantity above zero/i)).toBeInTheDocument();
+    expect(
+      screen.getByText(/need a width, height and quantity above zero/i),
+    ).toBeInTheDocument();
   });
 
   it("hides the add button when the host engine cannot accept new kinds", () => {
     setup({ mode: "locked", allowAdd: false });
-    expect(screen.queryByRole("button", { name: /add opening/i })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: /add opening/i }),
+    ).not.toBeInTheDocument();
   });
 
   it("locks the size cells in count mode and keeps the quantity editable", () => {
     const { onChange } = setup({ mode: "locked" });
     expect(screen.getByText(/1\.2 x 1\.2 m fixed/)).toBeInTheDocument();
     expect(screen.queryByLabelText("Opening width")).not.toBeInTheDocument();
-    fireEvent.change(screen.getByLabelText("Opening count"), { target: { value: "3" } });
+    fireEvent.change(screen.getByLabelText("Opening count"), {
+      target: { value: "3" },
+    });
     const next = onChange.mock.calls[0][0] as OpeningRow[];
     expect(next[0].count).toBe(3);
     expect(next[0].widthM).toBe(1.2);

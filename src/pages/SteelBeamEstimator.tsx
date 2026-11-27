@@ -32,8 +32,6 @@ import { track } from "@/lib/analytics";
 import { useMarket } from "@/lib/international/market-context";
 import { usePriceBook } from "@/lib/pricing/price-book-context";
 import { applyPriceBook } from "@/lib/pricing/price-book";
-import { methodologyText } from "@/lib/calculatorMethodology";
-import HowCalculatedSection from "@/components/calculators/HowCalculatedSection";
 import UnitToggle from "@/components/measurement/UnitToggle";
 import { unitShortLabel, unitToMeters } from "@/lib/utils";
 import type { Unit } from "@/types";
@@ -138,6 +136,7 @@ export default function SteelBeamEstimator() {
         setOverrides((prev) => ({ ...prev, [slug]: value }))
       }
       bookSummary={bookSummary}
+      methodology="structural"
       quoteTitle="FRELUX Structural Steel Estimate"
       quoteFooter="Material mass and indicative cost only. Open spans over 8 m need a structural engineer's deflection check before fabrication."
       crossLinks={[
@@ -262,5 +261,4 @@ export default function SteelBeamEstimator() {
       }
     />
   );
-  <HowCalculatedSection methodologyText={methodologyText("structural")} />;
 }
