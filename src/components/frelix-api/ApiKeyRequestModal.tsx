@@ -409,17 +409,18 @@ export default function ApiKeyRequestModal({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold mb-2">
+              <span id="permission-scopes-label" className="block text-xs font-semibold mb-2">
                 Permission Scopes
-              </label>
-              <div className="grid gap-2.5 sm:grid-cols-2">
+              </span>
+              <div role="group" aria-labelledby="permission-scopes-label" className="grid gap-2.5 sm:grid-cols-2">
                 {AVAILABLE_SCOPES.map((scope) => {
                   const checked = selectedScopes.includes(scope.id);
                   return (
-                    <div
+                    <button
+                      type="button"
                       key={scope.id}
                       onClick={() => handleScopeToggle(scope.id)}
-                      className={`cursor-pointer rounded-xl border p-3 transition-all ${
+                      className={`text-left cursor-pointer rounded-xl border p-3 transition-all ${
                         checked
                           ? "border-primary bg-primary/5 ring-1 ring-primary"
                           : "border-border bg-background hover:border-primary/40"
@@ -429,15 +430,18 @@ export default function ApiKeyRequestModal({
                         <span className="text-xs font-bold">{scope.title}</span>
                         <input
                           type="checkbox"
+                          id={`scope-${scope.id}`}
+                          aria-label={scope.title}
                           checked={checked}
                           onChange={() => {}}
-                          className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+                          tabIndex={-1}
+                          className="h-4 w-4 rounded border-border text-primary focus:ring-primary pointer-events-none"
                         />
                       </div>
                       <p className="text-[11px] text-muted-foreground leading-relaxed">
                         {scope.desc}
                       </p>
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -472,10 +476,11 @@ export default function ApiKeyRequestModal({
                 const needsUpgrade = plan.key !== "free" && !isUserCurrent;
 
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={plan.key}
                     onClick={() => setSelectedPlan(plan.key)}
-                    className={`cursor-pointer rounded-xl border p-4 transition-all flex flex-col justify-between ${
+                    className={`text-left cursor-pointer rounded-xl border p-4 transition-all flex flex-col justify-between ${
                       isSelected
                         ? "border-primary bg-primary/5 ring-1 ring-primary"
                         : "border-border bg-background hover:border-primary/40"
@@ -520,7 +525,7 @@ export default function ApiKeyRequestModal({
                         <span>Requires subscription upgrade</span>
                       </div>
                     )}
-                  </div>
+                  </button>
                 );
               })}
             </div>
