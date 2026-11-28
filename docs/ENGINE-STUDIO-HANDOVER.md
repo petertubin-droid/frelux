@@ -137,6 +137,47 @@ product should keep the full number at all rather than a hash plus last four.
 Those are the owner's calls, and half-building this would break the editor
 without protecting anything.
 
+## Messaging screen, offline reach and alerts (28 November 2026)
+
+Three things the owner asked for after using the page on a phone.
+
+**1. Opening a conversation threw the view to the footer.** `loadMessages` ended
+with `messagesEndRef.current.scrollIntoView()`, which walks up to the nearest
+scrollable ancestor and, because the page is taller than the viewport, scrolls
+the window too. The thread now scrolls itself: `messagesBodyRef` plus
+`scrollThreadToEnd()` setting `scrollTop`, `overscroll-contain` on the list so a
+scroll cannot chain to the page, and `window.scrollTo({ top: 0 })` when a
+conversation opens so the view is pinned where the thread is.
+
+**2. The thread is full screen and borderless.** An open conversation is
+`fixed inset-0` on a phone and, from `lg`, a static column whose height is
+measured against the viewport (`threadHeight`, from the element's own top edge)
+rather than guessed with a `calc()` that would need the header and breadcrumb
+heights. The empty state keeps its card chrome, because there it is a
+placeholder rather than the page.
+
+**3. An email route, and alerts.** A professional who is offline cannot answer a
+platform message, so the profile now offers `mailto:` with the subject and
+opening line prefilled. The address comes from `get_pro_public_email(p_slug)`
+(migration `20261128100000`), which returns it only when the professional has
+published one (`contact_email_public`) and is listed. It is deliberately NOT
+escrow-gated like `get_pro_public_phone`: the escrow gate protects a phone
+number because it rings a person, while email is opt-in, asynchronous and the
+same channel the contact form already uses. That is a product decision, written
+into the migration so it is not "fixed" later by accident.
+
+Alerts live in `src/lib/notifications/message-alerts.ts`: opt-in per browser,
+off by default, only while the page is hidden or unfocused, never for your own
+message, tagged per thread so repeats collapse into one bubble. The bell in the
+thread header asks for permission on click, because a browser ignores a
+permission request with no gesture, and a refusal leaves the toggle off with a
+message saying why.
+
+Verified: 276 tests across src/pages/pro-connect, src/lib/notifications and
+src/lib/__tests__ in 40 files, tsc and eslint clean. The email RPC was exercised
+both ways in production with the write rolled back: no opt-in returns null, and a
+listed professional with the flag set returns their address.
+
 ## Worker redeployed: the CORS preflight fix is live (28 November 2026)
 
 The preflight fix had been merged since aac35e8f and never deployed, so the live

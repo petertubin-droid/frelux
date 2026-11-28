@@ -17,6 +17,8 @@ import {
   X,
   FileText,
   Loader2,
+  Bell,
+  BellOff,
 } from "lucide-react";
 import {
   getConversationById,
@@ -25,6 +27,15 @@ import {
   getMessagesChecked,
   markMessagesRead,
 } from "@/lib/pro-connect";
+import {
+  ensureAlertPermission,
+  getMessageAlertsEnabled,
+  messageAlertsSupported,
+  pageIsHidden,
+  setMessageAlertsEnabled,
+  shouldAlertForMessage,
+  showMessageAlert,
+} from "@/lib/notifications/message-alerts";
 import type { DbProConversation, DbProMessage } from "@/types/pro-connect";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/lib/supabase";
@@ -92,6 +103,18 @@ export default function Messages() {
   const [uploadingAttachment, setUploadingAttachment] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  // The scrollable thread. Scrolling is scoped to this element: the page itself
+  // must never move, or opening a conversation lands the viewport on the footer.
+  const messagesBodyRef = useRef<HTMLDivElement>(null);
+  const threadRef = useRef<HTMLDivElement>(null);
+  const activeConvoName = useRef<string>("");
+  // Height for the desktop thread, measured against the viewport so the panel
+  // fills the screen without guessing the header height.
+  const [threadHeight, setThreadHeight] = useState<number | null>(null);
+  // Desktop alerts for replies that land while the site is in the background.
+  // Off until the person asks for them; the browser's permission is the gate.
+  const [alertsOn, setAlertsOn] = useState(() => getMessageAlertsEnabled());
+  const alertsSupported = messageAlertsSupported();
 
   useEffect(() => {
     if (!user) return;
@@ -155,6 +178,28 @@ export default function Messages() {
           if (newMsg.sender_id !== user.id && !newMsg.is_read) {
             markMessagesRead(conversationId);
           }
+          // The thread is subscribed, so this is the moment a reply arrives.
+          // Alert only when the site is not in front of the person.
+          if (
+            shouldAlertForMessage({
+              enabled: getMessageAlertsEnabled(),
+              senderIsSelf: newMsg.sender_id === user.id,
+              hidden: pageIsHidden(),
+            })
+          ) {
+            const name =
+              newMsg.sender_id === user.id
+                ? t("You")
+                : activeConvoName.current || t("New message");
+            showMessageAlert({
+              title: name,
+              body: newMsg.body?.slice(0, 140) || t("Sent you a message"),
+              tag: conversationId,
+              onClick: () => {
+                navigate(`/messages/${conversationId}`);
+              },
+            });
+          }
         },
       )
       .subscribe();
@@ -163,6 +208,60 @@ export default function Messages() {
       supabase.removeChannel(channel);
     };
   }, [conversationId, user]);
+
+  /**
+   * Scroll the thread, not the page.
+   *
+   * `scrollIntoView` walks up to the nearest scrollable ancestor and, when the
+   * page is taller than the viewport, scrolls the window too. That is what put
+   * the footer on screen when a conversation opened. Setting scrollTop on the
+   * thread keeps the page exactly where the person left it.
+   */
+  function scrollThreadToEnd(behavior: ScrollBehavior = "smooth") {
+    const el = messagesBodyRef.current;
+    if (!el) return;
+    if (typeof el.scrollTo === "function") {
+      el.scrollTo({ top: el.scrollHeight, behavior });
+    } else {
+      el.scrollTop = el.scrollHeight;
+    }
+  }
+
+  // Opening a conversation pins the view to the top of the page, where the
+  // thread is, instead of leaving the browser's scroll position to decide.
+  useEffect(() => {
+    if (!conversationId) return;
+    if (typeof window !== "undefined" && typeof window.scrollTo === "function") {
+      window.scrollTo({ top: 0, behavior: "auto" });
+    }
+  }, [conversationId]);
+
+  // Measure the space below the thread's top edge so it can fill the viewport.
+  // A fixed calc() would need the header and breadcrumb heights, which change
+  // with the page, so the height is read from the element itself.
+  useEffect(() => {
+    if (!conversationId) {
+      setThreadHeight(null);
+      return;
+    }
+    const measure = () => {
+      const el = threadRef.current;
+      if (!el) return;
+      const desktop =
+        typeof window !== "undefined" &&
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(min-width: 1024px)").matches;
+      if (!desktop) {
+        setThreadHeight(null);
+        return;
+      }
+      const top = el.getBoundingClientRect().top;
+      setThreadHeight(Math.max(420, Math.round(window.innerHeight - top - 16)));
+    };
+    measure();
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [conversationId, activeConvo]);
 
   async function loadMessages(convoId: string) {
     setLoadingMessages(true);
@@ -193,7 +292,7 @@ export default function Messages() {
     setLoadingMessages(false);
     await markMessagesRead(convoId);
     setTimeout(() => {
-      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      scrollThreadToEnd("auto");
     }, 100);
   }
 
@@ -356,6 +455,8 @@ export default function Messages() {
   const otherPartySlug =
     activeConvo?.other_party?.slug || activeConvo?.professional?.slug || null;
 
+  activeConvoName.current = activeConvo ? getDisplayName(activeConvo) : "";
+
   return (
     <>
       <PageHeader
@@ -512,10 +613,22 @@ export default function Messages() {
 
           {/* Active Conversation Thread (8 cols on lg) */}
           <div
+            ref={threadRef}
             className={classNames(
-              "flex flex-col rounded-2xl border border-border/80 bg-card shadow-sm dark:border-white/10 dark:bg-card lg:col-span-8",
-              conversationId ? "flex" : "hidden lg:flex",
+              "flex flex-col bg-card dark:bg-card",
+              // An open thread is the thing being used, so it gets the screen:
+              // full-bleed on a phone, and a borderless panel that fills the
+              // viewport on a desktop. The empty state keeps the card chrome,
+              // because there it is a placeholder rather than the page.
+              conversationId
+                ? "fixed inset-0 z-40 lg:static lg:z-auto lg:col-span-8"
+                : "hidden rounded-2xl border border-border/80 shadow-sm dark:border-white/10 lg:col-span-8 lg:flex",
             )}
+            style={
+              conversationId && threadHeight
+                ? { height: `${threadHeight}px` }
+                : undefined
+            }
           >
             {activeConvo ? (
               <>
@@ -573,6 +686,53 @@ export default function Messages() {
 
                   {/* Header Actions */}
                   <div className="flex items-center gap-2">
+                    {alertsSupported && (
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          if (alertsOn) {
+                            setMessageAlertsEnabled(false);
+                            setAlertsOn(false);
+                            return;
+                          }
+                          const granted = await ensureAlertPermission();
+                          if (!granted) {
+                            setSendError(
+                              t("This browser blocked notifications. Allow them for freluxtools.com in your browser settings."),
+                            );
+                            return;
+                          }
+                          setMessageAlertsEnabled(true);
+                          setAlertsOn(true);
+                        }}
+                        aria-pressed={alertsOn}
+                        aria-label={
+                          alertsOn
+                            ? t("Turn off message alerts")
+                            : t("Alert me when a reply arrives")
+                        }
+                        title={
+                          alertsOn
+                            ? t("Alerts on for replies that arrive while this tab is in the background")
+                            : t("Get a desktop alert when a reply arrives")
+                        }
+                        className={classNames(
+                          "inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors",
+                          alertsOn
+                            ? "border-primary/40 bg-primary/10 text-primary"
+                            : "border-border/80 text-muted-foreground hover:bg-muted dark:border-white/10",
+                        )}
+                      >
+                        {alertsOn ? (
+                          <Bell className="h-3.5 w-3.5" />
+                        ) : (
+                          <BellOff className="h-3.5 w-3.5" />
+                        )}
+                        <span className="hidden sm:inline">
+                          {alertsOn ? t("Alerts on") : t("Alerts off")}
+                        </span>
+                      </button>
+                    )}
                     {otherPartySlug && (
                       <Link
                         to={`/pro-connect/${otherPartySlug}/`}
@@ -587,8 +747,8 @@ export default function Messages() {
 
                 {/* Messages Body */}
                 <div
-                  className="flex-1 overflow-y-auto p-4 space-y-4"
-                  style={{ maxHeight: "calc(100vh - 360px)", minHeight: "360px" }}
+                  ref={messagesBodyRef}
+                  className="min-h-0 flex-1 overflow-y-auto overscroll-contain p-4 space-y-4"
                 >
                   {loadingMessages ? (
                     <div className="space-y-3">

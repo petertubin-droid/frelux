@@ -146,6 +146,91 @@ describe("Pro Connect messages", () => {
     expect(input).toHaveValue("Can you help with this job?");
   });
 
+  describe("opening a conversation", () => {
+    it("keeps the page still and scrolls the thread, not the window", async () => {
+      conversations.list = [convo];
+      const windowScroll = vi.fn();
+      vi.stubGlobal("scrollTo", windowScroll);
+      const bodyScroll = vi.fn();
+      const original = Element.prototype.scrollTo;
+      Element.prototype.scrollTo = bodyScroll as never;
+
+      try {
+        renderAt("/messages/convo-1");
+        await screen.findByPlaceholderText("Type a message...");
+
+        // The view is pinned to the top of the page, where the thread is.
+        expect(windowScroll).toHaveBeenCalledWith({ top: 0, behavior: "auto" });
+        // The thread scrolls itself. `scrollIntoView` used to bubble to the
+        // document and leave the viewport on the footer.
+        await waitFor(() => expect(bodyScroll).toHaveBeenCalled());
+        expect(windowScroll).not.toHaveBeenCalledWith(
+          expect.objectContaining({ behavior: "smooth" }),
+        );
+      } finally {
+        Element.prototype.scrollTo = original;
+        vi.unstubAllGlobals();
+      }
+    });
+  });
+
+  describe("desktop alerts", () => {
+    it("are hidden when the browser has no Notification API", async () => {
+      conversations.list = [convo];
+      renderAt("/messages/convo-1");
+      await screen.findByPlaceholderText("Type a message...");
+      expect(
+        screen.queryByRole("button", { name: /alert me when a reply arrives/i }),
+      ).not.toBeInTheDocument();
+    });
+
+    it("turn on only after permission is granted, and stay on", async () => {
+      conversations.list = [convo];
+      class FakeNotification {
+        static permission = "default" as NotificationPermission;
+        static requestPermission = vi.fn(async () => "granted" as NotificationPermission);
+      }
+      vi.stubGlobal("Notification", FakeNotification);
+      localStorage.removeItem("frelux:message-alerts");
+
+      renderAt("/messages/convo-1");
+      const toggle = await screen.findByRole("button", {
+        name: /alert me when a reply arrives/i,
+      });
+      fireEvent.click(toggle);
+
+      await waitFor(() =>
+        expect(
+          screen.getByRole("button", { name: /turn off message alerts/i }),
+        ).toBeInTheDocument(),
+      );
+      expect(localStorage.getItem("frelux:message-alerts")).toBe("on");
+      expect(FakeNotification.requestPermission).toHaveBeenCalledTimes(1);
+      vi.unstubAllGlobals();
+    });
+
+    it("stay off and explain when permission is refused", async () => {
+      conversations.list = [convo];
+      class FakeNotification {
+        static permission = "default" as NotificationPermission;
+        static requestPermission = vi.fn(async () => "denied" as NotificationPermission);
+      }
+      vi.stubGlobal("Notification", FakeNotification);
+      localStorage.removeItem("frelux:message-alerts");
+
+      renderAt("/messages/convo-1");
+      fireEvent.click(
+        await screen.findByRole("button", { name: /alert me when a reply arrives/i }),
+      );
+
+      await waitFor(() =>
+        expect(screen.getByRole("alert")).toHaveTextContent(/blocked notifications/i),
+      );
+      expect(localStorage.getItem("frelux:message-alerts")).toBeNull();
+      vi.unstubAllGlobals();
+    });
+  });
+
   describe("a message that was sent stays on screen", () => {
     const sent = {
       id: "msg-1",

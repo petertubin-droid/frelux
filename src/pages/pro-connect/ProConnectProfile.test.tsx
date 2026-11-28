@@ -68,6 +68,7 @@ vi.mock("@/lib/pro-connect", async () => {
     getProReviews: vi.fn().mockResolvedValue([]),
     getPublicCredentials: vi.fn().mockResolvedValue([]),
     fetchProSettings: vi.fn().mockResolvedValue(null),
+    getProPublicEmail: vi.fn().mockResolvedValue(null),
   };
 });
 
@@ -89,6 +90,12 @@ beforeEach(() => {
   mockUser = null;
 });
 
+/** Each test states whether the professional published an address. */
+async function mockPublicEmail(email: string | null) {
+  const lib = await import("@/lib/pro-connect");
+  vi.mocked(lib.getProPublicEmail).mockResolvedValue(email);
+}
+
 async function renderPage() {
   const Comp = (await import("@/pages/pro-connect/ProConnectProfile")).default;
   return render(
@@ -109,6 +116,30 @@ describe("ProConnectProfile", () => {
       expect(screen.getByText("Adeola Adeleke")).toBeInTheDocument();
     });
     expect(container.innerHTML).not.toBe("");
+  });
+
+  it("offers an email route when the professional published one", async () => {
+    // The worker may be offline, and a platform message then reaches nobody.
+    await mockPublicEmail("adeola@builds.example");
+    await renderPage();
+
+    const emailLink = await screen.findByRole("link", { name: /^Email$/i });
+    expect(emailLink).toHaveAttribute(
+      "href",
+      expect.stringContaining("mailto:adeola@builds.example"),
+    );
+    // The subject and body are prefilled so the message arrives with context.
+    expect(emailLink.getAttribute("href")).toContain("subject=");
+  });
+
+  it("shows no email route when the professional has not published one", async () => {
+    await mockPublicEmail(null);
+    await renderPage();
+
+    await waitFor(() =>
+      expect(screen.getByText("Adeola Adeleke")).toBeInTheDocument(),
+    );
+    expect(screen.queryByRole("link", { name: /^Email$/i })).not.toBeInTheDocument();
   });
 
   it("opens quick message modal when clicking message button as authenticated customer", async () => {

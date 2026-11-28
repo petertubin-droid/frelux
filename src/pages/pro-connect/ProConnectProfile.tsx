@@ -11,6 +11,7 @@ import {
   MessageSquare,
   Phone,
   MessageCircle,
+  Mail,
   Flag,
 } from "lucide-react";
 import {
@@ -19,6 +20,7 @@ import {
   getProProfileLocations,
   getProPortfolio,
   getProReviews,
+  getProPublicEmail,
   createReport,
   createReview,
 } from "@/lib/pro-connect";
@@ -78,6 +80,9 @@ export default function ProConnectProfile() {
   // professional has published contact_phone_public, so the column itself
   // never reaches the browser.
   const [publicPhone, setPublicPhone] = useState<string | null>(null);
+  // The published address, for the professional who is not online to answer a
+  // platform message. Null unless they opted in (contact_email_public).
+  const [publicEmail, setPublicEmail] = useState<string | null>(null);
   const [profile, setProfile] = useState<DbProProfile | null>(null);
   const [services, setServices] = useState<DbProService[]>([]);
   const [locations, setLocations] = useState<DbProLocation[]>([]);
@@ -124,6 +129,7 @@ export default function ProConnectProfile() {
         p_slug: slug,
       });
       setPublicPhone(typeof phone === "string" ? phone : null);
+      getProPublicEmail(slug).then(setPublicEmail).catch(() => setPublicEmail(null));
       setLoading(false);
     })();
   }, [slug]);
@@ -382,6 +388,20 @@ export default function ProConnectProfile() {
                     <MessageSquare className="h-4 w-4" />
                     {t("Message this professional")}
                   </Button>
+                  {!isOwner && publicEmail && (
+                    <a
+                      href={`mailto:${publicEmail}?subject=${encodeURIComponent(
+                        `Job enquiry from FRELUX Pro Connect`,
+                      )}&body=${encodeURIComponent(
+                        `Hello ${profile.display_name},\n\nI found you on FRELUX Pro Connect and would like to discuss a job.\n\n`,
+                      )}`}
+                      className="inline-flex items-center gap-2 rounded-lg border border-border px-5 py-3 text-sm font-semibold transition-colors hover:bg-muted"
+                      title={t("Reaches them even when they are offline")}
+                    >
+                      <Mail className="h-4 w-4" />
+                      {t("Email")}
+                    </a>
+                  )}
                   {contactNumber && (
                     <>
                       <a

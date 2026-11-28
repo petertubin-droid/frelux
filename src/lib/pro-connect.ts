@@ -1078,6 +1078,28 @@ export async function getMyConversations(): Promise<DbProConversation[]> {
   return [];
 }
 
+/**
+ * The published contact email for a listed professional, or null.
+ *
+ * Deliberately not escrow-gated like the phone number: this is the address the
+ * professional opted to publish (contact_email_public) and the one channel that
+ * still reaches them when they are not signed in to answer a platform message.
+ * The address lives on profiles, which a visitor cannot read, so the RPC is the
+ * only door.
+ */
+export async function getProPublicEmail(slug: string): Promise<string | null> {
+  if (!isSupabaseConfigured || !slug) return null;
+  const { data, error } = await supabase.rpc("get_pro_public_email", {
+    p_slug: slug,
+  });
+  if (error) {
+    if (import.meta.env.DEV)
+      console.error("[pro-connect] get_pro_public_email:", error.message);
+    return null;
+  }
+  return typeof data === "string" && data.includes("@") ? data : null;
+}
+
 export async function getMessages(
   conversationId: string,
 ): Promise<DbProMessage[]> {
