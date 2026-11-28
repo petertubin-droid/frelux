@@ -273,7 +273,7 @@ export async function getProReviews(
     .select("*")
     .eq("professional_id", professionalId)
     .eq("is_hidden", false)
-    .order("created_at DESC");
+    .order("created_at", { ascending: false });
   if (error) {
     if (import.meta.env.DEV)
       console.error("[pro-connect] getProReviews:", error.message);
@@ -1081,18 +1081,31 @@ export async function getMyConversations(): Promise<DbProConversation[]> {
 export async function getMessages(
   conversationId: string,
 ): Promise<DbProMessage[]> {
-  if (!isSupabaseConfigured) return [];
+  const result = await getMessagesChecked(conversationId);
+  return result.ok ? result.messages : [];
+}
+
+/**
+ * Same read as getMessages, but it says whether the read worked. An empty list
+ * and a failed read look identical to getMessages, and that difference is what
+ * let a blank thread replace a message the sender had just seen appear: the
+ * caller must be able to tell "no messages" from "could not load".
+ */
+export async function getMessagesChecked(
+  conversationId: string,
+): Promise<{ ok: true; messages: DbProMessage[] } | { ok: false; messages: [] }> {
+  if (!isSupabaseConfigured) return { ok: false, messages: [] };
   const { data, error } = await supabase
     .from("pro_messages")
     .select("*")
     .eq("conversation_id", conversationId)
-    .order("created_at ASC");
+    .order("created_at", { ascending: true });
   if (error) {
     if (import.meta.env.DEV)
       console.error("[pro-connect] getMessages:", error.message);
-    return [];
+    return { ok: false, messages: [] };
   }
-  return data as DbProMessage[];
+  return { ok: true, messages: (data ?? []) as DbProMessage[] };
 }
 
 export async function sendMessage(
@@ -1516,7 +1529,7 @@ export async function getMyVerificationRequests(
     .from("pro_verification_requests")
     .select("*")
     .eq("profile_id", profileId)
-    .order("created_at DESC");
+    .order("created_at", { ascending: false });
   if (error) {
     if (import.meta.env.DEV)
       console.error("[pro-connect] getMyVerificationRequests:", error.message);
@@ -1534,7 +1547,7 @@ export async function getAllVerificationRequests(
     .select(
       "*, profile:pro_profiles(display_name, slug, business_name, category_id)",
     )
-    .order("created_at DESC");
+    .order("created_at", { ascending: false });
   if (status) query = query.eq("status", status);
   const { data, error } = await query;
   if (error) {
@@ -1719,7 +1732,7 @@ export async function getVerificationLogs(
     .from("pro_verification_logs")
     .select("*")
     .eq("profile_id", profileId)
-    .order("created_at DESC");
+    .order("created_at", { ascending: false });
   if (error) {
     if (import.meta.env.DEV)
       console.error("[pro-connect] getVerificationLogs:", error.message);
@@ -1738,7 +1751,7 @@ export async function getCredentials(
     .from("pro_credentials")
     .select("*")
     .eq("profile_id", profileId)
-    .order("created_at DESC");
+    .order("created_at", { ascending: false });
   if (error) {
     if (import.meta.env.DEV)
       console.error("[pro-connect] getCredentials:", error.message);
@@ -2164,7 +2177,7 @@ export async function getVerificationDocuments(
     .from("pro_verification_documents")
     .select("*")
     .eq("profile_id", profileId)
-    .order("uploaded_at DESC");
+    .order("uploaded_at", { ascending: false });
   if (error) {
     if (import.meta.env.DEV)
       console.error("[pro-connect] getVerificationDocuments:", error.message);
@@ -2221,7 +2234,7 @@ export async function getAdminVerificationDocuments(
     .from("pro_verification_documents")
     .select("*")
     .eq("profile_id", profileId)
-    .order("uploaded_at DESC");
+    .order("uploaded_at", { ascending: false });
   if (error) {
     if (import.meta.env.DEV)
       console.error(

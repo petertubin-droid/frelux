@@ -1171,8 +1171,8 @@ function AdminReportsTab() {
     (async () => {
       setLoading(true);
       const [proData, workerData] = await Promise.all([
-        supabase.from("pro_reports").select("*").order("created_at DESC"),
-        supabase.from("worker_reports").select("*").order("created_at DESC"),
+        supabase.from("pro_reports").select("*").order("created_at", { ascending: false }),
+        supabase.from("worker_reports").select("*").order("created_at", { ascending: false }),
       ]);
       setReports((proData.data || []) as DbProReport[]);
       setWorkerReports((workerData.data || []) as typeof workerReports);
@@ -1198,7 +1198,7 @@ function AdminReportsTab() {
     const { data } = await supabase
       .from("pro_reports")
       .select("*")
-      .order("created_at DESC");
+      .order("created_at", { ascending: false });
     setReports((data || []) as DbProReport[]);
   }
 
@@ -1220,7 +1220,7 @@ function AdminReportsTab() {
     const { data } = await supabase
       .from("worker_reports")
       .select("*")
-      .order("created_at DESC");
+      .order("created_at", { ascending: false });
     setWorkerReports((data || []) as typeof workerReports);
   }
 
@@ -1526,7 +1526,7 @@ function AdminReviewsTab() {
       const { data } = await supabase
         .from("pro_reviews")
         .select("*")
-        .order("created_at DESC")
+        .order("created_at", { ascending: false })
         .limit(50);
       setReviews((data || []) as typeof reviews);
       setLoading(false);

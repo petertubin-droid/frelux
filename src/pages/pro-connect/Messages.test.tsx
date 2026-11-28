@@ -41,6 +41,7 @@ vi.mock("@/lib/pro-connect", () => ({
   getMyConversations: vi.fn(async () => conversations.list),
   getConversationById: vi.fn(async () => conversations.byId),
   getMessages: vi.fn(async () => []),
+  getMessagesChecked: vi.fn(async () => ({ ok: true, messages: [] })),
   sendMessage: vi.fn(),
   markMessagesRead: vi.fn(),
 }));
@@ -143,6 +144,70 @@ describe("Pro Connect messages", () => {
 
     await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("Not enough FRELUX Credits"));
     expect(input).toHaveValue("Can you help with this job?");
+  });
+
+  describe("a message that was sent stays on screen", () => {
+    const sent = {
+      id: "msg-1",
+      conversation_id: "convo-1",
+      sender_id: "cust-1",
+      body: "Hello there",
+      created_at: "2026-11-28T07:15:46.000Z",
+      is_read: false,
+    };
+
+    /**
+     * Opens the thread with an ordinary successful first read, then sends, and
+     * only then switches the read to `afterSend`. The first read has to succeed
+     * for the thread to open at all; it is the read that follows the send that
+     * the recording showed going wrong.
+     */
+    async function sendHello(afterSend: { ok: boolean; messages: unknown[] }) {
+      conversations.list = [convo];
+      const lib = await import("@/lib/pro-connect");
+      vi.mocked(lib.getMessagesChecked).mockResolvedValue({ ok: true, messages: [] });
+      vi.mocked(lib.sendMessage).mockResolvedValue(sent);
+      renderAt("/messages/convo-1");
+      const input = await screen.findByPlaceholderText("Type a message...");
+      vi.mocked(lib.getMessagesChecked).mockResolvedValue(afterSend as never);
+      fireEvent.change(input, { target: { value: "Hello there" } });
+      fireEvent.click(screen.getByRole("button", { name: /send/i }));
+      return lib;
+    }
+
+    // The recording showed credits charged (59 to 54), the row saved in the
+    // database, and a thread that still said "Start the conversation". The
+    // send worked; the read that follows it came back empty and replaced the
+    // list, erasing the message the sender had just seen appear.
+    it("when the read after sending comes back empty", async () => {
+      const lib = await sendHello({ ok: true, messages: [] });
+      expect(await screen.findByText("Hello there")).toBeInTheDocument();
+      await waitFor(() =>
+        expect(vi.mocked(lib.getMessagesChecked).mock.calls.length).toBeGreaterThan(1),
+      );
+      expect(screen.getByText("Hello there")).toBeInTheDocument();
+      expect(screen.queryByText("Start the conversation")).not.toBeInTheDocument();
+    });
+
+    it("when the read after sending fails outright", async () => {
+      const lib = await sendHello({ ok: false, messages: [] });
+      expect(await screen.findByText("Hello there")).toBeInTheDocument();
+      await waitFor(() =>
+        expect(vi.mocked(lib.getMessagesChecked).mock.calls.length).toBeGreaterThan(1),
+      );
+      expect(screen.getByText("Hello there")).toBeInTheDocument();
+      // A failed read is reported, not disguised as an empty conversation.
+      expect(screen.getByRole("alert")).toHaveTextContent(/could not refresh/i);
+    });
+
+    it("without duplicating it once the read does return it", async () => {
+      const lib = await sendHello({ ok: true, messages: [sent] });
+      await screen.findByText("Hello there");
+      await waitFor(() =>
+        expect(vi.mocked(lib.getMessagesChecked).mock.calls.length).toBeGreaterThan(1),
+      );
+      expect(screen.getAllByText("Hello there")).toHaveLength(1);
+    });
   });
 
   it("filters conversation list by search query", async () => {

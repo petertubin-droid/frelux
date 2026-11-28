@@ -21,8 +21,8 @@ import {
 import {
   getConversationById,
   getMyConversations,
-  getMessages,
   sendMessage,
+  getMessagesChecked,
   markMessagesRead,
 } from "@/lib/pro-connect";
 import type { DbProConversation, DbProMessage } from "@/types/pro-connect";
@@ -166,8 +166,30 @@ export default function Messages() {
 
   async function loadMessages(convoId: string) {
     setLoadingMessages(true);
-    const msgs = await getMessages(convoId);
-    setMessages(msgs);
+    const result = await getMessagesChecked(convoId);
+    if (result.ok) {
+      // Keep any message already on screen that the read has not caught up
+      // with yet (a send just landed and the list was fetched a moment
+      // earlier), so a fresh read can add to the thread but never erase it.
+      setMessages((current) => {
+        const loaded = new Set(result.messages.map((item) => item.id));
+        const pending = current.filter(
+          (item) => item.conversation_id === convoId && !loaded.has(item.id),
+        );
+        return pending.length > 0
+          ? [...result.messages, ...pending].sort((a, b) =>
+              a.created_at.localeCompare(b.created_at),
+            )
+          : result.messages;
+      });
+    } else {
+      // A failed read says nothing about what is in the thread. Leave what the
+      // sender can already see and tell them, instead of showing an empty
+      // conversation that looks like the message never went.
+      setSendError(
+        t("Could not refresh this conversation. Your messages are saved; reload to see the latest."),
+      );
+    }
     setLoadingMessages(false);
     await markMessagesRead(convoId);
     setTimeout(() => {

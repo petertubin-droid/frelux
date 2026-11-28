@@ -137,6 +137,46 @@ product should keep the full number at all rather than a hash plus last four.
 Those are the owner's calls, and half-building this would break the editor
 without protecting anything.
 
+## Pro Connect messages vanishing after send (28 November 2026)
+
+A screen recording showed the sender typing "Hello", pressing send, the credit
+balance dropping 59 to 54, and the thread still reading "Start the conversation".
+The message had been saved: it was in `pro_messages` at the recording's
+timestamp, alongside two earlier ones the owner also thought had failed. Sending
+worked. Reading did not.
+
+**Cause.** `getMessages` ordered with `.order("created_at ASC")`. supabase-js
+takes a column and an options object, so that string is sent as a column literally
+named `created_at ASC`, and production answers
+`42703: column pro_messages.created_at ASC does not exist`. The function treated
+the error as "no messages" and returned `[]`, and `loadMessages` then replaced
+the thread with that empty list, erasing the message `handleSend` had just
+appended. Reproduced against the live API: the app's query errors, the
+`created_at.asc` form returns the whole thread, and as the sender under RLS it
+returns all 8 messages including the recorded "Hello".
+
+**It was not only messages.** The same SQL-style string was in 13 queries: reviews,
+the member's and the admin's verification requests, verification logs, credentials,
+verification documents (member and admin), and the admin report queues for pro and
+worker reports and reviews. Every one errored and returned empty, so those lists
+have been blank, not slow. All 13 now use `.order("col", { ascending })`.
+
+**Two layers of fix.** The query is corrected, and `loadMessages` no longer lets a
+read erase what is on screen: `getMessagesChecked` distinguishes "no messages" from
+"could not load", a successful read is merged with any just-sent message it has not
+caught up with, and a failed read leaves the thread alone and tells the sender.
+
+**Guards.** Three regression tests in `Messages.test.tsx` reproduce the recording
+(empty read after send, failed read after send, no duplicate once the read returns
+it); reverting the merge makes two of them fail. `supabase-order-syntax.test.ts`
+reads the source and fails on any `.order("col DESC")`, because a type checker
+cannot see this and every mock-based test passes it.
+
+**Lesson.** A caller that turns a database error into an empty result turns a loud
+failure into a quiet one. Prefer returning the failure to the caller, as
+`getMessagesChecked` does, wherever "nothing" and "could not read" mean different
+things to the person looking at the screen.
+
 ## Things that are not engine work but are open
 
 These are tracked in conversation memory and are unrelated to the batches:
