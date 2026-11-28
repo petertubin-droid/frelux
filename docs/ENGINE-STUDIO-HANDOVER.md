@@ -137,6 +137,37 @@ product should keep the full number at all rather than a hash plus last four.
 Those are the owner's calls, and half-building this would break the editor
 without protecting anything.
 
+## Worker redeployed: the CORS preflight fix is live (28 November 2026)
+
+The preflight fix had been merged since aac35e8f and never deployed, so the live
+Worker still answered `access-control-allow-headers: authorization, content-type`
+and every browser call that carried `apikey` or `x-client-info` was blocked
+before it left the page. That, with the missing `api.freluxtools.com` in the
+CSP, was the whole of "Failed to send a request to the Edge Function".
+
+Deployed with a Cloudflare API token: `frelux-files`, version
+`56dcec60-affe-4a9b-8db4-f195758a1881`, after `tsc --noEmit` on the Worker and a
+`--dry-run` bundle. Both custom domains now answer the preflight with
+`authorization, content-type, apikey, x-client-info, x-client-version,
+x-client-hash, x-supabase-api-version` and
+`GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD`.
+
+Verified live after the deploy: `GET /health` on both hosts, and
+`GET /api/fn/price-index-api` through the gateway returning a real function
+response with `access-control-allow-origin: https://freluxtools.com`.
+
+The ad maker's function, `ad-from-url`, is on the Supabase-only list, so it is
+called directly rather than relayed, per the routing rule. Its auth gate was
+exercised: no token returns 401, a valid non-admin token returns 403, so the
+function is reached and its admin check works. The happy path needs a real admin
+session; a temporary account could not be promoted because
+`prevent_role_escalation` blocks a role change made without an admin actor, which
+is the right behaviour and was left alone. One admin click on the House Promos
+tab is the remaining check.
+
+Also confirmed while there: all 100 edge functions are ACTIVE, and no test
+accounts were left behind.
+
 ## Pro Connect messages vanishing after send (28 November 2026)
 
 A screen recording showed the sender typing "Hello", pressing send, the credit
