@@ -11,8 +11,6 @@
 import React, { useState, useMemo } from "react";
 import {
   Key,
-  Shield,
-  Zap,
   CheckCircle2,
   Copy,
   Check,
@@ -164,8 +162,9 @@ export default function ApiKeyRequestModal({
       return plans
         .filter((p) => p.active && p.key !== "custom")
         .map((p) => {
+          const rawPlan = p as unknown as Record<string, unknown>;
           const cfg = (p.config ?? {}) as Record<string, unknown>;
-          const priceMonthly = cfg.priceMonthly ?? (p as any).priceMonthly;
+          const priceMonthly = cfg.priceMonthly ?? rawPlan.priceMonthly;
           const isPaid = typeof priceMonthly === "number" && priceMonthly > 0;
           const isFree = priceMonthly === 0;
           const priceStr = isPaid
@@ -179,10 +178,10 @@ export default function ApiKeyRequestModal({
               ? "forever"
               : "contact sales";
 
-          const mQuota = cfg.monthlyQuota ?? (p as any).monthlyQuota;
+          const mQuota = cfg.monthlyQuota ?? rawPlan.monthlyQuota;
           const rLimit =
-            cfg.rateLimitPerMinute ?? (p as any).rateLimitPerMinute;
-          const dQuota = cfg.dailyQuota ?? (p as any).dailyQuota;
+            cfg.rateLimitPerMinute ?? rawPlan.rateLimitPerMinute;
+          const dQuota = cfg.dailyQuota ?? rawPlan.dailyQuota;
 
           const monthlyQuotaStr = mQuota
             ? `${Number(mQuota).toLocaleString()} req/mo`
